@@ -27,7 +27,8 @@ func InitializeServer() *server.Server {
 	service := user2.NewService(repository)
 	applicationUser := application.NewUser(repository, service)
 	handlerUser := handler.NewUserHandler(applicationUser)
-	routerRouter := router.NewRouter(handlerUser)
+	healthCheck := handler.NewHealthCheck()
+	routerRouter := router.NewRouter(handlerUser, healthCheck)
 	serverServer := server.NewServer(engine, routerRouter)
 	return serverServer
 }
@@ -44,6 +45,6 @@ var ServiceSet = wire.NewSet(user2.NewService)
 
 var AppSet = wire.NewSet(application.NewUser)
 
-var HandlerSet = wire.NewSet(handler.NewUserHandler)
+var HandlerSet = wire.NewSet(handler.NewUserHandler, handler.NewHealthCheck)
 
 var RouterSet = wire.NewSet(router.NewRouter)

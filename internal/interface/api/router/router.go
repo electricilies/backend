@@ -11,16 +11,19 @@ type Router interface {
 }
 
 type router struct {
-	userHandler handler.User
+	userHandler  handler.User
+	healthHanler handler.HealthCheck
 }
 
-func NewRouter(userHandler handler.User) Router {
+func NewRouter(userHandler handler.User, healthCheckHandler handler.HealthCheck) Router {
 	return &router{
-		userHandler: userHandler,
+		userHandler:  userHandler,
+		healthHanler: healthCheckHandler,
 	}
 }
 
 func (r *router) RegisterRoutes(engine *gin.Engine) {
+	engine.GET("health", r.healthHanler.Get)
 	api := engine.Group("/api")
 	{
 		users := api.Group("/users")

@@ -39,6 +39,7 @@ var AppSet = wire.NewSet(
 
 var HandlerSet = wire.NewSet(
 	handler.NewUserHandler,
+	handler.NewHealthCheck,
 )
 
 var RouterSet = wire.NewSet(
