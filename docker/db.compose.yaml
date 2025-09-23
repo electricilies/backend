@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres
+    image: postgres:17.6-trixie
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
