@@ -3,7 +3,11 @@
 ## Enviroment variables
 
 ```env
-DB_URL=postgres://postgres:postgres@localhost:5432/electricilies?sslmode=disable
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_DATABASE=electricilies
+DB_PORT=5432
+DB_HOST=localhost
 ```
 
 ## Build and Run
