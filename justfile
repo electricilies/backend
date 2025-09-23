@@ -1,3 +1,5 @@
-gen-migration name:
-  migrate -path ./database/schema.sql create -ext sql -dir ./migration/ -seq {{name}}
+atlas-hash env="local":
+  atlas migrate hash --env {{env}}
 
+atlas-gen-migration env="local":
+  atlas migrate diff --env {{env}}
