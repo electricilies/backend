@@ -5,7 +5,11 @@ import (
 )
 
 type Config struct {
-	DBUrl string
+	DBUsername string
+	DBPassword string
+	DBHost     string
+	DBPort     int
+	DBName     string
 }
 
 var Cfg Config
@@ -13,6 +17,10 @@ var Cfg Config
 func LoadConfig() {
 	viper.AutomaticEnv()
 	Cfg = Config{
-		DBUrl: viper.GetString("DB_URL"),
+		DBUsername: viper.GetString("DB_USERNAME"),
+		DBPassword: viper.GetString("DB_PASSWORD"),
+		DBHost:     viper.GetString("DB_HOST"),
+		DBPort:     viper.GetInt("DB_PORT"),
+		DBName:     viper.GetString("DB_DATABASE"),
 	}
 }
