@@ -1,0 +1,8 @@
+name: ele-be
+
+windows:
+  - editor: nvim
+  - backend: go run .
+  - compose: docker compose -f ./docker/db.compose.yaml up
+  - shell:
+    layout: even-vertical
