@@ -120,7 +120,7 @@ func (h *userHandler) Update(ctx *gin.Context) {
 	}
 
 	u := req.ToDomain()
-	u.ID = id // always trust path param
+	u.ID = id
 
 	if err := h.app.Update(ctx, u); err != nil {
 		if errors.Is(err, app.ErrNotFound) {

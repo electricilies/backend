@@ -13,6 +13,7 @@ import (
 	user2 "backend/internal/domain/user"
 	"backend/internal/infrastructure/user"
 	"backend/internal/interface/api/handler"
+	"backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
 	"github.com/google/wire"
@@ -28,7 +29,8 @@ func InitializeServer() *server.Server {
 	applicationUser := application.NewUser(repository, service)
 	handlerUser := handler.NewUserHandler(applicationUser)
 	healthCheck := handler.NewHealthCheck()
-	routerRouter := router.NewRouter(handlerUser, healthCheck)
+	metric := middleware.NewMetric()
+	routerRouter := router.NewRouter(handlerUser, healthCheck, metric)
 	serverServer := server.NewServer(engine, routerRouter)
 	return serverServer
 }
@@ -44,6 +46,8 @@ var RepositorySet = wire.NewSet(user.NewRepository)
 var ServiceSet = wire.NewSet(user2.NewService)
 
 var AppSet = wire.NewSet(application.NewUser)
+
+var MiddlewareSet = wire.NewSet(middleware.NewMetric)
 
 var HandlerSet = wire.NewSet(handler.NewUserHandler, handler.NewHealthCheck)
 

@@ -8,6 +8,7 @@ import (
 	userService "backend/internal/domain/user"
 	userRepo "backend/internal/infrastructure/user"
 	handler "backend/internal/interface/api/handler"
+	middleware "backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
 
@@ -37,6 +38,10 @@ var AppSet = wire.NewSet(
 	app.NewUser,
 )
 
+var MiddlewareSet = wire.NewSet(
+	middleware.NewMetric,
+)
+
 var HandlerSet = wire.NewSet(
 	handler.NewUserHandler,
 	handler.NewHealthCheck,
@@ -47,6 +52,6 @@ var RouterSet = wire.NewSet(
 )
 
 func InitializeServer() *server.Server {
-	wire.Build(DBSet, EngineSet, RepositorySet, ServiceSet, AppSet, HandlerSet, RouterSet, server.NewServer)
+	wire.Build(DBSet, EngineSet, RepositorySet, ServiceSet, AppSet, MiddlewareSet, HandlerSet, RouterSet, server.NewServer)
 	return nil
 }
