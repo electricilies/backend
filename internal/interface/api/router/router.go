@@ -5,6 +5,7 @@ import (
 	"backend/internal/interface/api/middleware"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Router interface {
@@ -26,8 +27,9 @@ func NewRouter(userHandler handler.User, healthCheckHandler handler.HealthCheck,
 }
 
 func (r *router) RegisterRoutes(engine *gin.Engine) {
-	engine.GET("health", r.healthHanler.Get)
 	engine.Use(r.metricMiddleware.Handler())
+	engine.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	engine.GET("/health", r.healthHanler.Get)
 	api := engine.Group("/api")
 	{
 		users := api.Group("/users")
