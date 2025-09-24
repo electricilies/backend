@@ -1,5 +1,7 @@
 # Backend
 
+[![wakatime](https://wakatime.com/badge/github/electricilies/backend.svg)](https://wakatime.com/badge/github/electricilies/backend)
+
 ## Enviroment variables
 
 ```env
@@ -16,6 +18,3 @@ DB_HOST=localhost
 go build -o backend cmd/main.go
 ./backend
 ```
-
-
-
