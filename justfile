@@ -4,8 +4,8 @@ start:
 compose:
   docker compose -f ./docker/db.compose.yaml up
 
-atlas-hash env="local":
-  atlas migrate hash --env {{env}}
+atlas-apply-schema env="local":
+  atlas schema apply --env {{env}}
 
-atlas-gen-migration env="local":
+atlas-gen-migration env="dev":
   atlas migrate diff --env {{env}}
