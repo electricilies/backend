@@ -10,6 +10,8 @@ type Config struct {
 	DBHost     string
 	DBPort     int
 	DBName     string
+	EnvApp     string
+	AppPort    string
 }
 
 var Cfg Config
@@ -22,5 +24,7 @@ func LoadConfig() {
 		DBHost:     viper.GetString("DB_HOST"),
 		DBPort:     viper.GetInt("DB_PORT"),
 		DBName:     viper.GetString("DB_DATABASE"),
+		EnvApp:     viper.GetString("ENV_APP"),
+		AppPort:    viper.GetString("PORT"),
 	}
 }

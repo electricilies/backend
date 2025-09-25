@@ -25,5 +25,5 @@ func NewServer(e *gin.Engine, r router.Router) *Server {
 }
 
 func (s Server) Run() error {
-	return s.engine.Run(":8080")
+	return s.engine.Run()
 }
