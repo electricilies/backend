@@ -13,16 +13,18 @@ type Router interface {
 }
 
 type router struct {
-	userHandler      handler.User
-	healthHanler     handler.HealthCheck
-	metricMiddleware middleware.Metric
+	userHandler       handler.User
+	healthHanler      handler.HealthCheck
+	metricMiddleware  middleware.Metric
+	loggingMiddleware middleware.Logging
 }
 
-func NewRouter(userHandler handler.User, healthCheckHandler handler.HealthCheck, metricMiddleware middleware.Metric) Router {
+func NewRouter(userHandler handler.User, healthCheckHandler handler.HealthCheck, metricMiddleware middleware.Metric, loggingMiddleware middleware.Logging) Router {
 	return &router{
-		userHandler:      userHandler,
-		healthHanler:     healthCheckHandler,
-		metricMiddleware: metricMiddleware,
+		userHandler:       userHandler,
+		healthHanler:      healthCheckHandler,
+		metricMiddleware:  metricMiddleware,
+		loggingMiddleware: loggingMiddleware,
 	}
 }
 

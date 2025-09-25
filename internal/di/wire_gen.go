@@ -30,7 +30,8 @@ func InitializeServer() *server.Server {
 	handlerUser := handler.NewUserHandler(applicationUser)
 	healthCheck := handler.NewHealthCheck()
 	metric := middleware.NewMetric()
-	routerRouter := router.NewRouter(handlerUser, healthCheck, metric)
+	logging := middleware.NewLogging()
+	routerRouter := router.NewRouter(handlerUser, healthCheck, metric, logging)
 	serverServer := server.NewServer(engine, routerRouter)
 	return serverServer
 }
@@ -47,7 +48,7 @@ var ServiceSet = wire.NewSet(user2.NewService)
 
 var AppSet = wire.NewSet(application.NewUser)
 
-var MiddlewareSet = wire.NewSet(middleware.NewMetric)
+var MiddlewareSet = wire.NewSet(middleware.NewMetric, middleware.NewLogging)
 
 var HandlerSet = wire.NewSet(handler.NewUserHandler, handler.NewHealthCheck)
 
