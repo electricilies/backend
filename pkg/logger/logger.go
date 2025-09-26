@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"backend/config"
 	"os"
 
 	"go.uber.org/zap"
@@ -9,14 +8,14 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-var Logger *zap.Logger
+var Lgr *zap.Logger
 
 func InitializeLogger() {
-	if config.Cfg.EnvApp == "production" {
-		Logger = newProductionLogger()
-		return
+	c := newDefaultLoggingConfig()
+	if c.IsProdEnv {
+		Lgr = newProductionLogger(c)
 	}
-	Logger = newDevelopmentLogger()
+	Lgr = newDevelopmentLogger()
 }
 
 func newDevelopmentLogger() *zap.Logger {
@@ -32,12 +31,13 @@ func newDevelopmentLogger() *zap.Logger {
 	return zap.New(core)
 }
 
-func newProductionLogger() *zap.Logger {
+func newProductionLogger(config *loggerConfig) *zap.Logger {
 	file := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   "logs/app.log", //TODO: add config instead of hard code
-		MaxSize:    10,
-		MaxBackups: 3,
-		MaxAge:     7,
+		Filename:   config.LogFile,
+		MaxSize:    config.MaxSize,
+		MaxBackups: config.MaxBackups,
+		MaxAge:     config.MaxAge,
+		Compress:   config.Compress,
 	})
 	level := zap.NewAtomicLevelAt(zap.InfoLevel)
 
@@ -50,5 +50,5 @@ func newProductionLogger() *zap.Logger {
 		zapcore.NewCore(fileEncoder, file, level),
 	)
 
-	return zap.New(core)
+	return zap.New(core, zap.AddCaller())
 }

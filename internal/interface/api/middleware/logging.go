@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	"slices"
 	"time"
 
 	"backend/pkg/logger"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -14,14 +16,20 @@ type Logging interface {
 }
 
 type logging struct {
-	//will add config later
+	skipPaths []string
 }
 
 func NewLogging() Logging {
-	return &logging{}
+	return &logging{
+		skipPaths: []string{"/health", "/metrics", "/swagger"},
+	}
 }
 func (l *logging) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if slices.Contains(l.skipPaths, c.Request.URL.Path) {
+			c.Next()
+			return
+		}
 		start := time.Now()
 		path := c.Request.URL.Path
 		query := c.Request.URL.RawQuery
@@ -41,10 +49,10 @@ func (l *logging) Handler() gin.HandlerFunc {
 
 		if len(c.Errors) > 0 {
 			for _, e := range c.Errors.Errors() {
-				logger.Logger.Error(e, fields...)
+				logger.Lgr.Error(e, fields...)
 			}
 			return
 		}
-		logger.Logger.Info(path, fields...)
+		logger.Lgr.Info(path, fields...)
 	}
 }
