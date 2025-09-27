@@ -11,13 +11,13 @@ type Config struct {
 	DBPort     int
 	DBName     string
 	EnvApp     string
-	AppPort    string
 }
 
 var Cfg Config
 
 func LoadConfig() {
 	viper.AutomaticEnv()
+	viper.SetDefault("DB_PORT", 5432)
 	Cfg = Config{
 		DBUsername: viper.GetString("DB_USERNAME"),
 		DBPassword: viper.GetString("DB_PASSWORD"),
@@ -25,6 +25,5 @@ func LoadConfig() {
 		DBPort:     viper.GetInt("DB_PORT"),
 		DBName:     viper.GetString("DB_DATABASE"),
 		EnvApp:     viper.GetString("ENV_APP"),
-		AppPort:    viper.GetString("PORT"),
 	}
 }
