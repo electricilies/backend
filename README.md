@@ -25,8 +25,10 @@
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
 DB_DATABASE=electricilies
-DB_PORT=5432
+DB_PORT=5432 #Optional
 DB_HOST=localhost
+ENV_APP=production #Optional, If not set, it will run in development mode
+PORT=8080 #Optional
 ```
 
 ## Build and Run
