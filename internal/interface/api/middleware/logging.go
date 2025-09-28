@@ -37,8 +37,9 @@ func (l *logging) Handler() gin.HandlerFunc {
 		end := time.Now()
 		latency := end.Sub(start)
 
+		status := c.Writer.Status()
 		fields := []zapcore.Field{
-			zap.Int("status", c.Writer.Status()),
+			zap.Int("status", status),
 			zap.String("method", c.Request.Method),
 			zap.String("path", path),
 			zap.String("query", query),
@@ -47,7 +48,7 @@ func (l *logging) Handler() gin.HandlerFunc {
 			zap.Duration("latency", latency),
 		}
 
-		if len(c.Errors) > 0 {
+		if len(c.Errors) > 0 && status >= 500 {
 			for _, e := range c.Errors.Errors() {
 				logger.Lgr.Error(e, fields...)
 			}
