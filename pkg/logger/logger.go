@@ -12,43 +12,49 @@ var Lgr *zap.Logger
 
 func InitializeLogger() {
 	c := newDefaultLoggingConfig()
-	if c.IsProdEnv {
-		Lgr = newProductionLogger(c)
+	if !c.EnableStdout && !c.EnableFile {
+		Lgr = zap.NewNop()
+		return
 	}
-	Lgr = newDevelopmentLogger()
-}
 
-func newDevelopmentLogger() *zap.Logger {
-	stdout := zapcore.AddSync(os.Stdout)
-	level := zap.NewAtomicLevelAt(zap.InfoLevel)
-	cfg := zap.NewDevelopmentEncoderConfig()
-	cfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	var cores []zapcore.Core
+	logLevel := zap.NewAtomicLevelAt(zap.InfoLevel)
+	if c.EnableStdout {
+		stdout := zapcore.AddSync(os.Stdout)
+		encoderConfig := zapcore.EncoderConfig{
+			TimeKey:        "time",
+			LevelKey:       "level",
+			NameKey:        "logger",
+			CallerKey:      "caller",
+			MessageKey:     "msg",
+			StacktraceKey:  "stacktrace",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.CapitalColorLevelEncoder,
+			EncodeTime:     zapcore.ISO8601TimeEncoder,
+			EncodeDuration: zapcore.SecondsDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
+		}
+		encoderConfig.TimeKey = "timestamp"
+		encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+		consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
+		cores = append(cores, zapcore.NewCore(consoleEncoder, stdout, logLevel))
+	}
 
-	consoleEncoder := zapcore.NewConsoleEncoder(cfg)
-	core := zapcore.NewTee(
-		zapcore.NewCore(consoleEncoder, stdout, level),
-	)
-	return zap.New(core)
-}
+	if c.EnableFile {
+		file := zapcore.AddSync(&lumberjack.Logger{
+			Filename:   c.LogFile,
+			MaxSize:    c.MaxSize,
+			MaxBackups: c.MaxBackups,
+			MaxAge:     c.MaxAge,
+			Compress:   c.Compress,
+		})
 
-func newProductionLogger(config *loggerConfig) *zap.Logger {
-	file := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   config.LogFile,
-		MaxSize:    config.MaxSize,
-		MaxBackups: config.MaxBackups,
-		MaxAge:     config.MaxAge,
-		Compress:   config.Compress,
-	})
-	level := zap.NewAtomicLevelAt(zap.InfoLevel)
+		cfg := zap.NewProductionEncoderConfig()
+		cfg.TimeKey = "timestamp"
+		cfg.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	cfg := zap.NewProductionEncoderConfig()
-	cfg.TimeKey = "timestamp"
-	cfg.EncodeTime = zapcore.ISO8601TimeEncoder
-
-	fileEncoder := zapcore.NewJSONEncoder(cfg)
-	core := zapcore.NewTee(
-		zapcore.NewCore(fileEncoder, file, level),
-	)
-
-	return zap.New(core, zap.AddCaller())
+		fileEncoder := zapcore.NewJSONEncoder(cfg)
+		cores = append(cores, zapcore.NewCore(fileEncoder, file, logLevel))
+	}
+	Lgr = zap.New(zapcore.NewTee(cores...))
 }
