@@ -1,6 +1,6 @@
 variable "temp_db" {
   type    = string
-  default = "docker://postgres/17.6-trixie/dev"
+  default = "docker://postgres/18.0-trixie/dev"
 }
 
 variable "local_db_url" {
