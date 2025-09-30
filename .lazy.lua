@@ -7,6 +7,15 @@ return {
     ---@type conform.setupOpts
     opts = {
       formatters = {
+        swag = {
+          command = "swag",
+          args = {
+            "fmt",
+            "-d",
+            "$FILENAME",
+          },
+          stdin = false,
+        },
         sqlc_gen = {
           command = "sqlc",
           args = {
@@ -15,17 +24,21 @@ return {
         },
       },
       formatters_by_ft = {
-        sql = {
-          "sqlc_gen",
+        go = {
+          "swag",
         },
         postgresql = {
+          "sqlc_gen",
+        },
+        sql = {
           "sqlc_gen",
         },
       },
     },
     opts_extend = {
-      "formatters_by_ft.sql",
+      "formatters_by_ft.go",
       "formatters_by_ft.postgresql",
+      "formatters_by_ft.sql",
     },
   },
 }
