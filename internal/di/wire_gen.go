@@ -24,7 +24,8 @@ import (
 
 func InitializeServer() *server.Server {
 	engine := ginengine.NewEngine()
-	queries := db.NewDB()
+	conn := db.NewDBConnection()
+	queries := db.NewDB(conn)
 	repository := user.NewRepository(queries)
 	service := user2.NewService(repository)
 	applicationUser := application.NewUser(repository, service)
@@ -39,7 +40,7 @@ func InitializeServer() *server.Server {
 
 // wire.go:
 
-var DBSet = wire.NewSet(db.NewDB)
+var DBSet = wire.NewSet(db.NewDBConnection, db.NewDB)
 
 var EngineSet = wire.NewSet(ginengine.NewEngine)
 

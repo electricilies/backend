@@ -19,6 +19,7 @@ import (
 )
 
 var DBSet = wire.NewSet(
+	db.NewDBConnection,
 	db.NewDB,
 )
 
