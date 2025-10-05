@@ -21,6 +21,7 @@ import (
 var DBSet = wire.NewSet(
 	db.NewDBConnection,
 	db.NewDB,
+	db.NewTransactor,
 )
 
 var EngineSet = wire.NewSet(

@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Thiht/transactor"
+	transactorpgx "github.com/Thiht/transactor/pgx"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -28,4 +30,9 @@ func NewDBConnection() *pgx.Conn {
 func NewDB(c *pgx.Conn) *postgres.Queries {
 	q := postgres.New(c)
 	return q
+}
+
+func NewTransactor(c *pgx.Conn) transactor.Transactor {
+	t, _ := transactorpgx.NewTransactor(c)
+	return t
 }

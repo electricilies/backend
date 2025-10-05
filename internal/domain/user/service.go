@@ -1,6 +1,10 @@
 package user
 
-import "context"
+import (
+	"context"
+
+	"github.com/Thiht/transactor"
+)
 
 type Service interface {
 	//This cotains  business logic like use case in Clean Arch
@@ -8,12 +12,14 @@ type Service interface {
 }
 
 type service struct {
-	userRepo Repository
+	transactor transactor.Transactor
+	userRepo   Repository
 }
 
-func NewService(userRepo Repository) Service {
+func NewService(userRepo Repository, transactor transactor.Transactor) Service {
 	return &service{
-		userRepo: userRepo,
+		userRepo:   userRepo,
+		transactor: transactor,
 	}
 }
 

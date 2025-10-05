@@ -16,7 +16,6 @@ import (
 	"backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
-
 	"github.com/google/wire"
 )
 
@@ -27,7 +26,8 @@ func InitializeServer() *server.Server {
 	conn := db.NewDBConnection()
 	queries := db.NewDB(conn)
 	repository := user.NewRepository(queries)
-	service := user2.NewService(repository)
+	transactor := db.NewTransactor(conn)
+	service := user2.NewService(repository, transactor)
 	applicationUser := application.NewUser(repository, service)
 	handlerUser := handler.NewUserHandler(applicationUser)
 	healthCheck := handler.NewHealthCheck()
@@ -40,7 +40,7 @@ func InitializeServer() *server.Server {
 
 // wire.go:
 
-var DBSet = wire.NewSet(db.NewDBConnection, db.NewDB)
+var DBSet = wire.NewSet(db.NewDBConnection, db.NewDB, db.NewTransactor)
 
 var EngineSet = wire.NewSet(ginengine.NewEngine)
 
