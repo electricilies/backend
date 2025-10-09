@@ -15,26 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/health": {
-            "get": {
-                "description": "Returns current server time to verify service is running",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Health"
-                ],
-                "summary": "Health check",
-                "responses": {
-                    "200": {
-                        "description": "current server time",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/users": {
             "get": {
                 "description": "Get all users",
