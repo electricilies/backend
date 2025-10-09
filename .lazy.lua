@@ -1,3 +1,5 @@
+local basename = vim.fs.basename
+
 ---@module 'lazy'
 ---@type LazySpec
 return {
@@ -8,12 +10,27 @@ return {
     opts = {
       formatters = {
         swag = {
-          command = "swag",
+          command = "go",
           args = {
+            "tool",
+            "swag",
             "fmt",
             "-d",
             "$FILENAME",
           },
+          stdin = false,
+        },
+        wire = {
+          command = "go",
+          args = {
+            "tool",
+            "wire",
+            "gen",
+            "$RELATIVE_FILEPATH",
+          },
+          condition = function(_, ctx)
+            return basename(ctx.filename) == "wire.go"
+          end,
           stdin = false,
         },
         sqlc_gen = {
@@ -26,6 +43,7 @@ return {
       formatters_by_ft = {
         go = {
           "swag",
+          "wire",
         },
         postgresql = {
           "sqlc_gen",
