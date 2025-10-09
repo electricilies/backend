@@ -18,14 +18,12 @@ env "local" {
   url     = var.db_url
   dev     = var.temp_db
   schemas = ["public"]
-  migration {
-    dir = local.migration_path
-  }
 }
 
 env "dev" {
   src     = local.schema_path
   url     = var.db_url
+  dev     = var.temp_db
   schemas = ["public"]
   migration {
     dir = local.migration_path
