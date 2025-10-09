@@ -9,3 +9,8 @@ services:
       PGDATA: /data/postgres
     ports:
       - "${DB_PORT:-5432}:5432"
+    networks:
+      - electricilies-net
+
+networks:
+  electricilies-net:
