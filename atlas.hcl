@@ -1,9 +1,9 @@
 variable "temp_db" {
   type    = string
-  default = "docker://postgres/18.0-trixie/dev"
+  default = "docker://postgres/17.6-alpine3.22/dev"
 }
 
-variable "local_db_url" {
+variable "db_url" {
   type    = string
   default = "postgres://${getenv("DB_USERNAME")}:${getenv("DB_PASSWORD")}@${getenv("DB_HOST")}:${getenv("DB_PORT")}/${getenv("DB_DATABASE")}?sslmode=disable"
 }
@@ -14,14 +14,19 @@ locals {
 }
 
 env "local" {
-  src = local.schema_path
-  url = var.local_db_url
-  dev = var.temp_db
+  src     = local.schema_path
+  url     = var.db_url
+  dev     = var.temp_db
+  schemas = ["public"]
+  migration {
+    dir = local.migration_path
+  }
 }
 
 env "dev" {
-  src = local.schema_path
-  dev = var.temp_db
+  src     = local.schema_path
+  url     = var.db_url
+  schemas = ["public"]
   migration {
     dir = local.migration_path
   }

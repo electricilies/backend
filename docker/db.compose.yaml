@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:18.0-trixie
+    image: paradedb/paradedb:17-v0.18.11
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
