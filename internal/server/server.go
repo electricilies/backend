@@ -15,7 +15,7 @@ type Server struct {
 
 func NewServer(e *gin.Engine, r router.Router) *Server {
 
-	docs.SwaggerInfo.BasePath = "api/v1"
+	docs.SwaggerInfo.BasePath = "/api"
 	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.RegisterRoutes(e)
 
