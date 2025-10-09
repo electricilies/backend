@@ -3,11 +3,6 @@ package application
 import (
 	"backend/internal/domain/user"
 	"context"
-	"errors"
-)
-
-var (
-	ErrNotFound = errors.New("user not found")
 )
 
 type User interface {
@@ -35,9 +30,6 @@ func (a *userApp) Get(ctx context.Context, id string) (*user.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	if u == nil {
-		return nil, ErrNotFound
-	}
 	return u, nil
 }
 
@@ -50,23 +42,18 @@ func (a *userApp) Create(ctx context.Context, u *user.User) (*user.User, error) 
 }
 
 func (a *userApp) Update(ctx context.Context, u *user.User) error {
-	existing, err := a.userRepo.Get(ctx, u.ID)
+	_, err := a.userRepo.Get(ctx, u.ID)
 	if err != nil {
 		return err
-	}
-	if existing == nil {
-		return ErrNotFound
 	}
 	return a.userRepo.Update(ctx, u)
 }
 
 func (a *userApp) Delete(ctx context.Context, id string) error {
-	existing, err := a.userRepo.Get(ctx, id)
+	_, err := a.userRepo.Get(ctx, id)
 	if err != nil {
 		return err
 	}
-	if existing == nil {
-		return ErrNotFound
-	}
+
 	return a.userRepo.Delete(ctx, id)
 }
