@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "*.go"
+      - "**.go"
       - go.mod
       - go.sum
   pull_request:
     paths:
-      - "*.go"
+      - "**.go"
       - go.mod
       - go.sum
 
