@@ -1,6 +1,9 @@
 start:
   go run ./cmd/main.go
 
+debug:
+  dlv debug --headless --listen=:4444 ./cmd/main.go
+
 compose:
   docker compose -f ./docker/db.compose.yaml up
 
