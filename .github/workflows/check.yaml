@@ -1,0 +1,30 @@
+name: Check
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "*.go"
+      - go.mod
+      - go.sum
+  pull_request:
+    paths:
+      - "*.go"
+      - go.mod
+      - go.sum
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - uses: golangci/golangci-lint-action@v8
+
+      - name: Check format
+        run: gofmt -l .
