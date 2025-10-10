@@ -15,5 +15,5 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = io.Discard
 	logger.InitializeLogger()
-	s.Run()
+	_ = s.Run()
 }
