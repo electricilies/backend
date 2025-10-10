@@ -24,6 +24,9 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Install deps
+        run: go mod download
+
       - uses: golangci/golangci-lint-action@v8
 
       - name: Check format
