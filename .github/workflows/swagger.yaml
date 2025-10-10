@@ -24,6 +24,8 @@ jobs:
       - uses: extractions/setup-just@v3
 
       - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
 
       - run: go mod download
 
