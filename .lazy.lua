@@ -26,10 +26,10 @@ return {
             "tool",
             "wire",
             "gen",
-            "$RELATIVE_FILEPATH",
+            "$DIRNAME",
           },
           condition = function(_, ctx)
-            return basename(ctx.filename) == "wire.go"
+            return basename(ctx.filename):match(".*%.wire.go") ~= nil
           end,
           stdin = false,
         },
