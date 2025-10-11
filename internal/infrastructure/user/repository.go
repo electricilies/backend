@@ -2,7 +2,7 @@ package user
 
 import (
 	"backend/internal/domain/user"
-	errormapper "backend/internal/infrastructure/error"
+	infraserr "backend/internal/infrastructure/error"
 	"backend/internal/infrastructure/presistence/postgres"
 	"context"
 
@@ -22,7 +22,7 @@ func NewRepository(query *postgres.Queries) user.Repository {
 func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error) {
 	u, err := r.db.GetUser(ctx, postgres.GetUserParams{ID: uuid.MustParse(id)})
 	if err != nil {
-		return nil, errormapper.ToDomainError(err)
+		return nil, infraserr.ToDomainError(err)
 	}
 
 	return ToDomain(u), nil
@@ -31,7 +31,7 @@ func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error)
 func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
 	users, err := r.db.ListUser(ctx)
 	if err != nil {
-		return nil, errormapper.ToDomainError(err)
+		return nil, infraserr.ToDomainError(err)
 	}
 
 	result := make([]*user.User, len(users))
@@ -48,21 +48,21 @@ func (r *repositoryImpl) Create(ctx context.Context, u *user.User) (*user.User, 
 	})
 
 	if err != nil {
-		return nil, errormapper.ToDomainError(err)
+		return nil, infraserr.ToDomainError(err)
 	}
 
 	return ToDomain(createdUser), nil
 }
 
 func (r *repositoryImpl) Update(ctx context.Context, u *user.User) error {
-	return errormapper.ToDomainError(r.db.UpdateUser(ctx, postgres.UpdateUserParams{
+	return infraserr.ToDomainError(r.db.UpdateUser(ctx, postgres.UpdateUserParams{
 		ID:   uuid.MustParse(u.ID),
 		Name: u.Name,
 	}))
 }
 
 func (r *repositoryImpl) Delete(ctx context.Context, id string) error {
-	return errormapper.ToDomainError(r.db.DeleteUser(ctx, postgres.DeleteUserParams{
+	return infraserr.ToDomainError(r.db.DeleteUser(ctx, postgres.DeleteUserParams{
 		ID: uuid.MustParse(id),
 	}))
 }
