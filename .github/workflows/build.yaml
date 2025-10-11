@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      migration_changed: ${{ steps.check.outputs.migration_changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -21,11 +23,20 @@ jobs:
       - uses: EndBug/add-and-commit@v9
         with:
           add: migration/
+      - name: Check migration changes
+        id: check
+        run: |
+          if git diff --no-patch --exit-code HEAD HEAD~1 -- migration/; then
+            echo 'migration_changed=false' >> "${GITHUB_OUTPUT}"
+          else
+            echo 'migration_changed=true' >> "${GITHUB_OUTPUT}"
+          fi
 
   build-migrate:
     runs-on: ubuntu-latest
     needs:
       - gen-migration
+    if: needs.gen-migration.outputs.migration_changed == 'true'
     permissions:
       packages: write
     steps:
