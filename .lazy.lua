@@ -33,7 +33,7 @@ return {
           end,
           stdin = false,
         },
-        sqlc_gen = {
+        sqlc = {
           command = "sqlc",
           args = {
             "generate",
@@ -46,10 +46,10 @@ return {
           "wire",
         },
         postgresql = {
-          "sqlc_gen",
+          "sqlc",
         },
         sql = {
-          "sqlc_gen",
+          "sqlc",
         },
       },
     },
