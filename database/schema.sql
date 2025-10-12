@@ -1,4 +1,3 @@
--- vim: ft=sql.postgresql
 -- sql/schema.sql
 
 CREATE TABLE users (

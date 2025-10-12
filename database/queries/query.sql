@@ -1,7 +1,8 @@
--- vim: ft=sql.postgresql
+-- noqa: disable=AM04
+
 -- name: GetUser :one
 SELECT * FROM users
-WHERE id =$1
+WHERE id = $1
 LIMIT 1;
 
 -- name: ListUser :many

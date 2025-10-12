@@ -7,3 +7,9 @@ vim.lsp.config("gopls", {
     },
   },
 })
+
+vim.filetype.add({
+  pattern = {
+    [".*%.sql"] = "pgsql"
+  }
+})
