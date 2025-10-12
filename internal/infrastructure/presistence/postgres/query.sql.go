@@ -46,8 +46,9 @@ func (q *Queries) DeleteUser(ctx context.Context, arg DeleteUserParams) error {
 }
 
 const getUser = `-- name: GetUser :one
+
 SELECT id, name FROM users
-WHERE id =$1
+WHERE id = $1
 LIMIT 1
 `
 
@@ -55,7 +56,7 @@ type GetUserParams struct {
 	ID uuid.UUID
 }
 
-// vim: ft=sql.pgsql
+// noqa: disable=AM04
 func (q *Queries) GetUser(ctx context.Context, arg GetUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, getUser, arg.ID)
 	var i User

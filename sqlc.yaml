@@ -1,17 +1,37 @@
 version: "2"
 sql:
-  - engine: "postgresql"
-    queries: "database/queries"
-    schema: "database/schema.sql"
+  - engine: postgresql
+    queries: database/queries
+    schema: database/schema.sql
+    database:
+      uri: postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable
+    rules:
+      - sqlc/db-prepare
+      - postgresql-query-too-costly
+      - postgresql-no-seq-scan
+      # - debug
     gen:
       go:
-        package: "postgres"
-        out: "internal/infrastructure/presistence/postgres"
-        sql_package: "pgx/v5"
+        package: postgres
+        out: internal/infrastructure/presistence/postgres
+        sql_package: pgx/v5
         query_parameter_limit: 0
         overrides:
-          - db_type: "uuid"
+          - db_type: uuid
             nullable: false
             go_type:
-              import: "github.com/google/uuid"
+              import: github.com/google/uuid
               type: "UUID"
+rules:
+  - name: no-delete
+    message: "don't use delete statements"
+    rule: |
+      query.sql.contains("DELETE")
+  - name: postgresql-query-too-costly
+    message: "Query cost estimate is too high"
+    rule: "postgresql.explain.plan.total_cost > 1.0"
+  - name: postgresql-no-seq-scan
+    message: "Query plan results in a sequential scan"
+    rule: "postgresql.explain.plan.node_type == 'Seq Scan'"
+  - name: debug
+    rule: "!has(postgresql.explain)"

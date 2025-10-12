@@ -45,18 +45,35 @@ return {
           "swag",
           "wire",
         },
-        postgresql = {
-          "sqlc",
-        },
-        sql = {
+        pgsql = {
           "sqlc",
         },
       },
     },
     opts_extend = {
       "formatters_by_ft.go",
-      "formatters_by_ft.postgresql",
-      "formatters_by_ft.sql",
+      "formatters_by_ft.pgsql",
     },
+  },
+  {
+    "mfussenegger/nvim-lint",
+    opts = function()
+      local lint = require("lint")
+
+      lint.linters.sqlc = {
+        name = "sqlc",
+        cmd = "sqlc",
+        args = { "vet" },
+        stream = "stderr",
+        ignore_exitcode = true,
+        parser = require("lint.parser").from_pattern("^(.+): (.+: .+): (.+)$", { "file", "code", "message" }, nil, {
+          source = "sqlc",
+          severity = vim.diagnostic.severity.WARN,
+        }),
+      }
+
+      lint.linters_by_ft.pgsql = lint.linters_by_ft.pgsql or {}
+      table.insert(lint.linters_by_ft.pgsql, "sqlc")
+    end,
   },
 }
