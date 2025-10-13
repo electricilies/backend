@@ -26,21 +26,27 @@ func ToDomainError(err error) error {
 
 	code := pgErr.Code
 
-	if code == pgerrcode.UniqueViolation {
+	if pgerrcode.IsConnectionException(code) {
+		return domainerror.NewConnectionError(
+			"database connection failed",
+			err,
+		)
+	}
+
+	switch code {
+	case pgerrcode.UniqueViolation:
 		return domainerror.NewConflictError(
 			pgErr.ConstraintName+" already exists",
 			err,
 		)
-	}
 
-	if code == pgerrcode.ForeignKeyViolation {
+	case pgerrcode.ForeignKeyViolation:
 		return domainerror.NewBadRequestError(
 			"referenced resource does not exist",
 			err,
 		)
-	}
 
-	if code == pgerrcode.NotNullViolation {
+	case pgerrcode.NotNullViolation:
 		field := pgErr.ColumnName
 		if field == "" {
 			field = "required field"
@@ -49,23 +55,20 @@ func ToDomainError(err error) error {
 			field+" is required",
 			err,
 		)
-	}
 
-	if code == pgerrcode.CheckViolation {
+	case pgerrcode.CheckViolation:
 		return domainerror.NewValidationError(
 			"validation constraint failed: "+pgErr.ConstraintName,
 			err,
 		)
-	}
 
-	if code == pgerrcode.InvalidTextRepresentation {
+	case pgerrcode.InvalidTextRepresentation:
 		return domainerror.NewValidationError(
 			"invalid data format: "+pgErr.Message,
 			err,
 		)
-	}
 
-	if code == pgerrcode.StringDataRightTruncationDataException {
+	case pgerrcode.StringDataRightTruncationDataException:
 		field := pgErr.ColumnName
 		if field == "" {
 			field = "field"
@@ -74,59 +77,47 @@ func ToDomainError(err error) error {
 			field+" exceeds maximum length",
 			err,
 		)
-	}
 
-	if code == pgerrcode.UndefinedTable {
+	case pgerrcode.UndefinedTable:
 		return domainerror.NewInternalError(
 			"database table not found",
 			err,
 		)
-	}
 
-	if code == pgerrcode.UndefinedColumn {
+	case pgerrcode.UndefinedColumn:
 		return domainerror.NewInternalError(
 			"database column not found",
 			err,
 		)
-	}
 
-	if pgerrcode.IsConnectionException(code) {
-		return domainerror.NewConnectionError(
-			"database connection failed",
-			err,
-		)
-	}
-
-	if code == pgerrcode.DeadlockDetected {
+	case pgerrcode.DeadlockDetected:
 		return domainerror.NewConflictError(
 			"operation conflict, please retry",
 			err,
 		)
-	}
 
-	if code == pgerrcode.SerializationFailure {
+	case pgerrcode.SerializationFailure:
 		return domainerror.NewConflictError(
 			"concurrent modification detected, please retry",
 			err,
 		)
-	}
 
-	if code == pgerrcode.TooManyConnections {
+	case pgerrcode.TooManyConnections:
 		return domainerror.NewUnavailableError(
 			"service temporarily unavailable, please try again",
 			err,
 		)
-	}
 
-	if code == pgerrcode.QueryCanceled {
+	case pgerrcode.QueryCanceled:
 		return domainerror.NewInternalError(
 			"operation timed out",
 			err,
 		)
-	}
 
-	return domainerror.NewInternalError(
-		"database error occurred",
-		err,
-	)
+	default:
+		return domainerror.NewInternalError(
+			"database error occurred",
+			err,
+		)
+	}
 }
