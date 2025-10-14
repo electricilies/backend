@@ -1,6 +1,6 @@
 module backend
 
-go 1.24.5
+go 1.25.1
 
 require (
 	github.com/Thiht/transactor v1.1.0

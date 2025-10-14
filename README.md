@@ -21,14 +21,14 @@
 
 ## Enviroment variables
 
-```env
+```dotenv
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
 DB_DATABASE=electricilies
 DB_PORT=5432 # optional
 DB_HOST=localhost
 ENV_APP=production # optional, If not set, it will run in development mode
-PORT=8080 # optional
+PORT=8080          # optional
 ```
 
 ## Build and Run
