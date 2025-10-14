@@ -10,10 +10,8 @@ return {
     opts = {
       formatters = {
         swag = {
-          command = "go",
+          command = "swag",
           args = {
-            "tool",
-            "swag",
             "fmt",
             "-d",
             "$FILENAME",
@@ -21,10 +19,8 @@ return {
           stdin = false,
         },
         wire = {
-          command = "go",
+          command = "wire",
           args = {
-            "tool",
-            "wire",
             "gen",
             "$DIRNAME",
           },
