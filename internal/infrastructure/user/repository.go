@@ -29,7 +29,7 @@ func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error)
 }
 
 func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
-	users, err := r.db.ListUser(ctx)
+	users, err := r.db.ListUsers(ctx)
 	if err != nil {
 		return nil, infraserr.ToDomainError(err)
 	}
@@ -43,9 +43,7 @@ func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
 }
 
 func (r *repositoryImpl) Create(ctx context.Context, u *user.User) (*user.User, error) {
-	createdUser, err := r.db.CreateUser(ctx, postgres.CreateUserParams{
-		Name: u.Name,
-	})
+	createdUser, err := r.db.CreateUser(ctx, ToCreateUserParams(u))
 
 	if err != nil {
 		return nil, infraserr.ToDomainError(err)
@@ -55,10 +53,7 @@ func (r *repositoryImpl) Create(ctx context.Context, u *user.User) (*user.User, 
 }
 
 func (r *repositoryImpl) Update(ctx context.Context, u *user.User) error {
-	return infraserr.ToDomainError(r.db.UpdateUser(ctx, postgres.UpdateUserParams{
-		ID:   uuid.MustParse(u.ID),
-		Name: u.Name,
-	}))
+	return infraserr.ToDomainError(r.db.UpdateUser(ctx, ToUpdateUserParams(u)))
 }
 
 func (r *repositoryImpl) Delete(ctx context.Context, id string) error {
