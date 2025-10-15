@@ -8,7 +8,7 @@ compose:
   docker compose -f ./docker/db.compose.yaml up
 
 swagger-docs:
-  go tool swag init -g ./cmd/main.go
+  swag init -g ./cmd/main.go
 
 atlas-apply-schema env="local":
   atlas schema apply --env {{env}}

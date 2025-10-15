@@ -245,13 +245,35 @@ const docTemplate = `{
         "request.User": {
             "type": "object",
             "required": [
-                "name"
+                "email",
+                "first_name",
+                "last_name",
+                "username"
             ],
             "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "birthday": {
+                    "description": "TODO: Check if json can parse to date",
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
-                "name": {
+                "last_name": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -259,10 +281,34 @@ const docTemplate = `{
         "user.User": {
             "type": "object",
             "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "birthday": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
-                "name": {
+                "lastName": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }

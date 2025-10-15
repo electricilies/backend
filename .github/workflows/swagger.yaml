@@ -33,6 +33,8 @@ jobs:
 
       - run: go mod download
 
+      - run: go install github.com/swaggo/swag/cmd/swag@latest
+
       - run: just swagger-docs
 
       - name: Upload artifact
