@@ -116,5 +116,6 @@ return {
       vim.env.DBUI_NAME = "electricilies-local"
     end,
     optional = true,
+    config = function() end,
   },
 }

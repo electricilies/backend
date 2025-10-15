@@ -15,7 +15,7 @@ services:
       - electricilies-net
     volumes:
       - db:/data/postgres
-      - ./volume/init.sql:/docker-entrypoint-initdb.d/init.sql:Z
+      - ./volume/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test:
         - CMD
