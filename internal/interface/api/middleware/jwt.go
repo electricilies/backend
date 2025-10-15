@@ -68,6 +68,7 @@ func (j *auth) Handler() gin.HandlerFunc {
 			return
 
 		}
+		c.Next()
 	}
 }
 
