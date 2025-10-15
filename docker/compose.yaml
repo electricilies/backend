@@ -1,0 +1,51 @@
+name: electricilies-backend
+
+services:
+  db:
+    image: paradedb/paradedb:17-v0.18.11
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_DATABASE:-electricilies}
+      PGDATA: /data/postgres
+    ports:
+      - ${DB_PORT:-5432}:5432
+    restart: unless-stopped
+    networks:
+      - electricilies-net
+    volumes:
+      - db:/data/postgres
+      - ./volume/init.sql:/docker-entrypoint-initdb.d/init.sql:Z
+    healthcheck:
+      test:
+        - CMD
+        - pg_isready
+        - -U
+        - postgres
+        - -h
+        - localhost
+
+  keycloak:
+    image: keycloak/keycloak:26.4
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_DB: postgres
+      KC_DB_URL_HOST: db
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: ${DB_USERNAME:-postgres}
+      KC_DB_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    networks:
+      - electricilies-net
+    depends_on:
+      - db
+
+networks:
+  electricilies-net:
+
+volumes:
+  db:

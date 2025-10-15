@@ -19,12 +19,13 @@
     devShells = forEachSupportedSystem ({pkgs}: {
       default = pkgs.mkShellNoCC {
         packages = with pkgs; [
-          go_1_25
-          go-swag
-          sqlc
-          wire
           air
           atlas
+          go-swag
+          go_1_25
+          just
+          sqlc
+          wire
         ];
       };
     });

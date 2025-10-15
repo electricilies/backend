@@ -23,10 +23,6 @@ sql:
               import: github.com/google/uuid
               type: "UUID"
 rules:
-  - name: no-delete
-    message: "don't use delete statements"
-    rule: |
-      query.sql.contains("DELETE")
   - name: postgresql-query-too-costly
     message: "Query cost estimate is too high"
     rule: "postgresql.explain.plan.total_cost > 1.0"
