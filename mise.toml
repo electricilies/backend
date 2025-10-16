@@ -1,3 +1,5 @@
+#:schema https://raw.githubusercontent.com/jdx/mise/refs/heads/main/schema/mise.json
+
 [env]
 # '_'.file = { path = ".env", required = false }
 _.nix = true
@@ -18,8 +20,12 @@ depends = "build"
 run = "./backend"
 
 [tools]
+atlas = "0.37.0"
 go = "1.25.3"
+"go:github.com/google/wire/cmd/wire" = "0.7.0"
+"go:github.com/sqlc-dev/sqlc/cmd/sqlc" = "1.30.0"
 golangci-lint = "2.5.0"
 just = "latest"
+swag = "1.16.6"
 terraform = "1.13.4"
 watchexec = "latest"
