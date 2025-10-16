@@ -23,6 +23,9 @@ jobs:
       - uses: EndBug/add-and-commit@v9
         with:
           add: migration/
+          message: |-
+            build(migration): update migration
+            [skip ci]
       - name: Check migration changes
         id: check
         run: |
