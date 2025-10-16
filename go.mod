@@ -1,6 +1,6 @@
 module backend
 
-go 1.25.1
+go 1.25.3
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0
