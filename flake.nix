@@ -13,6 +13,7 @@
         f {
           pkgs = import nixpkgs {
             inherit system;
+            config.allowUnfree = true;
           };
         });
   in {
@@ -22,8 +23,6 @@
           air
           atlas
           go-swag
-          go_1_25
-          just
           sqlc
           wire
         ];

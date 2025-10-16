@@ -1,0 +1,4 @@
+[tools]
+go = "1.25.3"
+just = "latest"
+terraform = "1.13.4"
