@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: write
     outputs:
-      migration_changed: ${{ steps.check.outputs.migration_changed }}
+      committed: ${{ steps.add-and-commit.outputs.committed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -21,25 +21,18 @@ jobs:
       - name: gen migration
         run: just atlas-gen-migration
       - uses: EndBug/add-and-commit@v9
+        id: add-and-commit
         with:
           add: migration/
           message: |-
             build(migration): update migration
             [skip ci]
-      - name: Check migration changes
-        id: check
-        run: |
-          if git diff --no-patch --exit-code HEAD HEAD~1 -- migration/; then
-            echo 'migration_changed=false' >> "${GITHUB_OUTPUT}"
-          else
-            echo 'migration_changed=true' >> "${GITHUB_OUTPUT}"
-          fi
 
   build-migrate:
     runs-on: ubuntu-latest
     needs:
       - gen-migration
-    if: needs.gen-migration.outputs.migration_changed == 'true'
+    if: needs.gen-migration.outputs.committed == 'true'
     permissions:
       packages: write
     steps:
