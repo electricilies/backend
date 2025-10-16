@@ -1,8 +1,8 @@
 main-go := "./cmd/main.go"
 bin-out := "./backend"
 
-start:
-  go run {{main-go}}
+dev:
+  mise watch dev
 
 build:
   go build -o {{bin-out}} {{main-go}}

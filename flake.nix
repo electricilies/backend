@@ -20,7 +20,6 @@
     devShells = forEachSupportedSystem ({pkgs}: {
       default = pkgs.mkShellNoCC {
         packages = with pkgs; [
-          air
           atlas
           go-swag
           sqlc
