@@ -1,3 +1,5 @@
+set dotenv-load
+
 main-go := "./cmd/main.go"
 bin-out := "./backend"
 

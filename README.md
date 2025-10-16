@@ -19,7 +19,13 @@
   </a>
 </div>
 
-## Enviroment variables
+## Dev
+
+## Resources
+
+- <https://registry.terraform.io/providers/keycloak/keycloak/latest/docs>
+
+### Environment variables
 
 ```dotenv
 #Backend env var
@@ -43,9 +49,7 @@ TF_VAR_keycloak_base_url=http://localhost:3000/home
 TF_VAR_keycloak_admin_url=/admin
 ```
 
-## Build and Run
+### Dev environment
 
-```bash
-go build -o backend cmd/main.go
-./backend
-```
+- Tool required are in [mise.toml](./mise.toml) and [flake.nix](./flake.nix)
+- Either using `direnv` or [`mise-nix`](https://github.com/mise-plugins/mise-nix) to enable flake
