@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func FromDomainError(ctx *gin.Context, err error) {
+func ErrorFromDomain(ctx *gin.Context, err error) {
 	if err == nil {
 		return
 	}

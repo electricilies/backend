@@ -1,6 +1,9 @@
 start:
   go run ./cmd/main.go
 
+build:
+  go build -o backend ./cmd/main.go
+
 debug:
   dlv debug --headless --listen=:4444 ./cmd/main.go
 

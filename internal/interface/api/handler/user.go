@@ -4,6 +4,7 @@ import (
 	"backend/internal/application"
 	"backend/internal/interface/api/mapper"
 	"backend/internal/interface/api/request"
+	_ "backend/internal/interface/api/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,7 +36,7 @@ func NewUserHandler(app application.User) User {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		string	true	"User ID"
-//	@Success		200	{object}	user.User
+//	@Success		200	{object}	User
 //	@Failure		400	{string}	string	"bad request"
 //	@Failure		404	{string}	string	"not found"
 //	@Failure		500	{string}	string	"internal error"
@@ -44,7 +45,7 @@ func (h *userHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("id")
 	u, err := h.app.Get(ctx, id)
 	if err != nil {
-		mapper.FromDomainError(ctx, err)
+		mapper.ErrorFromDomain(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, u)
@@ -57,13 +58,13 @@ func (h *userHandler) Get(ctx *gin.Context) {
 //	@Tags			User
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{array}		user.User
+//	@Success		200	{array}		response.User
 //	@Failure		500	{string}	string	"internal error"
 //	@Router			/users [get]
 func (h *userHandler) List(ctx *gin.Context) {
 	users, err := h.app.List(ctx)
 	if err != nil {
-		mapper.FromDomainError(ctx, err)
+		mapper.ErrorFromDomain(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, users)
@@ -91,7 +92,7 @@ func (h *userHandler) Create(ctx *gin.Context) {
 	u := req.ToDomain()
 	created, err := h.app.Create(ctx, u)
 	if err != nil {
-		mapper.FromDomainError(ctx, err)
+		mapper.ErrorFromDomain(ctx, err)
 		return
 	}
 
@@ -125,7 +126,7 @@ func (h *userHandler) Update(ctx *gin.Context) {
 	u.ID = id
 
 	if err := h.app.Update(ctx, u); err != nil {
-		mapper.FromDomainError(ctx, err)
+		mapper.ErrorFromDomain(ctx, err)
 		return
 	}
 
@@ -147,7 +148,7 @@ func (h *userHandler) Update(ctx *gin.Context) {
 func (h *userHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if err := h.app.Delete(ctx, id); err != nil {
-		mapper.FromDomainError(ctx, err)
+		mapper.ErrorFromDomain(ctx, err)
 		return
 	}
 	ctx.Status(http.StatusNoContent)

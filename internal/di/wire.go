@@ -5,8 +5,8 @@ package di
 
 import (
 	app "backend/internal/application"
-	userService "backend/internal/domain/user"
-	userRepo "backend/internal/infrastructure/user"
+	userservice "backend/internal/domain/user"
+	userrepo "backend/internal/infrastructure/user"
 	handler "backend/internal/interface/api/handler"
 	middleware "backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
@@ -29,11 +29,11 @@ var EngineSet = wire.NewSet(
 )
 
 var RepositorySet = wire.NewSet(
-	userRepo.NewRepository,
+	userrepo.NewRepository,
 )
 
 var ServiceSet = wire.NewSet(
-	userService.NewService,
+	userservice.NewService,
 )
 
 var AppSet = wire.NewSet(
