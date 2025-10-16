@@ -98,6 +98,9 @@ jobs:
     needs:
       - build-migrate
       - build-backend
+    if: |
+      (needs.build-backend.result == 'success') &&
+      (needs.build-migrate.result == 'success' || needs.build-migrate.result == 'skipped')
     steps:
       - name: Get token
         id: get_token
