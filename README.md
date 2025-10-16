@@ -33,14 +33,14 @@ PORT=8080          # optional
 
 # Terraform variable
 # Required
-TF_VAR_terraform_client_secret=BhiJ2qDf9xZp3KrT7LmV5sWe8yA4nC
+TF_VAR_keycloak_terraform_client_secret=BhiJ2qDf9xZp3KrT7LmV5sWe8yA4nC
 
 # Variables with defaults
-TF_VAR_backend_client_secret=backendclientsecret
-TF_VAR_frontend_client_secret=frontendclientsecret
-TF_VAR_root_url=http://localhost:3000
-TF_VAR_base_url=http://localhost:3000/home
-TF_VAR_admin_url=/admin
+TF_VAR_keycloak_backend_client_secret=backendclientsecret
+TF_VAR_keycloak_frontend_client_secret=frontendclientsecret
+TF_VAR_keycloak_root_url=http://localhost:3000
+TF_VAR_keycloak_base_url=http://localhost:3000/home
+TF_VAR_keycloak_admin_url=/admin
 ```
 
 ## Build and Run

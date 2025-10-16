@@ -1,28 +1,28 @@
-variable "terraform_client_secret" {
+variable "keycloak_terraform_client_secret" {
   type = string
 }
 
-variable "backend_client_secret" {
+variable "keycloak_backend_client_secret" {
   type    = string
   default = "backendclientsecret"
 }
 
-variable "frontend_client_secret" {
+variable "keycloak_frontend_client_secret" {
   type    = string
   default = "frontendclientsecret"
 }
 
-variable "root_url" {
+variable "keycloak_root_url" {
   type    = string
   default = "http://localhost:3000"
 }
 
-variable "base_url" {
+variable "keycloak_base_url" {
   type    = string
   default = "http://localhost:3000/home"
 }
 
-variable "admin_url" {
+variable "keycloak_admin_url" {
   type    = string
   default = "/admin"
 }
