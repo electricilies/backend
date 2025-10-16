@@ -1,30 +1,30 @@
-package error
+package mapper
 
 import (
-	domainerror "backend/internal/domain/error"
+	"backend/internal/domain"
 	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func HandleError(ctx *gin.Context, err error) {
+func FromDomainError(ctx *gin.Context, err error) {
 	if err == nil {
 		return
 	}
 
-	var notFoundErr *domainerror.NotFoundError
-	var conflictErr *domainerror.ConflictError
-	var validationErr *domainerror.ValidationError
-	var badRequestErr *domainerror.BadRequestError
-	var internalErr *domainerror.InternalError
-	var connectionErr *domainerror.ConnectionError
-	var unavailableErr *domainerror.UnavailableError
+	var notFoundErr *domain.NotFoundError
+	var conflictErr *domain.ConflictError
+	var validationErr *domain.ValidationError
+	var badRequestErr *domain.BadRequestError
+	var internalErr *domain.InternalError
+	var connectionErr *domain.ConnectionError
+	var unavailableErr *domain.UnavailableError
 
 	var code string
 	var message string
 
-	var domainErr *domainerror.DomainError
+	var domainErr *domain.Err
 	if errors.As(err, &domainErr) {
 		code = domainErr.Code
 		message = domainErr.Message

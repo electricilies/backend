@@ -2,7 +2,7 @@ package handler
 
 import (
 	"backend/internal/application"
-	"backend/internal/interface/api/error"
+	"backend/internal/interface/api/mapper"
 	"backend/internal/interface/api/request"
 	"net/http"
 
@@ -44,7 +44,7 @@ func (h *userHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("id")
 	u, err := h.app.Get(ctx, id)
 	if err != nil {
-		error.HandleError(ctx, err)
+		mapper.FromDomainError(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, u)
@@ -63,7 +63,7 @@ func (h *userHandler) Get(ctx *gin.Context) {
 func (h *userHandler) List(ctx *gin.Context) {
 	users, err := h.app.List(ctx)
 	if err != nil {
-		error.HandleError(ctx, err)
+		mapper.FromDomainError(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, users)
@@ -91,7 +91,7 @@ func (h *userHandler) Create(ctx *gin.Context) {
 	u := req.ToDomain()
 	created, err := h.app.Create(ctx, u)
 	if err != nil {
-		error.HandleError(ctx, err)
+		mapper.FromDomainError(ctx, err)
 		return
 	}
 
@@ -125,7 +125,7 @@ func (h *userHandler) Update(ctx *gin.Context) {
 	u.ID = id
 
 	if err := h.app.Update(ctx, u); err != nil {
-		error.HandleError(ctx, err)
+		mapper.FromDomainError(ctx, err)
 		return
 	}
 
@@ -147,7 +147,7 @@ func (h *userHandler) Update(ctx *gin.Context) {
 func (h *userHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if err := h.app.Delete(ctx, id); err != nil {
-		error.HandleError(ctx, err)
+		mapper.FromDomainError(ctx, err)
 		return
 	}
 	ctx.Status(http.StatusNoContent)

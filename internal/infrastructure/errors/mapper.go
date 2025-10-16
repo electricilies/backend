@@ -1,4 +1,4 @@
-package error
+package errors
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 
-	domainerror "backend/internal/domain/error"
+	"backend/internal/domain"
 )
 
 func ToDomainError(err error) error {
@@ -16,18 +16,18 @@ func ToDomainError(err error) error {
 	}
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return domainerror.NewNotFoundError("record not found", err)
+		return domain.NewNotFoundError("record not found", err)
 	}
 
 	var pgErr *pgconn.PgError
 	if !errors.As(err, &pgErr) {
-		return domainerror.NewInternalError("unexpected database error", err)
+		return domain.NewInternalError("unexpected database error", err)
 	}
 
 	code := pgErr.Code
 
 	if pgerrcode.IsConnectionException(code) {
-		return domainerror.NewConnectionError(
+		return domain.NewConnectionError(
 			"database connection failed",
 			err,
 		)
@@ -35,13 +35,13 @@ func ToDomainError(err error) error {
 
 	switch code {
 	case pgerrcode.UniqueViolation:
-		return domainerror.NewConflictError(
+		return domain.NewConflictError(
 			pgErr.ConstraintName+" already exists",
 			err,
 		)
 
 	case pgerrcode.ForeignKeyViolation:
-		return domainerror.NewBadRequestError(
+		return domain.NewBadRequestError(
 			"referenced resource does not exist",
 			err,
 		)
@@ -51,19 +51,19 @@ func ToDomainError(err error) error {
 		if field == "" {
 			field = "required field"
 		}
-		return domainerror.NewValidationError(
+		return domain.NewValidationError(
 			field+" is required",
 			err,
 		)
 
 	case pgerrcode.CheckViolation:
-		return domainerror.NewValidationError(
+		return domain.NewValidationError(
 			"validation constraint failed: "+pgErr.ConstraintName,
 			err,
 		)
 
 	case pgerrcode.InvalidTextRepresentation:
-		return domainerror.NewValidationError(
+		return domain.NewValidationError(
 			"invalid data format: "+pgErr.Message,
 			err,
 		)
@@ -73,49 +73,49 @@ func ToDomainError(err error) error {
 		if field == "" {
 			field = "field"
 		}
-		return domainerror.NewValidationError(
+		return domain.NewValidationError(
 			field+" exceeds maximum length",
 			err,
 		)
 
 	case pgerrcode.UndefinedTable:
-		return domainerror.NewInternalError(
+		return domain.NewInternalError(
 			"database table not found",
 			err,
 		)
 
 	case pgerrcode.UndefinedColumn:
-		return domainerror.NewInternalError(
+		return domain.NewInternalError(
 			"database column not found",
 			err,
 		)
 
 	case pgerrcode.DeadlockDetected:
-		return domainerror.NewConflictError(
+		return domain.NewConflictError(
 			"operation conflict, please retry",
 			err,
 		)
 
 	case pgerrcode.SerializationFailure:
-		return domainerror.NewConflictError(
+		return domain.NewConflictError(
 			"concurrent modification detected, please retry",
 			err,
 		)
 
 	case pgerrcode.TooManyConnections:
-		return domainerror.NewUnavailableError(
+		return domain.NewUnavailableError(
 			"service temporarily unavailable, please try again",
 			err,
 		)
 
 	case pgerrcode.QueryCanceled:
-		return domainerror.NewInternalError(
+		return domain.NewInternalError(
 			"operation timed out",
 			err,
 		)
 
 	default:
-		return domainerror.NewInternalError(
+		return domain.NewInternalError(
 			"database error occurred",
 			err,
 		)
