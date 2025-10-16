@@ -1,17 +1,27 @@
+main-go := "./cmd/main.go"
+bin-out := "./backend"
+
 start:
-  go run ./cmd/main.go
+  go run {{main-go}}
 
 build:
-  go build -o backend ./cmd/main.go
+  go build -o {{bin-out}} {{main-go}}
 
 debug:
-  dlv debug --headless --listen=:4444 ./cmd/main.go
+  dlv debug --headless --listen=:4444 {{main-go}}
 
 compose:
   docker compose -f ./docker/compose.yaml up
 
 swagger-docs:
-  swag init -g ./cmd/main.go
+  swag init -g {{main-go}}
+
+[unix]
+swagger-web: swagger-docs
+  #!/usr/bin/env bash
+  set -euo pipefail
+  sleep 1 && xdg-open http://localhost:8081/local.html &
+  python3 -m http.server 8081 --directory=./docs/
 
 atlas-apply-schema env="local" *args='':
   atlas schema apply --env {{env}} {{args}}
