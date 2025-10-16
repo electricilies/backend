@@ -22,6 +22,7 @@
 ## Enviroment variables
 
 ```dotenv
+#Backend env var
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
 DB_DATABASE=electricilies
@@ -29,6 +30,17 @@ DB_PORT=5432 # optional
 DB_HOST=localhost
 ENV_APP=production # optional, If not set, it will run in development mode
 PORT=8080          # optional
+
+# Terraform variable
+# Required
+TF_VAR_terraform_client_secret=BhiJ2qDf9xZp3KrT7LmV5sWe8yA4nC
+
+# Variables with defaults
+TF_VAR_backend_client_secret=backendclientsecret
+TF_VAR_frontend_client_secret=frontendclientsecret
+TF_VAR_root_url=http://localhost:3000
+TF_VAR_base_url=http://localhost:3000/home
+TF_VAR_admin_url=/admin
 ```
 
 ## Build and Run
