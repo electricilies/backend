@@ -16,10 +16,11 @@
       src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js"
       crossorigin
     ></script>
+    <script src="./swagger-local.js"></script>
     <script>
       window.onload = () => {
         window.ui = SwaggerUIBundle({
-          url: "http://localhost:8081/swagger.json",
+          spec: spec,
           dom_id: "#swagger-ui",
         });
       };
