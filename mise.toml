@@ -2,7 +2,7 @@
 
 [env]
 # '_'.file = { path = ".env", required = false }
-_.nix = true
+# _.nix = true
 
 [tasks.build]
 sources = [
