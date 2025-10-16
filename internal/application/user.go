@@ -1,31 +1,31 @@
 package application
 
 import (
-	userdomain "backend/internal/domain/user"
+	"backend/internal/domain/user"
 	"context"
 )
 
 type User interface {
-	Get(ctx context.Context, id string) (*userdomain.User, error)
-	List(ctx context.Context) ([]*userdomain.User, error)
-	Create(ctx context.Context, u *userdomain.User) (*userdomain.User, error)
-	Update(ctx context.Context, u *userdomain.User) error
+	Get(ctx context.Context, id string) (*user.User, error)
+	List(ctx context.Context) ([]*user.User, error)
+	Create(ctx context.Context, u *user.User) (*user.User, error)
+	Update(ctx context.Context, u *user.User) error
 	Delete(ctx context.Context, id string) error
 }
 
 type userApp struct {
-	userRepo    userdomain.Repository
-	userService userdomain.Service
+	userRepo    user.Repository
+	userService user.Service
 }
 
-func NewUser(userRepo userdomain.Repository, userService userdomain.Service) User {
+func NewUser(userRepo user.Repository, userService user.Service) User {
 	return &userApp{
 		userRepo:    userRepo,
 		userService: userService,
 	}
 }
 
-func (a *userApp) Get(ctx context.Context, id string) (*userdomain.User, error) {
+func (a *userApp) Get(ctx context.Context, id string) (*user.User, error) {
 	u, err := a.userRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -33,15 +33,15 @@ func (a *userApp) Get(ctx context.Context, id string) (*userdomain.User, error) 
 	return u, nil
 }
 
-func (a *userApp) List(ctx context.Context) ([]*userdomain.User, error) {
+func (a *userApp) List(ctx context.Context) ([]*user.User, error) {
 	return a.userRepo.List(ctx)
 }
 
-func (a *userApp) Create(ctx context.Context, u *userdomain.User) (*userdomain.User, error) {
+func (a *userApp) Create(ctx context.Context, u *user.User) (*user.User, error) {
 	return a.userRepo.Create(ctx, u)
 }
 
-func (a *userApp) Update(ctx context.Context, u *userdomain.User) error {
+func (a *userApp) Update(ctx context.Context, u *user.User) error {
 	_, err := a.userRepo.Get(ctx, u.ID)
 	if err != nil {
 		return err

@@ -1,8 +1,8 @@
 package handler
 
 import (
-	app "backend/internal/application"
-	errorhandler "backend/internal/interface/api/error"
+	"backend/internal/application"
+	"backend/internal/interface/api/error"
 	"backend/internal/interface/api/request"
 	"net/http"
 
@@ -18,10 +18,10 @@ type User interface {
 }
 
 type userHandler struct {
-	app app.User
+	app application.User
 }
 
-func NewUserHandler(app app.User) User {
+func NewUserHandler(app application.User) User {
 	return &userHandler{app: app}
 }
 
@@ -44,7 +44,7 @@ func (h *userHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("id")
 	u, err := h.app.Get(ctx, id)
 	if err != nil {
-		errorhandler.HandleError(ctx, err)
+		error.HandleError(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, u)
@@ -63,7 +63,7 @@ func (h *userHandler) Get(ctx *gin.Context) {
 func (h *userHandler) List(ctx *gin.Context) {
 	users, err := h.app.List(ctx)
 	if err != nil {
-		errorhandler.HandleError(ctx, err)
+		error.HandleError(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, users)
@@ -91,7 +91,7 @@ func (h *userHandler) Create(ctx *gin.Context) {
 	u := req.ToDomain()
 	created, err := h.app.Create(ctx, u)
 	if err != nil {
-		errorhandler.HandleError(ctx, err)
+		error.HandleError(ctx, err)
 		return
 	}
 
@@ -125,7 +125,7 @@ func (h *userHandler) Update(ctx *gin.Context) {
 	u.ID = id
 
 	if err := h.app.Update(ctx, u); err != nil {
-		errorhandler.HandleError(ctx, err)
+		error.HandleError(ctx, err)
 		return
 	}
 
@@ -147,7 +147,7 @@ func (h *userHandler) Update(ctx *gin.Context) {
 func (h *userHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if err := h.app.Delete(ctx, id); err != nil {
-		errorhandler.HandleError(ctx, err)
+		error.HandleError(ctx, err)
 		return
 	}
 	ctx.Status(http.StatusNoContent)
