@@ -16,14 +16,10 @@ ORDER BY created_at DESC;
 -- name: CreateUser :one
 INSERT INTO users (
   avatar,
-  first_name,
-  last_name,
-  username,
-  email,
   birthday,
   phone_number
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7
+  $1, $2, $3
 )
 RETURNING *;
 
@@ -31,12 +27,8 @@ RETURNING *;
 UPDATE users
 SET
   avatar = COALESCE($2, avatar),
-  first_name = COALESCE($3, first_name),
-  last_name = COALESCE($4, last_name),
-  username = COALESCE($5, username),
-  email = COALESCE($6, email),
-  birthday = COALESCE($7, birthday),
-  phone_number = COALESCE($8, phone_number)
+  birthday = COALESCE($3, birthday),
+  phone_number = COALESCE($4, phone_number)
 WHERE id = $1
   AND deleted_at IS NULL;
 

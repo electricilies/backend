@@ -20,10 +20,6 @@ func (r User) ToDomain() *user.User {
 	return &user.User{
 		ID:          r.ID,
 		Avatar:      r.Avatar,
-		FirstName:   r.FirstName,
-		LastName:    r.LastName,
-		Username:    r.Username,
-		Email:       r.Email,
 		Birthday:    r.Birthday,
 		PhoneNumber: r.PhoneNumber}
 

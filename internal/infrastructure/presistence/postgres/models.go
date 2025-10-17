@@ -12,10 +12,6 @@ import (
 type User struct {
 	ID          uuid.UUID
 	Avatar      pgtype.Text
-	FirstName   pgtype.Text
-	LastName    pgtype.Text
-	Username    string
-	Email       string
 	Birthday    pgtype.Date
 	PhoneNumber pgtype.Text
 	CreatedAt   pgtype.Timestamp

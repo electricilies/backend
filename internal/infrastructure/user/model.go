@@ -31,10 +31,6 @@ func ToDomain(u postgres.User) *user.User {
 	return &user.User{
 		ID:          u.ID.String(),
 		Avatar:      u.Avatar.String,
-		FirstName:   u.FirstName.String,
-		LastName:    u.LastName.String,
-		Username:    u.Username,
-		Email:       u.Email,
 		Birthday:    birthday,
 		PhoneNumber: u.PhoneNumber.String,
 		CreatedAt:   createdAt,
@@ -45,10 +41,6 @@ func ToDomain(u postgres.User) *user.User {
 func ToCreateUserParams(u *user.User) postgres.CreateUserParams {
 	return postgres.CreateUserParams{
 		Avatar:      stringToPgText(u.Avatar),
-		FirstName:   stringToPgText(u.FirstName),
-		LastName:    stringToPgText(u.LastName),
-		Username:    u.Username,
-		Email:       u.Email,
 		Birthday:    timeToPgDate(u.Birthday),
 		PhoneNumber: stringToPgText(u.PhoneNumber),
 	}
@@ -58,10 +50,6 @@ func ToUpdateUserParams(u *user.User) postgres.UpdateUserParams {
 	return postgres.UpdateUserParams{
 		ID:          uuid.MustParse(u.ID),
 		Avatar:      stringToPgText(u.Avatar),
-		FirstName:   stringToPgText(u.FirstName),
-		LastName:    stringToPgText(u.LastName),
-		Username:    u.Username,
-		Email:       u.Email,
 		Birthday:    timeToPgDate(u.Birthday),
 		PhoneNumber: stringToPgText(u.PhoneNumber),
 	}

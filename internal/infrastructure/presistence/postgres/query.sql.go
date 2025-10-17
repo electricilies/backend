@@ -15,46 +15,26 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
   avatar,
-  first_name,
-  last_name,
-  username,
-  email,
   birthday,
   phone_number
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7
+  $1, $2, $3
 )
-RETURNING id, avatar, first_name, last_name, username, email, birthday, phone_number, created_at, deleted_at
+RETURNING id, avatar, birthday, phone_number, created_at, deleted_at
 `
 
 type CreateUserParams struct {
 	Avatar      pgtype.Text
-	FirstName   pgtype.Text
-	LastName    pgtype.Text
-	Username    string
-	Email       string
 	Birthday    pgtype.Date
 	PhoneNumber pgtype.Text
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser,
-		arg.Avatar,
-		arg.FirstName,
-		arg.LastName,
-		arg.Username,
-		arg.Email,
-		arg.Birthday,
-		arg.PhoneNumber,
-	)
+	row := q.db.QueryRow(ctx, createUser, arg.Avatar, arg.Birthday, arg.PhoneNumber)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Avatar,
-		&i.FirstName,
-		&i.LastName,
-		&i.Username,
-		&i.Email,
 		&i.Birthday,
 		&i.PhoneNumber,
 		&i.CreatedAt,
@@ -81,7 +61,7 @@ func (q *Queries) DeleteUser(ctx context.Context, arg DeleteUserParams) error {
 
 const getUser = `-- name: GetUser :one
 
-SELECT id, avatar, first_name, last_name, username, email, birthday, phone_number, created_at, deleted_at
+SELECT id, avatar, birthday, phone_number, created_at, deleted_at
 FROM users
 WHERE id = $1
   AND deleted_at IS NULL
@@ -99,10 +79,6 @@ func (q *Queries) GetUser(ctx context.Context, arg GetUserParams) (User, error) 
 	err := row.Scan(
 		&i.ID,
 		&i.Avatar,
-		&i.FirstName,
-		&i.LastName,
-		&i.Username,
-		&i.Email,
 		&i.Birthday,
 		&i.PhoneNumber,
 		&i.CreatedAt,
@@ -112,7 +88,7 @@ func (q *Queries) GetUser(ctx context.Context, arg GetUserParams) (User, error) 
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, avatar, first_name, last_name, username, email, birthday, phone_number, created_at, deleted_at
+SELECT id, avatar, birthday, phone_number, created_at, deleted_at
 FROM users
 WHERE deleted_at IS NULL
 ORDER BY created_at DESC
@@ -130,10 +106,6 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.Avatar,
-			&i.FirstName,
-			&i.LastName,
-			&i.Username,
-			&i.Email,
 			&i.Birthday,
 			&i.PhoneNumber,
 			&i.CreatedAt,
@@ -153,12 +125,8 @@ const updateUser = `-- name: UpdateUser :exec
 UPDATE users
 SET
   avatar = COALESCE($2, avatar),
-  first_name = COALESCE($3, first_name),
-  last_name = COALESCE($4, last_name),
-  username = COALESCE($5, username),
-  email = COALESCE($6, email),
-  birthday = COALESCE($7, birthday),
-  phone_number = COALESCE($8, phone_number)
+  birthday = COALESCE($3, birthday),
+  phone_number = COALESCE($4, phone_number)
 WHERE id = $1
   AND deleted_at IS NULL
 `
@@ -166,10 +134,6 @@ WHERE id = $1
 type UpdateUserParams struct {
 	ID          uuid.UUID
 	Avatar      pgtype.Text
-	FirstName   pgtype.Text
-	LastName    pgtype.Text
-	Username    string
-	Email       string
 	Birthday    pgtype.Date
 	PhoneNumber pgtype.Text
 }
@@ -178,10 +142,6 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.Exec(ctx, updateUser,
 		arg.ID,
 		arg.Avatar,
-		arg.FirstName,
-		arg.LastName,
-		arg.Username,
-		arg.Email,
 		arg.Birthday,
 		arg.PhoneNumber,
 	)

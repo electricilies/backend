@@ -22,9 +22,6 @@ func UserFromDomain(u *user.User) *User {
 	return &User{
 		ID:          u.ID,
 		Avatar:      u.Avatar,
-		FirstName:   u.FirstName,
-		LastName:    u.LastName,
-		Email:       u.Email,
 		Birthday:    u.Birthday,
 		PhoneNumber: u.PhoneNumber,
 		CreatedAt:   u.CreatedAt,
