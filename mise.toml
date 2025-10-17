@@ -5,13 +5,7 @@
 # _.nix = true
 
 [tasks.build]
-sources = [
-  "./cmd/**/*.go",
-  "./cmd/**/*.go",
-  "./internal/**/*.go",
-  "./pkg/**/*.go",
-  "./go.mod",
-]
+sources = ["./cmd/**/*.go", "./internal/**/*.go", "./pkg/**/*.go", "./go.mod"]
 outputs = ["./backend"]
 run = "go build -gcflags='all=-N -l' -o ./backend ./cmd/main.go"
 
