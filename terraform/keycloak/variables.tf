@@ -4,12 +4,12 @@ variable "keycloak_terraform_client_secret" {
 
 variable "keycloak_backend_client_secret" {
   type    = string
-  default = "backendclientsecret"
+  default = "electricilies"
 }
 
 variable "keycloak_frontend_client_secret" {
   type    = string
-  default = "frontendclientsecret"
+  default = "electricilies"
 }
 
 variable "keycloak_root_url" {
