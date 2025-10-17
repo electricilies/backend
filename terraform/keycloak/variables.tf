@@ -12,17 +12,17 @@ variable "keycloak_frontend_client_secret" {
   default = "electricilies"
 }
 
-variable "keycloak_root_url" {
+variable "keycloak_frontend_root_url" {
   type    = string
   default = "http://localhost:3000"
 }
 
-variable "keycloak_base_url" {
+variable "keycloak_frontend_base_url" {
   type    = string
   default = "http://localhost:3000/home"
 }
 
-variable "keycloak_admin_url" {
+variable "keycloak_frontend_admin_url" {
   type    = string
   default = "/admin"
 }

@@ -27,7 +27,7 @@ services:
 
   keycloak:
     image: keycloak/keycloak:26.4
-    command: start-dev
+    command: ["start-dev", "--features=declarative-user-profile"]
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
