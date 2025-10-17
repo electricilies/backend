@@ -9,13 +9,13 @@ terraform {
 }
 
 resource "keycloak_realm" "electricilies" {
-  realm                          = "electricilies"
-  access_code_lifespan           = "1h"
-  registration_allowed           = true
-  registration_email_as_username = true
-  reset_password_allowed         = true
-  remember_me                    = true
-  login_with_email_allowed       = true
+  realm                    = "electricilies"
+  access_code_lifespan     = "1h"
+  access_token_lifespan    = "12m"
+  registration_allowed     = true
+  reset_password_allowed   = true
+  remember_me              = true
+  login_with_email_allowed = true
   attributes = {
     userProfileEnable = true
   }
@@ -44,7 +44,13 @@ resource "keycloak_openid_client" "frontend" {
 }
 
 resource "keycloak_realm_user_profile" "userprofile" {
-  realm_id = keycloak.electricilies.id
+  realm_id = keycloak_realm.electricilies.id
+  attribute {
+    name = "username"
+  }
+  attribute {
+    name = "email"
+  }
   attribute {
     name         = "phone_number"
     display_name = "Phone Number"
@@ -60,25 +66,33 @@ locals {
 }
 
 resource "keycloak_role" "client_roles" {
-  for_each  = toset(local.map)
+  for_each  = local.map
   realm_id  = keycloak_realm.electricilies.id
   client_id = keycloak_openid_client.frontend.id
   name      = each.value
 }
 
 resource "keycloak_default_roles" "default_roles" {
-  realm_id      = keycloak_realm.electricilies.id
-  default_roles = [local.map.customer]
+  realm_id = keycloak_realm.electricilies.id
+  default_roles = [
+    "frontend/customer",
+  ]
 }
 
-
-resource "keycloak_user" "user" {
+resource "keycloak_user" "users" {
   for_each   = local.map
-  realm_id   = keycloak_realm.realm.id
+  realm_id   = keycloak_realm.electricilies.id
   username   = each.key
   enabled    = true
   email      = "${each.key}@example.com"
-  first_name = title(each.value)
-  last_name  = "User"
+  first_name = title(each.key)
 }
 
+resource "keycloak_user_roles" "users" {
+  for_each = local.map
+  realm_id = keycloak_realm.electricilies.id
+  user_id  = keycloak_user.users[each.key].id
+  role_ids = [
+    keycloak_role.client_roles[each.key].id,
+  ]
+}
