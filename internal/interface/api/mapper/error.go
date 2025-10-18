@@ -8,6 +8,31 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type NotFoundError struct {
+	Error string `json:"error" example:"User with ID 123 not found"`
+	Code  string `json:"code" example:"USER_NOT_FOUND"`
+}
+
+type BadRequestError struct {
+	Error string `json:"error" example:"Email address is invalid"`
+	Code  string `json:"code" example:"INVALID_EMAIL"`
+}
+
+type ConflictError struct {
+	Error string `json:"error" example:"User with email already exists"`
+	Code  string `json:"code" example:"EMAIL_EXISTS"`
+}
+
+type ServiceUnavailableError struct {
+	Error string `json:"error" example:"Database connection failed"`
+	Code  string `json:"code" example:"DB_UNAVAILABLE"`
+}
+
+type InternalServerError struct {
+	Error string `json:"error" example:"An unexpected error occurred"`
+	Code  string `json:"code" example:"INTERNAL_ERROR"`
+}
+
 func ErrorFromDomain(ctx *gin.Context, err error) {
 	if err == nil {
 		return
@@ -34,38 +59,51 @@ func ErrorFromDomain(ctx *gin.Context, err error) {
 
 	switch {
 	case errors.As(err, &notFoundErr):
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"error": message,
-			"code":  code,
-		})
-	case errors.As(err, &validationErr):
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": message,
-			"code":  code,
-		})
-	case errors.As(err, &badRequestErr):
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": message,
-			"code":  code,
-		})
+		SendNotFoundError(ctx, message, code)
+	case errors.As(err, &validationErr), errors.As(err, &badRequestErr):
+		SendBadRequestError(ctx, message, code)
 	case errors.As(err, &conflictErr):
-		ctx.JSON(http.StatusConflict, gin.H{
-			"error": message,
-			"code":  code,
-		})
+		SendConflictError(ctx, message, code)
 	case errors.As(err, &connectionErr), errors.As(err, &unavailableErr):
-		ctx.JSON(http.StatusServiceUnavailable, gin.H{
-			"error": message,
-			"code":  code,
-		})
+		SendServiceUnavailableError(ctx, message, code)
 	case errors.As(err, &internalErr):
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": message,
-			"code":  code,
-		})
+		SendInternalServerError(ctx, message, code)
 	default:
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal server error",
-		})
+		SendInternalServerError(ctx, "Internal server error", "")
 	}
+}
+
+func SendNotFoundError(ctx *gin.Context, message string, code string) {
+	ctx.JSON(http.StatusNotFound, NotFoundError{
+		Error: message,
+		Code:  code,
+	})
+}
+
+func SendBadRequestError(ctx *gin.Context, message string, code string) {
+	ctx.JSON(http.StatusBadRequest, BadRequestError{
+		Error: message,
+		Code:  code,
+	})
+}
+
+func SendConflictError(ctx *gin.Context, message string, code string) {
+	ctx.JSON(http.StatusConflict, ConflictError{
+		Error: message,
+		Code:  code,
+	})
+}
+
+func SendServiceUnavailableError(ctx *gin.Context, message string, code string) {
+	ctx.JSON(http.StatusServiceUnavailable, ServiceUnavailableError{
+		Error: message,
+		Code:  code,
+	})
+}
+
+func SendInternalServerError(ctx *gin.Context, message string, code string) {
+	ctx.JSON(http.StatusInternalServerError, InternalServerError{
+		Error: message,
+		Code:  code,
+	})
 }
