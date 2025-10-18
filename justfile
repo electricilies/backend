@@ -15,8 +15,39 @@ build:
 debug:
   dlv debug --headless --listen=:4444 {{main-go}}
 
+[doc("Run test")]
 test *args="":
   go go test ./... {{args}}
+
+lint-sqlfluff:
+  sqlfluff lint --dialect postgres \
+    ./database/ \
+    ./database/queries/ \
+    ./docker/volume/
+
+lint-golangci-lint *args="":
+  golangci-lint run {{args}}
+
+[doc("Run lint")]
+lint: lint-golangci-lint lint-sqlfluff
+
+format-gofumpt *args="":
+  gofumpt -w . {{args}}
+
+format-sqlfluff:
+  sqlfluff fix --dialect postgres \
+    ./database/ \
+    ./database/queries/ \
+    ./docker/volume/
+
+[doc("Run Format")]
+format: format-gofumpt format-sqlfluff
+
+check-format-gofumpt *args="":
+  gofumpt -l . {{args}}
+
+[doc("Check Format")]
+check-format: check-format-gofumpt
 
 [doc("Docker compose up")]
 compose:

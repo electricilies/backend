@@ -23,73 +23,92 @@ on:
 
 jobs:
   check:
+    name: Check
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - &checkout
+        name: Checkout
         uses: actions/checkout@v5
 
-      - uses: actions/setup-go@v6
+      - &setup-go
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
 
-      - uses: extractions/setup-just@v3
+      - &use-mise
+        uses: jdx/mise-action@v3
+        env:
+          MISE_OVERRIDE_CONFIG_FILENAMES: mise.ci.toml
+        with:
+          experimental: true
 
-      - name: Install deps
+      - &install-go-deps
+        name: Install go deps
         run: go mod download
 
-      - uses: golangci/golangci-lint-action@v8
+      - name: Lint
+        id: lint
+        run: just lint
         continue-on-error: true
 
       - name: Check format
-        run: gofmt -l .
+        id: format
+        run: just check-format
         continue-on-error: true
 
-      - name: Unit Test
+      - name: Test
+        id: test
         run: just test -coverprofile=coverage.txt
         continue-on-error: true
 
       - name: Upload results to Codecov
+        if: ${{ steps.test.outcome == 'success' }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: ${{ github.repository }}
-        continue-on-error: true
 
-      - name: Fail if any previous step failed
-        if: ${{ failure() }}
-        run: |
-          echo "One or more steps failed."
-          exit 1
+      - name: Fail check
+        if: >-
+          ${{
+            steps.lint.outcome == 'failure' ||
+            steps.format.outcome == 'failure' ||
+            steps.test.outcome == 'failure'
+          }}
+        run: exit 1
 
   sonar:
     name: SonarQube
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
     steps:
-      - uses: actions/checkout@v5
+      - <<: *checkout
         with:
           fetch-depth: 0
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   gen-migration:
+    name: Generate Migration
     runs-on: ubuntu-latest
     needs: check
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    if: ${{ startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
     concurrency: gen-migration
     permissions:
       contents: write
     outputs:
       committed: ${{ steps.add-and-commit.outputs.committed }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-      - uses: ariga/setup-atlas@v0
-      - uses: extractions/setup-just@v3
+      - *checkout
+
+      - *use-mise
+
       - name: gen migration
         run: just atlas-gen-migration
+
       - uses: EndBug/add-and-commit@v9
         id: add-and-commit
         with:
@@ -99,26 +118,29 @@ jobs:
             [skip ci]
 
   build-migrate:
+    name: Build Migrate
     runs-on: ubuntu-latest
     needs:
       - check
       - gen-migration
-    if: |
-      (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch')
-      && needs.gen-migration.outputs.committed == 'true'
+    if: >-
+      ${{
+        (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch')
+        && needs.gen-migration.outputs.committed == 'true'
+      }}
     concurrency: build-migrate
     permissions:
       packages: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - *checkout
 
       - name: Get commit hash
         id: commit-hash
         working-directory: .
         run: echo "commit=$(git rev-parse HEAD)" >>"${GITHUB_OUTPUT}"
 
-      - name: Login
+      - &docker-login
+        name: Login
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -137,9 +159,10 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/migrate:${{ github.ref_name }}
 
   build-backend:
+    name: Build Backend
     runs-on: ubuntu-latest
     needs: check
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    if: ${{ startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' }}
     concurrency: build-backend
     permissions:
       packages: write
@@ -152,12 +175,7 @@ jobs:
         working-directory: .
         run: echo "commit=$(git rev-parse HEAD)" >>"${GITHUB_OUTPUT}"
 
-      - name: Login
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - *docker-login
 
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -171,30 +189,26 @@ jobs:
             ghcr.io/${{ github.repository }}:${{ github.ref_name }}
 
   swagger:
+    name: Deploy swagger page
     runs-on: ubuntu-latest
     needs: check
     concurrency: swagger
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
     permissions:
       pages: write
       id-token: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - *checkout
 
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
 
-      - uses: extractions/setup-just@v3
+      - *setup-go
 
-      - uses: actions/setup-go@v6
-        with:
-          go-version-file: go.mod
+      - *use-mise
 
-      - run: go mod download
-
-      - run: go install github.com/swaggo/swag/cmd/swag@latest
+      - *install-go-deps
 
       - run: just swagger-docs
 
@@ -208,14 +222,17 @@ jobs:
         uses: actions/deploy-pages@v4
 
   update-kube:
+    name: Update Kubernetes Manifest
     runs-on: ubuntu-latest
     needs:
       - build-migrate
       - build-backend
-    if: |
-      (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch') &&
-      (needs.build-backend.result == 'success') &&
-      (needs.build-migrate.result == 'success' || needs.build-migrate.result == 'skipped')
+    if: >-
+      ${{
+        (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch') &&
+        (needs.build-backend.result == 'success') &&
+        (needs.build-migrate.result == 'success' || needs.build-migrate.result == 'skipped')
+      }}
     steps:
       - name: Get token
         id: get_token
@@ -227,7 +244,6 @@ jobs:
           repositories: kubernetes-manifest
 
       - name: Trigger Renovate
-
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ steps.get_token.outputs.token }}
