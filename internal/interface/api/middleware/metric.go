@@ -34,8 +34,8 @@ func NewMetric() Metric {
 				Buckets: prometheus.DefBuckets,
 			},
 			[]string{"method", "path", "status"},
-		)}
-
+		),
+	}
 }
 
 func (m *metric) Handler() gin.HandlerFunc {
