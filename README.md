@@ -54,5 +54,4 @@ TF_VAR_keycloak_frontend_admin_url=/admin
 
 ### Dev environment
 
-- Tool required are in [mise.toml](./mise.toml) and [flake.nix](./flake.nix)
-- Either using `direnv` or [`mise-nix`](https://github.com/mise-plugins/mise-nix) to enable flake
+- Tool required are in [mise.toml](./mise.toml)
