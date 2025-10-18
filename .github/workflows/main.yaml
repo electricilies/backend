@@ -51,6 +51,10 @@ jobs:
       - name: Install go deps
         run: go mod download
 
+      - name: Check static type
+        id: static-type
+        run: just check-static-type
+
       - name: Lint
         id: lint
         run: just lint
@@ -76,13 +80,14 @@ jobs:
       - name: Fail check
         run: |
           declare -A check_status=(
+            ["Static type check failed"]=${{ steps.static-type.outcome == 'failure' }}
             ["Lint check failed"]=${{ steps.lint.outcome == 'failure' }}
             ["Format check failed"]=${{ steps.format.outcome == 'failure' }}
             ["Tests failed"]=${{ steps.test.outcome == 'failure' }}
           )
           fail=false
           for msg in "${!check_status[@]}"; do
-              if [ "${check_status[$msg]}" -ne 0 ]; then
+              if [ "${check_status[$msg]}" = "true" ]; then
                   echo "ERROR: $msg" >&2
                   fail=true
               fi

@@ -19,14 +19,17 @@ debug:
 test *args="":
   go test ./... {{args}}
 
+check-static-type:
+  go vet ./cmd/main.go
+
+lint-golangci-lint *args="":
+  golangci-lint run {{args}}
+
 lint-sqlfluff:
   sqlfluff lint --dialect postgres \
     ./database/ \
     ./database/queries/ \
     ./docker/volume/
-
-lint-golangci-lint *args="":
-  golangci-lint run {{args}}
 
 [doc("Run lint")]
 lint: lint-golangci-lint lint-sqlfluff
