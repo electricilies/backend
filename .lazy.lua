@@ -1,4 +1,5 @@
 local basename = vim.fs.basename
+local env = vim.env
 
 ---@module 'lazy'
 ---@type LazySpec
@@ -105,17 +106,16 @@ return {
   {
     "kristijanhusak/vim-dadbod-ui",
     opts = function()
-      vim.env.DBUI_URL = string.format(
+      env.DBUI_URL = string.format(
         "postgres://%s:%s@%s:%s/%s?sslmode=disable",
-        vim.env.DB_USERNAME,
-        vim.env.DB_PASSWORD,
-        vim.env.DB_HOST,
-        vim.env.DB_PORT,
-        vim.env.DB_DATABASE
+        env.DB_USERNAME,
+        env.DB_PASSWORD,
+        env.DB_HOST,
+        env.DB_PORT,
+        env.DB_DATABASE
       )
-      vim.env.DBUI_NAME = "electricilies-local"
+      env.DBUI_NAME = "electricilies-local"
     end,
     optional = true,
-    config = function() end,
   },
 }
