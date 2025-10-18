@@ -16,6 +16,7 @@ run = "./backend"
 [tools]
 atlas = "0.37.0"
 go = "1.25.3"
+"go:github.com/cweill/gotests/gotests" = "v1.6.0"
 "go:github.com/google/wire/cmd/wire" = "0.7.0"
 "go:github.com/sqlc-dev/sqlc/cmd/sqlc" = "1.30.0"
 golangci-lint = "2.5.0"
