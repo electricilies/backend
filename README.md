@@ -13,6 +13,9 @@
   <a href="https://sonarcloud.io/summary/new_code?id=electricilies_backend">
     <img alt="SonarQube Quality Maintainability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=electricilies_backend&metric=sqale_rating"/>
   </a>
+  <a href="https://codecov.io/gh/electricilies/backend">
+    <img alt="Codecov" src="https://codecov.io/gh/electricilies/backend/branch/main/graph/badge.svg"/>
+  </a>
   <br />
   <a href="https://wakatime.com/badge/github/electricilies/backend">
     <img alt="Wakatime" src="https://wakatime.com/badge/github/electricilies/backend.svg"/>

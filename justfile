@@ -15,6 +15,9 @@ build:
 debug:
   dlv debug --headless --listen=:4444 {{main-go}}
 
+test *args="":
+  go go test ./... {{args}}
+
 [doc("Docker compose up")]
 compose:
   docker compose -f ./docker/compose.yaml up
