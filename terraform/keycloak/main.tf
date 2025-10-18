@@ -47,13 +47,77 @@ resource "keycloak_realm_user_profile" "userprofile" {
   realm_id = keycloak_realm.electricilies.id
   attribute {
     name = "username"
+    permissions {
+      view = ["admin", "user"]
+      edit = ["admin", "user"]
+    }
+  }
+  attribute {
+    name         = "firstname"
+    display_name = "First Name"
+    permissions {
+      view = ["admin", "user"]
+      edit = ["admin", "user"]
+    }
+  }
+  attribute {
+    name         = "lastname"
+    display_name = "Last Name"
+    permissions {
+      view = ["admin", "user"]
+      edit = ["admin", "user"]
+    }
   }
   attribute {
     name = "email"
+    permissions {
+      view = ["admin", "user"]
+      edit = ["admin", "user"]
+    }
   }
   attribute {
     name         = "phone_number"
     display_name = "Phone Number"
+    permissions {
+      view = ["admin", "user"]
+      edit = ["admin", "user"]
+    }
+    validator {
+      name = "phone_number"
+      config = {
+        pattern = "^0[0-9]{9,10}$"
+      }
+    }
+  }
+  attribute {
+    name         = "address"
+    display_name = "Address"
+    permissions {
+      view = ["admin", "user"]
+      edit = ["admin", "user"]
+    }
+  }
+  attribute {
+    name         = "birthday"
+    display_name = "Birthday"
+    permissions {
+      view = ["admin", "user"]
+      edit = ["admin", "user"]
+    }
+    annotations = {
+      inputType = "html5-date"
+    }
+  }
+  attribute {
+    name         = "deletedat"
+    display_name = "Deleted At"
+    permissions {
+      view = ["admin"]
+      edit = ["admin"]
+    }
+    annotations = {
+      inputType = "html5-datetime-local"
+    }
   }
 }
 
