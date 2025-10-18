@@ -203,7 +203,6 @@ jobs:
       - build-migrate
       - build-backend
     if: |
-      always() &&
       (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch') &&
       (needs.build-backend.result == 'success') &&
       (needs.build-migrate.result == 'success' || needs.build-migrate.result == 'skipped')
