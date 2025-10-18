@@ -45,7 +45,6 @@ func (j *auth) Handler() gin.HandlerFunc {
 			return
 		}
 		tokens, _, err := j.keycloakClient.DecodeAccessToken(c, token, j.realm)
-
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Cannot decode access token", "detail": err.Error()})
 			return
@@ -54,14 +53,23 @@ func (j *auth) Handler() gin.HandlerFunc {
 		claims, _ := tokens.Claims.(jwt.MapClaims)
 		sub := claims["sub"].(string)
 
-		roles := extractRoles(claims, j.clientId)
-		requiredRoles, err := j.keycloakClient.GetClientRolesByUserID(c, token, j.realm, j.clientId, sub)
+		info, err := j.keycloakClient.GetUserByID(c, token, j.realm, sub)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "false to get role", "detail": err.Error()})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Cannot get user info", "detail": err.Error()})
+			return
 		}
-		requiredRoleNames := make([]string, len(requiredRoles))
-		for i, u := range requiredRoles {
-			requiredRoleNames[i] = *u.Name
+		if !*info.Enabled {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User is banned"})
+			return
+
+		}
+		roles := extractRoles(claims, j.clientId)
+		requiredRoles := info.ClientRoles
+		requiredRoleNames := make([]string, len(*requiredRoles))
+		for c, r := range *requiredRoles {
+			if c == j.clientId {
+				copy(requiredRoleNames, r)
+			}
 		}
 		if equal := reflect.DeepEqual(roles, requiredRoleNames); !equal {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "you don't have enough roles"})
