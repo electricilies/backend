@@ -17,7 +17,7 @@ debug:
 
 [doc("Run test")]
 test *args="":
-  go go test ./... {{args}}
+  go test ./... {{args}}
 
 lint-sqlfluff:
   sqlfluff lint --dialect postgres \

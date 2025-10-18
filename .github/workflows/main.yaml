@@ -74,13 +74,23 @@ jobs:
           slug: ${{ github.repository }}
 
       - name: Fail check
-        if: >-
-          ${{
-            steps.lint.outcome == 'failure' ||
-            steps.format.outcome == 'failure' ||
-            steps.test.outcome == 'failure'
-          }}
-        run: exit 1
+        run: |
+          declare -A check_status=(
+            ["Lint check failed"]=${{ steps.lint.outcome == 'failure' }}
+            ["Format check failed"]=${{ steps.format.outcome == 'failure' }}
+            ["Tests failed"]=${{ steps.test.outcome == 'failure' }}
+          )
+          fail=false
+          for msg in "${!check_status[@]}"; do
+              if [ "${check_status[$msg]}" -ne 0 ]; then
+                  echo "ERROR: $msg" >&2
+                  fail=true
+              fi
+          done
+          if [ "$fail" = true ]; then
+              exit 1
+          fi
+          echo "All checks passed successfully"
 
   sonar:
     name: SonarQube
