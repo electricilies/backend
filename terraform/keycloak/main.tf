@@ -54,6 +54,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       view = ["admin", "user"]
       edit = ["admin", "user"]
     }
+    required_for_roles = ["admin", "user"]
   }
 
   attribute {
@@ -63,6 +64,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       view = ["admin", "user"]
       edit = ["admin", "user"]
     }
+    required_for_roles = ["admin", "user"]
   }
 
   attribute {
@@ -72,6 +74,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       view = ["admin", "user"]
       edit = ["admin", "user"]
     }
+    required_for_roles = ["admin", "user"]
   }
 
   attribute {
@@ -80,6 +83,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       view = ["admin", "user"]
       edit = ["admin", "user"]
     }
+    required_for_roles = ["admin", "user"]
   }
 
   attribute {
@@ -95,6 +99,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
         pattern = "^0[0-9]{9,10}$"
       }
     }
+    required_for_roles = ["admin", "user"]
   }
 
   attribute {
@@ -104,6 +109,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       view = ["admin", "user"]
       edit = ["admin", "user"]
     }
+    required_for_roles = ["admin", "user"]
   }
 
   attribute {
@@ -116,6 +122,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
     annotations = {
       inputType = "html5-date"
     }
+    required_for_roles = ["admin", "user"]
   }
 
   attribute {
