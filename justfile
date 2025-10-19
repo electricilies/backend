@@ -53,8 +53,8 @@ check-format-gofumpt *args="":
 check-format: check-format-gofumpt
 
 [doc("Docker compose up")]
-compose:
-  docker compose -f ./docker/compose.yaml up
+compose *args="":
+  docker compose -f ./docker/compose.yaml up {{args}}
 
 [doc("Generate swagger output to ./docs/ with swag")]
 swagger-docs *args="":
