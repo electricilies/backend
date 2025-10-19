@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"net/http"
-	"reflect"
 	"strings"
 
 	"github.com/Nerzal/gocloak/v13"
@@ -10,11 +9,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type Auth interface {
+type JWTVerify interface {
 	Handler() gin.HandlerFunc
 }
 
-type auth struct {
+type jwtVerify struct {
 	keycloakClient *gocloak.GoCloak
 	keycloakHost   string
 	clientId       string
@@ -22,7 +21,17 @@ type auth struct {
 	realm          string
 }
 
-func (j *auth) Handler() gin.HandlerFunc {
+func NewJWTVerify(keycloakClient *gocloak.GoCloak, keycloakHost, clientId, clientSecret, realm string) JWTVerify {
+	return &jwtVerify{
+		keycloakClient: keycloakClient,
+		keycloakHost:   keycloakHost,
+		clientId:       clientId,
+		clientSecret:   clientSecret,
+		realm:          realm,
+	}
+}
+
+func (j *jwtVerify) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -61,44 +70,9 @@ func (j *auth) Handler() gin.HandlerFunc {
 		if !*info.Enabled {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User is banned"})
 			return
-
 		}
-		roles := extractRoles(claims, j.clientId)
-		requiredRoles := info.ClientRoles
-		requiredRoleNames := make([]string, len(*requiredRoles))
-		for c, r := range *requiredRoles {
-			if c == j.clientId {
-				copy(requiredRoleNames, r)
-			}
-		}
-		if equal := reflect.DeepEqual(roles, requiredRoleNames); !equal {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "you don't have enough roles"})
-			return
-
-		}
+		c.Set("token", token)
+		c.Set("claims", claims)
 		c.Next()
 	}
-}
-
-func extractRoles(claims jwt.MapClaims, clientID string) []string {
-	var roles []string
-
-	resAccess, _ := claims["resource_access"].(map[string]interface{})
-	if resAccess == nil {
-		return roles
-	}
-
-	clientRes, _ := resAccess[clientID].(map[string]interface{})
-	if clientRes == nil {
-		return roles
-	}
-
-	resRoles, _ := clientRes["roles"].([]interface{})
-	for _, r := range resRoles {
-		if role, _ := r.(string); role != "" {
-			roles = append(roles, role)
-		}
-	}
-
-	return roles
 }
