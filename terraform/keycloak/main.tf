@@ -10,8 +10,8 @@ terraform {
 
 resource "keycloak_realm" "electricilies" {
   realm                    = "electricilies"
-  access_code_lifespan     = "1h"
-  access_token_lifespan    = "12m"
+  access_code_lifespan     = "12h"
+  access_token_lifespan    = "8760h"
   registration_allowed     = true
   reset_password_allowed   = true
   remember_me              = true
@@ -24,6 +24,7 @@ resource "keycloak_realm" "electricilies" {
 resource "keycloak_openid_client" "backend" {
   realm_id      = keycloak_realm.electricilies.id
   client_id     = "backend"
+  name          = "Backend"
   access_type   = "CONFIDENTIAL"
   client_secret = var.keycloak_backend_client_secret
 }
@@ -32,6 +33,7 @@ resource "keycloak_openid_client" "frontend" {
   realm_id                        = keycloak_realm.electricilies.id
   client_id                       = "frontend"
   access_type                     = "CONFIDENTIAL"
+  name                            = "Frontend"
   client_secret                   = var.keycloak_frontend_client_secret
   standard_flow_enabled           = true
   standard_token_exchange_enabled = true
@@ -88,7 +90,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       edit = ["admin", "user"]
     }
     validator {
-      name = "phone_number"
+      name = "pattern"
       config = {
         pattern = "^0[0-9]{9,10}$"
       }
@@ -117,7 +119,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
   }
 
   attribute {
-    name         = "deletedat"
+    name         = "deleted-at"
     display_name = "Deleted At"
     permissions {
       view = ["admin"]
@@ -130,49 +132,68 @@ resource "keycloak_realm_user_profile" "userprofile" {
 }
 
 locals {
+  roles = [
+    "admin",
+    "staff",
+    "customer"
+  ]
+
   users = {
     admin = {
-      username = "admin"
-    }
-    customer = {
-      username = "customer"
-    }
+      password = "admin",
+      role     = "admin"
+    },
     staff = {
-      username = "staff"
-    }
+      password = "staff",
+      role     = "staff",
+    },
+    customer = {
+      password = "customer",
+      role     = "customer"
+    },
   }
 }
 
-resource "keycloak_role" "client_roles" {
-  for_each  = local.users
+resource "keycloak_role" "backend_roles" {
+  for_each = toset(local.roles)
+
   realm_id  = keycloak_realm.electricilies.id
-  client_id = keycloak_openid_client.frontend.id
-  name      = each.value.username
+  client_id = keycloak_openid_client.backend.id
+  name      = each.key
 }
 
 resource "keycloak_default_roles" "default_roles" {
   realm_id = keycloak_realm.electricilies.id
   default_roles = [
-    "${keycloak_openid_client.backend.id}/${keycloak_role.client_roles["customer"].name}",
+    "${keycloak_openid_client.backend.client_id}/${keycloak_role.backend_roles["customer"].name}",
   ]
 }
 
 resource "keycloak_user" "users" {
-  for_each   = local.users
-  realm_id   = keycloak_realm.electricilies.id
-  username   = each.value.username
-  enabled    = true
-  email      = "${each.value.username}@example.com"
-  first_name = title(each.value.username)
-  depends_on = [keycloak_realm_user_profile.userprofile]
+  for_each = local.users
+  depends_on = [
+    keycloak_realm_user_profile.userprofile,
+  ]
+
+  realm_id = keycloak_realm.electricilies.id
+  username = each.key
+  initial_password {
+    value = each.value.password
+  }
+  email          = "${each.key}@example.com"
+  email_verified = true
+  attributes = {
+    first_name = title(each.key)
+  }
 }
 
 resource "keycloak_user_roles" "users" {
   for_each = local.users
+
   realm_id = keycloak_realm.electricilies.id
   user_id  = keycloak_user.users[each.key].id
   role_ids = [
-    keycloak_role.client_roles[each.key].id,
+    keycloak_role.backend_roles[each.value.role].id,
   ]
 }
 
