@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"backend/internal/domain"
+	"backend/pkg/constants"
 	"errors"
 	"net/http"
 
@@ -46,64 +47,55 @@ func ErrorFromDomain(ctx *gin.Context, err error) {
 	var connectionErr *domain.ConnectionError
 	var unavailableErr *domain.UnavailableError
 
-	var code string
-	var message string
-
-	var domainErr *domain.Err
-	if errors.As(err, &domainErr) {
-		code = domainErr.Code
-		message = domainErr.Message
-	} else {
-		message = err.Error()
-	}
+	message := err.Error()
 
 	switch {
 	case errors.As(err, &notFoundErr):
-		SendNotFoundError(ctx, message, code)
+		SendNotFoundError(ctx, message)
 	case errors.As(err, &validationErr), errors.As(err, &badRequestErr):
-		SendBadRequestError(ctx, message, code)
+		SendBadRequestError(ctx, message)
 	case errors.As(err, &conflictErr):
-		SendConflictError(ctx, message, code)
+		SendConflictError(ctx, message)
 	case errors.As(err, &connectionErr), errors.As(err, &unavailableErr):
-		SendServiceUnavailableError(ctx, message, code)
+		SendServiceUnavailableError(ctx, message)
 	case errors.As(err, &internalErr):
-		SendInternalServerError(ctx, message, code)
+		SendInternalServerError(ctx, message)
 	default:
-		SendInternalServerError(ctx, "Internal server error", "")
+		SendInternalServerError(ctx, "Internal server error")
 	}
 }
 
-func SendNotFoundError(ctx *gin.Context, message string, code string) {
+func SendNotFoundError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusNotFound, NotFoundError{
 		Error: message,
-		Code:  code,
+		Code:  constants.ErrCodeNotFound,
 	})
 }
 
-func SendBadRequestError(ctx *gin.Context, message string, code string) {
+func SendBadRequestError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusBadRequest, BadRequestError{
 		Error: message,
-		Code:  code,
+		Code:  constants.ErrCodeBadRequest,
 	})
 }
 
-func SendConflictError(ctx *gin.Context, message string, code string) {
+func SendConflictError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusConflict, ConflictError{
 		Error: message,
-		Code:  code,
+		Code:  constants.ErrCodeConflict,
 	})
 }
 
-func SendServiceUnavailableError(ctx *gin.Context, message string, code string) {
+func SendServiceUnavailableError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusServiceUnavailable, ServiceUnavailableError{
 		Error: message,
-		Code:  code,
+		Code:  constants.ErrCodeUnavailable,
 	})
 }
 
-func SendInternalServerError(ctx *gin.Context, message string, code string) {
+func SendInternalServerError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusInternalServerError, InternalServerError{
 		Error: message,
-		Code:  code,
+		Code:  constants.ErrCodeInternal,
 	})
 }
