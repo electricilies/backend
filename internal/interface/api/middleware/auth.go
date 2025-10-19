@@ -15,16 +15,14 @@ type JWTVerify interface {
 
 type jwtVerify struct {
 	keycloakClient *gocloak.GoCloak
-	keycloakHost   string
 	clientId       string
 	clientSecret   string
 	realm          string
 }
 
-func NewJWTVerify(keycloakClient *gocloak.GoCloak, keycloakHost, clientId, clientSecret, realm string) JWTVerify {
+func NewJWTVerify(keycloakClient *gocloak.GoCloak, clientId, clientSecret, realm string) JWTVerify {
 	return &jwtVerify{
 		keycloakClient: keycloakClient,
-		keycloakHost:   keycloakHost,
 		clientId:       clientId,
 		clientSecret:   clientSecret,
 		realm:          realm,

@@ -40,6 +40,15 @@ DB_HOST=localhost
 ENV_APP=production # optional, If not set, it will run in development mode
 PORT=8080          # optional
 
+#Keycloak
+KC_ADMIN=admin
+KC_ADMIN_PASSWORD=admin
+KC_DB=postgres
+KC_DB_URL_DATABASE=keycloak
+KC_REALM=electricilies
+KC_CLIENT_ID=backend
+KC_CLIENT_SECRET=electricilies
+
 # Terraform variable
 # Required
 TF_VAR_keycloak_terraform_client_secret=BhiJ2qDf9xZp3KrT7LmV5sWe8yA4nC
