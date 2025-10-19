@@ -49,6 +49,14 @@ KC_REALM=electricilies
 KC_CLIENT_ID=backend
 KC_CLIENT_SECRET=electricilies
 
+#MinIO
+S3_USER=electricilies
+S3_PASSWORD=electricilies
+S3_ENDPOINT=http://localhost:9000
+
+#Redis
+REDIS_ADDRESS=http://localhost:6379
+
 # Terraform variable
 # Required
 TF_VAR_keycloak_terraform_client_secret=BhiJ2qDf9xZp3KrT7LmV5sWe8yA4nC

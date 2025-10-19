@@ -5,6 +5,7 @@ import (
 	"backend/internal/di"
 	"backend/pkg/logger"
 	"io"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,5 +16,8 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = io.Discard
 	logger.InitializeLogger()
-	_ = s.Run()
+	err := s.Run()
+	if err != nil {
+		log.Fatal("Server run error", err)
+	}
 }

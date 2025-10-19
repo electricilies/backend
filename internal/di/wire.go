@@ -5,15 +5,15 @@ package di
 
 import (
 	app "backend/internal/application"
+	"backend/internal/di/client"
+	"backend/internal/di/db"
+	"backend/internal/di/ginengine"
 	userservice "backend/internal/domain/user"
 	userrepo "backend/internal/infrastructure/user"
 	handler "backend/internal/interface/api/handler"
 	middleware "backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
-
-	"backend/internal/di/db"
-	"backend/internal/di/ginengine"
 
 	"github.com/google/wire"
 )
@@ -54,7 +54,12 @@ var RouterSet = wire.NewSet(
 	router.NewRouter,
 )
 
+var ClientSet = wire.NewSet(
+	client.NewRedis,
+	client.NewS3,
+)
+
 func InitializeServer() *server.Server {
-	wire.Build(DBSet, EngineSet, RepositorySet, ServiceSet, AppSet, MiddlewareSet, HandlerSet, RouterSet, server.NewServer)
+	wire.Build(DBSet, EngineSet, RepositorySet, ServiceSet, AppSet, MiddlewareSet, HandlerSet, RouterSet, ClientSet, server.NewServer)
 	return nil
 }

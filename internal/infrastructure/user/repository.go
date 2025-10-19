@@ -6,16 +6,22 @@ import (
 	"backend/internal/infrastructure/presistence/postgres"
 	"context"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 )
 
 type repositoryImpl struct {
-	db *postgres.Queries
+	db          *postgres.Queries
+	s3Client    *s3.Client
+	redisClient *redis.Client
 }
 
-func NewRepository(query *postgres.Queries) user.Repository {
+func NewRepository(query *postgres.Queries, s3Client *s3.Client, redisClient *redis.Client) user.Repository {
 	return &repositoryImpl{
-		db: query,
+		db:          query,
+		s3Client:    s3Client,
+		redisClient: redisClient,
 	}
 }
 
@@ -44,7 +50,6 @@ func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
 
 func (r *repositoryImpl) Create(ctx context.Context, u *user.User) (*user.User, error) {
 	createdUser, err := r.db.CreateUser(ctx, ToCreateUserParams(u))
-
 	if err != nil {
 		return nil, errors.ToDomainError(err)
 	}

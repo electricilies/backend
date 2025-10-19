@@ -8,6 +8,7 @@ package di
 
 import (
 	"backend/internal/application"
+	"backend/internal/di/client"
 	"backend/internal/di/db"
 	"backend/internal/di/ginengine"
 	user2 "backend/internal/domain/user"
@@ -25,7 +26,9 @@ func InitializeServer() *server.Server {
 	engine := ginengine.NewEngine()
 	conn := db.NewDBConnection()
 	queries := db.NewDB(conn)
-	repository := user.NewRepository(queries)
+	s3Client := client.NewS3()
+	redisClient := client.NewRedis()
+	repository := user.NewRepository(queries, s3Client, redisClient)
 	transactor := db.NewTransactor(conn)
 	service := user2.NewService(repository, transactor)
 	applicationUser := application.NewUser(repository, service)
@@ -55,3 +58,5 @@ var MiddlewareSet = wire.NewSet(middleware.NewMetric, middleware.NewLogging)
 var HandlerSet = wire.NewSet(handler.NewUserHandler, handler.NewHealthCheck)
 
 var RouterSet = wire.NewSet(router.NewRouter)
+
+var ClientSet = wire.NewSet(client.NewRedis, client.NewS3)
