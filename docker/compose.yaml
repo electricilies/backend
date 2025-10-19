@@ -52,8 +52,8 @@ services:
       - /data
       - --console-address=:9001
     environment:
-      MINIO_ROOT_USER: ${S3_USER:-electricilies}
-      MINIO_ROOT_PASSWORD: ${S3_PASSWORD:-electricilies}
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-electricilies}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-electricilies}
     volumes:
       - minio:/data
     restart: unless-stopped
