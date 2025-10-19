@@ -53,7 +53,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
     }
   }
   attribute {
-    name         = "firstname"
+    name         = "first_name"
     display_name = "First Name"
     permissions {
       view = ["admin", "user"]
@@ -61,7 +61,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
     }
   }
   attribute {
-    name         = "lastname"
+    name         = "last_name"
     display_name = "Last Name"
     permissions {
       view = ["admin", "user"]
@@ -139,7 +139,7 @@ resource "keycloak_role" "client_roles" {
 resource "keycloak_default_roles" "default_roles" {
   realm_id = keycloak_realm.electricilies.id
   default_roles = [
-    "frontend/customer",
+    "${keycloak_openid_client.frontend.id}/${keycloak_role.client_roles["customer"].name}",
   ]
 }
 
