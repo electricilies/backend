@@ -30,44 +30,50 @@
 
 ### Environment variables
 
+#### Main
+
 ```dotenv
-#Backend env var
+# Backend env var
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
 DB_DATABASE=electricilies
 DB_PORT=5432 # optional
 DB_HOST=localhost
-ENV_APP=production # optional, If not set, it will run in development mode
-PORT=8080          # optional
+PORT=8080 # optional
 
-#Keycloak
-KC_ADMIN=admin
-KC_ADMIN_PASSWORD=admin
-KC_DB=postgres
-KC_DB_URL_DATABASE=keycloak
-KC_REALM=electricilies
+# Keycloak
 KC_CLIENT_ID=backend
 KC_CLIENT_SECRET=electricilies
+KC_REALM=electricilies
 
-#MinIO
+# S3 / S3 Compatible (MinIO)
 S3_USER=electricilies
 S3_PASSWORD=electricilies
 S3_ENDPOINT=http://localhost:9000
 
-#Redis
+# Redis / Redis Compatible
 REDIS_ADDRESS=http://localhost:6379
 
 # Terraform variable
-# Required
-TF_VAR_keycloak_terraform_client_secret=BhiJ2qDf9xZp3KrT7LmV5sWe8yA4nC
+TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keycloak terraform docs
+```
 
-# Variables with defaults
+#### Extra / Optionals
+
+```dotenv
+# Terraform
 TF_VAR_keycloak_backend_client_secret=backendclientsecret
 TF_VAR_keycloak_frontend_client_secret=frontendclientsecret
 TF_VAR_keycloak_frontend_root_url=http://localhost:3000
 TF_VAR_keycloak_frontend_base_url=http://localhost:3000/home
 TF_VAR_keycloak_frontend_admin_url=/admin
 ```
+
+> [!NOTE]
+>
+> - More extra/optional:
+>   - [./docker/compose.yaml](./docker/compose.yaml)
+>   - [./terraform/keycloak/variables.tf](./terraform/keycloak/variables.tf)
 
 ### Dev environment
 
