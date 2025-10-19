@@ -39,12 +39,13 @@ resource "keycloak_openid_client" "frontend" {
   root_url                        = var.keycloak_frontend_root_url
   base_url                        = var.keycloak_frontend_base_url
   valid_redirect_uris             = ["*"]
-  web_origins                     = ["+"]
+  web_origins                     = ["*"]
   admin_url                       = var.keycloak_frontend_admin_url
 }
 
 resource "keycloak_realm_user_profile" "userprofile" {
   realm_id = keycloak_realm.electricilies.id
+
   attribute {
     name = "username"
     permissions {
@@ -52,6 +53,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       edit = ["admin", "user"]
     }
   }
+
   attribute {
     name         = "first_name"
     display_name = "First Name"
@@ -60,6 +62,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       edit = ["admin", "user"]
     }
   }
+
   attribute {
     name         = "last_name"
     display_name = "Last Name"
@@ -68,6 +71,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       edit = ["admin", "user"]
     }
   }
+
   attribute {
     name = "email"
     permissions {
@@ -75,6 +79,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       edit = ["admin", "user"]
     }
   }
+
   attribute {
     name         = "phone_number"
     display_name = "Phone Number"
@@ -89,6 +94,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       }
     }
   }
+
   attribute {
     name         = "address"
     display_name = "Address"
@@ -97,6 +103,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       edit = ["admin", "user"]
     }
   }
+
   attribute {
     name         = "birthday"
     display_name = "Birthday"
@@ -108,6 +115,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
       inputType = "html5-date"
     }
   }
+
   attribute {
     name         = "deletedat"
     display_name = "Deleted At"
@@ -122,42 +130,49 @@ resource "keycloak_realm_user_profile" "userprofile" {
 }
 
 locals {
-  map = {
-    admin    = "admin"
-    customer = "customer"
-    staff    = "staff"
+  users = {
+    admin = {
+      username = "admin"
+    }
+    customer = {
+      username = "customer"
+    }
+    staff = {
+      username = "staff"
+    }
   }
 }
 
 resource "keycloak_role" "client_roles" {
-  for_each  = local.map
+  for_each  = local.users
   realm_id  = keycloak_realm.electricilies.id
   client_id = keycloak_openid_client.frontend.id
-  name      = each.value
+  name      = each.value.username
 }
 
 resource "keycloak_default_roles" "default_roles" {
   realm_id = keycloak_realm.electricilies.id
   default_roles = [
-    "${keycloak_openid_client.frontend.id}/${keycloak_role.client_roles["customer"].name}",
+    "${keycloak_openid_client.backend.id}/${keycloak_role.client_roles["customer"].name}",
   ]
 }
 
 resource "keycloak_user" "users" {
-  for_each   = local.map
+  for_each   = local.users
   realm_id   = keycloak_realm.electricilies.id
-  username   = each.key
+  username   = each.value.username
   enabled    = true
-  email      = "${each.key}@example.com"
-  first_name = title(each.key)
+  email      = "${each.value.username}@example.com"
+  first_name = title(each.value.username)
   depends_on = [keycloak_realm_user_profile.userprofile]
 }
 
 resource "keycloak_user_roles" "users" {
-  for_each = local.map
+  for_each = local.users
   realm_id = keycloak_realm.electricilies.id
   user_id  = keycloak_user.users[each.key].id
   role_ids = [
     keycloak_role.client_roles[each.key].id,
   ]
 }
+
