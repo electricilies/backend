@@ -47,8 +47,9 @@ KC_CLIENT_SECRET=electricilies
 KC_REALM=electricilies
 
 # S3 / S3 Compatible (MinIO)
-S3_USER=electricilies
-S3_PASSWORD=electricilies
+S3_ACCESS_KEY=electricilies
+S3_SECRET_KEY=electricilies
+S3_REGION_NAME=us-east-1
 S3_ENDPOINT=http://localhost:9000
 
 # Redis / Redis Compatible
