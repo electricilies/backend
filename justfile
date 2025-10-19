@@ -3,10 +3,6 @@ set dotenv-load
 main-go := "./cmd/main.go"
 bin-out := "./backend"
 
-[doc("Watch dev")]
-dev:
-  mise watch dev
-
 [doc("Build")]
 build:
   go build -o {{bin-out}} {{main-go}}

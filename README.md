@@ -52,7 +52,7 @@ S3_PASSWORD=electricilies
 S3_ENDPOINT=http://localhost:9000
 
 # Redis / Redis Compatible
-REDIS_ADDRESS=http://localhost:6379
+REDIS_ADDRESS=localhost:6379
 
 # Terraform variable
 TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keycloak terraform docs

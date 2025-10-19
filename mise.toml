@@ -4,16 +4,8 @@
 # '_'.file = { path = ".env", required = false }
 # _.nix = true
 
-[tasks.build]
-sources = ["./cmd/**/*.go", "./internal/**/*.go", "./pkg/**/*.go", "./go.mod"]
-outputs = ["./backend"]
-run = "go build -gcflags='all=-N -l' -o ./backend ./cmd/main.go"
-
-[tasks.dev]
-depends = "build"
-run = "./backend"
-
 [tools]
+air = "latest"
 atlas = "0.37.0"
 go = "1.25.3"
 "go:github.com/cweill/gotests/gotests" = "v1.6.0"
