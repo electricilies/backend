@@ -150,6 +150,7 @@ resource "keycloak_user" "users" {
   enabled    = true
   email      = "${each.key}@example.com"
   first_name = title(each.key)
+  depends_on = [keycloak_realm_user_profile.userprofile]
 }
 
 resource "keycloak_user_roles" "users" {
