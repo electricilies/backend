@@ -30,8 +30,6 @@
 
 ### Environment variables
 
-#### Main
-
 ```dotenv
 # Backend env var
 DB_USERNAME=postgres
@@ -57,17 +55,6 @@ REDIS_ADDRESS=localhost:6379
 
 # Terraform variable
 TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keycloak terraform docs
-```
-
-#### Extra / Optionals
-
-```dotenv
-# Terraform
-TF_VAR_keycloak_backend_client_secret=backendclientsecret
-TF_VAR_keycloak_frontend_client_secret=frontendclientsecret
-TF_VAR_keycloak_frontend_root_url=http://localhost:3000
-TF_VAR_keycloak_frontend_base_url=http://localhost:3000/home
-TF_VAR_keycloak_frontend_admin_url=/admin
 ```
 
 > [!NOTE]
