@@ -12,7 +12,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func NewDBConnection() *pgx.Conn {
+func NewConnection() *pgx.Conn {
 	conn, err := pgx.Connect(context.Background(), fmt.Sprintf(
 		"postgres://%s:%s@%s:%d/%s",
 		config.Cfg.DBUsername,
@@ -27,7 +27,7 @@ func NewDBConnection() *pgx.Conn {
 	return conn
 }
 
-func NewDB(c *pgx.Conn) *postgres.Queries {
+func New(c *pgx.Conn) *postgres.Queries {
 	q := postgres.New(c)
 	return q
 }

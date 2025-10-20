@@ -24,8 +24,8 @@ import (
 
 func InitializeServer() *server.Server {
 	engine := ginengine.NewEngine()
-	conn := db.NewDBConnection()
-	queries := db.NewDB(conn)
+	conn := db.NewConnection()
+	queries := db.New(conn)
 	s3Client := client.NewS3()
 	redisClient := client.NewRedis()
 	repository := user.NewRepository(queries, s3Client, redisClient)
@@ -43,7 +43,7 @@ func InitializeServer() *server.Server {
 
 // wire.go:
 
-var DBSet = wire.NewSet(db.NewDBConnection, db.NewDB, db.NewTransactor)
+var DBSet = wire.NewSet(db.NewConnection, db.New, db.NewTransactor)
 
 var EngineSet = wire.NewSet(ginengine.NewEngine)
 
