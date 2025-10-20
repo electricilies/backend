@@ -1,11 +1,12 @@
 package main
 
 import (
+	"io"
+	"log"
+
 	"backend/config"
 	"backend/internal/di"
 	"backend/pkg/logger"
-	"io"
-	"log"
 
 	"github.com/gin-gonic/gin"
 )

@@ -5,7 +5,8 @@ lsp.config("gopls", {
   settings = {
     gopls = {
       buildFlags = {
-        "-tags=integration",
+        "-tags",
+        "integration",
       },
     },
   },
@@ -17,20 +18,23 @@ map("n", "<localleader>lb", function()
     "integration",
     "wireinject",
   }, {
-    prompt = "Select gopls build flags:",
-  }, function(flag)
-    if not flag then
+    prompt = "Select gopls build tag",
+  }, function(tag)
+    if not tag then
       return
     end
-    lsp.config["gopls"] = {
+    local clients = lsp.get_clients({ name = "gopls" })
+    lsp.stop_client(clients, true)
+    lsp.config.gopls = {
       settings = {
-        buildFlags = {
-          "-tags=" .. flag ~= "none" and flag or "",
+        gopls = {
+          buildFlags = tag ~= "none" and {
+            "-tags",
+            tag,
+          } or {},
         },
       },
     }
-    local clients = lsp.get_clients({ name = "gopls" })
-    lsp.stop_client(clients, true)
     lsp.start(lsp.config["gopls"])
   end)
 end, { desc = "LSP | Switch buildFlags", silent = true })
