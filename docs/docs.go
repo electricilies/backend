@@ -337,22 +337,10 @@ const docTemplate = `{
                 "deletedAt": {
                     "type": "string"
                 },
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "string"
                 },
-                "lastName": {
-                    "type": "string"
-                },
                 "phoneNumber": {
-                    "type": "string"
-                },
-                "username": {
                     "type": "string"
                 }
             }
