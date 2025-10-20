@@ -1,11 +1,10 @@
 package client
 
 import (
+	"backend/config"
 	"context"
 	"fmt"
 	"log"
-
-	"backend/config"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
@@ -24,6 +23,7 @@ func NewS3() *s3.Client {
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
 		o.UsePathStyle = true
 		o.BaseEndpoint = aws.String(viper.GetString(config.Cfg.S3Endpoint))
+		o.UsePathStyle = true
 	})
 	output, err := client.ListBuckets(context.Background(), &s3.ListBucketsInput{})
 	if err != nil {
