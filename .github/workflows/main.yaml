@@ -87,7 +87,7 @@ jobs:
           echo "All checks passed successfully"
 
   test:
-    name: Test
+    name: Test ${{ matrix.os }}/${{ matrix.arch }}
     needs: check
     strategy:
       matrix:
