@@ -21,6 +21,7 @@ const (
 	S3SecretKey    = "S3_SECRET_KEY"
 	S3RegionName   = "S3_REGION_NAME"
 	S3Endpoint     = "S3_ENDPOINT"
+	S3Bucket       = "S3_BUCKET"
 )
 
 type Config struct {
@@ -40,6 +41,7 @@ type Config struct {
 	S3SecretKey    string
 	S3RegionName   string
 	S3Endpoint     string
+	S3Bucket       string
 }
 
 var Cfg *Config
@@ -68,5 +70,6 @@ func LoadConfig() {
 		S3SecretKey:    viper.GetString(S3SecretKey),
 		S3RegionName:   viper.GetString(S3RegionName),
 		S3Endpoint:     viper.GetString(S3Endpoint),
+		S3Bucket:       viper.GetString(S3Bucket),
 	}
 }

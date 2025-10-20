@@ -78,17 +78,16 @@ atlas-gen-migration env="dev":
   atlas migrate diff --env {{env}}
 
 [doc("Export a Keycloak realm to JSON")]
-export-realm container="keycloak" realm="electricilies":
+export-realm container="electricilies-backend-keycloak-1" realm="electricilies":
   docker exec -it {{container}} \
     /opt/keycloak/bin/kc.sh export \
     --realm {{realm}} \
-    --file /tmp/{{realm}}.json
-  docker cp keycloak:/tmp/{{realm}}.json ./keycloak/realm-export/{{realm}}.json
-
+    --file /{{realm}}.json
+  docker cp {{container}}:/{{realm}}.json ./keycloak/{{realm}}-export.json
 
 [doc("Import a Keycloak realm from JSON")]
-import-realm file="./keycloak/realm-export/electricilies.json":
-  docker cp {{file}} keycloak:/tmp/
-  docker exec -it keycloak \
+import-realm container="electricilies-backend-keycloak-1" file="./keycloak/electricilies-export.json" realm="electricilies":
+  docker cp {{file}} {{container}}:/{{realm}}-export.json
+  docker exec -it {{container}} \
     /opt/keycloak/bin/kc.sh import \
-    --file /tmp/{{file}}
+    --file {{realm}}-export.json

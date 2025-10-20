@@ -49,6 +49,7 @@ S3_ACCESS_KEY=electricilies
 S3_SECRET_KEY=electricilies
 S3_REGION_NAME=us-east-1
 S3_ENDPOINT=http://localhost:9000
+S3_BUCKET=electricilies
 
 # Redis / Redis Compatible
 REDIS_ADDRESS=localhost:6379

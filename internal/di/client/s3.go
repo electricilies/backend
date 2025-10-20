@@ -3,17 +3,18 @@ package client
 import (
 	"backend/config"
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/spf13/viper"
 )
 
 func NewS3() *s3.Client {
+	if config.Cfg.S3Bucket == "" {
+		log.Fatal("need bucket")
+	}
 	cfg, err := awsconfig.LoadDefaultConfig(
 		context.Background(),
 		awsconfig.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(config.Cfg.S3AccessKey, config.Cfg.S3SecretKey, "")), awsconfig.WithRegion(config.Cfg.S3RegionName))
@@ -22,17 +23,18 @@ func NewS3() *s3.Client {
 	}
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
 		o.UsePathStyle = true
-		o.BaseEndpoint = aws.String(viper.GetString(config.Cfg.S3Endpoint))
-		o.UsePathStyle = true
+		o.BaseEndpoint = aws.String(config.Cfg.S3Endpoint)
 	})
-	output, err := client.ListBuckets(context.Background(), &s3.ListBucketsInput{})
-	if err != nil {
-		fmt.Println("Nooooo")
-	} else {
-		fmt.Println("Yes")
-		for bucket := range output.Buckets {
-			fmt.Println("Bucket", bucket)
-		}
+	exist, err := client.HeadBucket(
+		context.Background(),
+		&s3.HeadBucketInput{Bucket: aws.String(config.Cfg.S3Bucket)},
+	)
+	if exist != nil {
+		log.Fatalf("error occurs: %v", err)
 	}
+	if err != nil {
+		log.Fatalf("bucket not exist: %v", err)
+	}
+
 	return client
 }
