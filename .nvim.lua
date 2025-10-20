@@ -1,6 +1,7 @@
 local map = vim.keymap.set
+local lsp = vim.lsp
 
-vim.lsp.config("gopls", {
+lsp.config("gopls", {
   settings = {
     gopls = {
       buildFlags = {
@@ -18,24 +19,24 @@ map("n", "<localleader>lb", function()
   }, {
     prompt = "Select gopls build flags:",
   }, function(flag)
-    vim.lsp.config["gopls"] = {
+    if not flag then
+      return
+    end
+    lsp.config["gopls"] = {
       settings = {
         buildFlags = {
-          "-tags" .. flag,
+          "-tags=" .. flag ~= "none" and flag or "",
         },
       },
     }
-    for _, client in ipairs(vim.lsp.client()) do
-      if client.name == "gopls" then
-        vim.lsp.stop_client(client, true)
-      end
-    end
-    vim.lsp.start(vim.lsp.config["gopls"])
+    local clients = lsp.get_clients({ name = "gopls" })
+    lsp.stop_client(clients, true)
+    lsp.start(lsp.config["gopls"])
   end)
 end, { desc = "LSP | Switch buildFlags", silent = true })
 
--- if vim.lsp.config["swaggo_ls"] then
---  vim.lsp.enable("swaggo_ls")
+-- if lsp.config["swaggo_ls"] then
+--  lsp.enable("swaggo_ls")
 -- end
 
 vim.filetype.add({
