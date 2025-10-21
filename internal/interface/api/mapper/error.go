@@ -34,6 +34,16 @@ type InternalServerError struct {
 	Code  string `json:"code" example:"INTERNAL_ERROR"`
 }
 
+type UnauthorizedError struct {
+	Error string `json:"error" example:"Unauthorized access"`
+	Code  string `json:"code" example:"UNAUTHORIZED"`
+}
+
+type ForbiddenError struct {
+	Error string `json:"error" example:"Forbidden access"`
+	Code  string `json:"code" example:"FORBIDDEN"`
+}
+
 func ErrorFromDomain(ctx *gin.Context, err error) {
 	if err == nil {
 		return
@@ -46,6 +56,8 @@ func ErrorFromDomain(ctx *gin.Context, err error) {
 	var internalErr *domain.InternalError
 	var connectionErr *domain.ConnectionError
 	var unavailableErr *domain.UnavailableError
+	var unauthorizedErr *domain.UnauthorizedError
+	var forbiddenErr *domain.ForbiddenError
 
 	message := err.Error()
 
@@ -60,6 +72,11 @@ func ErrorFromDomain(ctx *gin.Context, err error) {
 		SendServiceUnavailableError(ctx, message)
 	case errors.As(err, &internalErr):
 		SendInternalServerError(ctx, message)
+	case errors.As(err, &unauthorizedErr):
+		SendUnauthorizedError(ctx, message)
+	case errors.As(err, &forbiddenErr):
+		SendForbiddenError(ctx, message)
+
 	default:
 		SendInternalServerError(ctx, "Internal server error")
 	}
@@ -98,4 +115,20 @@ func SendInternalServerError(ctx *gin.Context, message string) {
 		Error: message,
 		Code:  constants.ErrCodeInternal,
 	})
+}
+
+func SendUnauthorizedError(ctx *gin.Context, message string) {
+	ctx.JSON(http.StatusUnauthorized,
+		ForbiddenError{
+			Error: message,
+			Code:  constants.ErrCodeInternal,
+		})
+}
+
+func SendForbiddenError(ctx *gin.Context, message string) {
+	ctx.JSON(http.StatusForbidden,
+		ForbiddenError{
+			Error: message,
+			Code:  constants.ErrCodeInternal,
+		})
 }

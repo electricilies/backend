@@ -1,6 +1,8 @@
 package domain
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Err struct {
 	Message string
@@ -19,10 +21,12 @@ func (e *Err) Unwrap() error {
 }
 
 type (
-	NotFoundError   struct{ Err }
-	ConflictError   struct{ Err }
-	ValidationError struct{ Err }
-	BadRequestError struct{ Err }
+	NotFoundError     struct{ Err }
+	ConflictError     struct{ Err }
+	ValidationError   struct{ Err }
+	BadRequestError   struct{ Err }
+	UnauthorizedError struct{ Err }
+	ForbiddenError    struct{ Err }
 )
 
 type (
@@ -57,4 +61,12 @@ func NewConnectionError(msg string, cause error) *ConnectionError {
 
 func NewUnavailableError(msg string, cause error) *UnavailableError {
 	return &UnavailableError{Err{Message: msg, Cause: cause}}
+}
+
+func NewUnauthorizedError(msg string, cause error) *UnauthorizedError {
+	return &UnauthorizedError{Err{Message: msg, Cause: cause}}
+}
+
+func NewForbiddenError(msg string, cause error) *ForbiddenError {
+	return &ForbiddenError{Err{Message: msg, Cause: cause}}
 }

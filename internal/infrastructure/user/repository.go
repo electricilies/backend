@@ -28,7 +28,7 @@ func NewRepository(query *postgres.Queries, s3Client *s3.Client, redisClient *re
 func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error) {
 	u, err := r.db.GetUser(ctx, postgres.GetUserParams{ID: uuid.MustParse(id)})
 	if err != nil {
-		return nil, errors.ToDomainError(err)
+		return nil, errors.ToDomainErrorFromPostgres(err)
 	}
 
 	return ToDomain(u), nil
@@ -37,7 +37,7 @@ func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error)
 func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
 	users, err := r.db.ListUsers(ctx)
 	if err != nil {
-		return nil, errors.ToDomainError(err)
+		return nil, errors.ToDomainErrorFromPostgres(err)
 	}
 
 	result := make([]*user.User, len(users))
@@ -51,18 +51,18 @@ func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
 func (r *repositoryImpl) Create(ctx context.Context, u *user.User) (*user.User, error) {
 	createdUser, err := r.db.CreateUser(ctx, ToCreateUserParams(u))
 	if err != nil {
-		return nil, errors.ToDomainError(err)
+		return nil, errors.ToDomainErrorFromPostgres(err)
 	}
 
 	return ToDomain(createdUser), nil
 }
 
 func (r *repositoryImpl) Update(ctx context.Context, u *user.User) error {
-	return errors.ToDomainError(r.db.UpdateUser(ctx, ToUpdateUserParams(u)))
+	return errors.ToDomainErrorFromPostgres(r.db.UpdateUser(ctx, ToUpdateUserParams(u)))
 }
 
 func (r *repositoryImpl) Delete(ctx context.Context, id string) error {
-	return errors.ToDomainError(r.db.DeleteUser(ctx, postgres.DeleteUserParams{
+	return errors.ToDomainErrorFromPostgres(r.db.DeleteUser(ctx, postgres.DeleteUserParams{
 		ID: uuid.MustParse(id),
 	}))
 }

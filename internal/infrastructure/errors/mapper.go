@@ -1,16 +1,20 @@
 package errors
 
 import (
+	"backend/internal/domain"
+	"context"
 	"errors"
+	"fmt"
+	"net"
+	"net/http"
 
+	"github.com/Nerzal/gocloak"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-
-	"backend/internal/domain"
 )
 
-func ToDomainError(err error) error {
+func ToDomainErrorFromPostgres(err error) error {
 	if err == nil {
 		return nil
 	}
@@ -120,4 +124,50 @@ func ToDomainError(err error) error {
 			err,
 		)
 	}
+}
+
+func ToDomainErrorFromGoCloak(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var apiErr gocloak.APIError
+	if errors.As(err, &apiErr) {
+		switch apiErr.Code {
+		case http.StatusBadRequest:
+			return domain.NewValidationError(apiErr.Message, err)
+
+		case http.StatusUnauthorized:
+			return domain.NewUnauthorizedError("invalid credentials", err)
+
+		case http.StatusForbidden:
+			return domain.NewForbiddenError("access denied", err)
+
+		case http.StatusNotFound:
+			return domain.NewNotFoundError("resource not found", err)
+
+		case http.StatusConflict:
+			return domain.NewConflictError("resource already exists", err)
+
+		case http.StatusGatewayTimeout, http.StatusServiceUnavailable:
+			return domain.NewUnavailableError("keycloak service unavailable", err)
+
+		default:
+			return domain.NewInternalError(fmt.Sprintf("keycloak error: %s", apiErr.Message), err)
+		}
+	}
+
+	if errors.Is(err, context.DeadlineExceeded) {
+		return domain.NewUnavailableError("keycloak request timed out", err)
+	}
+
+	var netErr net.Error
+	if errors.As(err, &netErr) {
+		if netErr.Timeout() {
+			return domain.NewUnavailableError("keycloak network timeout", err)
+		}
+		return domain.NewConnectionError("keycloak connection failed", err)
+	}
+
+	return domain.NewInternalError("unexpected keycloak error", err)
 }
