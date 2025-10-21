@@ -57,6 +57,7 @@ var RouterSet = wire.NewSet(
 var ClientSet = wire.NewSet(
 	client.NewRedis,
 	client.NewS3,
+	client.NewKeycloak,
 )
 
 func InitializeServer() *server.Server {

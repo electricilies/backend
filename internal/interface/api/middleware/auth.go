@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"backend/internal/constant"
+	"context"
 	"net/http"
 	"strings"
 
@@ -69,7 +71,9 @@ func (j *jwtVerify) Handler() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User is banned"})
 			return
 		}
-		c.Set("token", token)
+		c.Set(constant.TokenKey, token)
+		ctx := context.WithValue(c.Request.Context(), constant.TokenKey, token)
+		c.Request = c.Request.WithContext(ctx)
 		c.Set("claims", claims)
 		c.Next()
 	}

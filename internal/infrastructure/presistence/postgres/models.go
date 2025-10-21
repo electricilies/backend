@@ -6,14 +6,8 @@ package postgres
 
 import (
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type User struct {
-	ID          uuid.UUID
-	Avatar      pgtype.Text
-	Birthday    pgtype.Date
-	PhoneNumber pgtype.Text
-	CreatedAt   pgtype.Timestamp
-	DeletedAt   pgtype.Timestamp
+	ID uuid.UUID
 }

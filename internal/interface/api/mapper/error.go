@@ -1,8 +1,8 @@
 package mapper
 
 import (
+	"backend/internal/constant"
 	"backend/internal/domain"
-	"backend/pkg/constants"
 	"errors"
 	"net/http"
 
@@ -85,35 +85,35 @@ func ErrorFromDomain(ctx *gin.Context, err error) {
 func SendNotFoundError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusNotFound, NotFoundError{
 		Error: message,
-		Code:  constants.ErrCodeNotFound,
+		Code:  constant.ErrCodeNotFound,
 	})
 }
 
 func SendBadRequestError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusBadRequest, BadRequestError{
 		Error: message,
-		Code:  constants.ErrCodeBadRequest,
+		Code:  constant.ErrCodeBadRequest,
 	})
 }
 
 func SendConflictError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusConflict, ConflictError{
 		Error: message,
-		Code:  constants.ErrCodeConflict,
+		Code:  constant.ErrCodeConflict,
 	})
 }
 
 func SendServiceUnavailableError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusServiceUnavailable, ServiceUnavailableError{
 		Error: message,
-		Code:  constants.ErrCodeUnavailable,
+		Code:  constant.ErrCodeUnavailable,
 	})
 }
 
 func SendInternalServerError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusInternalServerError, InternalServerError{
 		Error: message,
-		Code:  constants.ErrCodeInternal,
+		Code:  constant.ErrCodeInternal,
 	})
 }
 
@@ -121,7 +121,7 @@ func SendUnauthorizedError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusUnauthorized,
 		ForbiddenError{
 			Error: message,
-			Code:  constants.ErrCodeInternal,
+			Code:  constant.ErrCodeUnauthorized,
 		})
 }
 
@@ -129,6 +129,6 @@ func SendForbiddenError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusForbidden,
 		ForbiddenError{
 			Error: message,
-			Code:  constants.ErrCodeInternal,
+			Code:  constant.ErrCodeFobidden,
 		})
 }

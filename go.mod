@@ -3,6 +3,7 @@ module backend
 go 1.25.3
 
 require (
+	github.com/Nerzal/gocloak v1.0.0
 	github.com/Nerzal/gocloak/v13 v13.9.0
 	github.com/Thiht/transactor v1.1.0
 	github.com/Thiht/transactor/pgx v0.0.0-20250919081759-0b530b849f99
@@ -28,7 +29,6 @@ require (
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/Nerzal/gocloak v1.0.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.2 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.10 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.10 // indirect

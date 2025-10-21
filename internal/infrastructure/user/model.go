@@ -1,64 +1,56 @@
 package user
 
 import (
+	"backend/internal/constant"
 	"backend/internal/domain/user"
+	"backend/internal/helper"
 	"backend/internal/infrastructure/presistence/postgres"
 	"time"
 
+	"github.com/Nerzal/gocloak/v13"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func ToDomain(u postgres.User) *user.User {
-	var birthday *time.Time
-	if u.Birthday.Valid {
-		t := u.Birthday.Time
-		birthday = &t
-	}
-
-	var createdAt *time.Time
-	if u.CreatedAt.Valid {
-		t := u.CreatedAt.Time
-		createdAt = &t
-	}
-
-	var deletedAt *time.Time
-	if u.DeletedAt.Valid {
-		t := u.DeletedAt.Time
-		deletedAt = &t
-	}
-
+func ToDomain(u *gocloak.User) *user.User {
+	dob := helper.Must(time.Parse("2006-01-02", getAttr(u, string(constant.UserAttributeDateOfBirth))))
+	createdAt := time.UnixMilli(*u.CreatedTimestamp)
 	return &user.User{
-		ID:          u.ID.String(),
-		Avatar:      u.Avatar.String,
-		Birthday:    birthday,
-		PhoneNumber: u.PhoneNumber.String,
-		CreatedAt:   createdAt,
-		DeletedAt:   deletedAt,
+		ID:          *u.ID,
+		FirstName:   getAttr(u, string(constant.UserAttributeFirstName)),
+		LastName:    getAttr(u, string(constant.UserAttributeLastName)),
+		UserName:    *u.Username,
+		Email:       getAttr(u, string(constant.UserAttributeEmail)),
+		Address:     getAttr(u, string(constant.UserAttributeAddress)),
+		Birthday:    &dob,
+		PhoneNumber: getAttr(u, string(constant.UserAttributePhoneNumber)),
+		CreatedAt:   &createdAt,
 	}
 }
 
 func ToCreateUserParams(u *user.User) postgres.CreateUserParams {
 	return postgres.CreateUserParams{
-		Avatar:      stringToPgText(u.Avatar),
-		Birthday:    timeToPgDate(u.Birthday),
-		PhoneNumber: stringToPgText(u.PhoneNumber),
+		ID: uuid.MustParse(u.ID),
 	}
 }
 
-func ToUpdateUserParams(u *user.User) postgres.UpdateUserParams {
-	return postgres.UpdateUserParams{
-		ID:          uuid.MustParse(u.ID),
-		Avatar:      stringToPgText(u.Avatar),
-		Birthday:    timeToPgDate(u.Birthday),
-		PhoneNumber: stringToPgText(u.PhoneNumber),
+func ToUpdateUserParams(u *user.User) gocloak.User {
+	attributes := make(map[string][]string)
+	attributes["first_name"] = []string{u.FirstName}
+	attributes["last_name"] = []string{u.LastName}
+	attributes["email"] = []string{u.Email}
+	attributes["phone_numer"] = []string{u.PhoneNumber}
+	attributes["address"] = []string{u.Address}
+	return gocloak.User{
+		Attributes: &attributes,
 	}
 }
 
-func stringToPgText(s string) pgtype.Text {
-	return pgtype.Text{String: s, Valid: true}
-}
-
-func timeToPgDate(t *time.Time) pgtype.Date {
-	return pgtype.Date{Time: *t, Valid: true}
+func getAttr(u *gocloak.User, key string) string {
+	if u.Attributes == nil {
+		return ""
+	}
+	if vals, ok := (*u.Attributes)[key]; ok && len(vals) > 0 {
+		return vals[0]
+	}
+	return ""
 }

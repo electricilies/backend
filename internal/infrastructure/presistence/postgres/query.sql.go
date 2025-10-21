@@ -9,141 +9,27 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
+
+
 INSERT INTO users (
-  avatar,
-  birthday,
-  phone_number
+  id
 ) VALUES (
-  $1, $2, $3
+  $1
 )
-RETURNING id, avatar, birthday, phone_number, created_at, deleted_at
+RETURNING id
 `
 
 type CreateUserParams struct {
-	Avatar      pgtype.Text
-	Birthday    pgtype.Date
-	PhoneNumber pgtype.Text
-}
-
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.Avatar, arg.Birthday, arg.PhoneNumber)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Avatar,
-		&i.Birthday,
-		&i.PhoneNumber,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
-const deleteUser = `-- name: DeleteUser :exec
-UPDATE users
-SET deleted_at = CURRENT_TIMESTAMP
-WHERE id = $1
-  AND deleted_at IS NULL
-`
-
-type DeleteUserParams struct {
-	ID uuid.UUID
-}
-
-func (q *Queries) DeleteUser(ctx context.Context, arg DeleteUserParams) error {
-	_, err := q.db.Exec(ctx, deleteUser, arg.ID)
-	return err
-}
-
-const getUser = `-- name: GetUser :one
-
-SELECT id, avatar, birthday, phone_number, created_at, deleted_at
-FROM users
-WHERE id = $1
-  AND deleted_at IS NULL
-LIMIT 1
-`
-
-type GetUserParams struct {
 	ID uuid.UUID
 }
 
 // noqa: disable=AM04
-func (q *Queries) GetUser(ctx context.Context, arg GetUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, arg.ID)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Avatar,
-		&i.Birthday,
-		&i.PhoneNumber,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
-const listUsers = `-- name: ListUsers :many
-SELECT id, avatar, birthday, phone_number, created_at, deleted_at
-FROM users
-WHERE deleted_at IS NULL
-ORDER BY created_at DESC
-`
-
-func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsers)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []User
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.Avatar,
-			&i.Birthday,
-			&i.PhoneNumber,
-			&i.CreatedAt,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const updateUser = `-- name: UpdateUser :exec
-UPDATE users
-SET
-  avatar = COALESCE($2, avatar),
-  birthday = COALESCE($3, birthday),
-  phone_number = COALESCE($4, phone_number)
-WHERE id = $1
-  AND deleted_at IS NULL
-`
-
-type UpdateUserParams struct {
-	ID          uuid.UUID
-	Avatar      pgtype.Text
-	Birthday    pgtype.Date
-	PhoneNumber pgtype.Text
-}
-
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
-	_, err := q.db.Exec(ctx, updateUser,
-		arg.ID,
-		arg.Avatar,
-		arg.Birthday,
-		arg.PhoneNumber,
-	)
-	return err
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, createUser, arg.ID)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }

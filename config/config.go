@@ -16,6 +16,7 @@ const (
 	KCClientID     = "KC_CLIENT_ID"
 	KCClientSecret = "KC_CLIENT_SECRET"
 	KCRealm        = "KC_REALM"
+	KCBasePath     = "KC_BASE_PATH"
 	RedisAddr      = "REDIS_ADDRESS"
 	S3AccessKey    = "S3_ACCESS_KEY"
 	S3SecretKey    = "S3_SECRET_KEY"
@@ -36,6 +37,7 @@ type Config struct {
 	KCClientID     string
 	KCClientSecret string
 	KCRealm        string
+	KCBasePath     string
 	RedisAddr      string
 	S3AccessKey    string
 	S3SecretKey    string
@@ -65,6 +67,7 @@ func LoadConfig() {
 		KCClientID:     viper.GetString(KCClientID),
 		KCClientSecret: viper.GetString(KCClientSecret),
 		KCRealm:        viper.GetString(KCRealm),
+		KCBasePath:     viper.GetString(KCBasePath),
 		RedisAddr:      viper.GetString(RedisAddr),
 		S3AccessKey:    viper.GetString(S3AccessKey),
 		S3SecretKey:    viper.GetString(S3SecretKey),

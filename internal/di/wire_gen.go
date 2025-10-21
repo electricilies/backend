@@ -17,7 +17,6 @@ import (
 	"backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
-
 	"github.com/google/wire"
 )
 
@@ -29,7 +28,8 @@ func InitializeServer() *server.Server {
 	queries := db.New(conn)
 	s3Client := client.NewS3()
 	redisClient := client.NewRedis()
-	repository := user.NewRepository(queries, s3Client, redisClient)
+	goCloak := client.NewKeycloak()
+	repository := user.NewRepository(queries, s3Client, redisClient, goCloak)
 	transactor := db.NewTransactor(conn)
 	service := user2.NewService(repository, transactor)
 	applicationUser := application.NewUser(repository, service)
@@ -60,4 +60,4 @@ var HandlerSet = wire.NewSet(handler.NewUserHandler, handler.NewHealthCheck)
 
 var RouterSet = wire.NewSet(router.NewRouter)
 
-var ClientSet = wire.NewSet(client.NewRedis, client.NewS3)
+var ClientSet = wire.NewSet(client.NewRedis, client.NewS3, client.NewKeycloak)
