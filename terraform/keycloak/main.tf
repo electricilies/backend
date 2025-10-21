@@ -113,8 +113,8 @@ resource "keycloak_realm_user_profile" "userprofile" {
   }
 
   attribute {
-    name         = "birthday"
-    display_name = "Birthday"
+    name         = "date_of_birth"
+    display_name = "Date of Birth"
     permissions {
       view = ["admin", "user"]
       edit = ["admin", "user"]
@@ -147,34 +147,34 @@ locals {
 
   users = {
     admin = {
-      password     = "admin",
-      role         = "admin"
-      first_name   = "admin",
-      last_name    = "admin"
-      email        = "admin@example.com"
-      phone_number = "0909909909"
-      address      = "admin address"
-      birthday     = "01/01/2001"
+      password      = "admin",
+      role          = "admin"
+      first_name    = "admin",
+      last_name     = "admin"
+      email         = "admin@example.com"
+      phone_number  = "0909909909"
+      address       = "admin address"
+      date_of_birth = "01/01/2001"
     },
     staff = {
-      password     = "staff",
-      role         = "staff",
-      first_name   = "staff",
-      last_name    = "staff"
-      email        = "staff@example.com"
-      phone_number = "0909909909"
-      address      = "staff address"
-      birthday     = "01/01/2001"
+      password      = "staff",
+      role          = "staff",
+      first_name    = "staff",
+      last_name     = "staff"
+      email         = "staff@example.com"
+      phone_number  = "0909909909"
+      address       = "staff address"
+      date_of_birth = "01/01/2001"
     },
     customer = {
-      password     = "customer",
-      role         = "customer"
-      first_name   = "customer",
-      last_name    = "customer"
-      email        = "customer@example.com"
-      phone_number = "0909909909"
-      address      = "customer address"
-      birthday     = "01/01/2001"
+      password      = "customer",
+      role          = "customer"
+      first_name    = "customer",
+      last_name     = "customer"
+      email         = "customer@example.com"
+      phone_number  = "0909909909"
+      address       = "customer address"
+      date_of_birth = "01/01/2001"
     },
   }
 }
@@ -208,15 +208,15 @@ resource "keycloak_user" "users" {
   email          = "${each.key}@example.com"
   email_verified = true
   attributes = {
-    first_name   = each.value.first_name
-    password     = each.value.password,
-    role         = each.value.role,
-    first_name   = each.value.first_name,
-    last_name    = each.value.last_name,
-    email        = each.value.email,
-    phone_number = each.value.phone_number,
-    address      = each.value.address,
-    birthday     = each.value.birthday,
+    first_name    = each.value.first_name
+    password      = each.value.password,
+    role          = each.value.role,
+    first_name    = each.value.first_name,
+    last_name     = each.value.last_name,
+    email         = each.value.email,
+    phone_number  = each.value.phone_number,
+    address       = each.value.address,
+    date_of_birth = each.value.date_of_birth,
   }
 }
 
