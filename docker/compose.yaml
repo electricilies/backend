@@ -12,7 +12,8 @@ services:
       - ${DB_PORT:-5432}:5432
     volumes:
       - db:/data/postgres
-      - ./volume/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./volume/00-init.sql:/docker-entrypoint-initdb.d/00-init.sql
+      - ./volume/10-seed.sql:/docker-entrypoint-initdb.d/10-seed.sql
     healthcheck:
       test:
         - CMD
