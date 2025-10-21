@@ -91,3 +91,16 @@ import-realm container="electricilies-backend-keycloak-1" file="./keycloak/elect
   docker exec -it {{container}} \
     /opt/keycloak/bin/kc.sh import \
     --file {{realm}}-export.json
+
+gen-ctags:
+  ctags -R \
+    --languages=Go \
+    --exclude=.git \
+    --exclude=terraform \
+    --exclude=http \
+    --exclude=migration \
+    --exclude=database \
+    --exclude=build \
+    --exclude=docker \
+    --exclude=*.toml \
+    --exclude=vendor
