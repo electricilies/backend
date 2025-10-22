@@ -3,7 +3,6 @@ package user
 import (
 	"backend/internal/constant"
 	"backend/internal/domain/user"
-	"backend/internal/helper"
 	"backend/internal/infrastructure/presistence/postgres"
 	"time"
 
@@ -12,7 +11,7 @@ import (
 )
 
 func ToDomain(u *gocloak.User) *user.User {
-	dob := helper.Must(time.Parse("2006-01-02", getAttr(u, string(constant.UserAttributeDateOfBirth))))
+	dob, _ := (time.Parse("2006-01-02", getAttr(u, string(constant.UserAttributeDateOfBirth))))
 	createdAt := time.UnixMilli(*u.CreatedTimestamp)
 	return &user.User{
 		ID:          *u.ID,

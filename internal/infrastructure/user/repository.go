@@ -4,7 +4,6 @@ import (
 	"backend/config"
 	"backend/internal/constant"
 	"backend/internal/domain/user"
-	"backend/internal/helper"
 	"backend/internal/infrastructure/errors"
 	"backend/internal/infrastructure/presistence/postgres"
 	"context"
@@ -64,7 +63,7 @@ func (r *repositoryImpl) Create(ctx context.Context, u *user.User) (*user.User, 
 		return nil, errors.ToDomainErrorFromPostgres(err)
 	}
 	token := ctx.Value(constant.TokenKey).(string)
-	user := helper.Must(r.keycloakClient.GetUserByID(ctx, token, config.Cfg.KCRealm, createdUser.String()))
+	user, _ := (r.keycloakClient.GetUserByID(ctx, token, config.Cfg.KCRealm, createdUser.String()))
 
 	return ToDomain(user), nil
 }
