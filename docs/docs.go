@@ -245,11 +245,11 @@ const docTemplate = `{
             "required": [
                 "email",
                 "first_name",
-                "last_name",
-                "username"
+                "id",
+                "last_name"
             ],
             "properties": {
-                "avatar": {
+                "address": {
                     "type": "string"
                 },
                 "birthday": {
@@ -270,16 +270,12 @@ const docTemplate = `{
                 },
                 "phone_number": {
                     "type": "string"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },
         "response.User": {
             "type": "object",
             "required": [
-                "avatar",
                 "birthday",
                 "created_at",
                 "email",
@@ -290,16 +286,13 @@ const docTemplate = `{
                 "user_name"
             ],
             "properties": {
-                "avatar": {
+                "address": {
                     "type": "string"
                 },
                 "birthday": {
                     "type": "string"
                 },
                 "created_at": {
-                    "type": "string"
-                },
-                "deleted_at": {
                     "type": "string"
                 },
                 "email": {
@@ -325,7 +318,7 @@ const docTemplate = `{
         "user.User": {
             "type": "object",
             "properties": {
-                "avatar": {
+                "address": {
                     "type": "string"
                 },
                 "birthday": {
@@ -334,13 +327,22 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "deletedAt": {
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
+                "lastName": {
+                    "type": "string"
+                },
                 "phoneNumber": {
+                    "type": "string"
+                },
+                "userName": {
                     "type": "string"
                 }
             }
