@@ -118,4 +118,18 @@ return {
     end,
     optional = true,
   },
+  {
+    "folke/which-key.nvim",
+    ---@module 'which-key'
+    ---@type wk.Opts
+    opts = {
+      spec = {
+        { "<localleader>l", group = "LSP", icon = { icon = "", color = "yellow" } },
+      },
+    },
+    opts_extend = {
+      "spec",
+    },
+    optional = true,
+  },
 }
