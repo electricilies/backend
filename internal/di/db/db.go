@@ -22,7 +22,8 @@ func NewConnection() *pgx.Conn {
 		config.Cfg.DBName,
 	))
 	if err != nil {
-		log.Fatalf("Cannot connect to DB: %v", err)
+		log.Printf("Cannot connect to DB: %v", err)
+		return nil
 	}
 	return conn
 }

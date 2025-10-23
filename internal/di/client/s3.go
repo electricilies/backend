@@ -13,13 +13,15 @@ import (
 
 func NewS3() *s3.Client {
 	if config.Cfg.S3Bucket == "" {
-		log.Fatal("need bucket")
+		log.Printf("need bucket")
+		return nil
 	}
 	cfg, err := awsconfig.LoadDefaultConfig(
 		context.Background(),
 		awsconfig.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(config.Cfg.S3AccessKey, config.Cfg.S3SecretKey, "")), awsconfig.WithRegion(config.Cfg.S3RegionName))
 	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
+		log.Printf("failed to load config: %v", err)
+		return nil
 	}
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
 		o.UsePathStyle = true
@@ -30,7 +32,7 @@ func NewS3() *s3.Client {
 		&s3.HeadBucketInput{Bucket: aws.String(config.Cfg.S3Bucket)},
 	)
 	if err != nil || exist == nil {
-		log.Fatalf("bucket not exist: %v", err)
+		log.Printf("bucket not exist: %v", err)
 	}
 
 	return client
