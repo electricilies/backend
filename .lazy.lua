@@ -17,6 +17,9 @@ return {
             "-d",
             "$FILENAME",
           },
+          condition = function(_, ctx)
+            return ctx.filename:match("internal/interface/api/handler") ~= nil
+          end,
           stdin = false,
         },
         wire = {
