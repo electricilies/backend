@@ -14,7 +14,8 @@ func NewRedis() *redis.Client {
 	})
 	status := client.Ping(context.Background())
 	if err := status.Err(); err != nil {
-		log.Fatalf("failed to connect to client:%s", err)
+		log.Printf("failed to connect to client:%s", err)
+		return nil
 	}
 	return client
 }
