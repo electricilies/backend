@@ -29,10 +29,7 @@ func NewS3() *s3.Client {
 		context.Background(),
 		&s3.HeadBucketInput{Bucket: aws.String(config.Cfg.S3Bucket)},
 	)
-	if exist != nil {
-		log.Fatalf("error occurs: %v", err)
-	}
-	if err != nil {
+	if err != nil || exist == nil {
 		log.Fatalf("bucket not exist: %v", err)
 	}
 
