@@ -20,7 +20,7 @@ func ToDomain(u *gocloak.User) *user.User {
 		UserName:    *u.Username,
 		Email:       getAttr(u, string(constant.UserAttributeEmail)),
 		Address:     getAttr(u, string(constant.UserAttributeAddress)),
-		Birthday:    &dob,
+		DateOfBirth: &dob,
 		PhoneNumber: getAttr(u, string(constant.UserAttributePhoneNumber)),
 		CreatedAt:   &createdAt,
 	}

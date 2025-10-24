@@ -11,7 +11,7 @@ type User struct {
 	LastName    string     `json:"last_name" binding:"required"`
 	Username    string     `json:"user_name" binding:"required"`
 	Email       string     `json:"email" binding:"required"`
-	Birthday    *time.Time `json:"birthday" binding:"required"`
+	DateOfBirth *time.Time `json:"date_of_birth" binding:"required"`
 	PhoneNumber string     `json:"phone_number" binding:"required"`
 	Address     string     `json:"address,omitempty"`
 	CreatedAt   *time.Time `json:"created_at" binding:"required"`
@@ -23,7 +23,7 @@ func UserFromDomain(u *user.User) *User {
 		FirstName:   u.FirstName,
 		LastName:    u.LastName,
 		Username:    u.UserName,
-		Birthday:    u.Birthday,
+		DateOfBirth: u.DateOfBirth,
 		Address:     u.Address,
 		PhoneNumber: u.PhoneNumber,
 		CreatedAt:   u.CreatedAt,

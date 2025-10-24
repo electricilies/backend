@@ -9,7 +9,7 @@ type User struct {
 	LastName    string
 	Email       string
 	Address     string
-	Birthday    *time.Time
+	DateOfBirth *time.Time
 	PhoneNumber string
 	CreatedAt   *time.Time
 }
