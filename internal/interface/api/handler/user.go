@@ -26,8 +26,6 @@ func NewUserHandler(app application.User) User {
 	return &userHandler{app: app}
 }
 
-//	@BasePath	/api
-
 // GetUser godoc
 //
 //	@Summary		Get user by ID
