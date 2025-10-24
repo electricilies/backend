@@ -2,7 +2,6 @@
 
 [build]
 cmd = """
-swag init -g ./cmd/main.go -ot go &&
 go build -gcflags='all=-N -l' -o ./backend ./cmd/main.go
 """
 bin = "./backend"

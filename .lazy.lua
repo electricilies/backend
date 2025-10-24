@@ -10,12 +10,26 @@ return {
     ---@type conform.setupOpts
     opts = {
       formatters = {
-        swag = {
+        swag_fmt = {
           command = "swag",
           args = {
             "fmt",
             "-d",
             "$FILENAME",
+          },
+          condition = function(_, ctx)
+            return ctx.filename:match("internal/interface/api/handler") ~= nil
+          end,
+          stdin = false,
+        },
+        swag_gen = {
+          command = "swag",
+          args = {
+            "init",
+            "-g",
+            "./cmd/main.go",
+            "-ot",
+            "go",
           },
           condition = function(_, ctx)
             return ctx.filename:match("internal/interface/api/handler") ~= nil
@@ -58,7 +72,8 @@ return {
       },
       formatters_by_ft = {
         go = {
-          "swag",
+          "swag_fmt",
+          "swag_gen",
           "wire",
         },
         pgsql = {
