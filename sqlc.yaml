@@ -3,8 +3,8 @@ sql:
   - engine: postgresql
     queries: database/queries
     schema: database/schema.sql
-    database:
-      uri: postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable
+    # database:
+    #   uri: postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable
     rules:
       - sqlc/db-prepare
       - postgresql-query-too-costly

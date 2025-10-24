@@ -89,39 +89,6 @@ return {
     optional = true,
   },
   {
-    "mfussenegger/nvim-lint",
-    opts = function()
-      local lint = require("lint")
-
-      lint.linters.sqlc = function()
-        local bufname = vim.api.nvim_buf_get_name(0)
-        if bufname:match("/database/.*%.sql$") then
-          ---@type lint.Linter
-          return {
-            name = "sqlc",
-            cmd = "sqlc",
-            args = { "vet" },
-            stream = "stderr",
-            parser = require("lint.parser").from_pattern(
-              "^(.+): (.+: .+): (.+)$",
-              { "file", "code", "message" },
-              nil,
-              {
-                source = "sqlc",
-                severity = vim.diagnostic.severity.WARN,
-              }
-            ),
-          }
-        end
-        return {}
-      end
-
-      lint.linters_by_ft.pgsql = lint.linters_by_ft.pgsql or {}
-      table.insert(lint.linters_by_ft.pgsql, "sqlc")
-    end,
-    optional = true,
-  },
-  {
     "kristijanhusak/vim-dadbod-ui",
     opts = function()
       env.DBUI_URL = string.format(
