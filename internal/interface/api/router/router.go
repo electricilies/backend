@@ -14,7 +14,7 @@ type Router interface {
 
 type router struct {
 	userHandler       handler.User
-	healthHanler      handler.HealthCheck
+	healthHandler     handler.HealthCheck
 	metricMiddleware  middleware.Metric
 	loggingMiddleware middleware.Logging
 }
@@ -22,7 +22,7 @@ type router struct {
 func NewRouter(userHandler handler.User, healthCheckHandler handler.HealthCheck, metricMiddleware middleware.Metric, loggingMiddleware middleware.Logging) Router {
 	return &router{
 		userHandler:       userHandler,
-		healthHanler:      healthCheckHandler,
+		healthHandler:     healthCheckHandler,
 		metricMiddleware:  metricMiddleware,
 		loggingMiddleware: loggingMiddleware,
 	}
@@ -32,7 +32,7 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 	engine.Use(r.metricMiddleware.Handler())
 	engine.Use(r.loggingMiddleware.Handler())
 	engine.GET("/metrics", gin.WrapH(promhttp.Handler()))
-	engine.GET("/health", r.healthHanler.Health)
+	engine.GET("/health", r.healthHandler.Health)
 	api := engine.Group("/api")
 	{
 		users := api.Group("/users")
