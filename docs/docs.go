@@ -252,7 +252,7 @@ const docTemplate = `{
                 "address": {
                     "type": "string"
                 },
-                "birthday": {
+                "date_of_birth": {
                     "description": "TODO: Check if json can parse to date",
                     "type": "string"
                 },
@@ -276,8 +276,8 @@ const docTemplate = `{
         "response.User": {
             "type": "object",
             "required": [
-                "birthday",
                 "created_at",
+                "date_of_birth",
                 "email",
                 "first_name",
                 "id",
@@ -289,10 +289,10 @@ const docTemplate = `{
                 "address": {
                     "type": "string"
                 },
-                "birthday": {
+                "created_at": {
                     "type": "string"
                 },
-                "created_at": {
+                "date_of_birth": {
                     "type": "string"
                 },
                 "email": {
@@ -321,10 +321,10 @@ const docTemplate = `{
                 "address": {
                     "type": "string"
                 },
-                "birthday": {
+                "createdAt": {
                     "type": "string"
                 },
-                "createdAt": {
+                "dateOfBirth": {
                     "type": "string"
                 },
                 "email": {

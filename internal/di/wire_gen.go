@@ -34,7 +34,7 @@ func InitializeServer() *server.Server {
 	service := user2.NewService(repository, transactor)
 	applicationUser := application.NewUser(repository, service)
 	handlerUser := handler.NewUserHandler(applicationUser)
-	healthCheck := handler.NewHealthCheck()
+	healthCheck := handler.NewHealthCheck(goCloak, redisClient, s3Client, conn)
 	metric := middleware.NewMetric()
 	logging := middleware.NewLogging()
 	routerRouter := router.NewRouter(handlerUser, healthCheck, metric, logging)
