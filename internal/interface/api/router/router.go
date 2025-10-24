@@ -19,7 +19,7 @@ type router struct {
 	loggingMiddleware middleware.Logging
 }
 
-func NewRouter(userHandler handler.User, healthCheckHandler handler.HealthCheck, metricMiddleware middleware.Metric, loggingMiddleware middleware.Logging) Router {
+func New(userHandler handler.User, healthCheckHandler handler.HealthCheck, metricMiddleware middleware.Metric, loggingMiddleware middleware.Logging) Router {
 	return &router{
 		userHandler:       userHandler,
 		healthHandler:     healthCheckHandler,

@@ -23,7 +23,7 @@ import (
 // Injectors from wire.go:
 
 func InitializeServer() *server.Server {
-	engine := ginengine.NewEngine()
+	engine := ginengine.New()
 	conn := db.NewConnection()
 	queries := db.New(conn)
 	s3Client := client.NewS3()
@@ -33,12 +33,12 @@ func InitializeServer() *server.Server {
 	transactor := db.NewTransactor(conn)
 	service := user2.NewService(repository, transactor)
 	applicationUser := application.NewUser(repository, service)
-	handlerUser := handler.NewUserHandler(applicationUser)
+	handlerUser := handler.NewUser(applicationUser)
 	healthCheck := handler.NewHealthCheck(goCloak, redisClient, s3Client, conn)
 	metric := middleware.NewMetric()
 	logging := middleware.NewLogging()
-	routerRouter := router.NewRouter(handlerUser, healthCheck, metric, logging)
-	serverServer := server.NewServer(engine, routerRouter)
+	routerRouter := router.New(handlerUser, healthCheck, metric, logging)
+	serverServer := server.New(engine, routerRouter)
 	return serverServer
 }
 
@@ -46,7 +46,7 @@ func InitializeServer() *server.Server {
 
 var DBSet = wire.NewSet(db.NewConnection, db.New, db.NewTransactor)
 
-var EngineSet = wire.NewSet(ginengine.NewEngine)
+var EngineSet = wire.NewSet(ginengine.New)
 
 var RepositorySet = wire.NewSet(user.NewRepository)
 
@@ -56,8 +56,8 @@ var AppSet = wire.NewSet(application.NewUser)
 
 var MiddlewareSet = wire.NewSet(middleware.NewMetric, middleware.NewLogging)
 
-var HandlerSet = wire.NewSet(handler.NewUserHandler, handler.NewHealthCheck)
+var HandlerSet = wire.NewSet(handler.NewUser, handler.NewHealthCheck)
 
-var RouterSet = wire.NewSet(router.NewRouter)
+var RouterSet = wire.NewSet(router.New)
 
 var ClientSet = wire.NewSet(client.NewRedis, client.NewS3, client.NewKeycloak)

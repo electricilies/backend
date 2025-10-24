@@ -2,6 +2,6 @@ package ginengine
 
 import "github.com/gin-gonic/gin"
 
-func NewEngine() *gin.Engine {
+func New() *gin.Engine {
 	return gin.New()
 }

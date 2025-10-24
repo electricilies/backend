@@ -22,7 +22,7 @@ type userHandler struct {
 	app application.User
 }
 
-func NewUserHandler(app application.User) User {
+func NewUser(app application.User) User {
 	return &userHandler{app: app}
 }
 

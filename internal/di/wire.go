@@ -25,7 +25,7 @@ var DBSet = wire.NewSet(
 )
 
 var EngineSet = wire.NewSet(
-	ginengine.NewEngine,
+	ginengine.New,
 )
 
 var RepositorySet = wire.NewSet(
@@ -46,12 +46,12 @@ var MiddlewareSet = wire.NewSet(
 )
 
 var HandlerSet = wire.NewSet(
-	handler.NewUserHandler,
+	handler.NewUser,
 	handler.NewHealthCheck,
 )
 
 var RouterSet = wire.NewSet(
-	router.NewRouter,
+	router.New,
 )
 
 var ClientSet = wire.NewSet(
@@ -61,6 +61,6 @@ var ClientSet = wire.NewSet(
 )
 
 func InitializeServer() *server.Server {
-	wire.Build(DBSet, EngineSet, RepositorySet, ServiceSet, AppSet, MiddlewareSet, HandlerSet, RouterSet, ClientSet, server.NewServer)
+	wire.Build(DBSet, EngineSet, RepositorySet, ServiceSet, AppSet, MiddlewareSet, HandlerSet, RouterSet, ClientSet, server.New)
 	return nil
 }

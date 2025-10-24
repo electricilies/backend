@@ -13,7 +13,7 @@ type Server struct {
 	engine *gin.Engine
 }
 
-func NewServer(e *gin.Engine, r router.Router) *Server {
+func New(e *gin.Engine, r router.Router) *Server {
 	docs.SwaggerInfo.BasePath = "/api"
 	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.RegisterRoutes(e)
