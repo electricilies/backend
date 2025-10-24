@@ -32,7 +32,8 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 	engine.Use(r.metricMiddleware.Handler())
 	engine.Use(r.loggingMiddleware.Handler())
 	engine.GET("/metrics", gin.WrapH(promhttp.Handler()))
-	engine.GET("/health", r.healthHandler.Health)
+	engine.GET("/health", r.healthHandler.Liveness)
+	engine.GET("/ready", r.healthHandler.Readiness)
 	api := engine.Group("/api")
 	{
 		users := api.Group("/users")

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"backend/config"
-	"backend/internal/helper"
 	"context"
 	"net/http"
 	"time"
@@ -16,7 +15,6 @@ import (
 )
 
 type HealthCheck interface {
-	Health(ctx *gin.Context)
 	Liveness(ctx *gin.Context)
 	Readiness(ctx *gin.Context)
 }
@@ -39,35 +37,6 @@ func NewHealthCheck(keycloakClient *gocloak.GoCloak,
 		s3Client:       s3Client,
 		dbConn:         db,
 	}
-}
-
-func (h *healthCheck) Health(ctx *gin.Context) {
-	c, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	// TODO: to struct and constants not hard code
-	components := map[string]string{
-		"database": helper.Ternary(IsDbReady(c, h.dbConn), "UP", "DOWN"),
-		"redis":    helper.Ternary(IsRedisReady(c, h.redisClient), "UP", "DOWN"),
-		"minio":    helper.Ternary(IsS3Ready(c, h.s3Client), "UP", "DOWN"),
-		"keycloak": helper.Ternary(IsKeycloakReady(c, h.keycloakClient), "UP", "DOWN"),
-	}
-
-	status := "UP"
-	for _, s := range components {
-		if s == "DOWN" {
-			status = "DOWN"
-			break
-		}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"status":      status,
-		"components":  components,
-		"serviceName": "myapp",
-		"version":     "1.0.0",
-		"timestamp":   time.Now().Format(time.RFC3339),
-	})
 }
 
 func (h *healthCheck) Readiness(ctx *gin.Context) {
