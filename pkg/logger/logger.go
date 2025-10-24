@@ -2,6 +2,7 @@ package logger
 
 import (
 	"os"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -19,6 +20,11 @@ func InitializeLogger() {
 
 	var cores []zapcore.Core
 	logLevel := zap.NewAtomicLevelAt(zap.InfoLevel)
+
+	timeEncoder := func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+		loc, _ := time.LoadLocation("Asia/Ho_Chi_Minh")
+		enc.AppendString(t.In(loc).Format(time.RFC3339))
+	}
 	if c.EnableStdout {
 		stdout := zapcore.AddSync(os.Stdout)
 		encoderConfig := zapcore.EncoderConfig{
@@ -35,7 +41,7 @@ func InitializeLogger() {
 			EncodeCaller:   zapcore.ShortCallerEncoder,
 		}
 		encoderConfig.TimeKey = "timestamp"
-		encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+		encoderConfig.EncodeTime = timeEncoder
 		consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
 		cores = append(cores, zapcore.NewCore(consoleEncoder, stdout, logLevel))
 	}
