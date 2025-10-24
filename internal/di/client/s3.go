@@ -12,10 +12,6 @@ import (
 )
 
 func NewS3() *s3.Client {
-	if config.Cfg.S3Bucket == "" {
-		log.Printf("need bucket")
-		return nil
-	}
 	cfg, err := awsconfig.LoadDefaultConfig(
 		context.Background(),
 		awsconfig.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(config.Cfg.S3AccessKey, config.Cfg.S3SecretKey, "")), awsconfig.WithRegion(config.Cfg.S3RegionName))

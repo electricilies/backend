@@ -1,6 +1,8 @@
 package config
 
 import (
+	"log"
+
 	"github.com/spf13/viper"
 )
 
@@ -49,6 +51,9 @@ type Config struct {
 var Cfg *Config
 
 func LoadConfig() {
+	if viper.GetString(S3Bucket) == "" {
+		log.Fatal("You need to set S3_BUCKET environment variable")
+	}
 	viper.AutomaticEnv()
 
 	viper.SetDefault(DbPort, 5432)
