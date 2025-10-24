@@ -44,7 +44,7 @@ func InitializeServer() *server.Server {
 
 // wire.go:
 
-var DBSet = wire.NewSet(db.NewConnection, db.New, db.NewTransactor)
+var DbSet = wire.NewSet(db.NewConnection, db.New, db.NewTransactor)
 
 var EngineSet = wire.NewSet(ginengine.New)
 

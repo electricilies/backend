@@ -18,7 +18,7 @@ import (
 	"github.com/google/wire"
 )
 
-var DBSet = wire.NewSet(
+var DbSet = wire.NewSet(
 	db.NewConnection,
 	db.New,
 	db.NewTransactor,
@@ -61,6 +61,6 @@ var ClientSet = wire.NewSet(
 )
 
 func InitializeServer() *server.Server {
-	wire.Build(DBSet, EngineSet, RepositorySet, ServiceSet, AppSet, MiddlewareSet, HandlerSet, RouterSet, ClientSet, server.New)
+	wire.Build(DbSet, EngineSet, RepositorySet, ServiceSet, AppSet, MiddlewareSet, HandlerSet, RouterSet, ClientSet, server.New)
 	return nil
 }

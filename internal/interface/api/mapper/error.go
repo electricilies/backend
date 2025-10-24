@@ -26,7 +26,7 @@ type ConflictError struct {
 
 type ServiceUnavailableError struct {
 	Error string `json:"error" example:"Database connection failed"`
-	Code  string `json:"code" example:"DB_UNAVAILABLE"`
+	Code  string `json:"code" example:"Db_UNAVAILABLE"`
 }
 
 type InternalServerError struct {

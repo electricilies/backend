@@ -5,15 +5,15 @@ import (
 )
 
 const (
-	DBUsername     = "DB_USERNAME"
-	DBPassword     = "DB_PASSWORD"
-	DBHost         = "DB_HOST"
-	DBPort         = "DB_PORT"
-	DBName         = "DB_DATABASE"
+	DbUsername     = "DB_USERNAME"
+	DbPassword     = "DB_PASSWORD"
+	DbHost         = "DB_HOST"
+	DbPort         = "DB_PORT"
+	DbName         = "DB_DATABASE"
 	EnvApp         = "ENV_APP"
 	LogStdout      = "LOG_ENABLE_STDOUT"
 	LogFile        = "LOG_ENABLE_FILE"
-	KcClientID     = "KC_CLIENT_ID"
+	KcClientId     = "KC_CLIENT_ID"
 	KcClientSecret = "KC_CLIENT_SECRET"
 	KcRealm        = "KC_REALM"
 	KcBasePath     = "KC_BASE_PATH"
@@ -26,15 +26,15 @@ const (
 )
 
 type Config struct {
-	DBUsername     string
-	DBPassword     string
-	DBHost         string
-	DBPort         int
-	DBName         string
+	DbUsername     string
+	DbPassword     string
+	DbHost         string
+	DbPort         int
+	DbName         string
 	EnvApp         string
 	EnableStdout   bool
 	EnableFile     bool
-	KcClientID     string
+	KcClientId     string
 	KcClientSecret string
 	KcRealm        string
 	KcBasePath     string
@@ -51,20 +51,20 @@ var Cfg *Config
 func LoadConfig() {
 	viper.AutomaticEnv()
 
-	viper.SetDefault(DBPort, 5432)
+	viper.SetDefault(DbPort, 5432)
 	viper.SetDefault(LogStdout, true)
 	viper.SetDefault(LogFile, false)
 
 	Cfg = &Config{
-		DBUsername:     viper.GetString(DBUsername),
-		DBPassword:     viper.GetString(DBPassword),
-		DBHost:         viper.GetString(DBHost),
-		DBPort:         viper.GetInt(DBPort),
-		DBName:         viper.GetString(DBName),
+		DbUsername:     viper.GetString(DbUsername),
+		DbPassword:     viper.GetString(DbPassword),
+		DbHost:         viper.GetString(DbHost),
+		DbPort:         viper.GetInt(DbPort),
+		DbName:         viper.GetString(DbName),
 		EnvApp:         viper.GetString(EnvApp),
 		EnableStdout:   viper.GetBool(LogStdout),
 		EnableFile:     viper.GetBool(LogFile),
-		KcClientID:     viper.GetString(KcClientID),
+		KcClientId:     viper.GetString(KcClientId),
 		KcClientSecret: viper.GetString(KcClientSecret),
 		KcRealm:        viper.GetString(KcRealm),
 		KcBasePath:     viper.GetString(KcBasePath),

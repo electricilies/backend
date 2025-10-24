@@ -1,10 +1,8 @@
 package middleware
 
 import (
-	"slices"
-	"time"
-
 	"backend/pkg/logger"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -24,9 +22,14 @@ func NewLogging() Logging {
 		skipPaths: []string{"/health", "/metrics", "/swagger"},
 	}
 }
+
 func (l *logging) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if slices.Contains(l.skipPaths, c.Request.URL.Path) {
+		skipPathSet := make(map[string]struct{}, len(l.skipPaths))
+		for _, p := range l.skipPaths {
+			skipPathSet[p] = struct{}{}
+		}
+		if _, ok := skipPathSet[c.Request.URL.Path]; ok {
 			c.Next()
 			return
 		}

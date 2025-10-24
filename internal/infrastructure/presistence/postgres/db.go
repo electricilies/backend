@@ -11,18 +11,18 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-type DBTX interface {
+type DbTX interface {
 	Exec(context.Context, string, ...interface{}) (pgconn.CommandTag, error)
 	Query(context.Context, string, ...interface{}) (pgx.Rows, error)
 	QueryRow(context.Context, string, ...interface{}) pgx.Row
 }
 
-func New(db DBTX) *Queries {
+func New(db DbTX) *Queries {
 	return &Queries{db: db}
 }
 
 type Queries struct {
-	db DBTX
+	db DbTX
 }
 
 func (q *Queries) WithTx(tx pgx.Tx) *Queries {
