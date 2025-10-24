@@ -31,7 +31,7 @@ func NewRepository(query *postgres.Queries, s3Client *s3.Client, redisClient *re
 
 func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error) {
 	token := ctx.Value(constant.TokenKey).(string)
-	u, err := r.keycloakClient.GetUserByID(ctx, token, config.Cfg.KCRealm, id)
+	u, err := r.keycloakClient.GetUserByID(ctx, token, config.Cfg.KcRealm, id)
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
@@ -42,7 +42,7 @@ func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error)
 func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
 	token := ctx.Value(constant.TokenKey).(string)
 	enabled := false
-	users, err := r.keycloakClient.GetUsers(ctx, token, config.Cfg.KCRealm, gocloak.GetUsersParams{
+	users, err := r.keycloakClient.GetUsers(ctx, token, config.Cfg.KcRealm, gocloak.GetUsersParams{
 		Enabled: &enabled,
 	})
 	if err != nil {
@@ -63,17 +63,17 @@ func (r *repositoryImpl) Create(ctx context.Context, u *user.User) (*user.User, 
 		return nil, errors.ToDomainErrorFromPostgres(err)
 	}
 	token := ctx.Value(constant.TokenKey).(string)
-	user, _ := (r.keycloakClient.GetUserByID(ctx, token, config.Cfg.KCRealm, createdUser.String()))
+	user, _ := (r.keycloakClient.GetUserByID(ctx, token, config.Cfg.KcRealm, createdUser.String()))
 
 	return ToDomain(user), nil
 }
 
 func (r *repositoryImpl) Update(ctx context.Context, u *user.User) error {
 	token := ctx.Value(constant.TokenKey).(string)
-	return errors.ToDomainErrorFromPostgres(r.keycloakClient.UpdateUser(ctx, token, config.Cfg.KCRealm, ToUpdateUserParams(u)))
+	return errors.ToDomainErrorFromPostgres(r.keycloakClient.UpdateUser(ctx, token, config.Cfg.KcRealm, ToUpdateUserParams(u)))
 }
 
 func (r *repositoryImpl) Delete(ctx context.Context, id string) error {
 	token := ctx.Value(constant.TokenKey).(string)
-	return errors.ToDomainErrorFromPostgres(r.keycloakClient.DeleteUser(ctx, token, config.Cfg.KCRealm, id))
+	return errors.ToDomainErrorFromPostgres(r.keycloakClient.DeleteUser(ctx, token, config.Cfg.KcRealm, id))
 }

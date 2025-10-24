@@ -13,10 +13,10 @@ const (
 	EnvApp         = "ENV_APP"
 	LogStdout      = "LOG_ENABLE_STDOUT"
 	LogFile        = "LOG_ENABLE_FILE"
-	KCClientID     = "KC_CLIENT_ID"
-	KCClientSecret = "KC_CLIENT_SECRET"
-	KCRealm        = "KC_REALM"
-	KCBasePath     = "KC_BASE_PATH"
+	KcClientID     = "KC_CLIENT_ID"
+	KcClientSecret = "KC_CLIENT_SECRET"
+	KcRealm        = "KC_REALM"
+	KcBasePath     = "KC_BASE_PATH"
 	RedisAddr      = "REDIS_ADDRESS"
 	S3AccessKey    = "S3_ACCESS_KEY"
 	S3SecretKey    = "S3_SECRET_KEY"
@@ -34,10 +34,10 @@ type Config struct {
 	EnvApp         string
 	EnableStdout   bool
 	EnableFile     bool
-	KCClientID     string
-	KCClientSecret string
-	KCRealm        string
-	KCBasePath     string
+	KcClientID     string
+	KcClientSecret string
+	KcRealm        string
+	KcBasePath     string
 	RedisAddr      string
 	S3AccessKey    string
 	S3SecretKey    string
@@ -64,10 +64,10 @@ func LoadConfig() {
 		EnvApp:         viper.GetString(EnvApp),
 		EnableStdout:   viper.GetBool(LogStdout),
 		EnableFile:     viper.GetBool(LogFile),
-		KCClientID:     viper.GetString(KCClientID),
-		KCClientSecret: viper.GetString(KCClientSecret),
-		KCRealm:        viper.GetString(KCRealm),
-		KCBasePath:     viper.GetString(KCBasePath),
+		KcClientID:     viper.GetString(KcClientID),
+		KcClientSecret: viper.GetString(KcClientSecret),
+		KcRealm:        viper.GetString(KcRealm),
+		KcBasePath:     viper.GetString(KcBasePath),
 		RedisAddr:      viper.GetString(RedisAddr),
 		S3AccessKey:    viper.GetString(S3AccessKey),
 		S3SecretKey:    viper.GetString(S3SecretKey),

@@ -89,7 +89,7 @@ func IsKeycloakReady(ctx context.Context, keycloakClient *gocloak.GoCloak) bool 
 	if keycloakClient == nil {
 		return false
 	}
-	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, config.Cfg.KCBasePath+"/health/ready", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, config.Cfg.KcBasePath+"/health/ready", nil)
 	client := &http.Client{Timeout: 2 * time.Second} // TODO: move http client to helper
 	resp, err := client.Do(req)
 	if err != nil {
