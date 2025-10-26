@@ -6,7 +6,176 @@ package postgres
 
 import (
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type Brand struct {
+	ID   int32
+	Name string
+}
+
+type Cart struct {
+	ID        int32
+	UserID    uuid.UUID
+	UpdatedAt pgtype.Timestamp
+}
+
+type CartItem struct {
+	ID               int32
+	Quantity         int32
+	CartID           int32
+	ProductID        int32
+	ProductVariantID int32
+}
+
+type Category struct {
+	ID          int32
+	Description string
+	CreatedAt   pgtype.Timestamp
+	DeletedAt   pgtype.Timestamp
+}
+
+type Option struct {
+	ID   int32
+	Name string
+}
+
+type OptionValue struct {
+	ID       int32
+	Value    string
+	OptionID int32
+}
+
+type OptionValuesProductVariant struct {
+	ProductVariantID int32
+	OptionValueID    int32
+}
+
+type Order struct {
+	ID            int32
+	CreatedAt     pgtype.Timestamp
+	UpdatedAt     pgtype.Timestamp
+	UserID        uuid.UUID
+	OrderStatusID int32
+	PaymentID     int32
+}
+
+type OrderItem struct {
+	ID               int32
+	Quantity         int32
+	OrderID          int32
+	ProductID        int32
+	ProductVariantID int32
+}
+
+type OrderStatus struct {
+	ID   int32
+	Name string
+}
+
+type Payment struct {
+	ID                int32
+	Amount            pgtype.Numeric
+	UpdatedAt         pgtype.Timestamp
+	PaymentMethodID   int32
+	PaymentStatusID   int32
+	PaymentProviderID int32
+}
+
+type PaymentMethod struct {
+	ID   int32
+	Name string
+}
+
+type PaymentProvider struct {
+	ID   int32
+	Name string
+}
+
+type PaymentStatus struct {
+	ID   int32
+	Name string
+}
+
+type Product struct {
+	ID            int32
+	Name          string
+	Description   string
+	CreatedAt     pgtype.Timestamp
+	UpdatedAt     pgtype.Timestamp
+	DeletedAt     pgtype.Timestamp
+	BrandID       int32
+	ViewsCount    int32
+	PurchaseCount int32
+	TrendingScore float64
+}
+
+type ProductCategory struct {
+	ProductID  int32
+	CategoryID int32
+}
+
+type ProductImage struct {
+	ID               int32
+	Url              string
+	AltText          string
+	CreatedAt        pgtype.Timestamp
+	IsPrimary        bool
+	Order            int32
+	ProductID        int32
+	ProductVariantID pgtype.Int4
+}
+
+type ProductVariant struct {
+	ID        int32
+	Sku       string
+	Price     pgtype.Numeric
+	Quantity  int32
+	CreatedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamp
+	ProductID int32
+}
+
+type Refund struct {
+	ID              int32
+	CreatedAt       pgtype.Timestamp
+	UpdatedAt       pgtype.Timestamp
+	StatusID        int32
+	PaymentID       int32
+	ReturnRequestID int32
+}
+
+type RefundStatus struct {
+	ID   int32
+	Name string
+}
+
+type ReturnRequest struct {
+	ID          int32
+	Reason      string
+	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
+	StatusID    int32
+	UserID      uuid.UUID
+	OrderItemID int32
+}
+
+type ReturnRequestStatus struct {
+	ID   int32
+	Name string
+}
+
+type Review struct {
+	ID        int32
+	Rating    int32
+	Content   pgtype.Text
+	ImageUrl  string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamp
+	UserID    uuid.UUID
+	ProductID int32
+}
 
 type User struct {
 	ID uuid.UUID

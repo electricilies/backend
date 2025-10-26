@@ -33,6 +33,17 @@ CREATE TABLE products (
   trending_score FLOAT NOT NULL DEFAULT 0
 );
 
+-- product_variants
+CREATE TABLE product_variants (
+  id SERIAL PRIMARY KEY,
+  sku TEXT UNIQUE NOT NULL,
+  price DECIMAL NOT NULL,
+  quantity INTEGER NOT NULL,
+  created_at TIMESTAMP NOT NULL,
+  deleted_at TIMESTAMP,
+  product_id INTEGER NOT NULL REFERENCES products (id)
+);
+
 -- product_images
 CREATE TABLE product_images (
   id SERIAL PRIMARY KEY,
@@ -48,7 +59,7 @@ CREATE TABLE product_images (
 -- reviews
 CREATE TABLE reviews (
   id SERIAL PRIMARY KEY,
-  rating INTEGER NOT NULL CHECK (rating > 0 AND rating < 5),
+  rating INTEGER NOT NULL CHECK (rating > 0 AND rating <= 5),
   content TEXT,
   image_url TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL,
@@ -65,15 +76,10 @@ CREATE TABLE product_categories (
   PRIMARY KEY (product_id, category_id)
 );
 
--- product_variants
-CREATE TABLE product_variants (
+-- options
+CREATE TABLE options (
   id SERIAL PRIMARY KEY,
-  sku TEXT UNIQUE NOT NULL,
-  price DECIMAL NOT NULL,
-  quantity INTEGER NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  deleted_at TIMESTAMP,
-  product_id INTEGER NOT NULL REFERENCES products (id)
+  name TEXT UNIQUE NOT NULL
 );
 
 -- option_values
@@ -88,12 +94,6 @@ CREATE TABLE option_values_product_variants (
   product_variant_id INTEGER NOT NULL REFERENCES product_variants (id),
   option_value_id INTEGER NOT NULL REFERENCES option_values (id),
   PRIMARY KEY (product_variant_id, option_value_id)
-);
-
--- options
-CREATE TABLE options (
-  id SERIAL PRIMARY KEY,
-  name TEXT UNIQUE NOT NULL
 );
 
 -- carts
@@ -165,6 +165,12 @@ CREATE TABLE order_items (
   product_variant_id INTEGER NOT NULL REFERENCES product_variants (id)
 );
 
+-- return_request_statuses
+CREATE TABLE return_request_statuses (
+  id SERIAL PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL
+);
+
 -- return_requests
 CREATE TABLE return_requests (
   id SERIAL PRIMARY KEY,
@@ -176,8 +182,8 @@ CREATE TABLE return_requests (
   order_item_id INTEGER NOT NULL REFERENCES order_items (id)
 );
 
--- return_request_statuses
-CREATE TABLE return_request_statuses (
+-- refund_statuses
+CREATE TABLE refund_statuses (
   id SERIAL PRIMARY KEY,
   name TEXT UNIQUE NOT NULL
 );
@@ -190,10 +196,4 @@ CREATE TABLE refunds (
   status_id INTEGER NOT NULL REFERENCES refund_statuses (id),
   payment_id INTEGER NOT NULL REFERENCES payments (id),
   return_request_id INTEGER NOT NULL REFERENCES return_requests (id)
-);
-
--- refund_statuses
-CREATE TABLE refund_statuses (
-  id SERIAL PRIMARY KEY,
-  name TEXT UNIQUE NOT NULL
 );
