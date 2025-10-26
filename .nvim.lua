@@ -12,6 +12,14 @@ lsp.config("gopls", {
   },
 })
 
+lsp.config("postgres_lsp", {
+  root_dir = function(_, on_dir)
+    if _IsDbUp() then
+      on_dir()
+    end
+  end,
+})
+
 map("n", "<localleader>lb", function()
   vim.ui.select({
     "none",
