@@ -1,6 +1,5 @@
 -- noqa: disable=AM04
 
-
 -- name: CreateUser :one
 INSERT INTO users (
   id
