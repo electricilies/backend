@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/redis/go-redis/v9"
 )
 
 func ToDomainErrorFromPostgres(err error) error {
@@ -170,4 +171,33 @@ func ToDomainErrorFromGoCloak(err error) error {
 	}
 
 	return domain.NewInternalError("unexpected keycloak error", err)
+}
+
+func ToDomainErrorFromRedis(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	switch {
+	case errors.Is(err, redis.Nil):
+		return domain.NewNotFoundError("resource not found", err)
+	case errors.Is(err, redis.TxFailedErr):
+		return domain.NewConflictError("transaction conflict, please retry", err)
+	case errors.Is(err, redis.ErrClosed):
+		return domain.NewConnectionError("redis client closed", err)
+	case errors.Is(err, redis.ErrPoolTimeout):
+		return domain.NewUnavailableError("redis connection pool exhausted", err)
+	case errors.Is(err, context.DeadlineExceeded):
+		return domain.NewUnavailableError("redis request timed out", err)
+	default:
+		var netErr net.Error
+		switch {
+		case errors.As(err, &netErr) && netErr.Timeout():
+			return domain.NewUnavailableError("redis network timeout", err)
+		case errors.As(err, &netErr):
+			return domain.NewConnectionError("redis network error", err)
+		default:
+			return domain.NewInternalError("unexpected redis error", err)
+		}
+	}
 }
