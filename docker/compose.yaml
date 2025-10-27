@@ -13,7 +13,8 @@ services:
     volumes:
       - db:/data/postgres
       - ./volume/00-init.sql:/docker-entrypoint-initdb.d/00-init.sql
-      - ./volume/10-seed.sql:/docker-entrypoint-initdb.d/10-seed.sql
+      - ./volume/10-schema.sql:/docker-entrypoint-initdb.d/10-schema.sql
+      - ./volume/20-seed.sql:/docker-entrypoint-initdb.d/20-seed.sql
     healthcheck:
       test:
         - CMD
