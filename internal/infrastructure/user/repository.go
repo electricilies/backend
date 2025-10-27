@@ -6,6 +6,7 @@ import (
 	"backend/internal/domain/user"
 	"backend/internal/infrastructure/errors"
 	"backend/internal/infrastructure/presistence/postgres"
+	"backend/pkg/logger"
 	"context"
 	"encoding/json"
 
@@ -33,13 +34,16 @@ func NewRepository(query *postgres.Queries, s3Client *s3.Client, redisClient *re
 func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error) {
 	cacheKey := constant.UserCachePrefix + id
 	cached, err := r.redisClient.Get(ctx, cacheKey).Result()
-	if err == nil {
-		var u user.User
-		if err := json.Unmarshal([]byte(cached), &u); err == nil {
-			return &u, nil
+	switch {
+	case err != nil && err != redis.Nil:
+		logger.Lgr.Error(constant.ErrRedisGetUserMsg, *logger.CreateRedisGetField(id, cacheKey, err)...)
+	default:
+		var cachedUser user.User
+		if err := json.Unmarshal([]byte(cached), &cachedUser); err == nil {
+			return &cachedUser, nil
 		}
-	}
 
+	}
 	token := ctx.Value(constant.TokenKey).(string)
 	u, err := r.keycloakClient.GetUserByID(ctx, token, config.Cfg.KcRealm, id)
 	if err != nil {
@@ -57,10 +61,14 @@ func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error)
 
 func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
 	cached, err := r.redisClient.Get(ctx, constant.UserListCacheKey).Result()
-	if err == nil {
-		var users []*user.User
-		if err := json.Unmarshal([]byte(cached), &users); err == nil {
-			return users, nil
+	switch {
+	case err != nil && err != redis.Nil:
+		logger.Lgr.Error(constant.ErrRedisGetUserMsg, *logger.CreateRedisListField(constant.UserListCacheKey, err)...)
+	default:
+
+		var usersCache []*user.User
+		if err := json.Unmarshal([]byte(cached), &usersCache); err == nil {
+			return usersCache, nil
 		}
 	}
 
