@@ -4,7 +4,8 @@ INSERT INTO categories (id, name) VALUES
 (1789, 'Điện Thoại - Máy Tính Bảng'),
 (1815, 'Thiết Bị Số - Phụ Kiện Số'),
 (1846, 'Laptop - Máy Vi Tính - Linh kiện'),
-(4221, 'Điện Tử - Điện Lạnh');
+(4221, 'Điện Tử - Điện Lạnh')
+ON CONFLICT (id, name) DO NOTHING;
 
 SELECT setval('categories_id_seq', (SELECT max(id) FROM categories));
 
@@ -92,7 +93,8 @@ INSERT INTO brands (id, name) VALUES
 (8242484, 'LN LE  NGUYEN'),
 (8248965, 'LuckyJQR'),
 (8269241, 'HALLOYA'),
-(8269877, 'Lanner');
+(8269877, 'Lanner')
+ON CONFLICT (id, name) DO NOTHING;
 
 SELECT setval('brands_id_seq', (SELECT max(id) FROM brands));
 
