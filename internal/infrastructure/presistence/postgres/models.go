@@ -30,6 +30,7 @@ type CartItem struct {
 
 type Category struct {
 	ID          int32
+	Name        pgtype.Text
 	Description string
 	CreatedAt   pgtype.Timestamp
 	DeletedAt   pgtype.Timestamp

@@ -8,6 +8,7 @@ CREATE TABLE users (
 -- categories
 CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
+  name TEXT UNIQUE,
   description TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL,
   deleted_at TIMESTAMP
