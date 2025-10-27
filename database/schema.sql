@@ -10,7 +10,7 @@ CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
   name TEXT UNIQUE,
   description TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP
 );
 
@@ -25,7 +25,7 @@ CREATE TABLE products (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL,
   deleted_at TIMESTAMP,
   brand_id INTEGER NOT NULL REFERENCES brands (id),
@@ -40,7 +40,7 @@ CREATE TABLE product_variants (
   sku TEXT UNIQUE NOT NULL,
   price DECIMAL NOT NULL,
   quantity INTEGER NOT NULL,
-  created_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP,
   product_id INTEGER NOT NULL REFERENCES products (id)
 );
@@ -50,7 +50,7 @@ CREATE TABLE product_images (
   id SERIAL PRIMARY KEY,
   url TEXT NOT NULL,
   alt_text TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   is_primary BOOLEAN NOT NULL DEFAULT FALSE,
   "order" INTEGER NOT NULL,
   product_id INTEGER NOT NULL REFERENCES products (id),
@@ -63,8 +63,8 @@ CREATE TABLE reviews (
   rating INTEGER NOT NULL CHECK (rating > 0 AND rating <= 5),
   content TEXT,
   image_url TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP,
   user_id UUID NOT NULL REFERENCES users (id),
   product_id INTEGER NOT NULL REFERENCES products (id)
@@ -101,7 +101,7 @@ CREATE TABLE option_values_product_variants (
 CREATE TABLE carts (
   id SERIAL PRIMARY KEY,
   user_id UUID UNIQUE NOT NULL REFERENCES users (id),
-  updated_at TIMESTAMP NOT NULL
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- cart_items
@@ -141,7 +141,7 @@ CREATE TABLE payment_providers (
 CREATE TABLE payments (
   id SERIAL PRIMARY KEY,
   amount DECIMAL NOT NULL,
-  updated_at TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   payment_method_id INTEGER NOT NULL REFERENCES payment_methods (id),
   payment_status_id INTEGER NOT NULL REFERENCES payment_statuses (id),
   payment_provider_id INTEGER NOT NULL REFERENCES payment_providers (id)
@@ -150,8 +150,8 @@ CREATE TABLE payments (
 -- orders
 CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
-  created_at TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   user_id UUID NOT NULL REFERENCES users (id),
   order_status_id INTEGER NOT NULL REFERENCES order_statuses (id),
   payment_id INTEGER NOT NULL REFERENCES payments (id)
@@ -176,8 +176,8 @@ CREATE TABLE return_request_statuses (
 CREATE TABLE return_requests (
   id SERIAL PRIMARY KEY,
   reason VARCHAR(150) NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   status_id INTEGER NOT NULL REFERENCES return_request_statuses (id),
   user_id UUID NOT NULL REFERENCES users (id),
   order_item_id INTEGER NOT NULL REFERENCES order_items (id)
@@ -192,8 +192,8 @@ CREATE TABLE refund_statuses (
 -- refunds
 CREATE TABLE refunds (
   id SERIAL PRIMARY KEY,
-  created_at TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   status_id INTEGER NOT NULL REFERENCES refund_statuses (id),
   payment_id INTEGER NOT NULL REFERENCES payments (id),
   return_request_id INTEGER NOT NULL REFERENCES return_requests (id)
