@@ -65,7 +65,6 @@ CREATE TABLE product_images (
   url TEXT NOT NULL,
   alt_text TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  is_primary BOOLEAN NOT NULL DEFAULT FALSE,
   "order" INTEGER NOT NULL,
   product_id INTEGER NOT NULL REFERENCES products (id),
   product_variant_id INTEGER REFERENCES product_variants (id)

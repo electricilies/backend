@@ -128,7 +128,6 @@ type ProductImage struct {
 	Url              string
 	AltText          string
 	CreatedAt        pgtype.Timestamp
-	IsPrimary        bool
 	Order            int32
 	ProductID        int32
 	ProductVariantID pgtype.Int4
