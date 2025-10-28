@@ -8,16 +8,10 @@ CREATE TABLE users (
 -- categories
 CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
-  name TEXT UNIQUE,
+  name TEXT UNIQUE NOT NULL,
   description TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP
-);
-
--- brands
-CREATE TABLE brands (
-  id SERIAL PRIMARY KEY,
-  name TEXT UNIQUE NOT NULL
 );
 
 -- products
@@ -25,13 +19,33 @@ CREATE TABLE products (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL,
-  deleted_at TIMESTAMP,
-  brand_id INTEGER NOT NULL REFERENCES brands (id),
   views_count INTEGER NOT NULL DEFAULT 0,
   purchase_count INTEGER NOT NULL DEFAULT 0,
-  trending_score FLOAT NOT NULL DEFAULT 0
+  trending_score FLOAT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  deleted_at TIMESTAMP
+);
+
+-- attributes
+CREATE TABLE attributes (
+  id SERIAL PRIMARY KEY,
+  code VARCHAR(100) UNIQUE NOT NULL,
+  name TEXT NOT NULL
+);
+
+-- attribute_values
+CREATE TABLE attribute_values (
+  id SERIAL PRIMARY KEY,
+  attribute_id INTEGER NOT NULL REFERENCES attributes (id),
+  value TEXT NOT NULL
+);
+
+-- product_attributes_values
+CREATE TABLE product_attributes_values (
+  product_id INTEGER NOT NULL REFERENCES products (id),
+  attribute_value_id INTEGER NOT NULL REFERENCES attribute_values (id),
+  PRIMARY KEY (product_id, attribute_value_id)
 );
 
 -- product_variants
@@ -40,9 +54,9 @@ CREATE TABLE product_variants (
   sku TEXT UNIQUE NOT NULL,
   price DECIMAL NOT NULL,
   quantity INTEGER NOT NULL,
+  product_id INTEGER NOT NULL REFERENCES products (id),
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  deleted_at TIMESTAMP,
-  product_id INTEGER NOT NULL REFERENCES products (id)
+  deleted_at TIMESTAMP
 );
 
 -- product_images
@@ -70,8 +84,8 @@ CREATE TABLE reviews (
   product_id INTEGER NOT NULL REFERENCES products (id)
 );
 
--- product_categories
-CREATE TABLE product_categories (
+-- products_categories
+CREATE TABLE products_categories (
   product_id INTEGER NOT NULL REFERENCES products (id),
   category_id INTEGER NOT NULL REFERENCES categories (id),
   PRIMARY KEY (product_id, category_id)
@@ -80,7 +94,8 @@ CREATE TABLE product_categories (
 -- options
 CREATE TABLE options (
   id SERIAL PRIMARY KEY,
-  name TEXT UNIQUE NOT NULL
+  name TEXT UNIQUE NOT NULL,
+  product_id INTEGER NOT NULL REFERENCES products (id)
 );
 
 -- option_values
@@ -198,3 +213,4 @@ CREATE TABLE refunds (
   payment_id INTEGER NOT NULL REFERENCES payments (id),
   return_request_id INTEGER NOT NULL REFERENCES return_requests (id)
 );
+

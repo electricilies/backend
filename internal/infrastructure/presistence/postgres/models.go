@@ -9,9 +9,16 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Brand struct {
+type Attribute struct {
 	ID   int32
+	Code string
 	Name string
+}
+
+type AttributeValue struct {
+	ID          int32
+	AttributeID int32
+	Value       string
 }
 
 type Cart struct {
@@ -30,15 +37,16 @@ type CartItem struct {
 
 type Category struct {
 	ID          int32
-	Name        pgtype.Text
+	Name        string
 	Description string
 	CreatedAt   pgtype.Timestamp
 	DeletedAt   pgtype.Timestamp
 }
 
 type Option struct {
-	ID   int32
-	Name string
+	ID        int32
+	Name      string
+	ProductID int32
 }
 
 type OptionValue struct {
@@ -102,18 +110,17 @@ type Product struct {
 	ID            int32
 	Name          string
 	Description   string
-	CreatedAt     pgtype.Timestamp
-	UpdatedAt     pgtype.Timestamp
-	DeletedAt     pgtype.Timestamp
-	BrandID       int32
 	ViewsCount    int32
 	PurchaseCount int32
 	TrendingScore float64
+	CreatedAt     pgtype.Timestamp
+	UpdatedAt     pgtype.Timestamp
+	DeletedAt     pgtype.Timestamp
 }
 
-type ProductCategory struct {
-	ProductID  int32
-	CategoryID int32
+type ProductAttributesValue struct {
+	ProductID        int32
+	AttributeValueID int32
 }
 
 type ProductImage struct {
@@ -132,9 +139,14 @@ type ProductVariant struct {
 	Sku       string
 	Price     pgtype.Numeric
 	Quantity  int32
+	ProductID int32
 	CreatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
-	ProductID int32
+}
+
+type ProductsCategory struct {
+	ProductID  int32
+	CategoryID int32
 }
 
 type Refund struct {
