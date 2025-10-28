@@ -1,2 +1,2 @@
 database/seed.sql
-docker/volume/10-seed.sql
+docker/volume/20-seed.sql
