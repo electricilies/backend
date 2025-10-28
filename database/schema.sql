@@ -63,7 +63,6 @@ CREATE TABLE product_variants (
 CREATE TABLE product_images (
   id SERIAL PRIMARY KEY,
   url TEXT NOT NULL,
-  alt_text TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   "order" INTEGER NOT NULL,
   product_id INTEGER NOT NULL REFERENCES products (id),

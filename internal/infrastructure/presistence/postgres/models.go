@@ -126,7 +126,6 @@ type ProductAttributesValue struct {
 type ProductImage struct {
 	ID               int32
 	Url              string
-	AltText          string
 	CreatedAt        pgtype.Timestamp
 	Order            int32
 	ProductID        int32
