@@ -111,7 +111,7 @@ type Product struct {
 	Name          string
 	Description   string
 	ViewsCount    int32
-	PurchaseCount int32
+	TotalPurchase int32
 	TrendingScore float64
 	CreatedAt     pgtype.Timestamp
 	UpdatedAt     pgtype.Timestamp
@@ -133,13 +133,14 @@ type ProductImage struct {
 }
 
 type ProductVariant struct {
-	ID        int32
-	Sku       string
-	Price     pgtype.Numeric
-	Quantity  int32
-	ProductID int32
-	CreatedAt pgtype.Timestamp
-	DeletedAt pgtype.Timestamp
+	ID            int32
+	Sku           string
+	Price         pgtype.Numeric
+	Quantity      int32
+	PurchaseCount int32
+	ProductID     int32
+	CreatedAt     pgtype.Timestamp
+	DeletedAt     pgtype.Timestamp
 }
 
 type ProductsCategory struct {

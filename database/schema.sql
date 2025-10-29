@@ -20,7 +20,7 @@ CREATE TABLE products (
   name TEXT NOT NULL,
   description TEXT NOT NULL,
   views_count INTEGER NOT NULL DEFAULT 0,
-  purchase_count INTEGER NOT NULL DEFAULT 0,
+  total_purchase INTEGER NOT NULL DEFAULT 0,
   trending_score FLOAT NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -54,6 +54,7 @@ CREATE TABLE product_variants (
   sku TEXT UNIQUE NOT NULL,
   price DECIMAL NOT NULL,
   quantity INTEGER NOT NULL,
+  purchase_count INTEGER NOT NULL DEFAULT 0,
   product_id INTEGER NOT NULL REFERENCES products (id),
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP
@@ -211,4 +212,3 @@ CREATE TABLE refunds (
   payment_id INTEGER NOT NULL REFERENCES payments (id),
   return_request_id INTEGER NOT NULL REFERENCES return_requests (id)
 );
-
