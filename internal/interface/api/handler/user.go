@@ -83,7 +83,7 @@ func (h *userHandler) List(ctx *gin.Context) {
 func (h *userHandler) Create(ctx *gin.Context) {
 	var req request.User
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		mapper.SendBadRequestError(ctx, err.Error())
 		return
 	}
 
