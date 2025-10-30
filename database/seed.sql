@@ -2961,7 +2961,7 @@ SELECT setval('attribute_values_id_seq', (SELECT max(id) FROM attribute_values))
 
 -- Products - Attribute Values
 
-INSERT INTO products_attribute_values (product_id, attribute_id) VALUES
+INSERT INTO product_attribute_values (product_id, attribute_id) VALUES
   (278469304, 1),
   (278469304, 2),
   (278469304, 3),
