@@ -39,9 +39,9 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "internal error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/mapper.InternalServerError"
                         }
                     }
                 }
@@ -77,15 +77,21 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "bad request",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/mapper.BadRequestError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.ConflictError"
                         }
                     },
                     "500": {
-                        "description": "internal error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/mapper.InternalServerError"
                         }
                     }
                 }
@@ -121,19 +127,19 @@ const docTemplate = `{
                     "400": {
                         "description": "bad request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/mapper.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "not found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/mapper.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "internal error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/mapper.InternalServerError"
                         }
                     }
                 }
@@ -176,21 +182,27 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "bad request",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/mapper.BadRequestError"
                         }
                     },
                     "404": {
-                        "description": "not found",
+                        "description": "Not Found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/mapper.NotFoundError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.ConflictError"
                         }
                     },
                     "500": {
-                        "description": "internal error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/mapper.InternalServerError"
                         }
                     }
                 }
@@ -224,15 +236,15 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "not found",
+                        "description": "Not Found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/mapper.NotFoundError"
                         }
                     },
                     "500": {
-                        "description": "internal error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/mapper.InternalServerError"
                         }
                     }
                 }
@@ -240,6 +252,58 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "mapper.BadRequestError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "INVALID_EMAIL"
+                },
+                "error": {
+                    "type": "string",
+                    "example": "Email address is invalid"
+                }
+            }
+        },
+        "mapper.ConflictError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "EMAIL_EXISTS"
+                },
+                "error": {
+                    "type": "string",
+                    "example": "User with email already exists"
+                }
+            }
+        },
+        "mapper.InternalServerError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "INTERNAL_ERROR"
+                },
+                "error": {
+                    "type": "string",
+                    "example": "An unexpected error occurred"
+                }
+            }
+        },
+        "mapper.NotFoundError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "USER_NOT_FOUND"
+                },
+                "error": {
+                    "type": "string",
+                    "example": "User with ID 123 not found"
+                }
+            }
+        },
         "request.User": {
             "type": "object",
             "required": [

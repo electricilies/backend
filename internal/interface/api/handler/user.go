@@ -35,9 +35,9 @@ func NewUser(app application.User) User {
 //	@Produce		json
 //	@Param			id	path		string	true	"User ID"
 //	@Success		200	{object}	User
-//	@Failure		400	{string}	string	"bad request"
-//	@Failure		404	{string}	string	"not found"
-//	@Failure		500	{string}	string	"internal error"
+//	@Failure		400	{object}	mapper.BadRequestError		"bad request"
+//	@Failure		404	{object}	mapper.NotFoundError		"not found"
+//	@Failure		500	{object}	mapper.InternalServerError	"internal error"
 //	@Router			/users/{id} [get]
 func (h *userHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("id")
@@ -57,7 +57,7 @@ func (h *userHandler) Get(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{array}		response.User
-//	@Failure		500	{string}	string	"internal error"
+//	@Failure		500	{object}	mapper.InternalServerError
 //	@Router			/users [get]
 func (h *userHandler) List(ctx *gin.Context) {
 	users, err := h.app.List(ctx)
@@ -77,8 +77,9 @@ func (h *userHandler) List(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			user	body		request.User	true	"User request"
 //	@Success		201		{object}	user.User
-//	@Failure		400		{string}	string	"bad request"
-//	@Failure		500		{string}	string	"internal error"
+//	@Failure		400		{object}	mapper.BadRequestError
+//	@Failure		409		{object}	mapper.ConflictError
+//	@Failure		500		{object}	mapper.InternalServerError
 //	@Router			/users [post]
 func (h *userHandler) Create(ctx *gin.Context) {
 	var req request.User
@@ -107,9 +108,10 @@ func (h *userHandler) Create(ctx *gin.Context) {
 //	@Param			id		path		string			true	"User ID"
 //	@Param			user	body		request.User	true	"User request"
 //	@Success		204		{string}	string			"no content"
-//	@Failure		400		{string}	string			"bad request"
-//	@Failure		404		{string}	string			"not found"
-//	@Failure		500		{string}	string			"internal error"
+//	@Failure		400		{object}	mapper.BadRequestError
+//	@Failure		404		{object}	mapper.NotFoundError
+//	@Failure		409		{object}	mapper.ConflictError
+//	@Failure		500		{object}	mapper.InternalServerError
 //	@Router			/users/{id} [put]
 func (h *userHandler) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
@@ -140,8 +142,8 @@ func (h *userHandler) Update(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			id	path		string	true	"User ID"
 //	@Success		204	{string}	string	"no content"
-//	@Failure		404	{string}	string	"not found"
-//	@Failure		500	{string}	string	"internal error"
+//	@Failure		404	{object}	mapper.NotFoundError
+//	@Failure		500	{object}	mapper.InternalServerError
 //	@Router			/users/{id} [delete]
 func (h *userHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
