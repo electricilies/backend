@@ -15518,7 +15518,7 @@ INSERT INTO product_images (id, url, "order", product_id, product_variant_id) VA
   (12099, 'https://salt.tikicdn.com/cache/w1200/ts/product/cc/a4/8c/3214c52ca0f7f81463977128d6a75958.png', 15, 278806873, 278806874),
   (12100, 'https://salt.tikicdn.com/cache/w1200/ts/product/cc/a4/8c/3214c52ca0f7f81463977128d6a75958.png', 16, 278806873, 278806875),
   (12101, 'https://salt.tikicdn.com/cache/w1200/ts/product/e5/e5/e4/48c5c5e64e3eb4b72cc3d5669ce17a77.png', 17, 278806873, 278806874),
-  (12102, 'https://salt.tikicdn.com/cache/w1200/ts/product/e5/e5/e4/48c5c5e64e3eb4b72cc3d5669ce17a77.png', 18, 278806873, 278806875),
+  (12102, 'https://salt.tikicdn.com/cache/w1200/ts/product/e5/e5/e4/48c5c5e64e3eb4b72cc3d5669ce17a77.png', 18, 278806873, 278806875)
 ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('product_images_id_seq', (SELECT max(id) FROM product_images));
