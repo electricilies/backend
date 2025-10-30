@@ -37,7 +37,16 @@ func InitializeServer() *server.Server {
 	healthCheck := handler.NewHealthCheck(goCloak, redisClient, s3Client, conn)
 	metric := middleware.NewMetric()
 	logging := middleware.NewLogging()
-	routerRouter := router.New(handlerUser, healthCheck, metric, logging)
+	category := handler.NewCategory()
+	product := handler.NewProduct()
+	attribute := handler.NewAttribute()
+	payment := handler.NewPayment()
+	order := handler.NewOrder()
+	handlerReturn := handler.NewReturn()
+	refund := handler.NewRefund()
+	review := handler.NewReview()
+	cart := handler.NewCart()
+	routerRouter := router.New(handlerUser, healthCheck, metric, logging, category, product, attribute, payment, order, handlerReturn, refund, review, cart)
 	serverServer := server.New(engine, routerRouter)
 	return serverServer
 }
@@ -56,7 +65,7 @@ var AppSet = wire.NewSet(application.NewUser)
 
 var MiddlewareSet = wire.NewSet(middleware.NewMetric, middleware.NewLogging)
 
-var HandlerSet = wire.NewSet(handler.NewUser, handler.NewHealthCheck)
+var HandlerSet = wire.NewSet(handler.NewUser, handler.NewHealthCheck, handler.NewCategory, handler.NewProduct, handler.NewAttribute, handler.NewPayment, handler.NewOrder, handler.NewReturn, handler.NewRefund, handler.NewReview, handler.NewCart)
 
 var RouterSet = wire.NewSet(router.New)
 

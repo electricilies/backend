@@ -48,6 +48,15 @@ var MiddlewareSet = wire.NewSet(
 var HandlerSet = wire.NewSet(
 	handler.NewUser,
 	handler.NewHealthCheck,
+	handler.NewCategory,
+	handler.NewProduct,
+	handler.NewAttribute,
+	handler.NewPayment,
+	handler.NewOrder,
+	handler.NewReturn,
+	handler.NewRefund,
+	handler.NewReview,
+	handler.NewCart,
 )
 
 var RouterSet = wire.NewSet(

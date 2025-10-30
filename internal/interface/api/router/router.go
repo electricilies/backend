@@ -29,12 +29,35 @@ type router struct {
 	loggingMiddleware middleware.Logging
 }
 
-func New(userHandler handler.User, healthCheckHandler handler.HealthCheck, metricMiddleware middleware.Metric, loggingMiddleware middleware.Logging) Router {
+func New(
+	userHandler handler.User,
+	healthCheckHandler handler.HealthCheck,
+	metricMiddleware middleware.Metric,
+	loggingMiddleware middleware.Logging,
+	categoryHandler handler.Category,
+	productHandler handler.Product,
+	attributeHandler handler.Attribute,
+	paymentHandler handler.Payment,
+	orderHandler handler.Order,
+	returnHandler handler.Return,
+	refundHandler handler.Refund,
+	reviewHandler handler.Review,
+	cartHandler handler.Cart,
+) Router {
 	return &router{
 		userHandler:       userHandler,
 		healthHandler:     healthCheckHandler,
 		metricMiddleware:  metricMiddleware,
 		loggingMiddleware: loggingMiddleware,
+		categoryHandler:   categoryHandler,
+		productHandler:    productHandler,
+		attributeHandler:  attributeHandler,
+		paymentHandler:    paymentHandler,
+		orderHandler:      orderHandler,
+		returnHandler:     returnHandler,
+		refundHandler:     refundHandler,
+		reviewHandler:     reviewHandler,
+		cartHandler:       cartHandler,
 	}
 }
 
