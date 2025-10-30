@@ -36,11 +36,10 @@ type CartItem struct {
 }
 
 type Category struct {
-	ID          int32
-	Name        string
-	Description string
-	CreatedAt   pgtype.Timestamp
-	DeletedAt   pgtype.Timestamp
+	ID        int32
+	Name      string
+	CreatedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamp
 }
 
 type Option struct {
@@ -118,11 +117,6 @@ type Product struct {
 	DeletedAt     pgtype.Timestamp
 }
 
-type ProductAttributesValue struct {
-	ProductID        int32
-	AttributeValueID int32
-}
-
 type ProductImage struct {
 	ID               int32
 	Url              string
@@ -141,6 +135,11 @@ type ProductVariant struct {
 	ProductID     int32
 	CreatedAt     pgtype.Timestamp
 	DeletedAt     pgtype.Timestamp
+}
+
+type ProductsAttributeValue struct {
+	ProductID        int32
+	AttributeValueID int32
 }
 
 type ProductsCategory struct {

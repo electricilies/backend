@@ -83,7 +83,7 @@ INSERT INTO categories (id, name) VALUES
   (67238, 'Tháp giặt sấy'),
   (67240, 'Máy giặt cửa trên'),
   (67241, 'Máy giặt cửa ngang')
-ON CONFLICT (id, name) DO NOTHING;
+ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('categories_id_seq', (SELECT max(id) FROM categories));
 
@@ -205,73 +205,9 @@ INSERT INTO attributes (id, code, name) VALUES
   (113, 'weight_with_stand', 'Khối lượng có chân'),
   (114, 'weight_without_stand', 'Khối lượng không chân'),
   (115, 'wifi', 'Wifi')
-ON CONFLICT (id, code) DO NOTHING;
+ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('attributes_id_seq', (SELECT max(id) FROM attributes));
-
--- Options
-
-INSERT INTO options (id, name, product_id) VALUES
-  (1, 'Màu Sắc', 278469304),
-  (2, 'Màu sắc', 278469345),
-  (3, 'Màu sắc', 278470574),
-  (4, 'Màu sắc', 278490553),
-  (5, 'Màu sắc', 278500816),
-  (6, 'Màu sắc', 278500947),
-  (7, 'Màu', 278505394),
-  (8, 'Màu', 278505416),
-  (9, 'Màu', 278524463),
-  (10, 'Màu sắc', 278540683),
-  (11, 'Màu sắc', 278580531),
-  (12, 'Màu sắc', 278580633),
-  (13, 'Màu sắc', 278591094),
-  (14, 'Màu sắc', 278591193),
-  (15, 'Màu sắc', 278592403),
-  (16, 'Màu sắc', 278592429),
-  (17, 'Màu', 278604009),
-  (18, 'Màu sắc', 278604572),
-  (19, 'Màu sắc', 278607957),
-  (20, 'Màu sắc', 278607963),
-  (21, 'Màu sắc', 278618790),
-  (22, 'Màu', 278620827),
-  (23, 'Dung lượng', 278620827),
-  (24, 'MÀU SẮC', 278627348),
-  (25, 'Màu sắc', 278628812),
-  (26, 'Bộ nhớ', 278628812),
-  (27, 'Màu sắc', 278630285),
-  (28, 'Bộ nhớ', 278630285),
-  (29, 'Màu sắc', 278635074),
-  (30, 'Màu sắc', 278635094),
-  (31, 'Màu sắc', 278638391),
-  (32, 'Màu sắc', 278665998),
-  (33, 'Màu sắc', 278672823),
-  (34, 'Bộ nhớ', 278711036),
-  (35, 'Màu', 278711036),
-  (36, 'Khối Lượng', 278726149),
-  (37, 'Màu sắc', 278726186),
-  (38, 'Màu sắc', 278726370),
-  (39, 'Màu sắc', 278726697),
-  (40, 'Màu sắc', 278729165),
-  (41, 'Màu sắc', 278730376),
-  (42, 'Phân loại', 278750390),
-  (43, 'Màu sắc', 278776793),
-  (44, 'Màu sắc', 278776852),
-  (45, 'Màu sắc', 278777036),
-  (46, 'Màu sắc', 278780989),
-  (47, 'Cấu hình', 278787122),
-  (48, 'Phân loại công suất', 278787141),
-  (49, 'Phân loại công suất', 278787228),
-  (50, 'Dung lượng', 278793036),
-  (51, 'Công suất', 278800520),
-  (52, 'Dòng máy', 278801860),
-  (53, 'Chọn màu', 278802052),
-  (54, 'Dòng iPhone', 278802052),
-  (55, 'Color', 278802255),
-  (56, 'Kích cỡ màn hình', 278803905),
-  (57, 'Dung lượng', 278806873)
-ON CONFLICT (id, name) DO NOTHING;
-
-SELECT setval('options_id_seq', (SELECT max(id) FROM options));
 
 -- Products
 
@@ -434,6 +370,70 @@ INSERT INTO products (id, name, description) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('products_id_seq', (SELECT max(id) FROM products));
+
+-- Options
+
+INSERT INTO options (id, name, product_id) VALUES
+  (1, 'Màu Sắc', 278469304),
+  (2, 'Màu sắc', 278469345),
+  (3, 'Màu sắc', 278470574),
+  (4, 'Màu sắc', 278490553),
+  (5, 'Màu sắc', 278500816),
+  (6, 'Màu sắc', 278500947),
+  (7, 'Màu', 278505394),
+  (8, 'Màu', 278505416),
+  (9, 'Màu', 278524463),
+  (10, 'Màu sắc', 278540683),
+  (11, 'Màu sắc', 278580531),
+  (12, 'Màu sắc', 278580633),
+  (13, 'Màu sắc', 278591094),
+  (14, 'Màu sắc', 278591193),
+  (15, 'Màu sắc', 278592403),
+  (16, 'Màu sắc', 278592429),
+  (17, 'Màu', 278604009),
+  (18, 'Màu sắc', 278604572),
+  (19, 'Màu sắc', 278607957),
+  (20, 'Màu sắc', 278607963),
+  (21, 'Màu sắc', 278618790),
+  (22, 'Màu', 278620827),
+  (23, 'Dung lượng', 278620827),
+  (24, 'MÀU SẮC', 278627348),
+  (25, 'Màu sắc', 278628812),
+  (26, 'Bộ nhớ', 278628812),
+  (27, 'Màu sắc', 278630285),
+  (28, 'Bộ nhớ', 278630285),
+  (29, 'Màu sắc', 278635074),
+  (30, 'Màu sắc', 278635094),
+  (31, 'Màu sắc', 278638391),
+  (32, 'Màu sắc', 278665998),
+  (33, 'Màu sắc', 278672823),
+  (34, 'Bộ nhớ', 278711036),
+  (35, 'Màu', 278711036),
+  (36, 'Khối Lượng', 278726149),
+  (37, 'Màu sắc', 278726186),
+  (38, 'Màu sắc', 278726370),
+  (39, 'Màu sắc', 278726697),
+  (40, 'Màu sắc', 278729165),
+  (41, 'Màu sắc', 278730376),
+  (42, 'Phân loại', 278750390),
+  (43, 'Màu sắc', 278776793),
+  (44, 'Màu sắc', 278776852),
+  (45, 'Màu sắc', 278777036),
+  (46, 'Màu sắc', 278780989),
+  (47, 'Cấu hình', 278787122),
+  (48, 'Phân loại công suất', 278787141),
+  (49, 'Phân loại công suất', 278787228),
+  (50, 'Dung lượng', 278793036),
+  (51, 'Công suất', 278800520),
+  (52, 'Dòng máy', 278801860),
+  (53, 'Chọn màu', 278802052),
+  (54, 'Dòng iPhone', 278802052),
+  (55, 'Color', 278802255),
+  (56, 'Kích cỡ màn hình', 278803905),
+  (57, 'Dung lượng', 278806873)
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval('options_id_seq', (SELECT max(id) FROM options));
 
 -- Attribute Values
 
@@ -1731,7 +1731,7 @@ SELECT setval('attribute_values_id_seq', (SELECT max(id) FROM attribute_values))
 
 -- Products - Attribute Values
 
-INSERT INTO product_attribute_values (product_id, attribute_id) VALUES
+INSERT INTO products_attribute_values (product_id, attribute_value_id) VALUES
   (278469304, 1),
   (278469304, 2),
   (278469304, 3),
@@ -3019,7 +3019,7 @@ INSERT INTO product_attribute_values (product_id, attribute_id) VALUES
   (9847206, 1285),
   (9847206, 1286),
   (9847206, 1287)
-ON CONFLICT (product_id, attribute_id) DO NOTHING;
+ON CONFLICT (product_id, attribute_value_id) DO NOTHING;
 
 -- Product Variants
 INSERT INTO product_variants (id, sku, price, quantity, purchase_count, product_id) VALUES
@@ -3254,7 +3254,7 @@ INSERT INTO product_variants (id, sku, price, quantity, purchase_count, product_
   (271583443, '6445774265222', 139000, 1000, 100, 278806873),
   (278806876, '4418955900218', 169000, 1000, 100, 278806873),
   (191315743, '8229534313215', 2990000, 1000, 100, 9847206)
-ON CONFLICT (id, sku) DO NOTHING;
+ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('product_variants_id_seq', (SELECT max(id) FROM product_variants));
 

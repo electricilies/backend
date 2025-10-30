@@ -7,7 +7,6 @@ CREATE TABLE users (
 CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
   name TEXT UNIQUE NOT NULL,
-  description TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP
 );
@@ -41,8 +40,8 @@ CREATE TABLE attribute_values (
   value TEXT NOT NULL
 );
 
--- product_attributes_values
-CREATE TABLE product_attributes_values (
+-- products_attribute_values
+CREATE TABLE products_attribute_values (
   product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
   attribute_value_id INTEGER NOT NULL
   REFERENCES attribute_values (id)
@@ -95,7 +94,7 @@ CREATE TABLE products_categories (
 -- options
 CREATE TABLE options (
   id SERIAL PRIMARY KEY,
-  name TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
   product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE
 );
 
