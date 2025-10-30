@@ -105,7 +105,7 @@ return {
           condition = function(_, ctx)
             return _IsDbUp()
               and ctx.filename:match("database/.*%.sql") ~= nil
-              and ctx.filename:match("database/%w*seed%.sql") == nil
+              and ctx.filename:match("database/.*seed%.sql") == nil
           end,
         },
       },
