@@ -1,5 +1,3 @@
-SET TIME ZONE 'Asia/Ho_Chi_Minh';
-
 -- users
 CREATE TABLE users (
   id UUID PRIMARY KEY

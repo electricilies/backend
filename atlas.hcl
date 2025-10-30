@@ -9,19 +9,23 @@ variable "db_url" {
 }
 
 locals {
-  schema_path    = "file://database/schema.sql"
   migration_path = "file://migration"
+  schema_urls = [
+    "file://database/init.sql",
+    "file://database/schema.sql",
+    "file://database/trigger.sql",
+  ]
 }
 
 env "local" {
-  src     = local.schema_path
+  src     = local.schema_urls
   url     = var.db_url
   dev     = var.temp_db
   schemas = ["public"]
 }
 
 env "dev" {
-  src     = local.schema_path
+  src     = local.schema_urls
   url     = var.db_url
   dev     = var.temp_db
   schemas = ["public"]
