@@ -1,3 +1,4 @@
 database/seed.sql
-docker/volume/10-schema.sql
-docker/volume/20-seed.sql
+docker/volume/init.sql
+docker/volume/schema.sql
+docker/volume/seed.sql
