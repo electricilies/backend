@@ -243,8 +243,8 @@ jobs:
     needs: test
     if: >-
       ${{
-        startsWith(github.ref, 'refs/tags/v')
-        || (github.event_name == 'workflow_dispatch' && inputs.release == 'true')
+        startsWith(github.ref, 'refs/tags/v') ||
+        (github.event_name == 'workflow_dispatch' && inputs.release == 'true')
       }}
     concurrency: build-backend
     permissions:
@@ -323,9 +323,9 @@ jobs:
       - build-backend
     if: >-
       ${{
-        (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch')
-        && (needs.build-backend.result == 'success')
-        && (!needs.build-migrate.result || needs.build-migrate.result == 'success' || needs.build-migrate.result == 'skipped')
+        (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch') &&
+        (needs.build-backend.result == 'success') &&
+        (needs.build-migrate.result == 'success' || needs.build-migrate.result == 'skipped')
       }}
     steps:
       - name: Get token
