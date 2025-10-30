@@ -35,14 +35,14 @@ CREATE TABLE attributes (
 -- attribute_values
 CREATE TABLE attribute_values (
   id SERIAL PRIMARY KEY,
-  attribute_id INTEGER NOT NULL REFERENCES attributes (id),
+  attribute_id INTEGER NOT NULL REFERENCES attributes (id) ON UPDATE CASCADE,
   value TEXT NOT NULL
 );
 
 -- product_attributes_values
 CREATE TABLE product_attributes_values (
-  product_id INTEGER NOT NULL REFERENCES products (id),
-  attribute_value_id INTEGER NOT NULL REFERENCES attribute_values (id),
+  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
+  attribute_value_id INTEGER NOT NULL REFERENCES attribute_values (id) ON UPDATE CASCADE,
   PRIMARY KEY (product_id, attribute_value_id)
 );
 
@@ -53,7 +53,7 @@ CREATE TABLE product_variants (
   price DECIMAL NOT NULL,
   quantity INTEGER NOT NULL,
   purchase_count INTEGER NOT NULL DEFAULT 0,
-  product_id INTEGER NOT NULL REFERENCES products (id),
+  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP
 );
@@ -64,8 +64,8 @@ CREATE TABLE product_images (
   url TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   "order" INTEGER NOT NULL,
-  product_id INTEGER NOT NULL REFERENCES products (id),
-  product_variant_id INTEGER REFERENCES product_variants (id)
+  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
+  product_variant_id INTEGER REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 
 -- reviews
@@ -77,14 +77,14 @@ CREATE TABLE reviews (
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP,
-  user_id UUID NOT NULL REFERENCES users (id),
-  product_id INTEGER NOT NULL REFERENCES products (id)
+  user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE
 );
 
 -- products_categories
 CREATE TABLE products_categories (
-  product_id INTEGER NOT NULL REFERENCES products (id),
-  category_id INTEGER NOT NULL REFERENCES categories (id),
+  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
+  category_id INTEGER NOT NULL REFERENCES categories (id) ON UPDATE CASCADE,
   PRIMARY KEY (product_id, category_id)
 );
 
@@ -92,27 +92,27 @@ CREATE TABLE products_categories (
 CREATE TABLE options (
   id SERIAL PRIMARY KEY,
   name TEXT UNIQUE NOT NULL,
-  product_id INTEGER NOT NULL REFERENCES products (id)
+  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE
 );
 
 -- option_values
 CREATE TABLE option_values (
   id SERIAL PRIMARY KEY,
   value TEXT NOT NULL,
-  option_id INTEGER NOT NULL REFERENCES options (id)
+  option_id INTEGER NOT NULL REFERENCES options (id) ON UPDATE CASCADE
 );
 
 -- option_values_product_variants
 CREATE TABLE option_values_product_variants (
-  product_variant_id INTEGER NOT NULL REFERENCES product_variants (id),
-  option_value_id INTEGER NOT NULL REFERENCES option_values (id),
+  product_variant_id INTEGER NOT NULL REFERENCES product_variants (id) ON UPDATE CASCADE,
+  option_value_id INTEGER NOT NULL REFERENCES option_values (id) ON UPDATE CASCADE,
   PRIMARY KEY (product_variant_id, option_value_id)
 );
 
 -- carts
 CREATE TABLE carts (
   id SERIAL PRIMARY KEY,
-  user_id UUID UNIQUE NOT NULL REFERENCES users (id),
+  user_id UUID UNIQUE NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
@@ -120,9 +120,9 @@ CREATE TABLE carts (
 CREATE TABLE cart_items (
   id SERIAL PRIMARY KEY,
   quantity INTEGER NOT NULL,
-  cart_id INTEGER NOT NULL REFERENCES carts (id),
-  product_id INTEGER NOT NULL REFERENCES products (id),
-  product_variant_id INTEGER NOT NULL REFERENCES product_variants (id)
+  cart_id INTEGER NOT NULL REFERENCES carts (id) ON UPDATE CASCADE,
+  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
+  product_variant_id INTEGER NOT NULL REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 
 -- order_statuses
@@ -154,9 +154,9 @@ CREATE TABLE payments (
   id SERIAL PRIMARY KEY,
   amount DECIMAL NOT NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  payment_method_id INTEGER NOT NULL REFERENCES payment_methods (id),
-  payment_status_id INTEGER NOT NULL REFERENCES payment_statuses (id),
-  payment_provider_id INTEGER NOT NULL REFERENCES payment_providers (id)
+  payment_method_id INTEGER NOT NULL REFERENCES payment_methods (id) ON UPDATE CASCADE,
+  payment_status_id INTEGER NOT NULL REFERENCES payment_statuses (id) ON UPDATE CASCADE,
+  payment_provider_id INTEGER NOT NULL REFERENCES payment_providers (id) ON UPDATE CASCADE
 );
 
 -- orders
@@ -164,18 +164,18 @@ CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  user_id UUID NOT NULL REFERENCES users (id),
-  order_status_id INTEGER NOT NULL REFERENCES order_statuses (id),
-  payment_id INTEGER NOT NULL REFERENCES payments (id)
+  user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+  order_status_id INTEGER NOT NULL REFERENCES order_statuses (id) ON UPDATE CASCADE,
+  payment_id INTEGER NOT NULL REFERENCES payments (id) ON UPDATE CASCADE
 );
 
 -- order_items
 CREATE TABLE order_items (
   id SERIAL PRIMARY KEY,
   quantity INTEGER NOT NULL,
-  order_id INTEGER NOT NULL REFERENCES orders (id),
-  product_id INTEGER NOT NULL REFERENCES products (id),
-  product_variant_id INTEGER NOT NULL REFERENCES product_variants (id)
+  order_id INTEGER NOT NULL REFERENCES orders (id) ON UPDATE CASCADE,
+  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
+  product_variant_id INTEGER NOT NULL REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 
 -- return_request_statuses
@@ -190,9 +190,9 @@ CREATE TABLE return_requests (
   reason VARCHAR(150) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  status_id INTEGER NOT NULL REFERENCES return_request_statuses (id),
-  user_id UUID NOT NULL REFERENCES users (id),
-  order_item_id INTEGER NOT NULL REFERENCES order_items (id)
+  status_id INTEGER NOT NULL REFERENCES return_request_statuses (id) ON UPDATE CASCADE,
+  user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+  order_item_id INTEGER NOT NULL REFERENCES order_items (id) ON UPDATE CASCADE
 );
 
 -- refund_statuses
@@ -206,7 +206,7 @@ CREATE TABLE refunds (
   id SERIAL PRIMARY KEY,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  status_id INTEGER NOT NULL REFERENCES refund_statuses (id),
-  payment_id INTEGER NOT NULL REFERENCES payments (id),
-  return_request_id INTEGER NOT NULL REFERENCES return_requests (id)
+  status_id INTEGER NOT NULL REFERENCES refund_statuses (id) ON UPDATE CASCADE,
+  payment_id INTEGER NOT NULL REFERENCES payments (id) ON UPDATE CASCADE,
+  return_request_id INTEGER NOT NULL REFERENCES return_requests (id) ON UPDATE CASCADE
 );
