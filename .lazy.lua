@@ -90,7 +90,8 @@ return {
             "generate",
           },
           condition = function(_, ctx)
-            return ctx.filename:match("database/.*.sql") ~= nil
+            return ctx.filename:match("database/.*%.sql") ~= nil
+              and not ctx.filename:match("database/%w*seed%.sql") ~= nil
           end,
         },
         atlas = {
@@ -103,7 +104,8 @@ return {
           },
           stdin = false,
           condition = function(_, ctx)
-            return _IsDbUp() and basename(ctx.filename):match("schema.sql") ~= nil
+            return ctx.filename:match("database/.*%.sql") ~= nil
+              and not ctx.filename:match("database/%w*seed%.sql") ~= nil
           end,
         },
       },
@@ -131,7 +133,7 @@ return {
   --     local lint = require("lint")
   --     lint.linters.sqlc = function()
   --       local bufname = vim.api.nvim_buf_get_name(0)
-  --       if bufname:match("/database/.*%.sql$") and is_db_up() then
+  --       if bufname:match("database/(schema|queries/.*)%.sql") and is_db_up() then
   --         ---@type lint.Linter
   --         return {
   --           name = "sqlc",
