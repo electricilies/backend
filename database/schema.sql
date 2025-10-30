@@ -71,7 +71,7 @@ CREATE TABLE product_images (
 -- reviews
 CREATE TABLE reviews (
   id SERIAL PRIMARY KEY,
-  rating INTEGER NOT NULL CHECK (rating > 0 AND rating <= 5),
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
   content TEXT,
   image_url TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
