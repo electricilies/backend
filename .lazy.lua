@@ -90,8 +90,7 @@ return {
             "generate",
           },
           condition = function(_, ctx)
-            return ctx.filename:match("database/.*%.sql") ~= nil
-              and not ctx.filename:match("database/%w*seed%.sql") ~= nil
+            return ctx.filename:match("database/.*%.sql") ~= nil and ctx.filename:match("database/%w*seed%.sql") == nil
           end,
         },
         atlas = {
@@ -104,8 +103,9 @@ return {
           },
           stdin = false,
           condition = function(_, ctx)
-            return ctx.filename:match("database/.*%.sql") ~= nil
-              and not ctx.filename:match("database/%w*seed%.sql") ~= nil
+            return _IsDbUp()
+              and ctx.filename:match("database/.*%.sql") ~= nil
+              and ctx.filename:match("database/%w*seed%.sql") == nil
           end,
         },
       },
