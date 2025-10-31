@@ -32,8 +32,8 @@
 
 ```dotenv
 # Backend env var
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
+DB_USERNAME=electricilies
+DB_PASSWORD=electricilies
 DB_DATABASE=electricilies
 DB_PORT=5432 # optional
 DB_HOST=localhost
