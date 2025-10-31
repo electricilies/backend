@@ -4,10 +4,11 @@ import (
 	"backend/internal/application"
 	"backend/internal/interface/api/mapper"
 	"backend/internal/interface/api/request"
-	_ "backend/internal/interface/api/response"
+	"backend/internal/interface/api/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type User interface {
@@ -65,7 +66,7 @@ func (h *userHandler) List(ctx *gin.Context) {
 		mapper.ErrorFromDomain(ctx, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, users)
+	ctx.JSON(http.StatusOK, response.UsersFromDomain(users))
 }
 
 // CreateUser godoc
@@ -75,14 +76,14 @@ func (h *userHandler) List(ctx *gin.Context) {
 //	@Tags			User
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body		request.User	true	"User request"
+//	@Param			user	body		request.CreateUser	true	"User request"
 //	@Success		201		{object}	user.User
 //	@Failure		400		{object}	mapper.BadRequestError
 //	@Failure		409		{object}	mapper.ConflictError
 //	@Failure		500		{object}	mapper.InternalServerError
 //	@Router			/users [post]
 func (h *userHandler) Create(ctx *gin.Context) {
-	var req request.User
+	var req request.CreateUser
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		mapper.SendBadRequestError(ctx, err.Error())
 		return
@@ -105,9 +106,9 @@ func (h *userHandler) Create(ctx *gin.Context) {
 //	@Tags			User
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string			true	"User ID"
-//	@Param			user	body		request.User	true	"User request"
-//	@Success		204		{string}	string			"no content"
+//	@Param			id		path		string				true	"User ID"
+//	@Param			user	body		request.UpdateUser	true	"User request"
+//	@Success		204		{string}	string				"no content"
 //	@Failure		400		{object}	mapper.BadRequestError
 //	@Failure		404		{object}	mapper.NotFoundError
 //	@Failure		409		{object}	mapper.ConflictError
@@ -116,14 +117,14 @@ func (h *userHandler) Create(ctx *gin.Context) {
 func (h *userHandler) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	var req request.User
+	var req request.UpdateUser
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	u := req.ToDomain()
-	u.ID = id
+	u.ID = uuid.MustParse(id)
 
 	if err := h.app.Update(ctx, u); err != nil {
 		mapper.ErrorFromDomain(ctx, err)

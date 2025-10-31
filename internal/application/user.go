@@ -1,9 +1,8 @@
 package application
 
 import (
-	"context"
-
 	"backend/internal/domain/user"
+	"context"
 )
 
 type User interface {
@@ -43,7 +42,7 @@ func (a *userApp) Create(ctx context.Context, u *user.User) (*user.User, error) 
 }
 
 func (a *userApp) Update(ctx context.Context, u *user.User) error {
-	_, err := a.userRepo.Get(ctx, u.ID)
+	_, err := a.userRepo.Get(ctx, u.ID.String())
 	if err != nil {
 		return err
 	}

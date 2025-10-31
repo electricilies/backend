@@ -65,7 +65,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.User"
+                            "$ref": "#/definitions/request.CreateUser"
                         }
                     }
                 ],
@@ -170,7 +170,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.User"
+                            "$ref": "#/definitions/request.UpdateUser"
                         }
                     }
                 ],
@@ -304,12 +304,22 @@ const docTemplate = `{
                 }
             }
         },
-        "request.User": {
+        "request.CreateUser": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateUser": {
             "type": "object",
             "required": [
                 "email",
                 "first_name",
-                "id",
                 "last_name"
             ],
             "properties": {
@@ -324,9 +334,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "first_name": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 },
                 "last_name": {

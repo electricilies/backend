@@ -1,10 +1,11 @@
 package application
 
 import (
+	"backend/internal/domain/user"
 	"context"
 	"testing"
 
-	"backend/internal/domain/user"
+	"github.com/google/uuid"
 )
 
 type mockUserRepo struct{}
@@ -12,7 +13,7 @@ type mockUserRepo struct{}
 func (m *mockUserRepo) Get(ctx context.Context, id string) (*user.User, error) {
 	if id == "1" {
 		return &user.User{
-			ID:        "1",
+			ID:        uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 			UserName:  "testuser",
 			FirstName: "Test",
 			LastName:  "User",
@@ -59,7 +60,7 @@ func Test_userApp_Get(t *testing.T) {
 			name: "success: user found",
 			id:   "1",
 			want: &user.User{
-				ID:        "1",
+				ID:        uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 				UserName:  "testuser",
 				FirstName: "Test",
 				LastName:  "User",

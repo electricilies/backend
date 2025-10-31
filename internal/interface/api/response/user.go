@@ -19,7 +19,7 @@ type User struct {
 
 func UserFromDomain(u *user.User) *User {
 	return &User{
-		ID:          u.ID,
+		ID:          u.ID.String(),
 		FirstName:   u.FirstName,
 		LastName:    u.LastName,
 		Username:    u.UserName,
@@ -28,4 +28,13 @@ func UserFromDomain(u *user.User) *User {
 		PhoneNumber: u.PhoneNumber,
 		CreatedAt:   u.CreatedAt,
 	}
+}
+
+func UsersFromDomain(users []*user.User) []*User {
+	responses := make([]*User, len(users))
+	for i, u := range users {
+		responses[i] = UserFromDomain(u)
+	}
+
+	return responses
 }

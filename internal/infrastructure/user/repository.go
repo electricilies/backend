@@ -113,7 +113,7 @@ func (r *repositoryImpl) Update(ctx context.Context, u *user.User) error {
 		return err
 	}
 
-	r.redisClient.Del(ctx, constant.UserCachePrefix+u.ID)
+	r.redisClient.Del(ctx, constant.UserCachePrefix+u.ID.String())
 	r.redisClient.Del(ctx, constant.UserListCacheKey)
 
 	return nil

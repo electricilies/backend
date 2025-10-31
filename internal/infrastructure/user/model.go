@@ -14,7 +14,7 @@ func ToDomain(u *gocloak.User) *user.User {
 	dob, _ := (time.Parse("2006-01-02", getAttr(u, string(constant.UserAttributeDateOfBirth))))
 	createdAt := time.UnixMilli(*u.CreatedTimestamp)
 	return &user.User{
-		ID:          *u.ID,
+		ID:          uuid.MustParse(*u.ID),
 		FirstName:   getAttr(u, string(constant.UserAttributeFirstName)),
 		LastName:    getAttr(u, string(constant.UserAttributeLastName)),
 		UserName:    *u.Username,
@@ -28,18 +28,18 @@ func ToDomain(u *gocloak.User) *user.User {
 
 func ToCreateUserParams(u *user.User) postgres.CreateUserParams {
 	return postgres.CreateUserParams{
-		ID: uuid.MustParse(u.ID),
+		ID: u.ID,
 	}
 }
 
 func ToUpdateUserParams(u *user.User) gocloak.User {
 	attributes := make(map[string][]string)
-	attributes["first_name"] = []string{u.FirstName}
-	attributes["last_name"] = []string{u.LastName}
 	attributes["email"] = []string{u.Email}
 	attributes["phone_numer"] = []string{u.PhoneNumber}
 	attributes["address"] = []string{u.Address}
 	return gocloak.User{
+		FirstName:  &u.FirstName,
+		LastName:   &u.LastName,
 		Attributes: &attributes,
 	}
 }
