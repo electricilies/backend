@@ -1,9 +1,10 @@
 package client
 
 import (
-	"backend/config"
 	"context"
 	"log"
+
+	"backend/config"
 
 	"github.com/redis/go-redis/v9"
 )

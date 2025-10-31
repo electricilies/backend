@@ -1,9 +1,10 @@
 package application
 
 import (
-	"backend/internal/domain/user"
 	"context"
 	"testing"
+
+	"backend/internal/domain/user"
 
 	"github.com/google/uuid"
 )

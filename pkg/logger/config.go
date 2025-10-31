@@ -1,8 +1,9 @@
 package logger
 
 import (
-	"backend/config"
 	"path/filepath"
+
+	"backend/config"
 )
 
 type loggerConfig struct {
@@ -27,4 +28,4 @@ func newDefaultLoggingConfig() *loggerConfig {
 	}
 }
 
-//TODO: read more config from file, env,...
+// TODO: read more config from file, env,...

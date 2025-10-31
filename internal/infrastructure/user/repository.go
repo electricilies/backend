@@ -1,14 +1,15 @@
 package user
 
 import (
+	"context"
+	"encoding/json"
+
 	"backend/config"
 	"backend/internal/constant"
 	"backend/internal/domain/user"
 	"backend/internal/infrastructure/errors"
 	"backend/internal/infrastructure/presistence/postgres"
 	"backend/pkg/logger"
-	"context"
-	"encoding/json"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/aws/aws-sdk-go-v2/service/s3"

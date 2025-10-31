@@ -1,8 +1,9 @@
 package application
 
 import (
-	"backend/internal/domain/user"
 	"context"
+
+	"backend/internal/domain/user"
 )
 
 type User interface {

@@ -7,7 +7,7 @@ import (
 )
 
 type Service interface {
-	//This cotains  business logic like use case in Clean Arch
+	// This cotains  business logic like use case in Clean Arch
 	DoSomething(ctx context.Context) (*User, error)
 }
 

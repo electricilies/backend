@@ -1,8 +1,9 @@
 package response
 
 import (
-	"backend/internal/domain/user"
 	"time"
+
+	"backend/internal/domain/user"
 )
 
 type User struct {

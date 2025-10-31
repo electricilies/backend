@@ -1,10 +1,11 @@
 package mapper
 
 import (
-	"backend/internal/constant"
-	"backend/internal/domain"
 	"errors"
 	"net/http"
+
+	"backend/internal/constant"
+	"backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
 )

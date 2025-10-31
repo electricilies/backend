@@ -1,10 +1,11 @@
 package middleware
 
 import (
-	"backend/internal/constant"
 	"context"
 	"net/http"
 	"strings"
+
+	"backend/internal/constant"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-gonic/gin"

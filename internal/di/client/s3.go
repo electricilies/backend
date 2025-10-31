@@ -1,9 +1,10 @@
 package client
 
 import (
-	"backend/config"
 	"context"
 	"log"
+
+	"backend/config"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"

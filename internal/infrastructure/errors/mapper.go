@@ -1,12 +1,13 @@
 package errors
 
 import (
-	"backend/internal/domain"
 	"context"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
+
+	"backend/internal/domain"
 
 	"github.com/Nerzal/gocloak"
 	"github.com/jackc/pgerrcode"
