@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION sync_product_total_purchase_on_insert()
+CREATE OR REPLACE FUNCTION ele_sync_product_total_purchase_on_insert()
 RETURNS TRIGGER AS $$
 BEGIN
   UPDATE products SET total_purchase = total_purchase + NEW.purchase_count WHERE id = NEW.product_id;
@@ -6,11 +6,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_sync_product_total_purchase_on_insert
+CREATE TRIGGER ele_sync_product_total_purchase_on_insert
 AFTER INSERT ON product_variants FOR EACH ROW
-EXECUTE FUNCTION sync_product_total_purchase_on_insert();
+EXECUTE FUNCTION ele_sync_product_total_purchase_on_insert();
 
-CREATE OR REPLACE FUNCTION sync_product_total_purchase_on_update()
+CREATE OR REPLACE FUNCTION ele_sync_product_total_purchase_on_update()
 RETURNS TRIGGER AS $$
 DECLARE delta INTEGER;
 BEGIN
@@ -22,12 +22,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_sync_product_total_purchase_on_update
+CREATE TRIGGER ele_sync_product_total_purchase_on_update
 AFTER UPDATE OF purchase_count ON product_variants FOR EACH ROW
 WHEN (old.purchase_count IS DISTINCT FROM new.purchase_count)
-EXECUTE FUNCTION sync_product_total_purchase_on_update();
+EXECUTE FUNCTION ele_sync_product_total_purchase_on_update();
 
-CREATE OR REPLACE FUNCTION sync_product_total_purchase_on_delete()
+CREATE OR REPLACE FUNCTION ele_sync_product_total_purchase_on_delete()
 RETURNS TRIGGER AS $$
 BEGIN
   UPDATE products SET total_purchase = GREATEST(0, total_purchase - OLD.purchase_count) WHERE id = OLD.product_id;
@@ -35,6 +35,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_sync_product_total_purchase_on_delete
+CREATE TRIGGER ele_sync_product_total_purchase_on_delete
 AFTER DELETE ON product_variants FOR EACH ROW
-EXECUTE FUNCTION sync_product_total_purchase_on_delete();
+EXECUTE FUNCTION ele_sync_product_total_purchase_on_delete();
