@@ -37,6 +37,9 @@ lint: lint-golangci-lint lint-sqlfluff
 format-gofumpt *args="":
   gofumpt -w . {{args}}
 
+format-swag *args="":
+  swag fmt {{args}}
+
 format-sqlfluff:
   sqlfluff fix --dialect postgres \
     ./database/ \
@@ -44,7 +47,7 @@ format-sqlfluff:
     ./docker/volume/
 
 [doc("Run Format")]
-format: format-gofumpt format-sqlfluff
+format: format-gofumpt format-swag format-sqlfluff
 
 check-format-gofumpt *args="":
   gofumpt -l . {{args}}
