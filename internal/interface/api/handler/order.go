@@ -19,9 +19,26 @@ type orderHandler struct{}
 
 func NewOrder() Order { return &orderHandler{} }
 
-func (h *orderHandler) Get(ctx *gin.Context)             { ctx.Status(http.StatusNoContent) }
-func (h *orderHandler) List(ctx *gin.Context)            { ctx.Status(http.StatusNoContent) }
-func (h *orderHandler) Create(ctx *gin.Context)          { ctx.Status(http.StatusNoContent) }
-func (h *orderHandler) UpdateStatus(ctx *gin.Context)    { ctx.Status(http.StatusNoContent) }
-func (h *orderHandler) Delete(ctx *gin.Context)          { ctx.Status(http.StatusNoContent) }
-func (h *orderHandler) ListItemByOrder(ctx *gin.Context) { ctx.Status(http.StatusNoContent) }
+func (h *orderHandler) Get(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+func (h *orderHandler) List(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+func (h *orderHandler) Create(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+func (h *orderHandler) UpdateStatus(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+func (h *orderHandler) Delete(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+func (h *orderHandler) ListItemByOrder(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}

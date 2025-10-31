@@ -346,16 +346,6 @@ const docTemplate = `{
         },
         "response.User": {
             "type": "object",
-            "required": [
-                "created_at",
-                "date_of_birth",
-                "email",
-                "first_name",
-                "id",
-                "last_name",
-                "phone_number",
-                "user_name"
-            ],
             "properties": {
                 "address": {
                     "type": "string"

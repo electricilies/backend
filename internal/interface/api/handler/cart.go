@@ -17,7 +17,18 @@ type cartHandler struct{}
 
 func NewCart() Cart { return &cartHandler{} }
 
-func (h *cartHandler) Get(ctx *gin.Context)        { ctx.Status(http.StatusNoContent) }
-func (h *cartHandler) AddItem(ctx *gin.Context)    { ctx.Status(http.StatusNoContent) }
-func (h *cartHandler) UpdateItem(ctx *gin.Context) { ctx.Status(http.StatusNoContent) }
-func (h *cartHandler) RemoveItem(ctx *gin.Context) { ctx.Status(http.StatusNoContent) }
+func (h *cartHandler) Get(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+func (h *cartHandler) AddItem(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+func (h *cartHandler) UpdateItem(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+func (h *cartHandler) RemoveItem(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}

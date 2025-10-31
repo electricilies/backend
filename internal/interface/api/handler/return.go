@@ -17,7 +17,18 @@ type returnHandler struct{}
 
 func NewReturn() Return { return &returnHandler{} }
 
-func (h *returnHandler) Get(ctx *gin.Context)          { ctx.Status(http.StatusNoContent) }
-func (h *returnHandler) List(ctx *gin.Context)         { ctx.Status(http.StatusNoContent) }
-func (h *returnHandler) Create(ctx *gin.Context)       { ctx.Status(http.StatusNoContent) }
-func (h *returnHandler) UpdateStatus(ctx *gin.Context) { ctx.Status(http.StatusNoContent) }
+func (h *returnHandler) Get(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+func (h *returnHandler) List(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+func (h *returnHandler) Create(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+func (h *returnHandler) UpdateStatus(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}

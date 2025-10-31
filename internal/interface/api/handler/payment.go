@@ -14,4 +14,6 @@ type paymentHandler struct{}
 
 func NewPayment() Payment { return &paymentHandler{} }
 
-func (h *paymentHandler) ListMethods(ctx *gin.Context) { ctx.Status(http.StatusNoContent) }
+func (h *paymentHandler) ListMethods(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
