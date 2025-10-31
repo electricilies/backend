@@ -6,15 +6,15 @@ import (
 )
 
 type User struct {
-	ID          string     `json:"id" binding:"required"`
-	FirstName   string     `json:"first_name" binding:"required"`
-	LastName    string     `json:"last_name" binding:"required"`
-	Username    string     `json:"user_name" binding:"required"`
-	Email       string     `json:"email" binding:"required"`
-	DateOfBirth *time.Time `json:"date_of_birth" binding:"required"`
-	PhoneNumber string     `json:"phone_number" binding:"required"`
-	Address     string     `json:"address,omitempty"`
-	CreatedAt   *time.Time `json:"created_at" binding:"required"`
+	ID          string    `json:"id"`
+	FirstName   string    `json:"first_name"`
+	LastName    string    `json:"last_name"`
+	Username    string    `json:"user_name"`
+	Email       string    `json:"email"`
+	DateOfBirth time.Time `json:"date_of_birth"`
+	PhoneNumber string    `json:"phone_number"`
+	Address     string    `json:"address,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 func UserFromDomain(u *user.User) *User {
@@ -23,6 +23,7 @@ func UserFromDomain(u *user.User) *User {
 		FirstName:   u.FirstName,
 		LastName:    u.LastName,
 		Username:    u.UserName,
+		Email:       u.Email,
 		DateOfBirth: u.DateOfBirth,
 		Address:     u.Address,
 		PhoneNumber: u.PhoneNumber,
