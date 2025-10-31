@@ -70,6 +70,9 @@ return {
           },
           condition = function(_, ctx)
             return ctx.filename:match("internal/interface/api/handler") ~= nil
+              or ctx.filename:match("internal/interface/api/mapper") ~= nil
+              or ctx.filename:match("internal/interface/api/request") ~= nil
+              or ctx.filename:match("internal/interface/api/response") ~= nil
           end,
           stdin = false,
         },
