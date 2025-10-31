@@ -130,7 +130,7 @@ func (h *productHandler) ListVariantsByProduct(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		int	true	"Product ID"
-//	@Success		200	{object}	response.ReviewListResponse
+//	@Success		200	{array}		response.Review
 //	@Failure		404	{object}	mapper.NotFoundError
 //	@Failure		500	{object}	mapper.InternalServerError
 //	@Router			/products/{id}/reviews [get]

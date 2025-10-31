@@ -1487,7 +1487,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.ReviewListResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Review"
+                            }
                         }
                     },
                     "404": {
@@ -1573,50 +1576,6 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/response.Refund"
                             }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/refunds/{id}": {
-            "get": {
-                "description": "Get refund details by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Refund"
-                ],
-                "summary": "Get refund by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Refund ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Refund"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
                         }
                     },
                     "500": {
@@ -1836,7 +1795,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.ReviewListResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Review"
+                            }
                         }
                     },
                     "500": {
@@ -1874,7 +1836,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.ReviewResponse"
+                            "$ref": "#/definitions/response.Review"
                         }
                     },
                     "400": {
@@ -1924,7 +1886,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.ReviewResponse"
+                            "$ref": "#/definitions/response.Review"
                         }
                     },
                     "404": {
@@ -3045,19 +3007,15 @@ const docTemplate = `{
                 }
             }
         },
-        "response.ReviewListResponse": {
+        "response.Review": {
             "type": "object",
-            "properties": {
-                "reviews": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.ReviewResponse"
-                    }
-                }
-            }
-        },
-        "response.ReviewResponse": {
-            "type": "object",
+            "required": [
+                "created_at",
+                "id",
+                "rate",
+                "updated_at",
+                "user"
+            ],
             "properties": {
                 "content": {
                     "type": "string"
@@ -3070,9 +3028,6 @@ const docTemplate = `{
                 },
                 "image_url": {
                     "type": "string"
-                },
-                "product_id": {
-                    "type": "integer"
                 },
                 "rate": {
                     "type": "integer"
