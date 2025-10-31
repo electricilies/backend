@@ -103,7 +103,6 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 			products.DELETE("/:id", r.productHandler.Delete)
 
 			products.GET("/:id/variants", r.productHandler.ListVariantsByProduct)
-			products.GET("/:id/images", r.productHandler.ListImagesByProduct)
 			products.GET("/:id/reviews", r.productHandler.ListReviewByProduct)
 			products.GET("/:id/attributes", r.productHandler.ListAtributesByProduct)
 			products.POST("/:id/attributes", r.productHandler.AddAttributeValues)

@@ -1062,7 +1062,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/response.PaymentMethod"
+                                "type": "string"
                             }
                         }
                     },
@@ -1444,53 +1444,6 @@ const docTemplate = `{
                         "description": "no content",
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/products/{id}/images": {
-            "get": {
-                "description": "Get all images for a specific product",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "List images by product",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.ProductImage"
-                            }
                         }
                     },
                     "404": {
@@ -2723,6 +2676,10 @@ const docTemplate = `{
         },
         "response.Cart": {
             "type": "object",
+            "required": [
+                "id",
+                "items"
+            ],
             "properties": {
                 "id": {
                     "type": "integer"
@@ -2737,11 +2694,16 @@ const docTemplate = `{
         },
         "response.CartItem": {
             "type": "object",
+            "required": [
+                "id",
+                "product",
+                "quantity"
+            ],
             "properties": {
                 "id": {
                     "type": "integer"
                 },
-                "product_id": {
+                "product": {
                     "$ref": "#/definitions/response.Product"
                 },
                 "quantity": {
@@ -2751,6 +2713,12 @@ const docTemplate = `{
         },
         "response.Category": {
             "type": "object",
+            "required": [
+                "created_at",
+                "description",
+                "id",
+                "name"
+            ],
             "properties": {
                 "created_at": {
                     "type": "string"
@@ -2768,6 +2736,15 @@ const docTemplate = `{
         },
         "response.Order": {
             "type": "object",
+            "required": [
+                "created_at",
+                "id",
+                "items",
+                "order_status_id",
+                "payment_id",
+                "updated_at",
+                "user_id"
+            ],
             "properties": {
                 "created_at": {
                     "type": "string"
@@ -2797,6 +2774,14 @@ const docTemplate = `{
         },
         "response.OrderItem": {
             "type": "object",
+            "required": [
+                "id",
+                "order_id",
+                "price",
+                "product",
+                "product_variant",
+                "quantity"
+            ],
             "properties": {
                 "id": {
                     "type": "integer"
@@ -2807,33 +2792,62 @@ const docTemplate = `{
                 "price": {
                     "type": "number"
                 },
-                "product_id": {
-                    "type": "integer"
+                "product": {
+                    "$ref": "#/definitions/response.Product"
                 },
-                "product_name": {
-                    "type": "string"
-                },
-                "product_variant_id": {
-                    "type": "integer"
+                "product_variant": {
+                    "$ref": "#/definitions/response.ProductVariant"
                 },
                 "quantity": {
                     "type": "integer"
                 }
             }
         },
-        "response.PaymentMethod": {
+        "response.Payment": {
             "type": "object",
+            "required": [
+                "amount",
+                "id",
+                "payment_method_id",
+                "payment_status_id",
+                "updated_at"
+            ],
             "properties": {
+                "amount": {
+                    "type": "number"
+                },
                 "id": {
                     "type": "integer"
                 },
-                "name": {
+                "payment_method_id": {
+                    "type": "string"
+                },
+                "payment_provider_id": {
+                    "type": "string"
+                },
+                "payment_status_id": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
         },
         "response.Product": {
             "type": "object",
+            "required": [
+                "attribute_values",
+                "categories",
+                "created_at",
+                "description",
+                "id",
+                "name",
+                "total_purchase",
+                "trending_score",
+                "updated_at",
+                "variants",
+                "views_count"
+            ],
             "properties": {
                 "attribute_values": {
                     "type": "array",
@@ -2855,12 +2869,6 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.ProductImage"
-                    }
                 },
                 "name": {
                     "type": "string"
@@ -2885,28 +2893,12 @@ const docTemplate = `{
                 }
             }
         },
-        "response.ProductImage": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "order": {
-                    "type": "integer"
-                },
-                "product_variant_id": {
-                    "type": "integer"
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
         "response.ProductOptionValue": {
             "type": "object",
+            "required": [
+                "id",
+                "value"
+            ],
             "properties": {
                 "id": {
                     "type": "integer"
@@ -2918,6 +2910,16 @@ const docTemplate = `{
         },
         "response.ProductVariant": {
             "type": "object",
+            "required": [
+                "created_at",
+                "id",
+                "images",
+                "price",
+                "product_options",
+                "purchase_count",
+                "quantity",
+                "sku"
+            ],
             "properties": {
                 "created_at": {
                     "type": "string"
@@ -2927,6 +2929,12 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ProductVariantImage"
+                    }
                 },
                 "price": {
                     "type": "number"
@@ -2948,8 +2956,14 @@ const docTemplate = `{
                 }
             }
         },
-        "response.Refund": {
+        "response.ProductVariantImage": {
             "type": "object",
+            "required": [
+                "created_at",
+                "id",
+                "order",
+                "url"
+            ],
             "properties": {
                 "created_at": {
                     "type": "string"
@@ -2957,14 +2971,39 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "payment_id": {
+                "order": {
                     "type": "integer"
                 },
-                "return_request_id": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Refund": {
+            "type": "object",
+            "required": [
+                "Payment",
+                "created_at",
+                "id",
+                "return",
+                "status_id",
+                "updated_at"
+            ],
+            "properties": {
+                "Payment": {
+                    "$ref": "#/definitions/response.Payment"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "integer"
+                },
+                "return": {
+                    "$ref": "#/definitions/response.Return"
                 },
                 "status_id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -2973,6 +3012,15 @@ const docTemplate = `{
         },
         "response.Return": {
             "type": "object",
+            "required": [
+                "created_at",
+                "id",
+                "order_item",
+                "reason",
+                "status",
+                "updated_at",
+                "user"
+            ],
             "properties": {
                 "created_at": {
                     "type": "string"
@@ -2980,20 +3028,20 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "order_item_id": {
-                    "type": "integer"
+                "order_item": {
+                    "$ref": "#/definitions/response.OrderItem"
                 },
                 "reason": {
                     "type": "string"
                 },
-                "status_id": {
-                    "type": "integer"
+                "status": {
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
                 },
-                "user_id": {
-                    "type": "string"
+                "user": {
+                    "$ref": "#/definitions/response.User"
                 }
             }
         },
@@ -3032,8 +3080,8 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string"
                 },
-                "user_id": {
-                    "type": "string"
+                "user": {
+                    "$ref": "#/definitions/response.User"
                 }
             }
         },

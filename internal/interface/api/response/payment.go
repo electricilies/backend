@@ -2,16 +2,17 @@ package response
 
 import "time"
 
-type PaymentMethod struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
+type (
+	PaymentMethod   string
+	PaymentStatus   string
+	PaymentProvider string
+)
 
 type Payment struct {
-	ID                int        `json:"id"`
-	Amount            float64    `json:"amount"`
-	PaymentMethodID   int        `json:"payment_method_id"`
-	PaymentStatusID   int        `json:"payment_status_id"`
-	PaymentProviderID int        `json:"payment_provider_id"`
-	UpdatedAt         *time.Time `json:"updated_at"`
+	ID                int             `json:"id" binding:"required"`
+	Amount            float64         `json:"amount" binding:"required"`
+	PaymentMethod     PaymentMethod   `json:"payment_method_id" binding:"required"`
+	PaymentStatus     PaymentStatus   `json:"payment_status_id" binding:"required"`
+	PaymentProviderID PaymentProvider `json:"payment_provider_id" binding:"omitempty"`
+	UpdatedAt         time.Time       `json:"updated_at" binding:"required"`
 }
