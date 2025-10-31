@@ -2,3 +2,4 @@ database/seed.sql
 docker/volume/init.sql
 docker/volume/schema.sql
 docker/volume/seed.sql
+docker/volume/paradedb-index.sql

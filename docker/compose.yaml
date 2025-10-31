@@ -17,6 +17,7 @@ services:
       - ./volume/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql
       - ./volume/trigger.sql:/docker-entrypoint-initdb.d/11-trigger.sql
       - ./volume/seed.sql:/docker-entrypoint-initdb.d/20-seed.sql
+      - ./volume/paradedb-index.sql:/docker-entrypoint-initdb.d/30-paradedb-index.sql
     healthcheck:
       test:
         - CMD
