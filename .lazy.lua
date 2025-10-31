@@ -3,6 +3,8 @@ local env = vim.env
 local nc_available = vim.fn.executable("nc")
 local psql_available = vim.fn.executable("psql")
 
+local is_atlasgo_community = true
+
 local db_username = env.DB_USERNAME
 local db_password = env.DB_PASSWORD
 local db_host = env.DB_HOST
@@ -69,10 +71,11 @@ return {
             "go",
           },
           condition = function(_, ctx)
-            return ctx.filename:match("internal/interface/api/handler") ~= nil
-              or ctx.filename:match("internal/interface/api/mapper") ~= nil
-              or ctx.filename:match("internal/interface/api/request") ~= nil
-              or ctx.filename:match("internal/interface/api/response") ~= nil
+            local filename = ctx.filename
+            return filename:match("internal/interface/api/handler") ~= nil
+              or filename:match("internal/interface/api/mapper") ~= nil
+              or filename:match("internal/interface/api/request") ~= nil
+              or filename:match("internal/interface/api/response") ~= nil
           end,
           stdin = false,
         },
@@ -93,6 +96,10 @@ return {
             "generate",
           },
           condition = function(_, ctx)
+            local filename = ctx.filename
+            if is_atlasgo_community then
+              return filename:match("database/.*schema%.sql") ~= nil
+            end
             return ctx.filename:match("database/.*%.sql") ~= nil and ctx.filename:match("database/%w*seed%.sql") == nil
           end,
         },
@@ -106,9 +113,14 @@ return {
           },
           stdin = false,
           condition = function(_, ctx)
-            return _IsDbUp()
-              and ctx.filename:match("database/.*%.sql") ~= nil
-              and ctx.filename:match("database/.*seed%.sql") == nil
+            if not _IsDbUp() then
+              return false
+            end
+            local filename = ctx.filename
+            if is_atlasgo_community then
+              return filename:match("database/.*schema%.sql") ~= nil
+            end
+            return filename:match("database/.*%.sql") ~= nil and filename:match("database/.*seed%.sql") == nil
           end,
         },
       },
