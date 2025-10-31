@@ -206,20 +206,22 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - gen-migration
-    if: ${{ needs.gen-migration.outputs.committed == 'true' }}
     concurrency: build-migrate
     permissions:
       packages: write
     steps:
       - name: Checkout
+        if: ${{ needs.gen-migration.outputs.committed == 'true' }}
         uses: actions/checkout@v5
 
       - name: Get commit hash
+        if: ${{ needs.gen-migration.outputs.committed == 'true' }}
         id: commit-hash
         working-directory: .
         run: echo "commit=$(git rev-parse HEAD)" >>"${GITHUB_OUTPUT}"
 
       - name: Login
+        if: ${{ needs.gen-migration.outputs.committed == 'true' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -227,6 +229,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
+        if: ${{ needs.gen-migration.outputs.committed == 'true' }}
         uses: docker/build-push-action@v6
         with:
           context: .
