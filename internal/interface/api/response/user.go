@@ -24,10 +24,10 @@ func UserFromDomain(u *user.User) *User {
 		LastName:    u.LastName,
 		Username:    u.UserName,
 		Email:       u.Email,
-		DateOfBirth: u.DateOfBirth,
+		DateOfBirth: *u.DateOfBirth,
 		Address:     u.Address,
 		PhoneNumber: u.PhoneNumber,
-		CreatedAt:   u.CreatedAt,
+		CreatedAt:   *u.CreatedAt,
 	}
 }
 
