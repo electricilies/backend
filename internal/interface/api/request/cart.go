@@ -7,5 +7,5 @@ type AddCartItem struct {
 }
 
 type UpdateCartItem struct {
-	Quantity int `json:"quantity" binding:"required"`
+	Quantity int `json:"quantity" binding:"required,min=1"`
 }
