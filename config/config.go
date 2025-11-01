@@ -52,7 +52,7 @@ var Cfg *Config
 
 func LoadConfig() {
 	if viper.GetString(S3Bucket) == "" {
-		log.Fatal("You need to set S3_BUCKET environment variable")
+		log.Print("You need to set S3_BUCKET environment variable")
 	}
 	viper.AutomaticEnv()
 
