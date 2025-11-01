@@ -1,12 +1,11 @@
 package handler
 
 import (
-	"net/http"
-
 	"backend/internal/application"
 	"backend/internal/interface/api/mapper"
 	"backend/internal/interface/api/request"
 	"backend/internal/interface/api/response"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -41,6 +40,9 @@ func NewUser(app application.User) User {
 //	@Failure		404	{object}	mapper.NotFoundError		"not found"
 //	@Failure		500	{object}	mapper.InternalServerError	"internal error"
 //	@Router			/users/{id} [get]
+//	@Security		Admin
+//	@Security		Customer
+//	@Security		Staff
 func (h *userHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("id")
 	u, err := h.app.Get(ctx, id)

@@ -1,7 +1,6 @@
 package server
 
 import (
-	"backend/docs"
 	"backend/internal/interface/api/router"
 
 	"github.com/gin-gonic/gin"
@@ -14,10 +13,8 @@ type Server struct {
 }
 
 func New(e *gin.Engine, r router.Router) *Server {
-	docs.SwaggerInfo.BasePath = "/api"
-	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.RegisterRoutes(e)
-
+	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return &Server{
 		engine: e,
 	}

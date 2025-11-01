@@ -2093,6 +2093,17 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Admin": []
+                    },
+                    {
+                        "Customer": []
+                    },
+                    {
+                        "Staff": []
+                    }
+                ],
                 "description": "Get user by ID",
                 "consumes": [
                     "application/json"
@@ -3104,6 +3115,23 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "Admin": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
+        "Customer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
+        "Staff": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
@@ -3111,7 +3139,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "",
 	Host:             "",
-	BasePath:         "",
+	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "",
 	Description:      "",
