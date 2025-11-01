@@ -22,6 +22,11 @@ sql:
             go_type:
               import: github.com/google/uuid
               type: "UUID"
+        rename:
+          url: "URL"
+          sku: "SKU"
+          image_url: "ImageURL"
+
 rules:
   - name: postgresql-query-too-costly
     message: "Query cost estimate is too high"
