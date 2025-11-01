@@ -6,6 +6,6 @@ type CreateReturnRequest struct {
 	UserID      string `json:"user_id" binding:"required"`
 }
 
-type UpdateReturnStatus struct {
+type UpdateReturnRequestStatus struct {
 	StatusID int `json:"status_id" binding:"required"`
 }

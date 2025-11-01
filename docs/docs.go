@@ -1606,7 +1606,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/response.Return"
+                                "$ref": "#/definitions/response.ReturnRequest"
                             }
                         }
                     },
@@ -1645,7 +1645,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Return"
+                            "$ref": "#/definitions/response.ReturnRequest"
                         }
                     },
                     "400": {
@@ -1695,7 +1695,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Return"
+                            "$ref": "#/definitions/response.ReturnRequest"
                         }
                     },
                     "404": {
@@ -1740,7 +1740,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.UpdateReturnStatus"
+                            "$ref": "#/definitions/request.UpdateReturnRequestStatus"
                         }
                     }
                 ],
@@ -2541,7 +2541,7 @@ const docTemplate = `{
                 }
             }
         },
-        "request.UpdateReturnStatus": {
+        "request.UpdateReturnRequestStatus": {
             "type": "object",
             "required": [
                 "status_id"
@@ -2962,7 +2962,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "return": {
-                    "$ref": "#/definitions/response.Return"
+                    "$ref": "#/definitions/response.ReturnRequest"
                 },
                 "status_id": {
                     "type": "string"
@@ -2972,7 +2972,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.Return": {
+        "response.ReturnRequest": {
             "type": "object",
             "required": [
                 "created_at",

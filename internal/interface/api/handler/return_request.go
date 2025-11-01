@@ -6,16 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Return interface {
+type ReturnRequest interface {
 	Get(ctx *gin.Context)
 	List(ctx *gin.Context)
 	Create(ctx *gin.Context)
 	UpdateStatus(ctx *gin.Context)
 }
 
-type returnHandler struct{}
+type returnRequestHandler struct{}
 
-func NewReturn() Return { return &returnHandler{} }
+func NewReturn() ReturnRequest { return &returnRequestHandler{} }
 
 // GetReturn godoc
 //
@@ -25,11 +25,11 @@ func NewReturn() Return { return &returnHandler{} }
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		int	true	"Return Request ID"
-//	@Success		200	{object}	response.Return
+//	@Success		200	{object}	response.ReturnRequest
 //	@Failure		404	{object}	mapper.NotFoundError
 //	@Failure		500	{object}	mapper.InternalServerError
 //	@Router			/returns/{id} [get]
-func (h *returnHandler) Get(ctx *gin.Context) {
+func (h *returnRequestHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -40,10 +40,10 @@ func (h *returnHandler) Get(ctx *gin.Context) {
 //	@Tags			Return
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{array}		response.Return
+//	@Success		200	{array}		response.ReturnRequest
 //	@Failure		500	{object}	mapper.InternalServerError
 //	@Router			/returns [get]
-func (h *returnHandler) List(ctx *gin.Context) {
+func (h *returnRequestHandler) List(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -55,12 +55,12 @@ func (h *returnHandler) List(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			return	body		request.CreateReturnRequest	true	"Return request"
-//	@Success		201		{object}	response.Return
+//	@Success		201		{object}	response.ReturnRequest
 //	@Failure		400		{object}	mapper.BadRequestError
 //	@Failure		409		{object}	mapper.ConflictError
 //	@Failure		500		{object}	mapper.InternalServerError
 //	@Router			/returns [post]
-func (h *returnHandler) Create(ctx *gin.Context) {
+func (h *returnRequestHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -71,14 +71,14 @@ func (h *returnHandler) Create(ctx *gin.Context) {
 //	@Tags			Return
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		int							true	"Return Request ID"
-//	@Param			status	body		request.UpdateReturnStatus	true	"Update return status request"
-//	@Success		204		{string}	string						"no content"
+//	@Param			id		path		int									true	"Return Request ID"
+//	@Param			status	body		request.UpdateReturnRequestStatus	true	"Update return status request"
+//	@Success		204		{string}	string								"no content"
 //	@Failure		400		{object}	mapper.BadRequestError
 //	@Failure		404		{object}	mapper.NotFoundError
 //	@Failure		409		{object}	mapper.ConflictError
 //	@Failure		500		{object}	mapper.InternalServerError
 //	@Router			/returns/{id}/status [put]
-func (h *returnHandler) UpdateStatus(ctx *gin.Context) {
+func (h *returnRequestHandler) UpdateStatus(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

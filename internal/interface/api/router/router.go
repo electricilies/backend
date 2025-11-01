@@ -19,7 +19,7 @@ type router struct {
 	attributeHandler handler.Attribute
 	paymentHandler   handler.Payment
 	orderHandler     handler.Order
-	returnHandler    handler.Return
+	returnHandler    handler.ReturnRequest
 	refundHandler    handler.Refund
 	reviewHandler    handler.Review
 	cartHandler      handler.Cart
@@ -39,7 +39,7 @@ func New(
 	attributeHandler handler.Attribute,
 	paymentHandler handler.Payment,
 	orderHandler handler.Order,
-	returnHandler handler.Return,
+	returnHandler handler.ReturnRequest,
 	refundHandler handler.Refund,
 	reviewHandler handler.Review,
 	cartHandler handler.Cart,
