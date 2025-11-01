@@ -1,11 +1,12 @@
 package handler
 
 import (
+	"net/http"
+
 	"backend/internal/application"
 	"backend/internal/interface/api/mapper"
 	"backend/internal/interface/api/request"
 	"backend/internal/interface/api/response"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -34,17 +35,17 @@ func NewUser(app application.User) User {
 //	@Tags			User
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		string	true	"User ID"
-//	@Success		200	{object}	User
-//	@Failure		400	{object}	mapper.BadRequestError		"bad request"
-//	@Failure		404	{object}	mapper.NotFoundError		"not found"
-//	@Failure		500	{object}	mapper.InternalServerError	"internal error"
-//	@Router			/users/{id} [get]
-//	@Security		Admin
+//	@Param			user_id	path		string	true	"User ID"
+//	@Success		200		{object}	User
+//	@Failure		400		{object}	mapper.BadRequestError		"bad request"
+//	@Failure		404		{object}	mapper.NotFoundError		"not found"
+//	@Failure		500		{object}	mapper.InternalServerError	"internal error"
+//	@Router			/users/{user_id} [get]
 //	@Security		Customer
 //	@Security		Staff
+//	@Security		Admin
 func (h *userHandler) Get(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param("user_id")
 	u, err := h.app.Get(ctx, id)
 	if err != nil {
 		mapper.ErrorFromDomain(ctx, err)
@@ -109,16 +110,16 @@ func (h *userHandler) Create(ctx *gin.Context) {
 //	@Tags			User
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string				true	"User ID"
+//	@Param			user_id	path		string				true	"User ID"
 //	@Param			user	body		request.UpdateUser	true	"User request"
 //	@Success		204		{string}	string				"no content"
 //	@Failure		400		{object}	mapper.BadRequestError
 //	@Failure		404		{object}	mapper.NotFoundError
 //	@Failure		409		{object}	mapper.ConflictError
 //	@Failure		500		{object}	mapper.InternalServerError
-//	@Router			/users/{id} [put]
+//	@Router			/users/{user_id} [put]
 func (h *userHandler) Update(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param("user_id")
 
 	var req request.UpdateUser
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -144,13 +145,13 @@ func (h *userHandler) Update(ctx *gin.Context) {
 //	@Tags			User
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		string	true	"User ID"
-//	@Success		204	{string}	string	"no content"
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/users/{id} [delete]
+//	@Param			user_id	path		string	true	"User ID"
+//	@Success		204		{string}	string	"no content"
+//	@Failure		404		{object}	mapper.NotFoundError
+//	@Failure		500		{object}	mapper.InternalServerError
+//	@Router			/users/{user_id} [delete]
 func (h *userHandler) Delete(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param("user_id")
 	if err := h.app.Delete(ctx, id); err != nil {
 		mapper.ErrorFromDomain(ctx, err)
 		return

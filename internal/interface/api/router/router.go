@@ -73,9 +73,9 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 		{
 			users.GET("", r.userHandler.List)
 			users.POST("", r.userHandler.Create)
-			users.GET("/:id", r.userHandler.Get)
-			users.PUT("/:id", r.userHandler.Update)
-			users.DELETE("/:id", r.userHandler.Delete)
+			users.GET("/:user_id", r.userHandler.Get)
+			users.PUT("/:user_id", r.userHandler.Update)
+			users.DELETE("/:user_id", r.userHandler.Delete)
 			cart := users.Group("/:user_id/cart")
 			{
 				cart.GET("", r.cartHandler.Get)

@@ -2091,17 +2091,17 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/{id}": {
+        "/users/{user_id}": {
             "get": {
                 "security": [
-                    {
-                        "Admin": []
-                    },
                     {
                         "Customer": []
                     },
                     {
                         "Staff": []
+                    },
+                    {
+                        "Admin": []
                     }
                 ],
                 "description": "Get user by ID",
@@ -2119,7 +2119,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "User ID",
-                        "name": "id",
+                        "name": "user_id",
                         "in": "path",
                         "required": true
                     }
@@ -2165,7 +2165,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "User ID",
-                        "name": "id",
+                        "name": "user_id",
                         "in": "path",
                         "required": true
                     },
@@ -2228,7 +2228,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "User ID",
-                        "name": "id",
+                        "name": "user_id",
                         "in": "path",
                         "required": true
                     }
