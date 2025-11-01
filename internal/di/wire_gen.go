@@ -17,7 +17,6 @@ import (
 	"backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
-
 	"github.com/google/wire"
 )
 
@@ -25,17 +24,17 @@ import (
 
 func InitializeServer() *server.Server {
 	engine := ginengine.New()
-	conn := db.NewConnection()
-	queries := db.New(conn)
+	pool := db.NewConnection()
+	queries := db.New(pool)
 	s3Client := client.NewS3()
 	redisClient := client.NewRedis()
 	goCloak := client.NewKeycloak()
 	repository := user.NewRepository(queries, s3Client, redisClient, goCloak)
-	transactor := db.NewTransactor(conn)
+	transactor := db.NewTransactor(pool)
 	service := user2.NewService(repository, transactor)
 	applicationUser := application.NewUser(repository, service)
 	handlerUser := handler.NewUser(applicationUser)
-	healthCheck := handler.NewHealthCheck(goCloak, redisClient, s3Client, conn)
+	healthCheck := handler.NewHealthCheck(goCloak, redisClient, s3Client, pool)
 	metric := middleware.NewMetric()
 	logging := middleware.NewLogging()
 	category := handler.NewCategory()

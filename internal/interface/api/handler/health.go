@@ -1,17 +1,16 @@
 package handler
 
 import (
+	"backend/config"
 	"context"
 	"net/http"
 	"time"
-
-	"backend/config"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -24,13 +23,13 @@ type healthCheck struct {
 	keycloakClient *gocloak.GoCloak
 	redisClient    *redis.Client
 	s3Client       *s3.Client
-	dbConn         *pgx.Conn
+	dbConn         *pgxpool.Pool
 }
 
 func NewHealthCheck(keycloakClient *gocloak.GoCloak,
 	redisClient *redis.Client,
 	s3Client *s3.Client,
-	db *pgx.Conn,
+	db *pgxpool.Pool,
 ) HealthCheck {
 	return &healthCheck{
 		keycloakClient: keycloakClient,
@@ -78,7 +77,7 @@ func IsS3Ready(ctx context.Context, s3Client *s3.Client) bool {
 	return err == nil && exist != nil
 }
 
-func IsDbReady(ctx context.Context, dbConn *pgx.Conn) bool {
+func IsDbReady(ctx context.Context, dbConn *pgxpool.Pool) bool {
 	if dbConn == nil {
 		return false
 	}
