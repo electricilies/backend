@@ -62,7 +62,7 @@ return {
               or filename:match("internal/interface/api/mapper") ~= nil
               or filename:match("internal/interface/api/request") ~= nil
               or filename:match("internal/interface/api/response") ~= nil
-              or filename:match("internal/server") ~= nil
+              or filename:match("cmd") ~= nil
           end,
           stdin = false,
         },
@@ -81,7 +81,7 @@ return {
               or filename:match("internal/interface/api/mapper") ~= nil
               or filename:match("internal/interface/api/request") ~= nil
               or filename:match("internal/interface/api/response") ~= nil
-              or filename:match("internal/server") ~= nil
+              or filename:match("cmd") ~= nil
           end,
           stdin = false,
         },
