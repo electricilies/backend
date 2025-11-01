@@ -4,7 +4,7 @@ type Attribute struct {
 	ID              string           `json:"id" binding:"required"`
 	Code            string           `json:"code" binding:"required"`
 	Name            string           `json:"name" binding:"required"`
-	AttributeValues []AttributeValue `json:"attribute_values" binding:"required"`
+	AttributeValues []AttributeValue `json:"attributeValues" binding:"required"`
 }
 
 type AttributeValue struct {

@@ -2301,10 +2301,10 @@ const docTemplate = `{
         "request.AddAttributeValues": {
             "type": "object",
             "required": [
-                "attribute_value_ids"
+                "attributeValueIds"
             ],
             "properties": {
-                "attribute_value_ids": {
+                "attributeValueIds": {
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -2315,15 +2315,15 @@ const docTemplate = `{
         "request.AddCartItem": {
             "type": "object",
             "required": [
-                "product_id",
-                "product_variant_id",
+                "productId",
+                "productVariantId",
                 "quantity"
             ],
             "properties": {
-                "product_id": {
+                "productId": {
                     "type": "integer"
                 },
-                "product_variant_id": {
+                "productVariantId": {
                     "type": "integer"
                 },
                 "quantity": {
@@ -2372,8 +2372,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "items",
-                "payment_id",
-                "user_id"
+                "paymentId",
+                "userId"
             ],
             "properties": {
                 "items": {
@@ -2382,10 +2382,10 @@ const docTemplate = `{
                         "$ref": "#/definitions/request.OrderItemRequest"
                     }
                 },
-                "payment_id": {
+                "paymentId": {
                     "type": "integer"
                 },
-                "user_id": {
+                "userId": {
                     "type": "string"
                 }
             }
@@ -2396,7 +2396,7 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
-                "category_ids": {
+                "categoryIds": {
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -2413,18 +2413,18 @@ const docTemplate = `{
         "request.CreateReturnRequest": {
             "type": "object",
             "required": [
-                "order_item_id",
+                "orderItemId",
                 "reason",
-                "user_id"
+                "userId"
             ],
             "properties": {
-                "order_item_id": {
+                "orderItemId": {
                     "type": "integer"
                 },
                 "reason": {
                     "type": "string"
                 },
-                "user_id": {
+                "userId": {
                     "type": "string"
                 }
             }
@@ -2432,18 +2432,18 @@ const docTemplate = `{
         "request.CreateReview": {
             "type": "object",
             "required": [
-                "product_id",
+                "productId",
                 "rate",
-                "user_id"
+                "userId"
             ],
             "properties": {
                 "content": {
                     "type": "string"
                 },
-                "image_url": {
+                "imageUrl": {
                     "type": "string"
                 },
-                "product_id": {
+                "productId": {
                     "type": "integer"
                 },
                 "rate": {
@@ -2451,7 +2451,7 @@ const docTemplate = `{
                     "maximum": 5,
                     "minimum": 1
                 },
-                "user_id": {
+                "userId": {
                     "type": "string"
                 }
             }
@@ -2470,14 +2470,14 @@ const docTemplate = `{
         "request.OrderItemRequest": {
             "type": "object",
             "required": [
-                "product_id",
+                "productId",
                 "quantity"
             ],
             "properties": {
-                "product_id": {
+                "productId": {
                     "type": "integer"
                 },
-                "product_variant_id": {
+                "productVariantId": {
                     "type": "integer"
                 },
                 "quantity": {
@@ -2522,10 +2522,10 @@ const docTemplate = `{
         "request.UpdateOrderStatus": {
             "type": "object",
             "required": [
-                "order_status_id"
+                "orderStatusId"
             ],
             "properties": {
-                "order_status_id": {
+                "orderStatusId": {
                     "type": "integer"
                 }
             }
@@ -2544,10 +2544,10 @@ const docTemplate = `{
         "request.UpdateReturnRequestStatus": {
             "type": "object",
             "required": [
-                "status_id"
+                "statusId"
             ],
             "properties": {
-                "status_id": {
+                "statusId": {
                     "type": "integer"
                 }
             }
@@ -2558,7 +2558,7 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
-                "image_url": {
+                "imageUrl": {
                     "type": "string"
                 },
                 "rate": {
@@ -2570,27 +2570,27 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
-                "first_name",
-                "last_name"
+                "firstName",
+                "lastName"
             ],
             "properties": {
                 "address": {
                     "type": "string"
                 },
-                "date_of_birth": {
+                "dateOfBirth": {
                     "description": "TODO: Check if json can parse to date",
                     "type": "string"
                 },
                 "email": {
                     "type": "string"
                 },
-                "first_name": {
+                "firstName": {
                     "type": "string"
                 },
-                "last_name": {
+                "lastName": {
                     "type": "string"
                 },
-                "phone_number": {
+                "phoneNumber": {
                     "type": "string"
                 }
             }
@@ -2598,13 +2598,13 @@ const docTemplate = `{
         "response.Attribute": {
             "type": "object",
             "required": [
-                "attribute_values",
+                "attributeValues",
                 "code",
                 "id",
                 "name"
             ],
             "properties": {
-                "attribute_values": {
+                "attributeValues": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.AttributeValue"
@@ -2676,13 +2676,13 @@ const docTemplate = `{
         "response.Category": {
             "type": "object",
             "required": [
-                "created_at",
+                "createdAt",
                 "description",
                 "id",
                 "name"
             ],
             "properties": {
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
                 "description": {
@@ -2699,16 +2699,16 @@ const docTemplate = `{
         "response.Order": {
             "type": "object",
             "required": [
-                "created_at",
+                "createdAt",
                 "id",
                 "items",
-                "order_status_id",
-                "payment_id",
-                "updated_at",
-                "user_id"
+                "orderStatusId",
+                "paymentId",
+                "updatedAt",
+                "userId"
             ],
             "properties": {
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
                 "id": {
@@ -2720,16 +2720,16 @@ const docTemplate = `{
                         "$ref": "#/definitions/response.OrderItem"
                     }
                 },
-                "order_status_id": {
+                "orderStatusId": {
                     "type": "integer"
                 },
-                "payment_id": {
+                "paymentId": {
                     "type": "integer"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 },
-                "user_id": {
+                "userId": {
                     "type": "string"
                 }
             }
@@ -2738,17 +2738,17 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "id",
-                "order_id",
+                "orderId",
                 "price",
                 "product",
-                "product_variant",
+                "productVariant",
                 "quantity"
             ],
             "properties": {
                 "id": {
                     "type": "integer"
                 },
-                "order_id": {
+                "orderId": {
                     "type": "integer"
                 },
                 "price": {
@@ -2757,7 +2757,7 @@ const docTemplate = `{
                 "product": {
                     "$ref": "#/definitions/response.Product"
                 },
-                "product_variant": {
+                "productVariant": {
                     "$ref": "#/definitions/response.ProductVariant"
                 },
                 "quantity": {
@@ -2770,9 +2770,9 @@ const docTemplate = `{
             "required": [
                 "amount",
                 "id",
-                "payment_method_id",
-                "payment_status_id",
-                "updated_at"
+                "paymentMethodId",
+                "paymentStatusId",
+                "updatedAt"
             ],
             "properties": {
                 "amount": {
@@ -2781,16 +2781,16 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "payment_method_id": {
+                "paymentMethodId": {
                     "type": "string"
                 },
-                "payment_provider_id": {
+                "paymentProviderId": {
                     "type": "string"
                 },
-                "payment_status_id": {
+                "paymentStatusId": {
                     "type": "string"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -2798,20 +2798,20 @@ const docTemplate = `{
         "response.Product": {
             "type": "object",
             "required": [
-                "attribute_values",
+                "attributeValues",
                 "categories",
-                "created_at",
+                "createdAt",
                 "description",
                 "id",
                 "name",
-                "total_purchase",
-                "trending_score",
-                "updated_at",
+                "totalPurchase",
+                "trendingScore",
+                "updatedAt",
                 "variants",
-                "views_count"
+                "viewsCount"
             ],
             "properties": {
-                "attribute_values": {
+                "attributeValues": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.AttributeValue"
@@ -2823,7 +2823,7 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
                 "description": {
@@ -2835,13 +2835,13 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "total_purchase": {
+                "totalPurchase": {
                     "type": "integer"
                 },
-                "trending_score": {
+                "trendingScore": {
                     "type": "number"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 },
                 "variants": {
@@ -2850,7 +2850,7 @@ const docTemplate = `{
                         "$ref": "#/definitions/response.ProductVariant"
                     }
                 },
-                "views_count": {
+                "viewsCount": {
                     "type": "integer"
                 }
             }
@@ -2873,20 +2873,20 @@ const docTemplate = `{
         "response.ProductVariant": {
             "type": "object",
             "required": [
-                "created_at",
+                "createdAt",
                 "id",
                 "images",
                 "price",
-                "product_options",
-                "purchase_count",
+                "productOptions",
+                "purchaseCount",
                 "quantity",
                 "sku"
             ],
             "properties": {
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
-                "deleted_at": {
+                "deletedAt": {
                     "type": "string"
                 },
                 "id": {
@@ -2901,13 +2901,13 @@ const docTemplate = `{
                 "price": {
                     "type": "number"
                 },
-                "product_options": {
+                "productOptions": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.ProductOptionValue"
                     }
                 },
-                "purchase_count": {
+                "purchaseCount": {
                     "type": "integer"
                 },
                 "quantity": {
@@ -2921,13 +2921,13 @@ const docTemplate = `{
         "response.ProductVariantImage": {
             "type": "object",
             "required": [
-                "created_at",
+                "createdAt",
                 "id",
                 "order",
                 "url"
             ],
             "properties": {
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
                 "id": {
@@ -2944,30 +2944,30 @@ const docTemplate = `{
         "response.Refund": {
             "type": "object",
             "required": [
-                "Payment",
-                "created_at",
+                "createdAt",
                 "id",
-                "return",
-                "status_id",
-                "updated_at"
+                "payment",
+                "returnRequest",
+                "statusId",
+                "updatedAt"
             ],
             "properties": {
-                "Payment": {
-                    "$ref": "#/definitions/response.Payment"
-                },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "return": {
+                "payment": {
+                    "$ref": "#/definitions/response.Payment"
+                },
+                "returnRequest": {
                     "$ref": "#/definitions/response.ReturnRequest"
                 },
-                "status_id": {
+                "statusId": {
                     "type": "string"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -2975,22 +2975,22 @@ const docTemplate = `{
         "response.ReturnRequest": {
             "type": "object",
             "required": [
-                "created_at",
+                "createdAt",
                 "id",
-                "order_item",
+                "orderItem",
                 "reason",
                 "status",
-                "updated_at",
+                "updatedAt",
                 "user"
             ],
             "properties": {
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "order_item": {
+                "orderItem": {
                     "$ref": "#/definitions/response.OrderItem"
                 },
                 "reason": {
@@ -2999,7 +2999,7 @@ const docTemplate = `{
                 "status": {
                     "type": "string"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 },
                 "user": {
@@ -3010,29 +3010,29 @@ const docTemplate = `{
         "response.Review": {
             "type": "object",
             "required": [
-                "created_at",
+                "createdAt",
                 "id",
                 "rate",
-                "updated_at",
+                "updatedAt",
                 "user"
             ],
             "properties": {
                 "content": {
                     "type": "string"
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "image_url": {
+                "imageUrl": {
                     "type": "string"
                 },
                 "rate": {
                     "type": "integer"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 },
                 "user": {
@@ -3046,28 +3046,28 @@ const docTemplate = `{
                 "address": {
                     "type": "string"
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
-                "date_of_birth": {
+                "dateOfBirth": {
                     "type": "string"
                 },
                 "email": {
                     "type": "string"
                 },
-                "first_name": {
+                "firstName": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
-                "last_name": {
+                "lastName": {
                     "type": "string"
                 },
-                "phone_number": {
+                "phoneNumber": {
                     "type": "string"
                 },
-                "user_name": {
+                "userName": {
                     "type": "string"
                 }
             }

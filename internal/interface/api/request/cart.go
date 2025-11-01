@@ -1,8 +1,8 @@
 package request
 
 type AddCartItem struct {
-	ProductID        int `json:"product_id" binding:"required"`
-	ProductVariantID int `json:"product_variant_id" binding:"required"`
+	ProductID        int `json:"productId" binding:"required"`
+	ProductVariantID int `json:"productVariantId" binding:"required"`
 	Quantity         int `json:"quantity" binding:"required"`
 }
 
