@@ -57,7 +57,12 @@ return {
             "$FILENAME",
           },
           condition = function(_, ctx)
-            return ctx.filename:match("internal/interface/api/handler") ~= nil
+            local filename = ctx.filename
+            return filename:match("internal/interface/api/handler") ~= nil
+              or filename:match("internal/interface/api/mapper") ~= nil
+              or filename:match("internal/interface/api/request") ~= nil
+              or filename:match("internal/interface/api/response") ~= nil
+              or filename:match("internal/server") ~= nil
           end,
           stdin = false,
         },
@@ -76,6 +81,7 @@ return {
               or filename:match("internal/interface/api/mapper") ~= nil
               or filename:match("internal/interface/api/request") ~= nil
               or filename:match("internal/interface/api/response") ~= nil
+              or filename:match("internal/server") ~= nil
           end,
           stdin = false,
         },
