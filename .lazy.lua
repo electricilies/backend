@@ -97,10 +97,9 @@ return {
           },
           condition = function(_, ctx)
             local filename = ctx.filename
-            if is_atlasgo_community then
-              return filename:match("database/.*schema%.sql") ~= nil
-            end
-            return ctx.filename:match("database/.*%.sql") ~= nil and ctx.filename:match("database/%w*seed%.sql") == nil
+            return filename:match("database/.*schema%.sql") ~= nil
+              or filename:match("database/queries/.*%.sql") ~= nil
+              or filename:match("sqlc.yaml") ~= nil
           end,
         },
         atlas = {
@@ -130,6 +129,9 @@ return {
           "swag_gen",
           "wire",
         },
+        yaml = {
+          "sqlc",
+        },
         pgsql = {
           "atlas",
           "sqlc",
@@ -138,6 +140,7 @@ return {
     },
     opts_extend = {
       "formatters_by_ft.go",
+      "formatters_by_ft.yaml",
       "formatters_by_ft.pgsql",
     },
     optional = true,

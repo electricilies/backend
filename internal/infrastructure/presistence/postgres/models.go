@@ -119,7 +119,7 @@ type Product struct {
 
 type ProductImage struct {
 	ID               int32
-	Url              string
+	URL              string
 	CreatedAt        pgtype.Timestamp
 	Order            int32
 	ProductID        int32
@@ -128,7 +128,7 @@ type ProductImage struct {
 
 type ProductVariant struct {
 	ID            int32
-	Sku           string
+	SKU           string
 	Price         pgtype.Numeric
 	Quantity      int32
 	PurchaseCount int32
@@ -180,7 +180,7 @@ type Review struct {
 	ID        int32
 	Rate      int32
 	Content   pgtype.Text
-	ImageUrl  string
+	ImageURL  string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
