@@ -9,7 +9,6 @@ import (
 
 	"github.com/Thiht/transactor"
 	transactorpgx "github.com/Thiht/transactor/pgx"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
