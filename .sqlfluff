@@ -2,7 +2,7 @@
 
 [sqlfluff]
 dialect = postgres
-max_line_length = 80
+max_line_length = 300
 template = raw
 
 [sqlfluff:rules:capitalisation.keywords]
