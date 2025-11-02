@@ -26,8 +26,6 @@
 
 ## Resources
 
-- <https://registry.terraform.io/providers/keycloak/keycloak/latest/docs>
-
 ### Environment variables
 
 ```dotenv
@@ -71,9 +69,6 @@ TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keyclo
 
 ## References
 
+- <https://registry.terraform.io/providers/keycloak/keycloak/latest/docs>
 - <https://github.com/sqlc-dev/sqlc/discussions/364>
 - <https://github.com/sqlc-dev/sqlc/issues/2061>
-
-## Acknowledge
-
-- sqlc with paradedb it doesn't know extra column that paradedb will return? Or does paradedb returns the score column?
