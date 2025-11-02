@@ -1,2 +1,2 @@
 *.sql linguist-language=PLpgSQL linguist-detectable
-database/seed.sql -linguist-detectable
+database/seed-fake.sql -linguist-detectable
