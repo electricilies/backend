@@ -1,4 +1,5 @@
 database/seed-fake.sql
+database/queries/
 docker/volume/init.sql
 docker/volume/schema.sql
 docker/volume/seed-fake.sql

@@ -23,7 +23,7 @@ type AttributeValue struct {
 
 type Cart struct {
 	ID        int32
-	UserID    uuid.UUID
+	userID    uuid.UUID
 	UpdatedAt pgtype.Timestamp
 }
 
@@ -63,7 +63,7 @@ type Order struct {
 	ID            int32
 	CreatedAt     pgtype.Timestamp
 	UpdatedAt     pgtype.Timestamp
-	UserID        uuid.UUID
+	userID        uuid.UUID
 	OrderStatusID int32
 	PaymentID     int32
 }
@@ -167,7 +167,7 @@ type ReturnRequest struct {
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
 	StatusID    int32
-	UserID      uuid.UUID
+	userID      uuid.UUID
 	OrderItemID int32
 }
 
@@ -184,7 +184,7 @@ type Review struct {
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
-	UserID    uuid.UUID
+	userID    uuid.UUID
 	ProductID int32
 }
 

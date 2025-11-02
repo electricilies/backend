@@ -128,6 +128,12 @@ return {
             return filename:match("database/.*%.sql") ~= nil and filename:match("database/.*seed-fake%.sql") == nil
           end,
         },
+        pgsqlfluff = {
+          condition = function(_, ctx)
+            local filename = ctx.filename
+            return filename:match("database/queries/.*%.sql") == nil
+          end,
+        },
       },
       formatters_by_ft = {
         go = {
@@ -151,37 +157,54 @@ return {
     },
     optional = true,
   },
-  -- {
-  --   "mfussenegger/nvim-lint",
-  --   opts = function()
-  --     local lint = require("lint")
-  --     lint.linters.sqlc = function()
-  --       local bufname = vim.api.nvim_buf_get_name(0)
-  --       if bufname:match("database/(schema|queries/.*)%.sql") and is_db_up() then
-  --         ---@type lint.Linter
-  --         return {
-  --           name = "sqlc",
-  --           cmd = "sqlc",
-  --           args = { "vet" },
-  --           stream = "stderr",
-  --           parser = require("lint.parser").from_pattern(
-  --             "^(.+): (.+: .+): (.+)$",
-  --             { "file", "code", "message" },
-  --             nil,
-  --             {
-  --               source = "sqlc",
-  --               severity = vim.diagnostic.severity.WARN,
-  --             }
-  --           ),
-  --         }
-  --       end
-  --       return {}
-  --     end
-  --     lint.linters_by_ft.pgsql = lint.linters_by_ft.pgsql or {}
-  --     table.insert(lint.linters_by_ft.pgsql, "sqlc")
-  --   end,
-  --   optional = true,
-  -- },
+  {
+    "mfussenegger/nvim-lint",
+    opts = function()
+      local lint = require("lint")
+
+      if lint.linters.pgsqlfluff then
+        local pgsqlfluff = lint.linters.pgsqlfluff
+        lint.linters.pgsqlfluff = function()
+          local bufname = vim.api.nvim_buf_get_name(0)
+          if bufname:match("database/queries/.*%.sql") ~= nil then
+            return {}
+          end
+          if type(pgsqlfluff) == "table" then
+            return pgsqlfluff
+          else
+            return pgsqlfluff()
+          end
+        end
+      end
+
+      -- lint.linters.sqlc = function()
+      --   local bufname = vim.api.nvim_buf_get_name(0)
+      --   if bufname:match("database/(schema|queries/.*)%.sql") and _IsDbUp() then
+      --     ---@type lint.Linter
+      --     return {
+      --       name = "sqlc",
+      --       cmd = "sqlc",
+      --       args = { "vet" },
+      --       stream = "stderr",
+      --       parser = require("lint.parser").from_pattern(
+      --         "^(.+): (.+: .+): (.+)$",
+      --         { "file", "code", "message" },
+      --         nil,
+      --         {
+      --           source = "sqlc",
+      --           severity = vim.diagnostic.severity.WARN,
+      --         }
+      --       ),
+      --     }
+      --   end
+      --   return {}
+      -- end
+
+      lint.linters_by_ft.pgsql = lint.linters_by_ft.pgsql or {}
+      -- table.insert(lint.linters_by_ft.pgsql, "sqlc")
+    end,
+    optional = true,
+  },
   {
     "kristijanhusak/vim-dadbod-ui",
     opts = function()

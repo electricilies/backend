@@ -1,3 +1,5 @@
+-- sync products.total_purchase
+
 CREATE OR REPLACE FUNCTION ele_sync_product_total_purchase_on_insert()
 RETURNS TRIGGER AS $$
 BEGIN

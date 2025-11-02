@@ -34,8 +34,7 @@ CREATE TABLE attributes (
 -- attribute_values
 CREATE TABLE attribute_values (
   id SERIAL PRIMARY KEY,
-  attribute_id INTEGER NOT NULL
-  REFERENCES attributes (id)
+  attribute_id INTEGER NOT NULL REFERENCES attributes (id)
   ON UPDATE CASCADE,
   value TEXT NOT NULL
 );
@@ -116,6 +115,9 @@ CREATE TABLE carts (
   user_id UUID UNIQUE NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX idx_user_id
+ON carts (user_id);
 
 -- cart_items
 CREATE TABLE cart_items (

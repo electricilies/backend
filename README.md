@@ -68,3 +68,12 @@ TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keyclo
 ### Dev environment
 
 - Tool required are in [mise.toml](./mise.toml)
+
+## References
+
+- <https://github.com/sqlc-dev/sqlc/discussions/364>
+- <https://github.com/sqlc-dev/sqlc/issues/2061>
+
+## Acknowledge
+
+- sqlc with paradedb it doesn't know extra column that paradedb will return? Or does paradedb returns the score column?
