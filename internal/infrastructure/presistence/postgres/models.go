@@ -178,7 +178,7 @@ type ReturnRequestStatus struct {
 
 type Review struct {
 	ID        int32
-	Rate      int32
+	Rating    int32
 	Content   pgtype.Text
 	ImageURL  string
 	CreatedAt pgtype.Timestamp
