@@ -78,6 +78,7 @@ jobs:
         run: |
           just format-swag
           wire gen internal/di/wire.go
+          just swagger-docs -ot go
         continue-on-error: true
 
       - name: Fail check
@@ -95,7 +96,7 @@ jobs:
                   fail=true
               fi
           done
-          if git diff --no-patch --exit-code; then
+          if ! git diff --no-patch --exit-code; then
             echo "ERROR: There are changes after trying to generate and formatting" >&2
             fail=true
           fi
