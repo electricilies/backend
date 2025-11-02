@@ -5,13 +5,13 @@ uvx = true
 [tools]
 "pipx:sqlfluff" = "3.4.2"
 atlas = "0.37.0"
-"go:github.com/google/wire/cmd/wire" = "0.7.0"
+"go:github.com/google/wire/cmd/wire" = { version = "0.7.0", os = [
+  "linux",
+  "darwin",
+] }
 "go:github.com/sqlc-dev/sqlc/cmd/sqlc" = "1.30.0"
 gofumpt = "0.9.1"
 golangci-lint = "2.5.0"
 just = "latest"
 uv = "0.9.3"
-
-[tools.swag]
-version = "1.16.6"
-os = ["linux", "darwin"]
+swag = { version = "1.16.6", os = ["linux", "darwin"] }
