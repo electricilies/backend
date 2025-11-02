@@ -68,12 +68,25 @@ jobs:
         run: just check-format
         continue-on-error: true
 
+      - name: Sqlc diff
+        id: check-sql
+        run: sqlc diff
+        continue-on-error: true
+
+      - name: Gen and format
+        id: gen-and-format
+        run: |
+          just format-swag
+          wire gen internal/di/wire.go
+        continue-on-error: true
+
       - name: Fail check
         run: |
           declare -A check_status=(
             ["Static type check failed"]=${{ steps.static-type.outcome == 'failure' }}
             ["Lint check failed"]=${{ steps.lint.outcome == 'failure' }}
             ["Format check failed"]=${{ steps.format.outcome == 'failure' }}
+            ["Sqlc diff failed"]=${{ steps.check-sql.outcome == 'failure' }}
           )
           fail=false
           for msg in "${!check_status[@]}"; do
@@ -82,6 +95,10 @@ jobs:
                   fail=true
               fi
           done
+          if git diff --no-patch --exit-code; then
+            echo "ERROR: There are changes after trying to generate and formatting" >&2
+            fail=true
+          fi
           if [ "$fail" = true ]; then
               exit 1
           fi
