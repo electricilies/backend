@@ -76,20 +76,19 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 			users.GET("/:user_id", r.userHandler.Get)
 			users.PUT("/:user_id", r.userHandler.Update)
 			users.DELETE("/:user_id", r.userHandler.Delete)
-			cart := users.Group("/:user_id/cart")
-			{
-				cart.GET("", r.cartHandler.Get)
-				cart.POST("", r.cartHandler.AddItem)
-				cart.PUT("/:item_id", r.cartHandler.UpdateItem)
-				cart.DELETE("/:item_id", r.cartHandler.RemoveItem)
-			}
+			users.GET("/:user_id/return_requests", r.userHandler.GetReturnRequests)
 		}
-
+		cart := api.Group("/carts")
+		{
+			cart.GET("", r.cartHandler.GetCartByUser)
+			cart.POST("", r.cartHandler.AddItem)
+			cart.PUT("", r.cartHandler.UpdateItem)
+			cart.DELETE("", r.cartHandler.RemoveItem)
+		}
 		categories := api.Group("/categories")
 		{
 			categories.GET("", r.categoryHandler.List)
 			categories.POST("", r.categoryHandler.Create)
-			categories.GET("/:id", r.categoryHandler.Get)
 			categories.PUT("/:id", r.categoryHandler.Update)
 			categories.DELETE("/:id", r.categoryHandler.Delete)
 		}
@@ -101,12 +100,6 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 			products.GET("/:id", r.productHandler.Get)
 			products.PUT("/:id", r.productHandler.Update)
 			products.DELETE("/:id", r.productHandler.Delete)
-
-			products.GET("/:id/variants", r.productHandler.ListVariantsByProduct)
-			products.GET("/:id/reviews", r.productHandler.ListReviewByProduct)
-			products.GET("/:id/attributes", r.productHandler.ListAtributesByProduct)
-			products.POST("/:id/attributes", r.productHandler.AddAttributeValues)
-			products.DELETE("/:id/attributes/:attribute_value_id", r.productHandler.RemoveAttributeValue)
 		}
 
 		attributes := api.Group("/attributes")
@@ -116,9 +109,6 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 			attributes.GET("/:id", r.attributeHandler.Get)
 			attributes.PUT("/:id", r.attributeHandler.Update)
 			attributes.DELETE("/:id", r.attributeHandler.Delete)
-
-			attributes.GET("/:id/values", r.attributeHandler.ListValuesByAttribute)
-			attributes.POST("/:id/values", r.attributeHandler.CreateValue)
 		}
 
 		payments := api.Group("/payment")
@@ -131,17 +121,16 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 			orders.GET("", r.orderHandler.List)
 			orders.POST("", r.orderHandler.Create)
 			orders.GET("/:id", r.orderHandler.Get)
-			orders.PUT("/:id", r.orderHandler.UpdateStatus)
+			orders.PUT("/:id", r.orderHandler.Update)
 			orders.DELETE("/:id", r.orderHandler.Delete)
-			orders.GET("/:id/items", r.orderHandler.ListItemByOrder)
 		}
 
-		returns := api.Group("/returns")
+		return_requests := api.Group("/return_requests")
 		{
-			returns.GET("", r.returnHandler.List)
-			returns.POST("", r.returnHandler.Create)
-			returns.GET("/:id", r.returnHandler.Get)
-			returns.PUT("/:id", r.returnHandler.UpdateStatus)
+			return_requests.GET("", r.returnHandler.List)
+			return_requests.POST("", r.returnHandler.Create)
+			return_requests.GET("/:id", r.returnHandler.Get)
+			return_requests.PUT("/:id", r.returnHandler.Update)
 		}
 
 		refunds := api.Group("/refunds")
@@ -152,7 +141,7 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 
 		reviews := api.Group("/reviews")
 		{
-			reviews.GET("", r.reviewHandler.List)
+			reviews.GET("", r.reviewHandler.ListReviewsByProduct)
 			reviews.POST("", r.reviewHandler.Create)
 			reviews.GET("/:id", r.reviewHandler.Get)
 			reviews.PUT("/:id", r.reviewHandler.Update)

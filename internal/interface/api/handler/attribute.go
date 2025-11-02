@@ -12,9 +12,6 @@ type Attribute interface {
 	Create(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
-
-	ListValuesByAttribute(ctx *gin.Context)
-	CreateValue(ctx *gin.Context)
 }
 
 type attributeHandler struct{}
@@ -100,39 +97,5 @@ func (h *attributeHandler) Update(ctx *gin.Context) {
 //	@Failure		500	{object}	mapper.InternalServerError
 //	@Router			/attributes/{id} [delete]
 func (h *attributeHandler) Delete(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
-}
-
-// ListValuesByAttribute godoc
-//
-//	@Summary		List values by attribute
-//	@Description	Get all values for a specific attribute
-//	@Tags			Attribute
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		string	true	"Attribute ID"
-//	@Success		200	{array}		response.AttributeValue
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/attributes/{id}/values [get]
-func (h *attributeHandler) ListValuesByAttribute(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
-}
-
-// CreateAttributeValue godoc
-//
-//	@Summary		Create attribute value
-//	@Description	Create a new value for an attribute
-//	@Tags			Attribute
-//	@Accept			json
-//	@Produce		json
-//	@Param			id		path		string							true	"Attribute ID"
-//	@Param			value	body		request.CreateAttributeValue	true	"Attribute value request"
-//	@Success		201		{object}	response.AttributeValue
-//	@Failure		400		{object}	mapper.BadRequestError
-//	@Failure		409		{object}	mapper.ConflictError
-//	@Failure		500		{object}	mapper.InternalServerError
-//	@Router			/attributes/{id}/values [post]
-func (h *attributeHandler) CreateValue(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

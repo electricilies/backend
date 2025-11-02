@@ -7,7 +7,6 @@ import (
 )
 
 type Category interface {
-	Get(ctx *gin.Context)
 	List(ctx *gin.Context)
 	Create(ctx *gin.Context)
 	Update(ctx *gin.Context)
@@ -17,22 +16,6 @@ type Category interface {
 type categoryHandler struct{}
 
 func NewCategory() Category { return &categoryHandler{} }
-
-// GetCategory godoc
-//
-//	@Summary		Get category by ID
-//	@Description	Get category details by ID
-//	@Tags			Category
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		int	true	"Category ID"
-//	@Success		200	{object}	response.Category
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/categories/{id} [get]
-func (h *categoryHandler) Get(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
-}
 
 // ListCategories godoc
 //

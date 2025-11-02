@@ -7,7 +7,7 @@ import (
 )
 
 type Cart interface {
-	Get(ctx *gin.Context)
+	GetCartByUser(ctx *gin.Context)
 	AddItem(ctx *gin.Context)
 	UpdateItem(ctx *gin.Context)
 	RemoveItem(ctx *gin.Context)
@@ -19,16 +19,17 @@ func NewCart() Cart { return &cartHandler{} }
 
 // GetCart godoc
 //
-//	@Summary		Get cart
-//	@Description	Get cart for the current user
+//	@Summary		GetCartByUser cart
+//	@Description	GetCartByUser cart for the current user
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	response.Cart
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/cart [get]
-func (h *cartHandler) Get(ctx *gin.Context) {
+//	@Param			user_id	path		string	true	"User ID"
+//	@Success		200		{object}	response.Cart
+//	@Failure		404		{object}	mapper.NotFoundError
+//	@Failure		500		{object}	mapper.InternalServerError
+//	@Router			/carts [get]
+func (h *cartHandler) GetCartByUser(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -43,7 +44,7 @@ func (h *cartHandler) Get(ctx *gin.Context) {
 //	@Success		201		{object}	response.CartItem
 //	@Failure		400		{object}	mapper.BadRequestError
 //	@Failure		500		{object}	mapper.InternalServerError
-//	@Router			/cart/items [post]
+//	@Router			/carts [post]
 func (h *cartHandler) AddItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -61,7 +62,7 @@ func (h *cartHandler) AddItem(ctx *gin.Context) {
 //	@Failure		400		{object}	mapper.BadRequestError
 //	@Failure		404		{object}	mapper.NotFoundError
 //	@Failure		500		{object}	mapper.InternalServerError
-//	@Router			/cart/items/{id} [put]
+//	@Router			/carts [put]
 func (h *cartHandler) UpdateItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -73,11 +74,11 @@ func (h *cartHandler) UpdateItem(ctx *gin.Context) {
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		int		true	"Cart Item ID"
-//	@Success		204	{string}	string	"no content"
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/cart/items/{id} [delete]
+//	@Param			item_id	path		int		true	"Cart Item ID"
+//	@Success		204		{string}	string	"no content"
+//	@Failure		404		{object}	mapper.NotFoundError
+//	@Failure		500		{object}	mapper.InternalServerError
+//	@Router			/carts [delete]
 func (h *cartHandler) RemoveItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

@@ -246,113 +246,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/attributes/{id}/values": {
+        "/carts": {
             "get": {
-                "description": "Get all values for a specific attribute",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Attribute"
-                ],
-                "summary": "List values by attribute",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Attribute ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.AttributeValue"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create a new value for an attribute",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Attribute"
-                ],
-                "summary": "Create attribute value",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Attribute ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Attribute value request",
-                        "name": "value",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.CreateAttributeValue"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.AttributeValue"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/cart": {
-            "get": {
-                "description": "Get cart for the current user",
+                "description": "GetCartByUser cart for the current user",
                 "consumes": [
                     "application/json"
                 ],
@@ -362,7 +258,16 @@ const docTemplate = `{
                 "tags": [
                     "Cart"
                 ],
-                "summary": "Get cart",
+                "summary": "GetCartByUser cart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -383,55 +288,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/cart/items": {
-            "post": {
-                "description": "Add a product item to the cart",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Cart"
-                ],
-                "summary": "Add item to cart",
-                "parameters": [
-                    {
-                        "description": "Cart item request",
-                        "name": "item",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.AddCartItem"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.CartItem"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/cart/items/{id}": {
+            },
             "put": {
                 "description": "Update quantity of a cart item",
                 "consumes": [
@@ -489,6 +346,50 @@ const docTemplate = `{
                     }
                 }
             },
+            "post": {
+                "description": "Add a product item to the cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Add item to cart",
+                "parameters": [
+                    {
+                        "description": "Cart item request",
+                        "name": "item",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.AddCartItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.CartItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.BadRequestError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.InternalServerError"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Remove an item from the cart",
                 "consumes": [
@@ -505,7 +406,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Cart Item ID",
-                        "name": "id",
+                        "name": "item_id",
                         "in": "path",
                         "required": true
                     }
@@ -615,48 +516,6 @@ const docTemplate = `{
             }
         },
         "/categories/{id}": {
-            "get": {
-                "description": "Get category details by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Category"
-                ],
-                "summary": "Get category by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Category ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Category"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            },
             "put": {
                 "description": "Update category by ID",
                 "consumes": [
@@ -914,53 +773,6 @@ const docTemplate = `{
                         "description": "no content",
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/orders/{id}/items": {
-            "get": {
-                "description": "Get all items for a specific order",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Order"
-                ],
-                "summary": "List items by order",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Order ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.OrderItem"
-                            }
                         }
                     },
                     "404": {
@@ -1306,255 +1118,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/{id}/attributes": {
-            "get": {
-                "description": "Get all attributes for a specific product",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "List attributes by product",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.Attribute"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Add attribute values to a product",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "Add attribute values to product",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Add attribute values request",
-                        "name": "values",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.AddAttributeValues"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "no content",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/products/{id}/attributes/{value_id}": {
-            "delete": {
-                "description": "Remove attribute value from a product",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "Remove attribute value from product",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Attribute Value ID",
-                        "name": "value_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "no content",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/products/{id}/reviews": {
-            "get": {
-                "description": "Get all reviews for a specific product",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "List reviews by product",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.Review"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/products/{id}/variants": {
-            "get": {
-                "description": "Get all variants for a specific product",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "List variants by product",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.ProductVariant"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/refunds": {
             "get": {
                 "description": "Get all refunds",
@@ -1791,6 +1354,15 @@ const docTemplate = `{
                     "Review"
                 ],
                 "summary": "List all reviews",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2254,6 +1826,53 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users/{user_id}/returns": {
+            "get": {
+                "description": "Get return requests for a user by user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get return requests for a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.ReturnRequest"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.BadRequestError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.InternalServerError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -2309,20 +1928,6 @@ const docTemplate = `{
                 }
             }
         },
-        "request.AddAttributeValues": {
-            "type": "object",
-            "required": [
-                "attributeValueIds"
-            ],
-            "properties": {
-                "attributeValueIds": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                }
-            }
-        },
         "request.AddCartItem": {
             "type": "object",
             "required": [
@@ -2353,17 +1958,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "request.CreateAttributeValue": {
-            "type": "object",
-            "required": [
-                "value"
-            ],
-            "properties": {
-                "value": {
                     "type": "string"
                 }
             }

@@ -10,9 +10,8 @@ type Order interface {
 	Get(ctx *gin.Context)
 	List(ctx *gin.Context)
 	Create(ctx *gin.Context)
-	UpdateStatus(ctx *gin.Context)
+	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
-	ListItemByOrder(ctx *gin.Context)
 }
 
 type orderHandler struct{}
@@ -81,7 +80,7 @@ func (h *orderHandler) Create(ctx *gin.Context) {
 //	@Failure		409		{object}	mapper.ConflictError
 //	@Failure		500		{object}	mapper.InternalServerError
 //	@Router			/orders/{id}/status [put]
-func (h *orderHandler) UpdateStatus(ctx *gin.Context) {
+func (h *orderHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -98,21 +97,5 @@ func (h *orderHandler) UpdateStatus(ctx *gin.Context) {
 //	@Failure		500	{object}	mapper.InternalServerError
 //	@Router			/orders/{id} [delete]
 func (h *orderHandler) Delete(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
-}
-
-// ListOrderItems godoc
-//
-//	@Summary		List items by order
-//	@Description	Get all items for a specific order
-//	@Tags			Order
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		int	true	"Order ID"
-//	@Success		200	{array}		response.OrderItem
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/orders/{id}/items [get]
-func (h *orderHandler) ListItemByOrder(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

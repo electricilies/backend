@@ -1,12 +1,11 @@
 package handler
 
 import (
-	"net/http"
-
 	"backend/internal/application"
 	"backend/internal/interface/api/mapper"
 	"backend/internal/interface/api/request"
 	"backend/internal/interface/api/response"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -18,6 +17,7 @@ type User interface {
 	Create(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
+	GetReturnRequests(ctx *gin.Context)
 }
 
 type userHandler struct {
@@ -156,5 +156,22 @@ func (h *userHandler) Delete(ctx *gin.Context) {
 		mapper.ErrorFromDomain(ctx, err)
 		return
 	}
+	ctx.Status(http.StatusNoContent)
+}
+
+// GetReturnRequests godoc
+//
+//	@Summary		Get return requests for a user
+//	@Description	Get return requests for a user by user ID
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//	@Param			user_id	path		string	true	"User ID"
+//	@Success		200		{array}		response.ReturnRequest
+//	@Failure		400		{object}	mapper.BadRequestError
+//	@Failure		500		{object}	mapper.InternalServerError
+//	@Router			/users/{user_id}/returns [get]
+func (h *userHandler) GetReturnRequests(ctx *gin.Context) {
+	// TODO: implement getting return requests for a user
 	ctx.Status(http.StatusNoContent)
 }

@@ -8,7 +8,7 @@ import (
 
 type Review interface {
 	Get(ctx *gin.Context)
-	List(ctx *gin.Context)
+	ListReviewsByProduct(ctx *gin.Context)
 	Create(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
@@ -41,10 +41,11 @@ func (h *reviewHandler) Get(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{array}		response.Review
-//	@Failure		500	{object}	mapper.InternalServerError
+//	@Param			product_id	query		int	true	"Product ID"
+//	@Success		200			{array}		response.Review
+//	@Failure		500			{object}	mapper.InternalServerError
 //	@Router			/reviews [get]
-func (h *reviewHandler) List(ctx *gin.Context) {
+func (h *reviewHandler) ListReviewsByProduct(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 

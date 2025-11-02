@@ -10,7 +10,7 @@ type ReturnRequest interface {
 	Get(ctx *gin.Context)
 	List(ctx *gin.Context)
 	Create(ctx *gin.Context)
-	UpdateStatus(ctx *gin.Context)
+	Update(ctx *gin.Context)
 }
 
 type returnRequestHandler struct{}
@@ -79,6 +79,6 @@ func (h *returnRequestHandler) Create(ctx *gin.Context) {
 //	@Failure		409		{object}	mapper.ConflictError
 //	@Failure		500		{object}	mapper.InternalServerError
 //	@Router			/returns/{id}/status [put]
-func (h *returnRequestHandler) UpdateStatus(ctx *gin.Context) {
+func (h *returnRequestHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
