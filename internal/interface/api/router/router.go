@@ -125,12 +125,12 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 			orders.DELETE("/:id", r.orderHandler.Delete)
 		}
 
-		return_requests := api.Group("/return_requests")
+		returnRequests := api.Group("/return-requests")
 		{
-			return_requests.GET("", r.returnHandler.List)
-			return_requests.POST("", r.returnHandler.Create)
-			return_requests.GET("/:id", r.returnHandler.Get)
-			return_requests.PUT("/:id", r.returnHandler.Update)
+			returnRequests.GET("", r.returnHandler.List)
+			returnRequests.POST("", r.returnHandler.Create)
+			returnRequests.GET("/:id", r.returnHandler.Get)
+			returnRequests.PUT("/:id", r.returnHandler.Update)
 		}
 
 		refunds := api.Group("/refunds")

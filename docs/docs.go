@@ -1150,7 +1150,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/returns": {
+        "/return-requests": {
             "get": {
                 "description": "Get all return requests",
                 "consumes": [
@@ -1232,7 +1232,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/returns/{id}": {
+        "/return-requests/{id}": {
             "get": {
                 "description": "Get return request details by ID",
                 "consumes": [
@@ -1276,7 +1276,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/returns/{id}/status": {
+        "/return-requests/{id}/status": {
             "put": {
                 "description": "Update the status of a return request",
                 "consumes": [

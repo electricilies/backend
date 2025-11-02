@@ -28,7 +28,7 @@ func NewReturn() ReturnRequest { return &returnRequestHandler{} }
 //	@Success		200	{object}	response.ReturnRequest
 //	@Failure		404	{object}	mapper.NotFoundError
 //	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/returns/{id} [get]
+//	@Router			/return-requests/{id} [get]
 func (h *returnRequestHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -42,7 +42,7 @@ func (h *returnRequestHandler) Get(ctx *gin.Context) {
 //	@Produce		json
 //	@Success		200	{array}		response.ReturnRequest
 //	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/returns [get]
+//	@Router			/return-requests [get]
 func (h *returnRequestHandler) List(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -59,7 +59,7 @@ func (h *returnRequestHandler) List(ctx *gin.Context) {
 //	@Failure		400		{object}	mapper.BadRequestError
 //	@Failure		409		{object}	mapper.ConflictError
 //	@Failure		500		{object}	mapper.InternalServerError
-//	@Router			/returns [post]
+//	@Router			/return-requests [post]
 func (h *returnRequestHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -78,7 +78,7 @@ func (h *returnRequestHandler) Create(ctx *gin.Context) {
 //	@Failure		404		{object}	mapper.NotFoundError
 //	@Failure		409		{object}	mapper.ConflictError
 //	@Failure		500		{object}	mapper.InternalServerError
-//	@Router			/returns/{id}/status [put]
+//	@Router			/return-requests/{id}/status [put]
 func (h *returnRequestHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
