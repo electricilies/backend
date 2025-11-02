@@ -125,7 +125,7 @@ return {
             if is_atlasgo_community then
               return filename:match("database/.*schema%.sql") ~= nil
             end
-            return filename:match("database/.*%.sql") ~= nil and filename:match("database/.*seed%.sql") == nil
+            return filename:match("database/.*%.sql") ~= nil and filename:match("database/.*seed-fake%.sql") == nil
           end,
         },
       },
