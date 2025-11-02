@@ -14,6 +14,7 @@ locals {
     "file://database/init.sql",
     "file://database/schema.sql",
     "file://database/trigger.sql",
+    "file://database/seed.sql",
   ]
 }
 
