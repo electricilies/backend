@@ -42,11 +42,11 @@ func InitializeServer() *server.Server {
 	attribute := handler.NewAttribute()
 	payment := handler.NewPayment()
 	order := handler.NewOrder()
-	handlerReturn := handler.NewReturn()
+	returnRequest := handler.NewReturn()
 	refund := handler.NewRefund()
 	review := handler.NewReview()
 	cart := handler.NewCart()
-	routerRouter := router.New(handlerUser, healthCheck, metric, logging, category, product, attribute, payment, order, handlerReturn, refund, review, cart)
+	routerRouter := router.New(handlerUser, healthCheck, metric, logging, category, product, attribute, payment, order, returnRequest, refund, review, cart)
 	serverServer := server.New(engine, routerRouter)
 	return serverServer
 }
