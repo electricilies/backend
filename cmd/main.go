@@ -13,16 +13,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @BasePath								/api
-// @securitydefinitions.apikey	Admin
-// @in							header
-// @name						Authorization
-// @securitydefinitions.apikey Customer
-// @in							header
-// @name						Authorization
-// @securitydefinitions.apikey Staff
-// @in							header
-// @name						Authorization
+//	@BasePath					/api
+//	@securitydefinitions.apikey	Admin
+//	@in							header
+//	@name						Authorization
+//	@securitydefinitions.apikey	Customer
+//	@in							header
+//	@name						Authorization
+//	@securitydefinitions.apikey	Staff
+//	@in							header
+//	@name						Authorization
 
 func main() {
 	config.LoadConfig()
