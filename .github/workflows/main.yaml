@@ -137,6 +137,7 @@ jobs:
           - runner: windows-11-arm
             os: windows
             arch: arm64
+      fail-fast: false
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout
