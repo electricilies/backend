@@ -31,8 +31,23 @@ lint-sqlfluff:
     ./database/queries/ \
     ./docker/volume/
 
-[doc("Run lint")]
+[doc("Run lint all")]
 lint: lint-golangci-lint lint-sqlfluff
+
+[doc("Generate DI wire file")]
+gen-wire:
+  wire gen internal/di/wire.go
+
+[doc("Generate swagger output to ./docs/")]
+gen-swag *args="":
+  swag init -g {{main-go}} {{args}}
+
+[doc("Generate sqlc code")]
+gen-sqlc *args="":
+  sqlc generate {{args}}
+
+[doc("Run gen all")]
+gen: gen-wire gen-swag gen-sqlc
 
 format-gofumpt *args="":
   gofumpt -w . {{args}}
@@ -46,7 +61,7 @@ format-sqlfluff:
     ./database/queries/ \
     ./docker/volume/
 
-[doc("Run Format")]
+[doc("Run format all")]
 format: format-gofumpt format-swag format-sqlfluff
 
 check-format-gofumpt *args="":
@@ -59,10 +74,6 @@ check-format: check-format-gofumpt
 compose *args="":
   docker compose -f ./docker/compose.yaml up {{args}}
 
-[doc("Generate swagger output to ./docs/ with swag")]
-swagger-docs *args="":
-  swag init -g {{main-go}} {{args}}
-
 [private]
 [unix]
 swagger-local-json:
@@ -70,7 +81,7 @@ swagger-local-json:
 
 [unix]
 [doc("Generate and open static swagger web locally")]
-swagger-web: swagger-docs swagger-local-json
+swagger-web: gen-swag swagger-local-json
   xdg-open ./docs/local.html
 
 seed-db:
