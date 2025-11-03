@@ -159,7 +159,7 @@ CREATE TABLE payments (
   amount DECIMAL NOT NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   method_id INTEGER NOT NULL REFERENCES payment_methods (id) ON UPDATE CASCADE,
-  status_id INTEGER NOT NULL REFERENCES payment_statuses (id) ON UPDATE CASCADE,
+  status_id INTEGER NOT NULL DEFAULT 1 REFERENCES payment_statuses (id) ON UPDATE CASCADE,
   provider_id INTEGER NOT NULL REFERENCES payment_providers (id) ON UPDATE CASCADE
 );
 
@@ -169,7 +169,7 @@ CREATE TABLE orders (
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-  status_id INTEGER NOT NULL REFERENCES order_statuses (id) ON UPDATE CASCADE,
+  status_id INTEGER NOT NULL DEFAULT 1 REFERENCES order_statuses (id) ON UPDATE CASCADE,
   payment_id INTEGER NOT NULL REFERENCES payments (id) ON UPDATE CASCADE
 );
 
@@ -193,7 +193,7 @@ CREATE TABLE return_requests (
   reason VARCHAR(150) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  status_id INTEGER NOT NULL REFERENCES return_request_statuses (id) ON UPDATE CASCADE,
+  status_id INTEGER NOT NULL DEFAULT 1 REFERENCES return_request_statuses (id) ON UPDATE CASCADE,
   user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
   order_item_id INTEGER NOT NULL REFERENCES order_items (id) ON UPDATE CASCADE
 );
@@ -209,7 +209,7 @@ CREATE TABLE refunds (
   id SERIAL PRIMARY KEY,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  status_id INTEGER NOT NULL REFERENCES refund_statuses (id) ON UPDATE CASCADE,
+  status_id INTEGER NOT NULL DEFAULT 1 REFERENCES refund_statuses (id) ON UPDATE CASCADE,
   payment_id INTEGER NOT NULL REFERENCES payments (id) ON UPDATE CASCADE,
   return_request_id INTEGER NOT NULL REFERENCES return_requests (id) ON UPDATE CASCADE
 );
