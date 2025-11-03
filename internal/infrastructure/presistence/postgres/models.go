@@ -31,7 +31,6 @@ type CartItem struct {
 	ID               int32
 	Quantity         int32
 	CartID           int32
-	ProductID        int32
 	ProductVariantID int32
 }
 
@@ -72,7 +71,6 @@ type OrderItem struct {
 	ID               int32
 	Quantity         int32
 	OrderID          int32
-	ProductID        int32
 	ProductVariantID int32
 }
 
@@ -122,7 +120,6 @@ type ProductImage struct {
 	URL              string
 	CreatedAt        pgtype.Timestamp
 	Order            int32
-	ProductID        int32
 	ProductVariantID pgtype.Int4
 }
 

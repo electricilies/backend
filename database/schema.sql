@@ -64,7 +64,6 @@ CREATE TABLE product_images (
   url TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   "order" INTEGER NOT NULL,
-  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
   product_variant_id INTEGER REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 
@@ -124,7 +123,6 @@ CREATE TABLE cart_items (
   id SERIAL PRIMARY KEY,
   quantity INTEGER NOT NULL,
   cart_id INTEGER NOT NULL REFERENCES carts (id) ON UPDATE CASCADE,
-  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
   product_variant_id INTEGER NOT NULL REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 
@@ -177,7 +175,6 @@ CREATE TABLE order_items (
   id SERIAL PRIMARY KEY,
   quantity INTEGER NOT NULL,
   order_id INTEGER NOT NULL REFERENCES orders (id) ON UPDATE CASCADE,
-  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
   product_variant_id INTEGER NOT NULL REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 

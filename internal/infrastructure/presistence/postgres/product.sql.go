@@ -37,7 +37,6 @@ const createProductImages = `-- name: CreateProductImages :execresult
 INSERT INTO product_images (
   url,
   "order",
-  product_id,
   product_variant_id
 )
 SELECT
@@ -46,13 +45,13 @@ SELECT
   $3,
   UNNEST($4::integer[]) AS product_variant_id
 RETURNING
-  id, url, created_at, "order", product_id, product_variant_id
+  id, url, created_at, "order", product_variant_id
 `
 
 type CreateProductImagesParams struct {
 	Urls              []string
 	Orders            []int32
-	ProductID         int32
+	ProductID         pgtype.Int4
 	ProductVariantIds []int32
 }
 
@@ -124,7 +123,7 @@ const getAllProducts = `-- name: GetAllProducts :many
 SELECT
   products.id, products.name, products.description, products.views_count, products.total_purchase, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
   product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.deleted_at, product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.deleted_at,
-  product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_id, product_images.product_variant_id, product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_id, product_images.product_variant_id,
+  product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_variant_id, product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_variant_id,
   products_attribute_values.product_id, products_attribute_values.attribute_value_id, products_attribute_values.product_id, products_attribute_values.attribute_value_id,
   attribute_values.id, attribute_values.attribute_id, attribute_values.value, attribute_values.id, attribute_values.attribute_id, attribute_values.value,
   attributes.id, attributes.code, attributes.name, attributes.id, attributes.code, attributes.name,
@@ -243,7 +242,6 @@ func (q *Queries) GetAllProducts(ctx context.Context, arg GetAllProductsParams) 
 			&i.ProductImage.URL,
 			&i.ProductImage.CreatedAt,
 			&i.ProductImage.Order,
-			&i.ProductImage.ProductID,
 			&i.ProductImage.ProductVariantID,
 			&i.ProductsAttributeValue.ProductID,
 			&i.ProductsAttributeValue.AttributeValueID,
@@ -284,7 +282,7 @@ const getProductByID = `-- name: GetProductByID :one
 SELECT
   products.id, products.name, products.description, products.views_count, products.total_purchase, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
   product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.deleted_at, product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.deleted_at,
-  product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_id, product_images.product_variant_id, product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_id, product_images.product_variant_id,
+  product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_variant_id, product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_variant_id,
   products_attribute_values.product_id, products_attribute_values.attribute_value_id, products_attribute_values.product_id, products_attribute_values.attribute_value_id,
   attribute_values.id, attribute_values.attribute_id, attribute_values.value, attribute_values.id, attribute_values.attribute_id, attribute_values.value,
   attributes.id, attributes.code, attributes.name, attributes.id, attributes.code, attributes.name,
@@ -373,7 +371,6 @@ func (q *Queries) GetProductByID(ctx context.Context, arg GetProductByIDParams) 
 		&i.ProductImage.URL,
 		&i.ProductImage.CreatedAt,
 		&i.ProductImage.Order,
-		&i.ProductImage.ProductID,
 		&i.ProductImage.ProductVariantID,
 		&i.ProductsAttributeValue.ProductID,
 		&i.ProductsAttributeValue.AttributeValueID,

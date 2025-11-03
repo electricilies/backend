@@ -25,7 +25,6 @@ SELECT
 INSERT INTO product_images (
   url,
   "order",
-  product_id,
   product_variant_id
 )
 SELECT

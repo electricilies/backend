@@ -11,12 +11,10 @@ RETURNING
 INSERT INTO cart_items (
   quantity,
   cart_id,
-  product_id,
   product_variant_id
 ) VALUES (
   @quantity,
   @cart_id,
-  @product_id,
   @product_variant_id
 )
 RETURNING
@@ -32,10 +30,10 @@ FROM
   carts
 INNER JOIN cart_items
   ON carts.id = cart_items.cart_id
-INNER JOIN products
-  ON cart_items.product_id = products.id
 INNER JOIN product_variants
   ON cart_items.product_variant_id = product_variants.id
+INNER JOIN products
+  ON product_variants.product_id = products.id
 WHERE
   carts.user_id = @user_id
 ORDER BY

@@ -36,38 +36,29 @@ const createCartItem = `-- name: CreateCartItem :one
 INSERT INTO cart_items (
   quantity,
   cart_id,
-  product_id,
   product_variant_id
 ) VALUES (
   $1,
   $2,
-  $3,
-  $4
+  $3
 )
 RETURNING
-  id, quantity, cart_id, product_id, product_variant_id
+  id, quantity, cart_id, product_variant_id
 `
 
 type CreateCartItemParams struct {
 	Quantity         int32
 	CartID           int32
-	ProductID        int32
 	ProductVariantID int32
 }
 
 func (q *Queries) CreateCartItem(ctx context.Context, arg CreateCartItemParams) (CartItem, error) {
-	row := q.db.QueryRow(ctx, createCartItem,
-		arg.Quantity,
-		arg.CartID,
-		arg.ProductID,
-		arg.ProductVariantID,
-	)
+	row := q.db.QueryRow(ctx, createCartItem, arg.Quantity, arg.CartID, arg.ProductVariantID)
 	var i CartItem
 	err := row.Scan(
 		&i.ID,
 		&i.Quantity,
 		&i.CartID,
-		&i.ProductID,
 		&i.ProductVariantID,
 	)
 	return i, err
@@ -94,17 +85,17 @@ func (q *Queries) DeleteCartItemByID(ctx context.Context, arg DeleteCartItemByID
 const getCartByUserID = `-- name: GetCartByUserID :many
 SELECT
   carts.id, carts.user_id, carts.updated_at,
-  cart_items.id, cart_items.quantity, cart_items.cart_id, cart_items.product_id, cart_items.product_variant_id,
+  cart_items.id, cart_items.quantity, cart_items.cart_id, cart_items.product_variant_id,
   products.id, products.name, products.description, products.views_count, products.total_purchase, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
   product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.deleted_at
 FROM
   carts
 INNER JOIN cart_items
   ON carts.id = cart_items.cart_id
-INNER JOIN products
-  ON cart_items.product_id = products.id
 INNER JOIN product_variants
   ON cart_items.product_variant_id = product_variants.id
+INNER JOIN products
+  ON product_variants.product_id = products.id
 WHERE
   carts.user_id = $1
 ORDER BY
@@ -138,7 +129,6 @@ func (q *Queries) GetCartByUserID(ctx context.Context, arg GetCartByUserIDParams
 			&i.CartItem.ID,
 			&i.CartItem.Quantity,
 			&i.CartItem.CartID,
-			&i.CartItem.ProductID,
 			&i.CartItem.ProductVariantID,
 			&i.Product.ID,
 			&i.Product.Name,
@@ -175,7 +165,7 @@ SET
 WHERE
   id = $2
 RETURNING
-  id, quantity, cart_id, product_id, product_variant_id
+  id, quantity, cart_id, product_variant_id
 `
 
 type UpdateCartItemByIDParams struct {
@@ -190,7 +180,6 @@ func (q *Queries) UpdateCartItemByID(ctx context.Context, arg UpdateCartItemByID
 		&i.ID,
 		&i.Quantity,
 		&i.CartID,
-		&i.ProductID,
 		&i.ProductVariantID,
 	)
 	return i, err
