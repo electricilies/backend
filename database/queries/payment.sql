@@ -9,13 +9,13 @@ SELECT
 FROM
   payments
 INNER JOIN payment_statuses
-  ON payments.payment_status_id = payment_statuses.id
+  ON payments.status_id = payment_statuses.id
 INNER JOIN payment_methods
-  ON payments.payment_method_id = payment_methods.id
+  ON payments.method_id = payment_methods.id
 INNER JOIN payment_providers
-  ON payments.payment_provider_id = payment_providers.id
+  ON payments.provider_id = payment_providers.id
 ORDER BY
-  payments.id DESC -- FIXME: Or?? Updated at?
+  payments.id DESC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
 
@@ -30,11 +30,11 @@ FROM
 INNER JOIN orders
   ON payments.id = orders.payment_id
 INNER JOIN payment_statuses
-  ON payments.payment_status_id = payment_statuses.id
+  ON payments.status_id = payment_statuses.id
 INNER JOIN payment_methods
-  ON payments.payment_method_id = payment_methods.id
+  ON payments.method_id = payment_methods.id
 INNER JOIN payment_providers
-  ON payments.payment_provider_id = payment_providers.id
+  ON payments.provider_id = payment_providers.id
 WHERE
   orders.id = @order_id;
 
@@ -42,15 +42,15 @@ WHERE
 WITH payments AS (
   INSERT INTO payments (
     amount,
-    payment_method_id,
-    payment_status_id,
-    payment_provider_id
+    method_id,
+    status_id,
+    provider_id
   )
   VALUES (
     @amount,
-    @payment_method_id,
-    @payment_status_id,
-    @payment_provider_id
+    @method_id,
+    @status_id,
+    @provider_id
   )
   RETURNING
     *
@@ -62,17 +62,17 @@ SELECT
   sqlc.embed(payment_providers)
 FROM payments
 INNER JOIN payment_statuses
-  ON payments.payment_status_id = payment_statuses.id
+  ON payments.status_id = payment_statuses.id
 INNER JOIN payment_methods
-  ON payments.payment_method_id = payment_methods.id
+  ON payments.method_id = payment_methods.id
 INNER JOIN payment_providers
-  ON payments.payment_provider_id = payment_providers.id;
+  ON payments.provider_id = payment_providers.id;
 
 -- name: UpdatePaymentStatus :one
 WITH payments AS (
   UPDATE payments
   SET
-    payment_status_id = @payment_status_id,
+    status_id = @status_id,
     updated_at = NOW()
   WHERE
     payments.id = @id -- # HACK: Wtf sqlc?
@@ -86,8 +86,8 @@ SELECT
   sqlc.embed(payment_providers)
 FROM payments
 INNER JOIN payment_statuses
-  ON payments.payment_status_id = payment_statuses.id
+  ON payments.status_id = payment_statuses.id
 INNER JOIN payment_methods
-  ON payments.payment_method_id = payment_methods.id
+  ON payments.method_id = payment_methods.id
 INNER JOIN payment_providers
-  ON payments.payment_provider_id = payment_providers.id;
+  ON payments.provider_id = payment_providers.id;

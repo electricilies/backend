@@ -60,12 +60,12 @@ type OptionValuesProductVariant struct {
 }
 
 type Order struct {
-	ID            int32
-	CreatedAt     pgtype.Timestamp
-	UpdatedAt     pgtype.Timestamp
-	userID        uuid.UUID
-	OrderStatusID int32
-	PaymentID     int32
+	ID        int32
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+	userID    uuid.UUID
+	StatusID  int32
+	PaymentID int32
 }
 
 type OrderItem struct {
@@ -82,12 +82,12 @@ type OrderStatus struct {
 }
 
 type Payment struct {
-	ID                int32
-	Amount            pgtype.Numeric
-	UpdatedAt         pgtype.Timestamp
-	PaymentMethodID   int32
-	PaymentStatusID   int32
-	PaymentProviderID int32
+	ID         int32
+	Amount     pgtype.Numeric
+	UpdatedAt  pgtype.Timestamp
+	MethodID   int32
+	StatusID   int32
+	ProviderID int32
 }
 
 type PaymentMethod struct {

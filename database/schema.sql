@@ -157,9 +157,9 @@ CREATE TABLE payments (
   id SERIAL PRIMARY KEY,
   amount DECIMAL NOT NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  payment_method_id INTEGER NOT NULL REFERENCES payment_methods (id) ON UPDATE CASCADE,
-  payment_status_id INTEGER NOT NULL REFERENCES payment_statuses (id) ON UPDATE CASCADE,
-  payment_provider_id INTEGER NOT NULL REFERENCES payment_providers (id) ON UPDATE CASCADE
+  method_id INTEGER NOT NULL REFERENCES payment_methods (id) ON UPDATE CASCADE,
+  status_id INTEGER NOT NULL REFERENCES payment_statuses (id) ON UPDATE CASCADE,
+  provider_id INTEGER NOT NULL REFERENCES payment_providers (id) ON UPDATE CASCADE
 );
 
 -- orders
@@ -168,7 +168,7 @@ CREATE TABLE orders (
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-  order_status_id INTEGER NOT NULL REFERENCES order_statuses (id) ON UPDATE CASCADE,
+  status_id INTEGER NOT NULL REFERENCES order_statuses (id) ON UPDATE CASCADE,
   payment_id INTEGER NOT NULL REFERENCES payments (id) ON UPDATE CASCADE
 );
 

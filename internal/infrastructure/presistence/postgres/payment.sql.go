@@ -15,9 +15,9 @@ const createPayment = `-- name: CreatePayment :one
 WITH payments AS (
   INSERT INTO payments (
     amount,
-    payment_method_id,
-    payment_status_id,
-    payment_provider_id
+    method_id,
+    status_id,
+    provider_id
   )
   VALUES (
     $1,
@@ -26,27 +26,27 @@ WITH payments AS (
     $4
   )
   RETURNING
-    id, amount, updated_at, payment_method_id, payment_status_id, payment_provider_id
+    id, amount, updated_at, method_id, status_id, provider_id
 )
 SELECT
-  payments.id, payments.amount, payments.updated_at, payments.payment_method_id, payments.payment_status_id, payments.payment_provider_id,
+  payments.id, payments.amount, payments.updated_at, payments.method_id, payments.status_id, payments.provider_id,
   payment_statuses.id, payment_statuses.name,
   payment_methods.id, payment_methods.name,
   payment_providers.id, payment_providers.name
 FROM payments
 INNER JOIN payment_statuses
-  ON payments.payment_status_id = payment_statuses.id
+  ON payments.status_id = payment_statuses.id
 INNER JOIN payment_methods
-  ON payments.payment_method_id = payment_methods.id
+  ON payments.method_id = payment_methods.id
 INNER JOIN payment_providers
-  ON payments.payment_provider_id = payment_providers.id
+  ON payments.provider_id = payment_providers.id
 `
 
 type CreatePaymentParams struct {
-	Amount            pgtype.Numeric
-	PaymentMethodID   int32
-	PaymentStatusID   int32
-	PaymentProviderID int32
+	Amount     pgtype.Numeric
+	MethodID   int32
+	StatusID   int32
+	ProviderID int32
 }
 
 type CreatePaymentRow struct {
@@ -59,18 +59,18 @@ type CreatePaymentRow struct {
 func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) (CreatePaymentRow, error) {
 	row := q.db.QueryRow(ctx, createPayment,
 		arg.Amount,
-		arg.PaymentMethodID,
-		arg.PaymentStatusID,
-		arg.PaymentProviderID,
+		arg.MethodID,
+		arg.StatusID,
+		arg.ProviderID,
 	)
 	var i CreatePaymentRow
 	err := row.Scan(
 		&i.Payment.ID,
 		&i.Payment.Amount,
 		&i.Payment.UpdatedAt,
-		&i.Payment.PaymentMethodID,
-		&i.Payment.PaymentStatusID,
-		&i.Payment.PaymentProviderID,
+		&i.Payment.MethodID,
+		&i.Payment.StatusID,
+		&i.Payment.ProviderID,
 		&i.PaymentStatus.ID,
 		&i.PaymentStatus.Name,
 		&i.PaymentMethod.ID,
@@ -83,7 +83,7 @@ func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) (C
 
 const getPaymentByOrderID = `-- name: GetPaymentByOrderID :one
 SELECT
-  payments.id, payments.amount, payments.updated_at, payments.payment_method_id, payments.payment_status_id, payments.payment_provider_id,
+  payments.id, payments.amount, payments.updated_at, payments.method_id, payments.status_id, payments.provider_id,
   payment_statuses.id, payment_statuses.name,
   payment_methods.id, payment_methods.name,
   payment_providers.id, payment_providers.name
@@ -92,11 +92,11 @@ FROM
 INNER JOIN orders
   ON payments.id = orders.payment_id
 INNER JOIN payment_statuses
-  ON payments.payment_status_id = payment_statuses.id
+  ON payments.status_id = payment_statuses.id
 INNER JOIN payment_methods
-  ON payments.payment_method_id = payment_methods.id
+  ON payments.method_id = payment_methods.id
 INNER JOIN payment_providers
-  ON payments.payment_provider_id = payment_providers.id
+  ON payments.provider_id = payment_providers.id
 WHERE
   orders.id = $1
 `
@@ -119,9 +119,9 @@ func (q *Queries) GetPaymentByOrderID(ctx context.Context, arg GetPaymentByOrder
 		&i.Payment.ID,
 		&i.Payment.Amount,
 		&i.Payment.UpdatedAt,
-		&i.Payment.PaymentMethodID,
-		&i.Payment.PaymentStatusID,
-		&i.Payment.PaymentProviderID,
+		&i.Payment.MethodID,
+		&i.Payment.StatusID,
+		&i.Payment.ProviderID,
 		&i.PaymentStatus.ID,
 		&i.PaymentStatus.Name,
 		&i.PaymentMethod.ID,
@@ -134,7 +134,7 @@ func (q *Queries) GetPaymentByOrderID(ctx context.Context, arg GetPaymentByOrder
 
 const getPayments = `-- name: GetPayments :many
 SELECT
-  payments.id, payments.amount, payments.updated_at, payments.payment_method_id, payments.payment_status_id, payments.payment_provider_id,
+  payments.id, payments.amount, payments.updated_at, payments.method_id, payments.status_id, payments.provider_id,
   payment_statuses.id, payment_statuses.name,
   payment_methods.id, payment_methods.name,
   payment_providers.id, payment_providers.name,
@@ -143,13 +143,13 @@ SELECT
 FROM
   payments
 INNER JOIN payment_statuses
-  ON payments.payment_status_id = payment_statuses.id
+  ON payments.status_id = payment_statuses.id
 INNER JOIN payment_methods
-  ON payments.payment_method_id = payment_methods.id
+  ON payments.method_id = payment_methods.id
 INNER JOIN payment_providers
-  ON payments.payment_provider_id = payment_providers.id
+  ON payments.provider_id = payment_providers.id
 ORDER BY
-  payments.id DESC -- FIXME: Or?? Updated at?
+  payments.id DESC
 OFFSET COALESCE($1::integer, 0)
 LIMIT COALESCE($2::integer, 20)
 `
@@ -181,9 +181,9 @@ func (q *Queries) GetPayments(ctx context.Context, arg GetPaymentsParams) ([]Get
 			&i.Payment.ID,
 			&i.Payment.Amount,
 			&i.Payment.UpdatedAt,
-			&i.Payment.PaymentMethodID,
-			&i.Payment.PaymentStatusID,
-			&i.Payment.PaymentProviderID,
+			&i.Payment.MethodID,
+			&i.Payment.StatusID,
+			&i.Payment.ProviderID,
 			&i.PaymentStatus.ID,
 			&i.PaymentStatus.Name,
 			&i.PaymentMethod.ID,
@@ -207,30 +207,30 @@ const updatePaymentStatus = `-- name: UpdatePaymentStatus :one
 WITH payments AS (
   UPDATE payments
   SET
-    payment_status_id = $1,
+    status_id = $1,
     updated_at = NOW()
   WHERE
     payments.id = $2 -- # HACK: Wtf sqlc?
   RETURNING
-    id, amount, updated_at, payment_method_id, payment_status_id, payment_provider_id
+    id, amount, updated_at, method_id, status_id, provider_id
 )
 SELECT
-  payments.id, payments.amount, payments.updated_at, payments.payment_method_id, payments.payment_status_id, payments.payment_provider_id,
+  payments.id, payments.amount, payments.updated_at, payments.method_id, payments.status_id, payments.provider_id,
   payment_statuses.id, payment_statuses.name,
   payment_methods.id, payment_methods.name,
   payment_providers.id, payment_providers.name
 FROM payments
 INNER JOIN payment_statuses
-  ON payments.payment_status_id = payment_statuses.id
+  ON payments.status_id = payment_statuses.id
 INNER JOIN payment_methods
-  ON payments.payment_method_id = payment_methods.id
+  ON payments.method_id = payment_methods.id
 INNER JOIN payment_providers
-  ON payments.payment_provider_id = payment_providers.id
+  ON payments.provider_id = payment_providers.id
 `
 
 type UpdatePaymentStatusParams struct {
-	PaymentStatusID int32
-	ID              int32
+	StatusID int32
+	ID       int32
 }
 
 type UpdatePaymentStatusRow struct {
@@ -241,15 +241,15 @@ type UpdatePaymentStatusRow struct {
 }
 
 func (q *Queries) UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) (UpdatePaymentStatusRow, error) {
-	row := q.db.QueryRow(ctx, updatePaymentStatus, arg.PaymentStatusID, arg.ID)
+	row := q.db.QueryRow(ctx, updatePaymentStatus, arg.StatusID, arg.ID)
 	var i UpdatePaymentStatusRow
 	err := row.Scan(
 		&i.Payment.ID,
 		&i.Payment.Amount,
 		&i.Payment.UpdatedAt,
-		&i.Payment.PaymentMethodID,
-		&i.Payment.PaymentStatusID,
-		&i.Payment.PaymentProviderID,
+		&i.Payment.MethodID,
+		&i.Payment.StatusID,
+		&i.Payment.ProviderID,
 		&i.PaymentStatus.ID,
 		&i.PaymentStatus.Name,
 		&i.PaymentMethod.ID,

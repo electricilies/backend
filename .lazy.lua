@@ -1,5 +1,6 @@
 local basename = vim.fs.basename
 local env = vim.env
+local g = vim.g
 local nc_available = vim.fn.executable("nc")
 local psql_available = vim.fn.executable("psql")
 
@@ -77,11 +78,14 @@ return {
           },
           condition = function(_, ctx)
             local filename = ctx.filename
-            return filename:match("internal/interface/api/handler") ~= nil
-              or filename:match("internal/interface/api/mapper") ~= nil
-              or filename:match("internal/interface/api/request") ~= nil
-              or filename:match("internal/interface/api/response") ~= nil
-              or filename:match("cmd") ~= nil
+            return not g.dev_no_gen
+              and (
+                filename:match("internal/interface/api/handler") ~= nil
+                or filename:match("internal/interface/api/mapper") ~= nil
+                or filename:match("internal/interface/api/request") ~= nil
+                or filename:match("internal/interface/api/response") ~= nil
+                or filename:match("cmd") ~= nil
+              )
           end,
           stdin = false,
         },
@@ -92,7 +96,7 @@ return {
             "$DIRNAME",
           },
           condition = function(_, ctx)
-            return basename(ctx.filename):match(".*%.wire.go") ~= nil
+            return not g.dev_no_gen and basename(ctx.filename):match(".*%.wire.go") ~= nil
           end,
           stdin = false,
         },
@@ -103,9 +107,12 @@ return {
           },
           condition = function(_, ctx)
             local filename = ctx.filename
-            return filename:match("database/.*schema%.sql") ~= nil
-              or filename:match("database/queries/.*%.sql") ~= nil
-              or filename:match("sqlc.yaml") ~= nil
+            return not g.dev_no_gen
+              and (
+                filename:match("database/.*schema%.sql") ~= nil
+                or filename:match("database/queries/.*%.sql") ~= nil
+                or filename:match("sqlc.yaml") ~= nil
+              )
           end,
         },
         atlas = {
@@ -118,7 +125,7 @@ return {
           },
           stdin = false,
           condition = function(_, ctx)
-            if not _IsDbUp() then
+            if not _IsDbUp() or g.dev_no_gen then
               return false
             end
             local filename = ctx.filename

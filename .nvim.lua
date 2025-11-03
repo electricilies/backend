@@ -1,5 +1,11 @@
 local map = vim.keymap.set
 local lsp = vim.lsp
+local g = vim.g
+
+map("n", "<localleader>g", function()
+  g.dev_no_gen = not g.dev_no_gen
+  vim.notify("Dev Gen is " .. (g.dev_no_gen and "Disabled" or "Enabled"))
+end, { desc = "General | Toggle Dev Gen", silent = true })
 
 lsp.config("gopls", {
   settings = {
