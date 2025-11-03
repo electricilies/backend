@@ -9,7 +9,10 @@ atlas = "0.37.0"
   "linux",
   "darwin",
 ] }
-"go:github.com/sqlc-dev/sqlc/cmd/sqlc" = "1.30.0"
+"go:github.com/sqlc-dev/sqlc/cmd/sqlc" = { version = "1.30.0", os = [
+  "linux",
+  "darwin",
+] }
 gofumpt = "0.9.1"
 golangci-lint = "2.5.0"
 just = "latest"
