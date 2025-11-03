@@ -21,7 +21,7 @@ VALUES (
   $2
 )
 RETURNING
-  id, code, name
+  id, code, name, deleted_at
 `
 
 type CreateAttributeParams struct {
@@ -32,7 +32,12 @@ type CreateAttributeParams struct {
 func (q *Queries) CreateAttribute(ctx context.Context, arg CreateAttributeParams) (Attribute, error) {
 	row := q.db.QueryRow(ctx, createAttribute, arg.Code, arg.Name)
 	var i Attribute
-	err := row.Scan(&i.ID, &i.Code, &i.Name)
+	err := row.Scan(
+		&i.ID,
+		&i.Code,
+		&i.Name,
+		&i.DeletedAt,
+	)
 	return i, err
 }
 
@@ -94,7 +99,7 @@ func (q *Queries) DeleteAttribute(ctx context.Context, arg DeleteAttributeParams
 
 const getAllAttributes = `-- name: GetAllAttributes :many
 SELECT
-  id, code, name
+  id, code, name, deleted_at
 FROM
   attributes
 ORDER BY
@@ -117,7 +122,12 @@ func (q *Queries) GetAllAttributes(ctx context.Context, arg GetAllAttributesPara
 	var items []Attribute
 	for rows.Next() {
 		var i Attribute
-		if err := rows.Scan(&i.ID, &i.Code, &i.Name); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Code,
+			&i.Name,
+			&i.DeletedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -130,7 +140,7 @@ func (q *Queries) GetAllAttributes(ctx context.Context, arg GetAllAttributesPara
 
 const getAttributeByID = `-- name: GetAttributeByID :one
 SELECT
-  id, code, name
+  id, code, name, deleted_at
 FROM
   attributes
 WHERE
@@ -144,7 +154,12 @@ type GetAttributeByIDParams struct {
 func (q *Queries) GetAttributeByID(ctx context.Context, arg GetAttributeByIDParams) (Attribute, error) {
 	row := q.db.QueryRow(ctx, getAttributeByID, arg.ID)
 	var i Attribute
-	err := row.Scan(&i.ID, &i.Code, &i.Name)
+	err := row.Scan(
+		&i.ID,
+		&i.Code,
+		&i.Name,
+		&i.DeletedAt,
+	)
 	return i, err
 }
 
@@ -157,7 +172,7 @@ SET
 WHERE
   id = $3
 RETURNING
-  id, code, name
+  id, code, name, deleted_at
 `
 
 type UpdateAttributeParams struct {
@@ -169,6 +184,11 @@ type UpdateAttributeParams struct {
 func (q *Queries) UpdateAttribute(ctx context.Context, arg UpdateAttributeParams) (Attribute, error) {
 	row := q.db.QueryRow(ctx, updateAttribute, arg.Code, arg.Name, arg.ID)
 	var i Attribute
-	err := row.Scan(&i.ID, &i.Code, &i.Name)
+	err := row.Scan(
+		&i.ID,
+		&i.Code,
+		&i.Name,
+		&i.DeletedAt,
+	)
 	return i, err
 }

@@ -17,7 +17,7 @@ VALUES (
   $1
 )
 RETURNING
-  id, name, product_id
+  id, name, product_id, deleted_at
 `
 
 type CreateOptionParams struct {
@@ -27,7 +27,12 @@ type CreateOptionParams struct {
 func (q *Queries) CreateOption(ctx context.Context, arg CreateOptionParams) (Option, error) {
 	row := q.db.QueryRow(ctx, createOption, arg.Name)
 	var i Option
-	err := row.Scan(&i.ID, &i.Name, &i.ProductID)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.ProductID,
+		&i.DeletedAt,
+	)
 	return i, err
 }
 
@@ -70,7 +75,7 @@ func (q *Queries) CreateOptionValues(ctx context.Context, arg CreateOptionValues
 
 const getAllOptions = `-- name: GetAllOptions :many
 SELECT
-  options.id, options.name, options.product_id,
+  options.id, options.name, options.product_id, options.deleted_at,
   option_values.id, option_values.value, option_values.option_id
 FROM
   options,
@@ -97,6 +102,7 @@ func (q *Queries) GetAllOptions(ctx context.Context) ([]GetAllOptionsRow, error)
 			&i.Option.ID,
 			&i.Option.Name,
 			&i.Option.ProductID,
+			&i.Option.DeletedAt,
 			&i.OptionValue.ID,
 			&i.OptionValue.Value,
 			&i.OptionValue.OptionID,
@@ -113,7 +119,7 @@ func (q *Queries) GetAllOptions(ctx context.Context) ([]GetAllOptionsRow, error)
 
 const getOptionByID = `-- name: GetOptionByID :one
 SELECT
-  options.id, options.name, options.product_id,
+  options.id, options.name, options.product_id, options.deleted_at,
   option_values.id, option_values.value, option_values.option_id
 FROM
   options,
@@ -139,6 +145,7 @@ func (q *Queries) GetOptionByID(ctx context.Context, arg GetOptionByIDParams) (G
 		&i.Option.ID,
 		&i.Option.Name,
 		&i.Option.ProductID,
+		&i.Option.DeletedAt,
 		&i.OptionValue.ID,
 		&i.OptionValue.Value,
 		&i.OptionValue.OptionID,

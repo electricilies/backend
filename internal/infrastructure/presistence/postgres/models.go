@@ -10,9 +10,10 @@ import (
 )
 
 type Attribute struct {
-	ID   int32
-	Code string
-	Name string
+	ID        int32
+	Code      string
+	Name      string
+	DeletedAt pgtype.Timestamp
 }
 
 type AttributeValue struct {
@@ -45,6 +46,7 @@ type Option struct {
 	ID        int32
 	Name      string
 	ProductID int32
+	DeletedAt pgtype.Timestamp
 }
 
 type OptionValue struct {

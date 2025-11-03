@@ -28,7 +28,8 @@ CREATE TABLE products (
 CREATE TABLE attributes (
   id SERIAL PRIMARY KEY,
   code VARCHAR(100) UNIQUE NOT NULL,
-  name TEXT NOT NULL
+  name TEXT NOT NULL,
+  deleted_at TIMESTAMP
 );
 
 -- attribute_values
@@ -91,7 +92,8 @@ CREATE TABLE products_categories (
 CREATE TABLE options (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
-  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE
+  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
+  deleted_at TIMESTAMP
 );
 
 -- option_values
