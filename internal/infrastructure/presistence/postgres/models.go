@@ -133,6 +133,7 @@ type ProductVariant struct {
 	PurchaseCount int32
 	ProductID     int32
 	CreatedAt     pgtype.Timestamp
+	UpdatedAt     pgtype.Timestamp
 	DeletedAt     pgtype.Timestamp
 }
 

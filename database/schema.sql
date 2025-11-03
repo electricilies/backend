@@ -56,6 +56,7 @@ CREATE TABLE product_variants (
   purchase_count INTEGER NOT NULL DEFAULT 0,
   product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP
 );
 
