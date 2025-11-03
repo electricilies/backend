@@ -95,21 +95,58 @@ func (q *Queries) CreateProductVariants(ctx context.Context, arg CreateProductVa
 	)
 }
 
+const deleteProducts = `-- name: DeleteProducts :execrows
+
+UPDATE
+  products
+SET
+  deleted_at = NOW()
+WHERE
+  deleted_at IS NULL
+  AND id = ANY($1::integer[])
+`
+
+type DeleteProductsParams struct {
+	Ids []int32
+}
+
+// naee: UpdateProductImages :execrows
+// TODO: Will we implement this?
+func (q *Queries) DeleteProducts(ctx context.Context, arg DeleteProductsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteProducts, arg.Ids)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const getAllProducts = `-- name: GetAllProducts :many
 SELECT
-  product_variants.id, sku, price, quantity, purchase_count, product_variants.product_id, product_variants.created_at, product_variants.deleted_at, product_images.id, url, product_images.created_at, "order", product_images.product_id, product_images.product_variant_id, products_attribute_values.product_id, attribute_value_id, attribute_values.id, attribute_id, attribute_values.value, attributes.id, code, attributes.name, option_values_product_variants.product_variant_id, option_value_id, option_values.id, option_values.value, option_id, options.id, options.name, options.product_id, products_categories.product_id, category_id, categories.id, categories.name, categories.created_at, categories.deleted_at
+  products.id, products.name, products.description, products.views_count, products.total_purchase, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
+  product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.deleted_at, product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.deleted_at,
+  product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_id, product_images.product_variant_id, product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_id, product_images.product_variant_id,
+  products_attribute_values.product_id, products_attribute_values.attribute_value_id, products_attribute_values.product_id, products_attribute_values.attribute_value_id,
+  attribute_values.id, attribute_values.attribute_id, attribute_values.value, attribute_values.id, attribute_values.attribute_id, attribute_values.value,
+  attributes.id, attributes.code, attributes.name, attributes.id, attributes.code, attributes.name,
+  option_values_product_variants.product_variant_id, option_values_product_variants.option_value_id, option_values_product_variants.product_variant_id, option_values_product_variants.option_value_id,
+  option_values.id, option_values.value, option_values.option_id, option_values.id, option_values.value, option_values.option_id,
+  options.id, options.name, options.product_id, options.id, options.name, options.product_id,
+  categories.id, categories.name, categories.created_at, categories.deleted_at, categories.id, categories.name, categories.created_at, categories.deleted_at,
+  products_categories.product_id, products_categories.category_id, products_categories.product_id, products_categories.category_id,
+  COUNT(*) OVER() AS current_count,
+  COUNT(*) AS total_count
 FROM
-  sqlc.embed(products),
-  sqlc.embed(product_variants),
-  sqlc.embed(product_images),
-  sqlc.embed(products_attribute_values),
-  sqlc.embed(attribute_values),
-  sqlc.embed(attributes),
-  sqlc.embed(option_values_product_variants),
-  sqlc.embed(option_values),
-  sqlc.embed(options),
-  sqlc.embed(categories),
-  sqlc.embed(products_categories)
+  products,
+  product_variants,
+  product_images,
+  products_attribute_values,
+  attribute_values,
+  attributes,
+  option_values_product_variants,
+  option_values,
+  options,
+  categories,
+  products_categories
 INNER JOIN product_variants
   ON products.id = product_variants.product_id
 INNER JOIN product_images
@@ -132,56 +169,51 @@ INNER JOIN categories
   ON products_categories.category_id = categories.id
 WHERE
   products.deleted_at IS NULL
-OFFSET COALESCE($1::integer, 0)
-LIMIT COALESCE($2::integer, 20)
+  AND categories.deleted_at IS NULL
+  AND (
+    $1::integer IS NULL
+    OR categories.id = $1::integer
+  )
+  AND (
+    $2::text IS NULL
+    OR products.name ||| $2::pdb.fuzzy(products.trending_score) -- TODO: Have to check does paradedb support this
+    OR categories.name ||| $2::pdb.fuzzy(2)
+  )
+  -- TODO: Do we support rating?
+OFFSET COALESCE($3::integer, 0)
+LIMIT COALESCE($4::integer, 20)
 `
 
 type GetAllProductsParams struct {
-	Offset pgtype.Int4
-	Limit  pgtype.Int4
+	CategoryID pgtype.Int4
+	Search     pgtype.Text
+	Offset     pgtype.Int4
+	Limit      pgtype.Int4
 }
 
 type GetAllProductsRow struct {
-	ID                 int32
-	SKU                string
-	Price              pgtype.Numeric
-	Quantity           int32
-	PurchaseCount      int32
-	ProductID          int32
-	CreatedAt          pgtype.Timestamp
-	DeletedAt          pgtype.Timestamp
-	ID_2               int32
-	URL                string
-	CreatedAt_2        pgtype.Timestamp
-	Order              int32
-	ProductID_2        int32
-	ProductVariantID   pgtype.Int4
-	ProductID_3        int32
-	AttributeValueID   int32
-	ID_3               int32
-	AttributeID        int32
-	Value              string
-	ID_4               int32
-	Code               string
-	Name               string
-	ProductVariantID_2 int32
-	OptionValueID      int32
-	ID_5               int32
-	Value_2            string
-	OptionID           int32
-	ID_6               int32
-	Name_2             string
-	ProductID_4        int32
-	ProductID_5        int32
-	CategoryID         int32
-	ID_7               int32
-	Name_3             string
-	CreatedAt_3        pgtype.Timestamp
-	DeletedAt_2        pgtype.Timestamp
+	Product                    Product
+	ProductVariant             ProductVariant
+	ProductImage               ProductImage
+	ProductsAttributeValue     ProductsAttributeValue
+	AttributeValue             AttributeValue
+	Attribute                  Attribute
+	OptionValuesProductVariant OptionValuesProductVariant
+	OptionValue                OptionValue
+	Option                     Option
+	Category                   Category
+	ProductsCategory           ProductsCategory
+	CurrentCount               int64
+	TotalCount                 int64
 }
 
 func (q *Queries) GetAllProducts(ctx context.Context, arg GetAllProductsParams) ([]GetAllProductsRow, error) {
-	rows, err := q.db.Query(ctx, getAllProducts, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, getAllProducts,
+		arg.CategoryID,
+		arg.Search,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -190,42 +222,53 @@ func (q *Queries) GetAllProducts(ctx context.Context, arg GetAllProductsParams) 
 	for rows.Next() {
 		var i GetAllProductsRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.SKU,
-			&i.Price,
-			&i.Quantity,
-			&i.PurchaseCount,
-			&i.ProductID,
-			&i.CreatedAt,
-			&i.DeletedAt,
-			&i.ID_2,
-			&i.URL,
-			&i.CreatedAt_2,
-			&i.Order,
-			&i.ProductID_2,
-			&i.ProductVariantID,
-			&i.ProductID_3,
-			&i.AttributeValueID,
-			&i.ID_3,
-			&i.AttributeID,
-			&i.Value,
-			&i.ID_4,
-			&i.Code,
-			&i.Name,
-			&i.ProductVariantID_2,
-			&i.OptionValueID,
-			&i.ID_5,
-			&i.Value_2,
-			&i.OptionID,
-			&i.ID_6,
-			&i.Name_2,
-			&i.ProductID_4,
-			&i.ProductID_5,
-			&i.CategoryID,
-			&i.ID_7,
-			&i.Name_3,
-			&i.CreatedAt_3,
-			&i.DeletedAt_2,
+			&i.Product.ID,
+			&i.Product.Name,
+			&i.Product.Description,
+			&i.Product.ViewsCount,
+			&i.Product.TotalPurchase,
+			&i.Product.TrendingScore,
+			&i.Product.CreatedAt,
+			&i.Product.UpdatedAt,
+			&i.Product.DeletedAt,
+			&i.ProductVariant.ID,
+			&i.ProductVariant.SKU,
+			&i.ProductVariant.Price,
+			&i.ProductVariant.Quantity,
+			&i.ProductVariant.PurchaseCount,
+			&i.ProductVariant.ProductID,
+			&i.ProductVariant.CreatedAt,
+			&i.ProductVariant.DeletedAt,
+			&i.ProductImage.ID,
+			&i.ProductImage.URL,
+			&i.ProductImage.CreatedAt,
+			&i.ProductImage.Order,
+			&i.ProductImage.ProductID,
+			&i.ProductImage.ProductVariantID,
+			&i.ProductsAttributeValue.ProductID,
+			&i.ProductsAttributeValue.AttributeValueID,
+			&i.AttributeValue.ID,
+			&i.AttributeValue.AttributeID,
+			&i.AttributeValue.Value,
+			&i.Attribute.ID,
+			&i.Attribute.Code,
+			&i.Attribute.Name,
+			&i.OptionValuesProductVariant.ProductVariantID,
+			&i.OptionValuesProductVariant.OptionValueID,
+			&i.OptionValue.ID,
+			&i.OptionValue.Value,
+			&i.OptionValue.OptionID,
+			&i.Option.ID,
+			&i.Option.Name,
+			&i.Option.ProductID,
+			&i.Category.ID,
+			&i.Category.Name,
+			&i.Category.CreatedAt,
+			&i.Category.DeletedAt,
+			&i.ProductsCategory.ProductID,
+			&i.ProductsCategory.CategoryID,
+			&i.CurrentCount,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -239,19 +282,29 @@ func (q *Queries) GetAllProducts(ctx context.Context, arg GetAllProductsParams) 
 
 const getProductByID = `-- name: GetProductByID :one
 SELECT
-  product_variants.id, sku, price, quantity, purchase_count, product_variants.product_id, product_variants.created_at, product_variants.deleted_at, product_images.id, url, product_images.created_at, "order", product_images.product_id, product_images.product_variant_id, products_attribute_values.product_id, attribute_value_id, attribute_values.id, attribute_id, attribute_values.value, attributes.id, code, attributes.name, option_values_product_variants.product_variant_id, option_value_id, option_values.id, option_values.value, option_id, options.id, options.name, options.product_id, products_categories.product_id, category_id, categories.id, categories.name, categories.created_at, categories.deleted_at
+  products.id, products.name, products.description, products.views_count, products.total_purchase, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
+  product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.deleted_at, product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.deleted_at,
+  product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_id, product_images.product_variant_id, product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_id, product_images.product_variant_id,
+  products_attribute_values.product_id, products_attribute_values.attribute_value_id, products_attribute_values.product_id, products_attribute_values.attribute_value_id,
+  attribute_values.id, attribute_values.attribute_id, attribute_values.value, attribute_values.id, attribute_values.attribute_id, attribute_values.value,
+  attributes.id, attributes.code, attributes.name, attributes.id, attributes.code, attributes.name,
+  option_values_product_variants.product_variant_id, option_values_product_variants.option_value_id, option_values_product_variants.product_variant_id, option_values_product_variants.option_value_id,
+  option_values.id, option_values.value, option_values.option_id, option_values.id, option_values.value, option_values.option_id,
+  options.id, options.name, options.product_id, options.id, options.name, options.product_id,
+  categories.id, categories.name, categories.created_at, categories.deleted_at, categories.id, categories.name, categories.created_at, categories.deleted_at,
+  products_categories.product_id, products_categories.category_id, products_categories.product_id, products_categories.category_id
 FROM
-  sqlc.embed(products),
-  sqlc.embed(product_variants),
-  sqlc.embed(product_images),
-  sqlc.embed(products_attribute_values),
-  sqlc.embed(attribute_values),
-  sqlc.embed(attributes),
-  sqlc.embed(option_values_product_variants),
-  sqlc.embed(option_values),
-  sqlc.embed(options),
-  sqlc.embed(categories),
-  sqlc.embed(products_categories)
+  products,
+  product_variants,
+  product_images,
+  products_attribute_values,
+  attribute_values,
+  attributes,
+  option_values_product_variants,
+  option_values,
+  options,
+  categories,
+  products_categories
 INNER JOIN product_variants
   ON products.id = product_variants.product_id
 INNER JOIN product_images
@@ -282,86 +335,122 @@ type GetProductByIDParams struct {
 }
 
 type GetProductByIDRow struct {
-	ID                 int32
-	SKU                string
-	Price              pgtype.Numeric
-	Quantity           int32
-	PurchaseCount      int32
-	ProductID          int32
-	CreatedAt          pgtype.Timestamp
-	DeletedAt          pgtype.Timestamp
-	ID_2               int32
-	URL                string
-	CreatedAt_2        pgtype.Timestamp
-	Order              int32
-	ProductID_2        int32
-	ProductVariantID   pgtype.Int4
-	ProductID_3        int32
-	AttributeValueID   int32
-	ID_3               int32
-	AttributeID        int32
-	Value              string
-	ID_4               int32
-	Code               string
-	Name               string
-	ProductVariantID_2 int32
-	OptionValueID      int32
-	ID_5               int32
-	Value_2            string
-	OptionID           int32
-	ID_6               int32
-	Name_2             string
-	ProductID_4        int32
-	ProductID_5        int32
-	CategoryID         int32
-	ID_7               int32
-	Name_3             string
-	CreatedAt_3        pgtype.Timestamp
-	DeletedAt_2        pgtype.Timestamp
+	Product                    Product
+	ProductVariant             ProductVariant
+	ProductImage               ProductImage
+	ProductsAttributeValue     ProductsAttributeValue
+	AttributeValue             AttributeValue
+	Attribute                  Attribute
+	OptionValuesProductVariant OptionValuesProductVariant
+	OptionValue                OptionValue
+	Option                     Option
+	Category                   Category
+	ProductsCategory           ProductsCategory
 }
 
 func (q *Queries) GetProductByID(ctx context.Context, arg GetProductByIDParams) (GetProductByIDRow, error) {
 	row := q.db.QueryRow(ctx, getProductByID, arg.ID)
 	var i GetProductByIDRow
 	err := row.Scan(
-		&i.ID,
-		&i.SKU,
-		&i.Price,
-		&i.Quantity,
-		&i.PurchaseCount,
-		&i.ProductID,
-		&i.CreatedAt,
-		&i.DeletedAt,
-		&i.ID_2,
-		&i.URL,
-		&i.CreatedAt_2,
-		&i.Order,
-		&i.ProductID_2,
-		&i.ProductVariantID,
-		&i.ProductID_3,
-		&i.AttributeValueID,
-		&i.ID_3,
-		&i.AttributeID,
-		&i.Value,
-		&i.ID_4,
-		&i.Code,
-		&i.Name,
-		&i.ProductVariantID_2,
-		&i.OptionValueID,
-		&i.ID_5,
-		&i.Value_2,
-		&i.OptionID,
-		&i.ID_6,
-		&i.Name_2,
-		&i.ProductID_4,
-		&i.ProductID_5,
-		&i.CategoryID,
-		&i.ID_7,
-		&i.Name_3,
-		&i.CreatedAt_3,
-		&i.DeletedAt_2,
+		&i.Product.ID,
+		&i.Product.Name,
+		&i.Product.Description,
+		&i.Product.ViewsCount,
+		&i.Product.TotalPurchase,
+		&i.Product.TrendingScore,
+		&i.Product.CreatedAt,
+		&i.Product.UpdatedAt,
+		&i.Product.DeletedAt,
+		&i.ProductVariant.ID,
+		&i.ProductVariant.SKU,
+		&i.ProductVariant.Price,
+		&i.ProductVariant.Quantity,
+		&i.ProductVariant.PurchaseCount,
+		&i.ProductVariant.ProductID,
+		&i.ProductVariant.CreatedAt,
+		&i.ProductVariant.DeletedAt,
+		&i.ProductImage.ID,
+		&i.ProductImage.URL,
+		&i.ProductImage.CreatedAt,
+		&i.ProductImage.Order,
+		&i.ProductImage.ProductID,
+		&i.ProductImage.ProductVariantID,
+		&i.ProductsAttributeValue.ProductID,
+		&i.ProductsAttributeValue.AttributeValueID,
+		&i.AttributeValue.ID,
+		&i.AttributeValue.AttributeID,
+		&i.AttributeValue.Value,
+		&i.Attribute.ID,
+		&i.Attribute.Code,
+		&i.Attribute.Name,
+		&i.OptionValuesProductVariant.ProductVariantID,
+		&i.OptionValuesProductVariant.OptionValueID,
+		&i.OptionValue.ID,
+		&i.OptionValue.Value,
+		&i.OptionValue.OptionID,
+		&i.Option.ID,
+		&i.Option.Name,
+		&i.Option.ProductID,
+		&i.Category.ID,
+		&i.Category.Name,
+		&i.Category.CreatedAt,
+		&i.Category.DeletedAt,
+		&i.ProductsCategory.ProductID,
+		&i.ProductsCategory.CategoryID,
 	)
 	return i, err
+}
+
+const getSuggestedProducts = `-- name: GetSuggestedProducts :many
+
+UPDATE
+  products
+SET
+  name = COALESCE(sql.narg('name')::text, name),
+  description = COALESCE(sql.narg('description')::text, description),
+  views_count = COALESCE(sql.narg('views_count')::integer, views_count),
+  total_purchase = COALESCE(sql.narg('total_purchase')::integer, purchase_count),
+  trending_score = COALESCE(sql.narg('trending_score')::float, trending_score) -- TODO: Do we ever update this manually?
+WHERE
+  deleted_at IS NULL
+  AND id = $1
+RETURNING
+  id, name, description, views_count, total_purchase, trending_score, created_at, updated_at, deleted_at
+`
+
+type GetSuggestedProductsParams struct {
+	ID int32
+}
+
+// TODO: Will we implement this?
+func (q *Queries) GetSuggestedProducts(ctx context.Context, arg GetSuggestedProductsParams) ([]Product, error) {
+	rows, err := q.db.Query(ctx, getSuggestedProducts, arg.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Product
+	for rows.Next() {
+		var i Product
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.ViewsCount,
+			&i.TotalPurchase,
+			&i.TrendingScore,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const linkProductAttributeValues = `-- name: LinkProductAttributeValues :execrows
@@ -427,6 +516,55 @@ type LinkProductOptionsParams struct {
 
 func (q *Queries) LinkProductOptions(ctx context.Context, arg LinkProductOptionsParams) (int64, error) {
 	result, err := q.db.Exec(ctx, linkProductOptions, arg.OptionValueIds, arg.ProductVariantIds)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const updateProductVariants = `-- name: UpdateProductVariants :execrows
+WITH updated_variants AS (
+  SELECT
+    UNNEST($1::integer[]) AS id,
+    UNNEST($2::text[]) AS sku,
+    UNNEST($3::decimal[]) AS price,
+    UNNEST($4::integer[]) AS quantity,
+    UNNEST($5::integer[]) AS purchase_count,
+    $6::timestamp AS updated_at
+)
+UPDATE
+  product_variants
+SET
+  sku = updated_variants.sku,
+  price = updated_variants.price,
+  quantity = updated_variants.quantity,
+  purchase_count = updated_variants.purchase_count
+  -- FIXME: Maybe missing updated_at field?
+FROM
+  updated_variants
+WHERE
+  product_variants.id = updated_variants.id
+  AND product_variants.deleted_at IS NULL
+`
+
+type UpdateProductVariantsParams struct {
+	Ids            []int32
+	Skus           []string
+	Prices         []pgtype.Numeric
+	Quantities     []int32
+	PurchaseCounts []int32
+	UpdatedAt      pgtype.Timestamp
+}
+
+func (q *Queries) UpdateProductVariants(ctx context.Context, arg UpdateProductVariantsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateProductVariants,
+		arg.Ids,
+		arg.Skus,
+		arg.Prices,
+		arg.Quantities,
+		arg.PurchaseCounts,
+		arg.UpdatedAt,
+	)
 	if err != nil {
 		return 0, err
 	}

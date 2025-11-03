@@ -70,15 +70,18 @@ func (q *Queries) CreateOptionValues(ctx context.Context, arg CreateOptionValues
 
 const getAllOptions = `-- name: GetAllOptions :many
 SELECT
-  
+  options.id, options.name, options.product_id,
+  option_values.id, option_values.value, option_values.option_id
 FROM
-  sqlc.embed(options),
-  sqlc.embed(option_values)
+  options,
+  option_values
 WHERE
   options.deleted_at IS NULL
 `
 
 type GetAllOptionsRow struct {
+	Option      Option
+	OptionValue OptionValue
 }
 
 func (q *Queries) GetAllOptions(ctx context.Context) ([]GetAllOptionsRow, error) {
@@ -90,7 +93,14 @@ func (q *Queries) GetAllOptions(ctx context.Context) ([]GetAllOptionsRow, error)
 	var items []GetAllOptionsRow
 	for rows.Next() {
 		var i GetAllOptionsRow
-		if err := rows.Scan(); err != nil {
+		if err := rows.Scan(
+			&i.Option.ID,
+			&i.Option.Name,
+			&i.Option.ProductID,
+			&i.OptionValue.ID,
+			&i.OptionValue.Value,
+			&i.OptionValue.OptionID,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -103,10 +113,11 @@ func (q *Queries) GetAllOptions(ctx context.Context) ([]GetAllOptionsRow, error)
 
 const getOptionByID = `-- name: GetOptionByID :one
 SELECT
-  
+  options.id, options.name, options.product_id,
+  option_values.id, option_values.value, option_values.option_id
 FROM
-  sqlc.embed(options),
-  sqlc.embed(option_values)
+  options,
+  option_values
 WHERE
   options.id = $1::integer
   AND options.deleted_at IS NULL
@@ -117,11 +128,20 @@ type GetOptionByIDParams struct {
 }
 
 type GetOptionByIDRow struct {
+	Option      Option
+	OptionValue OptionValue
 }
 
 func (q *Queries) GetOptionByID(ctx context.Context, arg GetOptionByIDParams) (GetOptionByIDRow, error) {
 	row := q.db.QueryRow(ctx, getOptionByID, arg.ID)
 	var i GetOptionByIDRow
-	err := row.Scan()
+	err := row.Scan(
+		&i.Option.ID,
+		&i.Option.Name,
+		&i.Option.ProductID,
+		&i.OptionValue.ID,
+		&i.OptionValue.Value,
+		&i.OptionValue.OptionID,
+	)
 	return i, err
 }

@@ -21,19 +21,21 @@ RETURNING
 
 -- name: GetAllOptions :many
 SELECT
-  *
-FROM
   sqlc.embed(options),
   sqlc.embed(option_values)
+FROM
+  options,
+  option_values
 WHERE
   options.deleted_at IS NULL;
 
 -- name: GetOptionByID :one
 SELECT
-  *
-FROM
   sqlc.embed(options),
   sqlc.embed(option_values)
+FROM
+  options,
+  option_values
 WHERE
   options.id = @id::integer
   AND options.deleted_at IS NULL;
