@@ -24,8 +24,6 @@
 
 ## Dev
 
-## Resources
-
 ### Environment variables
 
 ```dotenv
@@ -66,6 +64,10 @@ TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keyclo
 ### Dev environment
 
 - Tool required are in [mise.toml](./mise.toml)
+
+### Note
+
+- Running gen first, then format
 
 ## References
 

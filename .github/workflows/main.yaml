@@ -76,9 +76,10 @@ jobs:
       - name: Gen and format
         id: gen-and-format
         run: |
-          just format-swag
           wire gen internal/di/wire.go
+          just format-swag
           just swagger-docs -ot go
+          just format-gofumpt # reformat after codegen, I know it is duplicated
         continue-on-error: true
 
       - name: Fail check
