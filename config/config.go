@@ -51,14 +51,15 @@ type Config struct {
 var Cfg *Config
 
 func LoadConfig() {
-	if viper.GetString(S3Bucket) == "" {
-		log.Print("You need to set S3_BUCKET environment variable")
-	}
 	viper.AutomaticEnv()
 
 	viper.SetDefault(DbPort, 5432)
 	viper.SetDefault(LogStdout, true)
 	viper.SetDefault(LogFile, false)
+
+	if viper.GetString(S3Bucket) == "" {
+		log.Print("You need to set S3_BUCKET environment variable")
+	}
 
 	Cfg = &Config{
 		DbUsername:     viper.GetString(DbUsername),
