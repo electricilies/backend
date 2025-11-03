@@ -36,6 +36,43 @@ func (q *Queries) CreateAttribute(ctx context.Context, arg CreateAttributeParams
 	return i, err
 }
 
+const createAttributeValues = `-- name: CreateAttributeValues :many
+INSERT INTO attribute_values (
+  attribute_id,
+  value
+)
+SELECT
+  UNNEST($1::integer[]) AS attribute_id,
+  UNNEST($2::text[]) AS value
+RETURNING
+  id, attribute_id, value
+`
+
+type CreateAttributeValuesParams struct {
+	AttributeIds []int32
+	Values       []string
+}
+
+func (q *Queries) CreateAttributeValues(ctx context.Context, arg CreateAttributeValuesParams) ([]AttributeValue, error) {
+	rows, err := q.db.Query(ctx, createAttributeValues, arg.AttributeIds, arg.Values)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AttributeValue
+	for rows.Next() {
+		var i AttributeValue
+		if err := rows.Scan(&i.ID, &i.AttributeID, &i.Value); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const deleteAttribute = `-- name: DeleteAttribute :execrows
 DELETE FROM
   attributes

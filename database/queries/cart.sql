@@ -7,6 +7,21 @@ INSERT INTO carts (
 RETURNING
   *;
 
+-- name: CreateCartItem :one
+INSERT INTO cart_items (
+  quantity,
+  cart_id,
+  product_id,
+  product_variant_id
+) VALUES (
+  @quantity,
+  @cart_id,
+  @product_id,
+  @product_variant_id
+)
+RETURNING
+  *;
+
 -- name: GetCartByUserID :many
 SELECT
   sqlc.embed(carts),
@@ -25,21 +40,6 @@ WHERE
   carts.user_id = @user_id
 ORDER BY
   cart_items.id ASC;
-
--- name: AddCartItem :one
-INSERT INTO cart_items (
-  quantity,
-  cart_id,
-  product_id,
-  product_variant_id
-) VALUES (
-  @quantity,
-  @cart_id,
-  @product_id,
-  @product_variant_id
-)
-RETURNING
-  *;
 
 -- name: UpdateCartItemByID :one
 UPDATE cart_items

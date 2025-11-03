@@ -1,3 +1,33 @@
+-- name: CreatePayment :one
+WITH payments AS (
+  INSERT INTO payments (
+    amount,
+    method_id,
+    status_id,
+    provider_id
+  )
+  VALUES (
+    @amount,
+    @method_id,
+    @status_id,
+    @provider_id
+  )
+  RETURNING
+    *
+)
+SELECT
+  sqlc.embed(payments),
+  sqlc.embed(payment_statuses),
+  sqlc.embed(payment_methods),
+  sqlc.embed(payment_providers)
+FROM payments
+INNER JOIN payment_statuses
+  ON payments.status_id = payment_statuses.id
+INNER JOIN payment_methods
+  ON payments.method_id = payment_methods.id
+INNER JOIN payment_providers
+  ON payments.provider_id = payment_providers.id;
+
 -- name: GetPayments :many
 SELECT
   sqlc.embed(payments),
@@ -38,36 +68,6 @@ INNER JOIN payment_providers
 WHERE
   orders.id = @order_id;
 
--- name: CreatePayment :one
-WITH payments AS (
-  INSERT INTO payments (
-    amount,
-    method_id,
-    status_id,
-    provider_id
-  )
-  VALUES (
-    @amount,
-    @method_id,
-    @status_id,
-    @provider_id
-  )
-  RETURNING
-    *
-)
-SELECT
-  sqlc.embed(payments),
-  sqlc.embed(payment_statuses),
-  sqlc.embed(payment_methods),
-  sqlc.embed(payment_providers)
-FROM payments
-INNER JOIN payment_statuses
-  ON payments.status_id = payment_statuses.id
-INNER JOIN payment_methods
-  ON payments.method_id = payment_methods.id
-INNER JOIN payment_providers
-  ON payments.provider_id = payment_providers.id;
-
 -- name: UpdatePaymentStatus :one
 WITH payments AS (
   UPDATE payments
@@ -75,7 +75,7 @@ WITH payments AS (
     status_id = @status_id,
     updated_at = NOW()
   WHERE
-    payments.id = @id -- # HACK: Wtf sqlc?
+    id = @id::integer -- sqlc requires this
   RETURNING
     *
 )

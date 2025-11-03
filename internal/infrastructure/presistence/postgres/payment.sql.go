@@ -210,7 +210,7 @@ WITH payments AS (
     status_id = $1,
     updated_at = NOW()
   WHERE
-    payments.id = $2 -- # HACK: Wtf sqlc?
+    id = $2::integer -- sqlc requires this
   RETURNING
     id, amount, updated_at, method_id, status_id, provider_id
 )

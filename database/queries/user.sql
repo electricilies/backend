@@ -1,3 +1,12 @@
+-- name: CreateUser :one
+INSERT INTO users (
+  id
+) VALUES (
+  @id
+)
+RETURNING
+  *;
+
 -- name: GetAllUsers :many
 SELECT
   *
@@ -13,12 +22,3 @@ FROM
   users
 WHERE
   id = @id;
-
--- name: CreateUser :one
-INSERT INTO users (
-  id
-) VALUES (
-  @id
-)
-RETURNING
-  *;

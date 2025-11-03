@@ -11,47 +11,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const addCartItem = `-- name: AddCartItem :one
-INSERT INTO cart_items (
-  quantity,
-  cart_id,
-  product_id,
-  product_variant_id
-) VALUES (
-  $1,
-  $2,
-  $3,
-  $4
-)
-RETURNING
-  id, quantity, cart_id, product_id, product_variant_id
-`
-
-type AddCartItemParams struct {
-	Quantity         int32
-	CartID           int32
-	ProductID        int32
-	ProductVariantID int32
-}
-
-func (q *Queries) AddCartItem(ctx context.Context, arg AddCartItemParams) (CartItem, error) {
-	row := q.db.QueryRow(ctx, addCartItem,
-		arg.Quantity,
-		arg.CartID,
-		arg.ProductID,
-		arg.ProductVariantID,
-	)
-	var i CartItem
-	err := row.Scan(
-		&i.ID,
-		&i.Quantity,
-		&i.CartID,
-		&i.ProductID,
-		&i.ProductVariantID,
-	)
-	return i, err
-}
-
 const createCart = `-- name: CreateCart :one
 INSERT INTO carts (
   user_id
@@ -70,6 +29,47 @@ func (q *Queries) CreateCart(ctx context.Context, arg CreateCartParams) (Cart, e
 	row := q.db.QueryRow(ctx, createCart, arg.userID)
 	var i Cart
 	err := row.Scan(&i.ID, &i.userID, &i.UpdatedAt)
+	return i, err
+}
+
+const createCartItem = `-- name: CreateCartItem :one
+INSERT INTO cart_items (
+  quantity,
+  cart_id,
+  product_id,
+  product_variant_id
+) VALUES (
+  $1,
+  $2,
+  $3,
+  $4
+)
+RETURNING
+  id, quantity, cart_id, product_id, product_variant_id
+`
+
+type CreateCartItemParams struct {
+	Quantity         int32
+	CartID           int32
+	ProductID        int32
+	ProductVariantID int32
+}
+
+func (q *Queries) CreateCartItem(ctx context.Context, arg CreateCartItemParams) (CartItem, error) {
+	row := q.db.QueryRow(ctx, createCartItem,
+		arg.Quantity,
+		arg.CartID,
+		arg.ProductID,
+		arg.ProductVariantID,
+	)
+	var i CartItem
+	err := row.Scan(
+		&i.ID,
+		&i.Quantity,
+		&i.CartID,
+		&i.ProductID,
+		&i.ProductVariantID,
+	)
 	return i, err
 }
 

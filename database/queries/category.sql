@@ -1,3 +1,13 @@
+-- name: CreateCategory :one
+INSERT INTO categories (
+  name
+)
+VALUES (
+  @name
+)
+RETURNING
+  *;
+
 -- name: GetCategories :many
 SELECT
   *,
@@ -23,16 +33,6 @@ WHERE
 ORDER BY
   pdb.score(id) DESC
 LIMIT COALESCE(sqlc.narg('limit')::integer, 10);
-
--- name: CreateCategory :one
-INSERT INTO categories (
-  name
-)
-VALUES (
-  @name
-)
-RETURNING
-  *;
 
 -- name: UpdateCategory :one
 UPDATE
