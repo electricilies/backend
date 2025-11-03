@@ -12,10 +12,12 @@ resource "keycloak_realm" "electricilies" {
   realm                    = "electricilies"
   access_code_lifespan     = "12h"
   access_token_lifespan    = "8760h"
-  registration_allowed     = true
-  reset_password_allowed   = true
-  remember_me              = true
+  duplicate_emails_allowed = false
   login_with_email_allowed = true
+  registration_allowed     = true
+  remember_me              = true
+  reset_password_allowed   = true
+  verify_email             = false
   attributes = {
     userProfileEnable = true
   }
@@ -27,6 +29,7 @@ resource "keycloak_openid_client" "backend" {
   name          = "Backend"
   access_type   = "CONFIDENTIAL"
   client_secret = var.keycloak_backend_client_secret
+  service_accounts_enabled = true # FIXME: @NTNGuyen when fix, tell me what to do to update kube
 }
 
 resource "keycloak_openid_client" "frontend" {
