@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"backend/config"
 	"context"
 	"net/http"
 	"time"
+
+	"backend/config"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/aws/aws-sdk-go-v2/aws"

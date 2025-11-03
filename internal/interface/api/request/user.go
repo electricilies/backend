@@ -9,7 +9,7 @@ import (
 )
 
 type CreateUser struct {
-    ID string `json:"id" binding:"required"`
+	ID string `json:"id" binding:"required"`
 }
 
 func (r *CreateUser) ToDomain() *user.User {
@@ -19,12 +19,12 @@ func (r *CreateUser) ToDomain() *user.User {
 }
 
 type UpdateUser struct {
-    FirstName   string     `json:"firstName" binding:"required"`
-    LastName    string     `json:"lastName" binding:"required"`
-    Email       string     `json:"email" binding:"required,email"`
-    DateOfBirth *time.Time `json:"dateOfBirth,omitempty"` // TODO: Check if json can parse to date
-    PhoneNumber string     `json:"phoneNumber,omitempty"`
-    Address     string     `json:"address,omitempty"`
+	FirstName   string     `json:"firstName" binding:"required"`
+	LastName    string     `json:"lastName" binding:"required"`
+	Email       string     `json:"email" binding:"required,email"`
+	DateOfBirth *time.Time `json:"dateOfBirth,omitempty"` // TODO: Check if json can parse to date
+	PhoneNumber string     `json:"phoneNumber,omitempty"`
+	Address     string     `json:"address,omitempty"`
 }
 
 func (r UpdateUser) ToDomain() *user.User {
