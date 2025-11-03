@@ -70,6 +70,9 @@ check-format-gofumpt *args="":
 [doc("Check Format")]
 check-format: check-format-gofumpt
 
+[doc("Run gen, static type check, lint, format, suitable for pre-commit")]
+pre-commit: gen check-static-type lint format
+
 [doc("Docker compose up")]
 compose *args="":
   docker compose -f ./docker/compose.yaml up {{args}}
