@@ -1,4 +1,4 @@
-database/queries/
+database/queries/*.sql
 database/seed-fake.sql
 docker/volume/init.sql
 docker/volume/paradedb-index.sql
@@ -6,3 +6,4 @@ docker/volume/schema.sql
 docker/volume/seed-fake.sql
 docker/volume/seed.sql
 docker/volume/trigger.sql
+migrations/*.sql
