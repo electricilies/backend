@@ -1,29 +1,24 @@
 package main
 
 import (
-	"io"
-	"log"
-
 	"backend/config"
 	"backend/internal/di"
 	"backend/pkg/logger"
+	"io"
+	"log"
 
 	_ "backend/docs"
 
 	"github.com/gin-gonic/gin"
 )
 
-//	@BasePath					/api
-//	@securitydefinitions.apikey	Admin
-//	@in							header
-//	@name						Authorization
-//	@securitydefinitions.apikey	Customer
-//	@in							header
-//	@name						Authorization
-//	@securitydefinitions.apikey	Staff
-//	@in							header
-//	@name						Authorization
-
+// @BasePath								/api
+//
+// @securitydefinitions.oauth2.accessCode	OAuth2AccessCode
+//
+// @tokenUrl								/realms/electricilies/protocol/openid-connect/token
+// @authorizationurl						/realms/electricilies/protocol/openid-connect/auth
+// @scope.write							Grants write access
 func main() {
 	config.LoadConfig()
 	s := di.InitializeServer()

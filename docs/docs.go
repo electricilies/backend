@@ -1665,17 +1665,6 @@ const docTemplate = `{
         },
         "/users/{user_id}": {
             "get": {
-                "security": [
-                    {
-                        "Customer": []
-                    },
-                    {
-                        "Staff": []
-                    },
-                    {
-                        "Admin": []
-                    }
-                ],
                 "description": "Get user by ID",
                 "consumes": [
                     "application/json"
@@ -2711,20 +2700,14 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "Admin": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        },
-        "Customer": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        },
-        "Staff": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
+        "OAuth2AccessCode": {
+            "type": "oauth2",
+            "flow": "accessCode",
+            "authorizationUrl": "/realms/electricilies/protocol/openid-connect/auth",
+            "tokenUrl": "/realms/electricilies/protocol/openid-connect/token",
+            "scopes": {
+                "write": "Grants write access"
+            }
         }
     }
 }`
