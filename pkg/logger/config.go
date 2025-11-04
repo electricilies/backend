@@ -1,8 +1,9 @@
 package logger
 
 import (
-	"backend/config"
 	"path/filepath"
+
+	"backend/config"
 )
 
 type loggerConfig struct {
