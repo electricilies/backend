@@ -81,7 +81,8 @@ FROM
   options,
   option_values
 WHERE
-  options.deleted_at IS NULL
+  options.id = option_values.option_id
+  AND options.deleted_at IS NULL
 `
 
 type GetAllOptionsRow struct {
@@ -126,6 +127,7 @@ FROM
   option_values
 WHERE
   options.id = $1::integer
+  AND option_values.option_id = options.id
   AND options.deleted_at IS NULL
 `
 

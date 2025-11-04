@@ -68,26 +68,10 @@ INNER JOIN payment_providers
 WHERE
   orders.id = @order_id;
 
--- name: UpdatePaymentStatus :one
-WITH payments AS (
-  UPDATE payments
-  SET
-    status_id = @status_id,
-    updated_at = NOW()
-  WHERE
-    id = @id::integer -- sqlc requires this
-  RETURNING
-    *
-)
-SELECT
-  sqlc.embed(payments),
-  sqlc.embed(payment_statuses),
-  sqlc.embed(payment_methods),
-  sqlc.embed(payment_providers)
-FROM payments
-INNER JOIN payment_statuses
-  ON payments.status_id = payment_statuses.id
-INNER JOIN payment_methods
-  ON payments.method_id = payment_methods.id
-INNER JOIN payment_providers
-  ON payments.provider_id = payment_providers.id;
+-- name: UpdatePaymentStatus :execrows
+UPDATE payments
+SET
+  status_id = @status_id,
+  updated_at = NOW()
+WHERE
+  id = @id::integer; -- sqlc requires this

@@ -42,8 +42,7 @@ INSERT INTO product_images (
 SELECT
   UNNEST($1::text[]) AS url,
   UNNEST($2::integer[]) AS "order",
-  $3,
-  UNNEST($4::integer[]) AS product_variant_id
+  UNNEST($3::integer[]) AS product_variant_id
 RETURNING
   id, url, created_at, "order", product_variant_id
 `
@@ -51,17 +50,11 @@ RETURNING
 type CreateProductImagesParams struct {
 	Urls              []string
 	Orders            []int32
-	ProductID         pgtype.Int4
 	ProductVariantIds []int32
 }
 
 func (q *Queries) CreateProductImages(ctx context.Context, arg CreateProductImagesParams) (pgconn.CommandTag, error) {
-	return q.db.Exec(ctx, createProductImages,
-		arg.Urls,
-		arg.Orders,
-		arg.ProductID,
-		arg.ProductVariantIds,
-	)
+	return q.db.Exec(ctx, createProductImages, arg.Urls, arg.Orders, arg.ProductVariantIds)
 }
 
 const createProductVariants = `-- name: CreateProductVariants :execresult

@@ -30,7 +30,6 @@ INSERT INTO product_images (
 SELECT
   UNNEST(@urls::text[]) AS url,
   UNNEST(@orders::integer[]) AS "order",
-  @product_id,
   UNNEST(@product_variant_ids::integer[]) AS product_variant_id
 RETURNING
   *;

@@ -203,29 +203,13 @@ func (q *Queries) GetPayments(ctx context.Context, arg GetPaymentsParams) ([]Get
 	return items, nil
 }
 
-const updatePaymentStatus = `-- name: UpdatePaymentStatus :one
-WITH payments AS (
-  UPDATE payments
-  SET
-    status_id = $1,
-    updated_at = NOW()
-  WHERE
-    id = $2::integer -- sqlc requires this
-  RETURNING
-    id, amount, updated_at, method_id, status_id, provider_id
-)
-SELECT
-  payments.id, payments.amount, payments.updated_at, payments.method_id, payments.status_id, payments.provider_id,
-  payment_statuses.id, payment_statuses.name,
-  payment_methods.id, payment_methods.name,
-  payment_providers.id, payment_providers.name
-FROM payments
-INNER JOIN payment_statuses
-  ON payments.status_id = payment_statuses.id
-INNER JOIN payment_methods
-  ON payments.method_id = payment_methods.id
-INNER JOIN payment_providers
-  ON payments.provider_id = payment_providers.id
+const updatePaymentStatus = `-- name: UpdatePaymentStatus :execrows
+UPDATE payments
+SET
+  status_id = $1,
+  updated_at = NOW()
+WHERE
+  id = $2::integer
 `
 
 type UpdatePaymentStatusParams struct {
@@ -233,29 +217,10 @@ type UpdatePaymentStatusParams struct {
 	ID       int32
 }
 
-type UpdatePaymentStatusRow struct {
-	Payment         Payment
-	PaymentStatus   PaymentStatus
-	PaymentMethod   PaymentMethod
-	PaymentProvider PaymentProvider
-}
-
-func (q *Queries) UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) (UpdatePaymentStatusRow, error) {
-	row := q.db.QueryRow(ctx, updatePaymentStatus, arg.StatusID, arg.ID)
-	var i UpdatePaymentStatusRow
-	err := row.Scan(
-		&i.Payment.ID,
-		&i.Payment.Amount,
-		&i.Payment.UpdatedAt,
-		&i.Payment.MethodID,
-		&i.Payment.StatusID,
-		&i.Payment.ProviderID,
-		&i.PaymentStatus.ID,
-		&i.PaymentStatus.Name,
-		&i.PaymentMethod.ID,
-		&i.PaymentMethod.Name,
-		&i.PaymentProvider.ID,
-		&i.PaymentProvider.Name,
-	)
-	return i, err
+func (q *Queries) UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updatePaymentStatus, arg.StatusID, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
