@@ -3,6 +3,7 @@ package server
 import (
 	"backend/config"
 	"backend/internal/interface/api/router"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -15,8 +16,9 @@ type Server struct {
 
 func New(e *gin.Engine, r router.Router) *Server {
 	r.RegisterRoutes(e)
-	e.GET("realms/electricilies/protocol/openid-connect/token", func(c *gin.Context) {
-		c.Redirect(302, config.Cfg.KcBasePath+"/realms/electricilies/protocol/openid-connect/token")
+	e.GET("/auth/*path", func(c *gin.Context) {
+		redirectURL := config.Cfg.KcBasePath + c.Param("path")
+		c.Redirect(http.StatusFound, redirectURL)
 	})
 	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return &Server{
