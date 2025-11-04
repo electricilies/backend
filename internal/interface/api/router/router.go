@@ -76,7 +76,7 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 			users.GET("/:user_id", r.userHandler.Get)
 			users.PUT("/:user_id", r.userHandler.Update)
 			users.DELETE("/:user_id", r.userHandler.Delete)
-			users.GET("/:user_id/return_requests", r.userHandler.GetReturnRequests)
+			users.GET("/:user_id/return-requests", r.userHandler.GetReturnRequests)
 		}
 		cart := api.Group("/carts")
 		{
