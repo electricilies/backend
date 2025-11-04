@@ -1,9 +1,8 @@
 package logger
 
 import (
-	"path/filepath"
-
 	"backend/config"
+	"path/filepath"
 )
 
 type loggerConfig struct {
@@ -14,6 +13,7 @@ type loggerConfig struct {
 	Compress     bool
 	EnableFile   bool
 	EnableStdout bool
+	TimeLocation string
 }
 
 func newDefaultLoggingConfig() *loggerConfig {
@@ -25,6 +25,7 @@ func newDefaultLoggingConfig() *loggerConfig {
 		Compress:     false,
 		EnableStdout: config.Cfg.EnableStdout,
 		EnableFile:   config.Cfg.EnableFile,
+		TimeLocation: config.Cfg.TimeLocation,
 	}
 }
 

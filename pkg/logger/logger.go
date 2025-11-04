@@ -22,7 +22,7 @@ func InitializeLogger() {
 	logLevel := zap.NewAtomicLevelAt(zap.InfoLevel)
 
 	timeEncoder := func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-		loc, _ := time.LoadLocation("Asia/Ho_Chi_Minh")
+		loc, _ := time.LoadLocation(c.TimeLocation)
 		enc.AppendString(t.In(loc).Format(time.RFC3339))
 	}
 	if c.EnableStdout {
@@ -62,5 +62,4 @@ func InitializeLogger() {
 		fileEncoder := zapcore.NewJSONEncoder(cfg)
 		cores = append(cores, zapcore.NewCore(fileEncoder, file, logLevel))
 	}
-	Lgr = zap.New(zapcore.NewTee(cores...))
 }
