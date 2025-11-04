@@ -6,4 +6,4 @@ docker/volume/schema.sql
 docker/volume/seed-fake.sql
 docker/volume/seed.sql
 docker/volume/trigger.sql
-migrations/*.sql
+migration/*.sql
