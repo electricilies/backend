@@ -1,11 +1,10 @@
 package handler
 
 import (
+	"backend/config"
 	"context"
 	"net/http"
 	"time"
-
-	"backend/config"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -46,16 +45,16 @@ func (h *healthCheck) Readiness(ctx *gin.Context) {
 
 	switch {
 	// TODO: create struct all json format
-	case IsDbReady(c, h.dbConn):
+	case !IsDbReady(c, h.dbConn):
 		ctx.JSON(http.StatusServiceUnavailable, gin.H{"status": "not ready", "reason": "database not ready"})
 		return
-	case IsRedisReady(c, h.redisClient):
+	case !IsRedisReady(c, h.redisClient):
 		ctx.JSON(http.StatusServiceUnavailable, gin.H{"status": "not ready", "reason": "redis not ready"})
 		return
-	case IsS3Ready(c, h.s3Client):
+	case !IsS3Ready(c, h.s3Client):
 		ctx.JSON(http.StatusServiceUnavailable, gin.H{"status": "not ready", "reason": "minio not ready"})
 		return
-	case IsKeycloakReady(c, h.keycloakClient):
+	case !IsKeycloakReady(c, h.keycloakClient):
 		ctx.JSON(http.StatusServiceUnavailable, gin.H{"status": "not ready", "reason": "keycloak not ready"})
 		return
 	default:

@@ -62,4 +62,9 @@ func InitializeLogger() {
 		fileEncoder := zapcore.NewJSONEncoder(cfg)
 		cores = append(cores, zapcore.NewCore(fileEncoder, file, logLevel))
 	}
+	core := zapcore.NewTee(cores...)
+	logger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))
+	Lgr = logger
+
+	zap.ReplaceGlobals(Lgr)
 }
