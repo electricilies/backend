@@ -1,11 +1,12 @@
 package db
 
 import (
-	"backend/config"
-	"backend/internal/infrastructure/presistence/postgres"
 	"context"
 	"fmt"
 	"log"
+
+	"backend/config"
+	"backend/internal/infrastructure/presistence/postgres"
 
 	"github.com/Thiht/transactor"
 	transactorpgx "github.com/Thiht/transactor/pgx"
