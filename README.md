@@ -72,6 +72,10 @@ TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keyclo
 
 ## References
 
-- <https://registry.terraform.io/providers/keycloak/keycloak/latest/docs>
-- <https://github.com/sqlc-dev/sqlc/discussions/364>
-- <https://github.com/sqlc-dev/sqlc/issues/2061>
+- keycloak
+  - <https://registry.terraform.io/providers/keycloak/keycloak/latest/docs>
+- sqlc
+  - <https://github.com/sqlc-dev/sqlc/discussions/364>
+  - <https://github.com/sqlc-dev/sqlc/issues/2061>
+    <https://github.com/coder/coder/tree/main/coderd/database/queries>
+    <https://github.com/riverqueue/river/tree/master/riverdriver/riverpgxv5/internal/dbsqlc>
