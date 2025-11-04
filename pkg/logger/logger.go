@@ -22,7 +22,7 @@ func InitializeLogger() {
 	logLevel := zap.NewAtomicLevelAt(zap.InfoLevel)
 
 	timeEncoder := func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-		loc, _ := time.LoadLocation(c.TimeLocation)
+		loc, _ := time.LoadLocation(c.TimeZone)
 		enc.AppendString(t.In(loc).Format(time.RFC3339))
 	}
 	if c.EnableStdout {

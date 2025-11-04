@@ -25,7 +25,7 @@ const (
 	S3RegionName   = "S3_REGION_NAME"
 	S3Endpoint     = "S3_ENDPOINT"
 	S3Bucket       = "S3_BUCKET"
-	TimeLocation   = "TIME_LOCATION"
+	TimeZone       = "TIMEZONE"
 )
 
 type Config struct {
@@ -47,7 +47,7 @@ type Config struct {
 	S3RegionName   string
 	S3Endpoint     string
 	S3Bucket       string
-	TimeLocation   string
+	TimeZone       string
 }
 
 var Cfg *Config
@@ -59,7 +59,7 @@ func LoadConfig() {
 	viper.SetDefault(LogStdout, true)
 	viper.SetDefault(LogFile, false)
 
-	viper.SetDefault(TimeLocation, "Asia/Ho_Chi_Minh")
+	viper.SetDefault(TimeZone, "Asia/Ho_Chi_Minh")
 	if viper.GetString(S3Bucket) == "" {
 		log.Print("You need to set S3_BUCKET environment variable")
 	}
@@ -83,6 +83,6 @@ func LoadConfig() {
 		S3RegionName:   viper.GetString(S3RegionName),
 		S3Endpoint:     viper.GetString(S3Endpoint),
 		S3Bucket:       viper.GetString(S3Bucket),
-		TimeLocation:   viper.GetString(TimeLocation),
+		TimeZone:       viper.GetString(TimeZone),
 	}
 }

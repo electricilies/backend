@@ -13,7 +13,7 @@ type loggerConfig struct {
 	Compress     bool
 	EnableFile   bool
 	EnableStdout bool
-	TimeLocation string
+	TimeZone     string
 }
 
 func newDefaultLoggingConfig() *loggerConfig {
@@ -25,7 +25,7 @@ func newDefaultLoggingConfig() *loggerConfig {
 		Compress:     false,
 		EnableStdout: config.Cfg.EnableStdout,
 		EnableFile:   config.Cfg.EnableFile,
-		TimeLocation: config.Cfg.TimeLocation,
+		TimeZone:     config.Cfg.TimeZone,
 	}
 }
 
