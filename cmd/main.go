@@ -16,8 +16,8 @@ import (
 //
 // @securitydefinitions.oauth2.accessCode	OAuth2AccessCode
 //
-// @tokenUrl								auth/realms/electricilies/protocol/openid-connect/token
-// @authorizationurl						auth/realms/electricilies/protocol/openid-connect/auth
+// @tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
+// @authorizationurl						/auth/realms/electricilies/protocol/openid-connect/auth
 // @scope.write							Grants write access
 func main() {
 	config.LoadConfig()

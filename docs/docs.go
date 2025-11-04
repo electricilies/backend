@@ -2703,8 +2703,8 @@ const docTemplate = `{
         "OAuth2AccessCode": {
             "type": "oauth2",
             "flow": "accessCode",
-            "authorizationUrl": "auth/realms/electricilies/protocol/openid-connect/auth",
-            "tokenUrl": "auth/realms/electricilies/protocol/openid-connect/token",
+            "authorizationUrl": "/auth/realms/electricilies/protocol/openid-connect/auth",
+            "tokenUrl": "/auth/realms/electricilies/protocol/openid-connect/token",
             "scopes": {
                 "write": "Grants write access"
             }
