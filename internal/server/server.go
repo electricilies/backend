@@ -1,10 +1,11 @@
 package server
 
 import (
-	"backend/config"
-	"backend/internal/interface/api/router"
 	"net/http"
 	"strings"
+
+	"backend/config"
+	"backend/internal/interface/api/router"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -17,11 +18,19 @@ type Server struct {
 
 func New(e *gin.Engine, r router.Router) *Server {
 	r.RegisterRoutes(e)
-	e.GET("/auth/*path", func(c *gin.Context) {
-		redirectURL := config.Cfg.KcBasePath + strings.TrimPrefix(c.Request.URL.String(), "/auth")
-		c.Redirect(http.StatusTemporaryRedirect, redirectURL)
-	})
-	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	auth := e.Group("/auth")
+	{
+		auth.GET("/*path", authHandler)
+		auth.POST("/*path", authHandler)
+	}
+	e.GET(
+		"/swagger/*any",
+		ginSwagger.WrapHandler(
+			swaggerfiles.Handler,
+			ginSwagger.PersistAuthorization(true),
+			ginSwagger.Oauth2DefaultClientID("frontend"),
+		),
+	)
 	return &Server{
 		engine: e,
 	}
@@ -29,4 +38,9 @@ func New(e *gin.Engine, r router.Router) *Server {
 
 func (s *Server) Run() error {
 	return s.engine.Run()
+}
+
+func authHandler(c *gin.Context) {
+	redirectURL := config.Cfg.KcBasePath + strings.TrimPrefix(c.Request.URL.String(), "/auth")
+	c.Redirect(http.StatusTemporaryRedirect, redirectURL)
 }

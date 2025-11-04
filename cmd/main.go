@@ -1,11 +1,12 @@
 package main
 
 import (
+	"io"
+	"log"
+
 	"backend/config"
 	"backend/internal/di"
 	"backend/pkg/logger"
-	"io"
-	"log"
 
 	_ "backend/docs"
 
@@ -17,8 +18,7 @@ import (
 // @securitydefinitions.oauth2.accessCode	OAuth2AccessCode
 //
 // @tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
-// @authorizationurl						/auth/realms/electricilies/protocol/openid-connect/auth
-// @scope.write							Grants write access
+// @authorizationUrl						/auth/realms/electricilies/protocol/openid-connect/auth
 func main() {
 	config.LoadConfig()
 	s := di.InitializeServer()
