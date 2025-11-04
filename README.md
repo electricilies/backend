@@ -33,7 +33,8 @@ DB_PASSWORD=electricilies
 DB_DATABASE=electricilies
 DB_PORT=5432 # optional
 DB_HOST=localhost
-PORT=8080 # optional
+PORT=8080                      # optional
+TIME_LOCATION=Asia/Ho_Chi_Minh # optional
 
 # Keycloak
 KC_CLIENT_ID=backend
