@@ -9,7 +9,7 @@ import (
 )
 
 type Router interface {
-	RegisterRoutes(engine *gin.Engine)
+	RegisterRoutes(e *gin.Engine)
 }
 
 type router struct {
@@ -61,13 +61,13 @@ func New(
 	}
 }
 
-func (r *router) RegisterRoutes(engine *gin.Engine) {
-	engine.Use(r.metricMiddleware.Handler())
-	engine.Use(r.loggingMiddleware.Handler())
-	engine.GET("/metrics", gin.WrapH(promhttp.Handler()))
-	engine.GET("/health", r.healthHandler.Liveness)
-	engine.GET("/ready", r.healthHandler.Readiness)
-	api := engine.Group("/api")
+func (r *router) RegisterRoutes(e *gin.Engine) {
+	e.Use(r.metricMiddleware.Handler())
+	e.Use(r.loggingMiddleware.Handler())
+	e.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	e.GET("/health", r.healthHandler.Liveness)
+	e.GET("/ready", r.healthHandler.Readiness)
+	api := e.Group("/api")
 	{
 		users := api.Group("/users")
 		{
