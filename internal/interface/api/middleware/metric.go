@@ -39,19 +39,19 @@ func NewMetric() Metric {
 }
 
 func (m *metric) Handler() gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ctx *gin.Context) {
 		start := time.Now()
 
-		c.Next()
+		ctx.Next()
 
 		duration := time.Since(start).Seconds()
-		status := strconv.Itoa(c.Writer.Status())
-		path := c.FullPath()
+		status := strconv.Itoa(ctx.Writer.Status())
+		path := ctx.FullPath()
 		if path == "" {
-			path = c.Request.URL.Path
+			path = ctx.Request.URL.Path
 		}
 
-		m.httpRequestsTotal.WithLabelValues(c.Request.Method, path, status).Inc()
-		m.httpRequestDuration.WithLabelValues(c.Request.Method, path, status).Observe(duration)
+		m.httpRequestsTotal.WithLabelValues(ctx.Request.Method, path, status).Inc()
+		m.httpRequestDuration.WithLabelValues(ctx.Request.Method, path, status).Observe(duration)
 	}
 }

@@ -32,16 +32,16 @@ func NewRole(clientId string, requiredRoles []UserRole) Role {
 }
 
 func (r *role) Handler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		claimsInterface, exists := c.Get("claims")
+	return func(ctx *gin.Context) {
+		claimsInterface, exists := ctx.Get("claims")
 		if !exists {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "No JWT claims found, JWT middleware must be used before role middleware"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "No JWT claims found, JWT middleware must be used before role middleware"})
 			return
 		}
 
 		claims, ok := claimsInterface.(jwt.MapClaims)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid JWT claims format"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid JWT claims format"})
 			return
 		}
 
@@ -53,11 +53,11 @@ func (r *role) Handler() gin.HandlerFunc {
 		}
 
 		if !hasRequiredRole(userRoleEnums, r.requiredRoles) {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
 			return
 		}
 
-		c.Next()
+		ctx.Next()
 	}
 }
 
