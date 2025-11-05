@@ -41,6 +41,7 @@ KC_CLIENT_ID=backend
 KC_CLIENT_SECRET=electricilies
 KC_REALM=electricilies
 KC_BASE_PATH=http://localhost:8081
+KC_HTTP_MANAGEMENT_PATH=http://localhost:8082
 
 # S3 / S3 Compatible (MinIO)
 S3_ACCESS_KEY=electricilies

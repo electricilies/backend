@@ -1,11 +1,10 @@
 package handler
 
 import (
+	"backend/config"
 	"context"
 	"net/http"
 	"time"
-
-	"backend/config"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -44,22 +43,39 @@ func (h *healthCheck) Readiness(ctx *gin.Context) {
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	switch {
-	// TODO: create struct all json format
-	case !IsDbReady(c, h.dbConn):
-		ctx.JSON(http.StatusServiceUnavailable, gin.H{"status": "not ready", "reason": "database not ready"})
-		return
-	case !IsRedisReady(c, h.redisClient):
-		ctx.JSON(http.StatusServiceUnavailable, gin.H{"status": "not ready", "reason": "redis not ready"})
-		return
-	case !IsS3Ready(c, h.s3Client):
-		ctx.JSON(http.StatusServiceUnavailable, gin.H{"status": "not ready", "reason": "minio not ready"})
-		return
-	case !IsKeycloakReady(c, h.keycloakClient):
-		ctx.JSON(http.StatusServiceUnavailable, gin.H{"status": "not ready", "reason": "keycloak not ready"})
-		return
-	default:
-		ctx.JSON(http.StatusOK, gin.H{"status": "ready"})
+	dbStatus, dbErr := IsDbReady(c, h.dbConn)
+	redisStatus, redisErr := IsRedisReady(c, h.redisClient)
+	s3Status, s3Err := IsS3Ready(c, h.s3Client)
+	keycloakStatus, keycloakErr := IsKeycloakReady(c, h.keycloakClient)
+
+	backendStatus := dbStatus && redisStatus && s3Status && keycloakStatus
+
+	resp := gin.H{
+		"backend": gin.H{
+			"status": backendStatus,
+		},
+		"database": gin.H{
+			"status": dbStatus,
+			"reason": errorToString(dbErr),
+		},
+		"redis": gin.H{
+			"status": redisStatus,
+			"reason": errorToString(redisErr),
+		},
+		"minio": gin.H{
+			"status": s3Status,
+			"reason": errorToString(s3Err),
+		},
+		"keycloak": gin.H{
+			"status": keycloakStatus,
+			"reason": errorToString(keycloakErr),
+		},
+	}
+
+	if backendStatus {
+		ctx.JSON(http.StatusOK, resp)
+	} else {
+		ctx.JSON(http.StatusServiceUnavailable, resp)
 	}
 }
 
@@ -67,42 +83,85 @@ func (h *healthCheck) Liveness(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, time.Now())
 }
 
-func IsS3Ready(ctx context.Context, s3Client *s3.Client) bool {
+func IsS3Ready(ctx context.Context, s3Client *s3.Client) (bool, error) {
 	if s3Client == nil {
-		return false
+		return false, ErrNilClient("s3")
 	}
 	exist, err := s3Client.HeadBucket(
 		ctx,
 		&s3.HeadBucketInput{Bucket: aws.String(config.Cfg.S3Bucket)},
 	)
-	return err == nil && exist != nil
+	if err != nil {
+		return false, err
+	}
+	if exist == nil {
+		return false, ErrNoResponse("s3")
+	}
+	return true, nil
 }
 
-func IsDbReady(ctx context.Context, dbConn *pgxpool.Pool) bool {
+func IsDbReady(ctx context.Context, dbConn *pgxpool.Pool) (bool, error) {
 	if dbConn == nil {
-		return false
+		return false, ErrNilClient("database")
 	}
 	err := dbConn.Ping(ctx)
-	return err == nil
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
-func IsKeycloakReady(ctx context.Context, keycloakClient *gocloak.GoCloak) bool {
+func IsKeycloakReady(ctx context.Context, keycloakClient *gocloak.GoCloak) (bool, error) {
 	if keycloakClient == nil {
-		return false
+		return false, ErrNilClient("keycloak")
 	}
-	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, config.Cfg.KcBasePath+"/health/ready", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, config.Cfg.KcHttpManagmentPath+"/health/ready", nil)
 	client := &http.Client{Timeout: 2 * time.Second} // TODO: move http client to helper
 	resp, err := client.Do(req)
 	if err != nil {
-		return false
+		return false, err
 	}
 	defer func() { _ = resp.Body.Close() }()
-	return resp.StatusCode == 200
+	if resp.StatusCode != 200 {
+		return false, ErrStatusCode("keycloak", resp.StatusCode)
+	}
+	return true, nil
 }
 
-func IsRedisReady(ctx context.Context, redisClient *redis.Client) bool {
+func IsRedisReady(ctx context.Context, redisClient *redis.Client) (bool, error) {
 	if redisClient == nil {
-		return false
+		return false, ErrNilClient("redis")
 	}
-	return redisClient.Ping(ctx).Err() == nil
+	err := redisClient.Ping(ctx).Err()
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func errorToString(err error) string {
+	if err == nil {
+		return ""
+	}
+	return err.Error()
+}
+
+func ErrNilClient(name string) error {
+	return &HealthError{msg: name + " client is nil"}
+}
+
+func ErrNoResponse(name string) error {
+	return &HealthError{msg: name + " no response"}
+}
+
+func ErrStatusCode(name string, code int) error {
+	return &HealthError{msg: name + " status code: " + http.StatusText(code)}
+}
+
+type HealthError struct {
+	msg string
+}
+
+func (e *HealthError) Error() string {
+	return e.msg
 }
