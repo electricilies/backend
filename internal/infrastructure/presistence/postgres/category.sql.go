@@ -19,7 +19,7 @@ VALUES (
   $1
 )
 RETURNING
-  id, name, created_at, deleted_at
+  id, name, created_at, updated_at, deleted_at
 `
 
 type CreateCategoryParams struct {
@@ -33,6 +33,7 @@ func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) 
 		&i.ID,
 		&i.Name,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -62,7 +63,7 @@ func (q *Queries) DeleteCategory(ctx context.Context, arg DeleteCategoryParams) 
 
 const getCategories = `-- name: GetCategories :many
 SELECT
-  id, name, created_at, deleted_at,
+  id, name, created_at, updated_at, deleted_at,
   COUNT(*) OVER() AS current_count,
   COUNT(*) AS total_count
 FROM
@@ -84,6 +85,7 @@ type GetCategoriesRow struct {
 	ID           int32
 	Name         string
 	CreatedAt    pgtype.Timestamp
+	UpdatedAt    pgtype.Timestamp
 	DeletedAt    pgtype.Timestamp
 	CurrentCount int64
 	TotalCount   int64
@@ -102,6 +104,7 @@ func (q *Queries) GetCategories(ctx context.Context, arg GetCategoriesParams) ([
 			&i.ID,
 			&i.Name,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 			&i.DeletedAt,
 			&i.CurrentCount,
 			&i.TotalCount,
@@ -118,7 +121,7 @@ func (q *Queries) GetCategories(ctx context.Context, arg GetCategoriesParams) ([
 
 const getSuggestedCategories = `-- name: GetSuggestedCategories :many
 SELECT
-  id, name, created_at, deleted_at
+  id, name, created_at, updated_at, deleted_at
 FROM
   categories
 WHERE
@@ -147,6 +150,7 @@ func (q *Queries) GetSuggestedCategories(ctx context.Context, arg GetSuggestedCa
 			&i.ID,
 			&i.Name,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 			&i.DeletedAt,
 		); err != nil {
 			return nil, err
@@ -163,12 +167,13 @@ const updateCategory = `-- name: UpdateCategory :one
 UPDATE
   categories
 SET
-  name = $1
+  name = $1,
+  updated_at = NOW()
 WHERE
   deleted_at IS NULL
   AND id = $2
 RETURNING
-  id, name, created_at, deleted_at
+  id, name, created_at, updated_at, deleted_at
 `
 
 type UpdateCategoryParams struct {
@@ -183,6 +188,7 @@ func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) 
 		&i.ID,
 		&i.Name,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 		&i.DeletedAt,
 	)
 	return i, err

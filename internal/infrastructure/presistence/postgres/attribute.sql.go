@@ -97,47 +97,6 @@ func (q *Queries) DeleteAttribute(ctx context.Context, arg DeleteAttributeParams
 	return result.RowsAffected(), nil
 }
 
-const getAllAttributes = `-- name: GetAllAttributes :many
-SELECT
-  id, code, name, deleted_at
-FROM
-  attributes
-ORDER BY
-  id ASC
-OFFSET COALESCE($1::integer, 0)
-LIMIT COALESCE($2::integer, 20)
-`
-
-type GetAllAttributesParams struct {
-	Offset pgtype.Int4
-	Limit  pgtype.Int4
-}
-
-func (q *Queries) GetAllAttributes(ctx context.Context, arg GetAllAttributesParams) ([]Attribute, error) {
-	rows, err := q.db.Query(ctx, getAllAttributes, arg.Offset, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Attribute
-	for rows.Next() {
-		var i Attribute
-		if err := rows.Scan(
-			&i.ID,
-			&i.Code,
-			&i.Name,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getAttributeByID = `-- name: GetAttributeByID :one
 SELECT
   id, code, name, deleted_at
@@ -161,6 +120,60 @@ func (q *Queries) GetAttributeByID(ctx context.Context, arg GetAttributeByIDPara
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const getAttributes = `-- name: GetAttributes :many
+SELECT
+  id, code, name, deleted_at,
+  COUNT(*) OVER() AS current_count,
+  COUNT(*) AS total_count
+FROM
+  attributes
+ORDER BY
+  id ASC
+OFFSET COALESCE($1::integer, 0)
+LIMIT COALESCE($2::integer, 20)
+`
+
+type GetAttributesParams struct {
+	Offset pgtype.Int4
+	Limit  pgtype.Int4
+}
+
+type GetAttributesRow struct {
+	ID           int32
+	Code         string
+	Name         string
+	DeletedAt    pgtype.Timestamp
+	CurrentCount int64
+	TotalCount   int64
+}
+
+func (q *Queries) GetAttributes(ctx context.Context, arg GetAttributesParams) ([]GetAttributesRow, error) {
+	rows, err := q.db.Query(ctx, getAttributes, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAttributesRow
+	for rows.Next() {
+		var i GetAttributesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Code,
+			&i.Name,
+			&i.DeletedAt,
+			&i.CurrentCount,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateAttribute = `-- name: UpdateAttribute :one

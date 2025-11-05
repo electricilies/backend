@@ -32,35 +32,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UU
 	return id, err
 }
 
-const getAllUsers = `-- name: GetAllUsers :many
-SELECT
-  id
-FROM
-  users
-ORDER BY
-  id ASC
-`
-
-func (q *Queries) GetAllUsers(ctx context.Context) ([]uuid.UUID, error) {
-	rows, err := q.db.Query(ctx, getAllUsers)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []uuid.UUID
-	for rows.Next() {
-		var id uuid.UUID
-		if err := rows.Scan(&id); err != nil {
-			return nil, err
-		}
-		items = append(items, id)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getUserByID = `-- name: GetUserByID :one
 SELECT
   id
@@ -79,4 +50,33 @@ func (q *Queries) GetUserByID(ctx context.Context, arg GetUserByIDParams) (uuid.
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const getUsers = `-- name: GetUsers :many
+SELECT
+  id
+FROM
+  users
+ORDER BY
+  id ASC
+`
+
+func (q *Queries) GetUsers(ctx context.Context) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, getUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

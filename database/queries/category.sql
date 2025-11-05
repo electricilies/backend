@@ -38,7 +38,8 @@ LIMIT COALESCE(sqlc.narg('limit')::integer, 10);
 UPDATE
   categories
 SET
-  name = @name
+  name = @name,
+  updated_at = NOW()
 WHERE
   deleted_at IS NULL
   AND id = @id

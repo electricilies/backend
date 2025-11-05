@@ -73,51 +73,6 @@ func (q *Queries) CreateOptionValues(ctx context.Context, arg CreateOptionValues
 	return items, nil
 }
 
-const getAllOptions = `-- name: GetAllOptions :many
-SELECT
-  options.id, options.name, options.product_id, options.deleted_at,
-  option_values.id, option_values.value, option_values.option_id
-FROM
-  options,
-  option_values
-WHERE
-  options.id = option_values.option_id
-  AND options.deleted_at IS NULL
-`
-
-type GetAllOptionsRow struct {
-	Option      Option
-	OptionValue OptionValue
-}
-
-func (q *Queries) GetAllOptions(ctx context.Context) ([]GetAllOptionsRow, error) {
-	rows, err := q.db.Query(ctx, getAllOptions)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetAllOptionsRow
-	for rows.Next() {
-		var i GetAllOptionsRow
-		if err := rows.Scan(
-			&i.Option.ID,
-			&i.Option.Name,
-			&i.Option.ProductID,
-			&i.Option.DeletedAt,
-			&i.OptionValue.ID,
-			&i.OptionValue.Value,
-			&i.OptionValue.OptionID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getOptionByID = `-- name: GetOptionByID :one
 SELECT
   options.id, options.name, options.product_id, options.deleted_at,
@@ -153,4 +108,49 @@ func (q *Queries) GetOptionByID(ctx context.Context, arg GetOptionByIDParams) (G
 		&i.OptionValue.OptionID,
 	)
 	return i, err
+}
+
+const getOptions = `-- name: GetOptions :many
+SELECT
+  options.id, options.name, options.product_id, options.deleted_at,
+  option_values.id, option_values.value, option_values.option_id
+FROM
+  options,
+  option_values
+WHERE
+  options.id = option_values.option_id
+  AND options.deleted_at IS NULL
+`
+
+type GetOptionsRow struct {
+	Option      Option
+	OptionValue OptionValue
+}
+
+func (q *Queries) GetOptions(ctx context.Context) ([]GetOptionsRow, error) {
+	rows, err := q.db.Query(ctx, getOptions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetOptionsRow
+	for rows.Next() {
+		var i GetOptionsRow
+		if err := rows.Scan(
+			&i.Option.ID,
+			&i.Option.Name,
+			&i.Option.ProductID,
+			&i.Option.DeletedAt,
+			&i.OptionValue.ID,
+			&i.OptionValue.Value,
+			&i.OptionValue.OptionID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

@@ -19,7 +19,7 @@ SELECT
 RETURNING
   *;
 
--- name: GetAllOptions :many
+-- name: GetOptions :many
 SELECT
   sqlc.embed(options),
   sqlc.embed(option_values)

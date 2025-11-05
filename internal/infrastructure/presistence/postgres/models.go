@@ -39,6 +39,7 @@ type Category struct {
 	ID        int32
 	Name      string
 	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 	DeletedAt pgtype.Timestamp
 }
 
@@ -103,6 +104,7 @@ type Product struct {
 	ID            int32
 	Name          string
 	Description   string
+	Price         pgtype.Numeric
 	ViewsCount    int32
 	TotalPurchase int32
 	TrendingScore float64

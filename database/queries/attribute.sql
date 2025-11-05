@@ -21,9 +21,11 @@ SELECT
 RETURNING
   *;
 
--- name: GetAllAttributes :many
+-- name: GetAttributes :many
 SELECT
-  *
+  *,
+  COUNT(*) OVER() AS current_count,
+  COUNT(*) AS total_count
 FROM
   attributes
 ORDER BY

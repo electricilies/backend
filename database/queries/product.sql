@@ -1,4 +1,4 @@
--- name: CreateProduct :exec
+-- name: CreateProduct :one
 INSERT INTO products (
   name,
   description
@@ -6,7 +6,9 @@ INSERT INTO products (
 VALUES (
   @name,
   @description
-);
+)
+RETURNING
+  *;
 
 -- name: CreateProductVariants :execresult
 INSERT INTO product_variants (
@@ -30,9 +32,7 @@ INSERT INTO product_images (
 SELECT
   UNNEST(@urls::text[]) AS url,
   UNNEST(@orders::integer[]) AS "order",
-  UNNEST(@product_variant_ids::integer[]) AS product_variant_id
-RETURNING
-  *;
+  UNNEST(@product_variant_ids::integer[]) AS product_variant_id;
 
 -- name: LinkProductAttributeValues :execrows
 INSERT INTO products_attribute_values (
@@ -43,7 +43,7 @@ SELECT
   @product_id,
   UNNEST(@attribute_value_ids::integer[]) AS attribute_value_id;
 
--- name: LinkProductOptions :execrows
+-- name: LinkProductOptionValues :execrows
 INSERT INTO option_values_product_variants (
   option_value_id,
   product_variant_id
@@ -61,7 +61,7 @@ SELECT
   @product_id,
   UNNEST(@category_ids::integer[]) AS category_id;
 
--- name: GetAllProducts :many
+-- name: GetProducts :many
 SELECT
   sqlc.embed(products),
   sqlc.embed(product_variants),
@@ -171,7 +171,8 @@ INNER JOIN categories
   ON products_categories.category_id = categories.id
 WHERE
   products.id = @id::integer -- sqlc requires this
-  AND products.deleted_at IS NULL;
+  AND products.deleted_at IS NULL
+  AND categories.deleted_at IS NULL;
 
 -- name: GetSuggestedProducts :many
 -- TODO: Will we implement this?

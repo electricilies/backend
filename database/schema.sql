@@ -8,6 +8,7 @@ CREATE TABLE categories (
   id SERIAL PRIMARY KEY,
   name TEXT UNIQUE NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP
 );
 
@@ -16,6 +17,7 @@ CREATE TABLE products (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT NOT NULL,
+  price DECIMAL(12, 0) NOT NULL,
   views_count INTEGER NOT NULL DEFAULT 0,
   total_purchase INTEGER NOT NULL DEFAULT 0,
   trending_score FLOAT NOT NULL DEFAULT 0,
@@ -51,7 +53,7 @@ CREATE TABLE products_attribute_values (
 CREATE TABLE product_variants (
   id SERIAL PRIMARY KEY,
   sku TEXT UNIQUE NOT NULL,
-  price DECIMAL NOT NULL,
+  price DECIMAL(12, 0) NOT NULL,
   quantity INTEGER NOT NULL,
   purchase_count INTEGER NOT NULL DEFAULT 0,
   product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
@@ -147,7 +149,6 @@ CREATE TABLE payment_providers (
   id SERIAL PRIMARY KEY,
   name TEXT UNIQUE NOT NULL
 );
-
 
 -- orders
 CREATE TABLE orders (
