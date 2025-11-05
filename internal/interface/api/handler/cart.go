@@ -44,7 +44,7 @@ func (h *cartHandler) GetCartByUser(ctx *gin.Context) {
 //	@Success		201		{object}	response.CartItem
 //	@Failure		400		{object}	mapper.BadRequestError
 //	@Failure		500		{object}	mapper.InternalServerError
-//	@Router			/carts [post]
+//	@Router			/carts/item  [post]
 func (h *cartHandler) AddItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -62,7 +62,7 @@ func (h *cartHandler) AddItem(ctx *gin.Context) {
 //	@Failure		400		{object}	mapper.BadRequestError
 //	@Failure		404		{object}	mapper.NotFoundError
 //	@Failure		500		{object}	mapper.InternalServerError
-//	@Router			/carts [put]
+//	@Router			/carts/item [put]
 func (h *cartHandler) UpdateItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -78,7 +78,7 @@ func (h *cartHandler) UpdateItem(ctx *gin.Context) {
 //	@Success		204		{string}	string	"no content"
 //	@Failure		404		{object}	mapper.NotFoundError
 //	@Failure		500		{object}	mapper.InternalServerError
-//	@Router			/carts [delete]
+//	@Router			/carts/item [delete]
 func (h *cartHandler) RemoveItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

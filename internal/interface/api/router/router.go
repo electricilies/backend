@@ -81,9 +81,9 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 		cart := api.Group("/carts")
 		{
 			cart.GET("", r.cartHandler.GetCartByUser)
-			cart.POST("", r.cartHandler.AddItem)
-			cart.PUT("", r.cartHandler.UpdateItem)
-			cart.DELETE("", r.cartHandler.RemoveItem)
+			cart.POST("/item", r.cartHandler.AddItem)
+			cart.PUT("/item", r.cartHandler.UpdateItem)
+			cart.DELETE("/item", r.cartHandler.RemoveItem)
 		}
 		categories := api.Group("/categories")
 		{

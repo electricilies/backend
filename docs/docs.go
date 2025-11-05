@@ -288,7 +288,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/carts/item": {
             "put": {
                 "description": "Update quantity of a cart item",
                 "consumes": [
