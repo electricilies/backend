@@ -100,6 +100,12 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 			products.GET("/:id", r.productHandler.Get)
 			products.PUT("/:id", r.productHandler.Update)
 			products.DELETE("/:id", r.productHandler.Delete)
+			products.POST("/options", r.productHandler.CreateProductOption)
+			products.POST("/images", r.productHandler.CreateProductImage)
+			products.POST("/variants", r.productHandler.CreateProductVariant)
+			products.PUT("/variants/:variant_id", r.productHandler.UpdateProductVariant)
+			products.PUT("/options/:option_id", r.productHandler.UpdateProductOption)
+
 		}
 
 		attributes := api.Group("/attributes")

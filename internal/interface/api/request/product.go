@@ -37,3 +37,12 @@ type CreateProductImage struct {
 	Order            int    `json:"order,omitempty"`
 	ProductVariantID int    `json:"productVariantId,omitempty"`
 }
+
+type CreateProductOption struct {
+	Option string `json:"option" binding:"required"`
+	Value  string `json:"value" binding:"required"`
+}
+
+type UpdateProductOption struct {
+	Value string `json:"value" binding:"required"`
+}

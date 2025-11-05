@@ -971,6 +971,292 @@ const docTemplate = `{
                 }
             }
         },
+        "/products/images": {
+            "post": {
+                "description": "Create a new image for a product variant",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Create a new product image",
+                "parameters": [
+                    {
+                        "description": "Product image request",
+                        "name": "productImage",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateProductImage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProductVariantImage"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.BadRequestError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.ConflictError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/options": {
+            "post": {
+                "description": "Create a new product option for a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Create a new product option",
+                "parameters": [
+                    {
+                        "description": "Product option request",
+                        "name": "productOption",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateProductOption"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProductOptionValue"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.BadRequestError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.ConflictError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/options/{id}": {
+            "put": {
+                "description": "Update a product option by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Update a product option",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product Option ID",
+                        "name": "option_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update product option request",
+                        "name": "productOption",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateProductOption"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "no content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.BadRequestError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.NotFoundError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.ConflictError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/variants": {
+            "post": {
+                "description": "Create a new variant for a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Create a new product variant",
+                "parameters": [
+                    {
+                        "description": "Product variant request",
+                        "name": "productVariant",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateProductVariant"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProductVariant"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.BadRequestError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.ConflictError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/variants/{id}": {
+            "put": {
+                "description": "Update a product variant by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Update a product variant",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product Variant ID",
+                        "name": "variant_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update product variant request",
+                        "name": "productVariant",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateProductVariant"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "no content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.BadRequestError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.NotFoundError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.ConflictError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/products/{id}": {
             "get": {
                 "description": "Get product details by ID",
@@ -2006,6 +2292,63 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreateProductImage": {
+            "type": "object",
+            "required": [
+                "url"
+            ],
+            "properties": {
+                "order": {
+                    "type": "integer"
+                },
+                "productVariantId": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateProductOption": {
+            "type": "object",
+            "required": [
+                "option",
+                "value"
+            ],
+            "properties": {
+                "option": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateProductVariant": {
+            "type": "object",
+            "required": [
+                "price",
+                "quantity",
+                "sku"
+            ],
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "productOptions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.productOption"
+                    }
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateReturnRequest": {
             "type": "object",
             "required": [
@@ -2137,6 +2480,28 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateProductOption": {
+            "type": "object",
+            "required": [
+                "value"
+            ],
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateProductVariant": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.UpdateReturnRequestStatus": {
             "type": "object",
             "required": [
@@ -2187,6 +2552,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phoneNumber": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.productOption": {
+            "type": "object",
+            "required": [
+                "option",
+                "optionValue"
+            ],
+            "properties": {
+                "option": {
+                    "type": "string"
+                },
+                "optionValue": {
                     "type": "string"
                 }
             }
