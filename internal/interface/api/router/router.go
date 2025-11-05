@@ -117,10 +117,9 @@ func (r *router) RegisterRoutes(engine *gin.Engine) {
 			attributes.DELETE("/:id", r.attributeHandler.Delete)
 		}
 
-		payments := api.Group("/payment")
-		{
-			payments.GET("/methods", r.paymentHandler.ListMethods)
-		}
+		// payments := api.Group("/payment")
+		// {
+		// }
 
 		orders := api.Group("/orders")
 		{

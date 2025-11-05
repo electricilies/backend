@@ -1,9 +1,8 @@
 package request
 
 type CreateOrder struct {
-	UserID    string             `json:"userId" binding:"required"`
-	PaymentID int                `json:"paymentId" binding:"required"`
-	Items     []OrderItemRequest `json:"items" binding:"required"`
+	UserID string             `json:"userId" binding:"required"`
+	Items  []OrderItemRequest `json:"items" binding:"required"`
 }
 
 type OrderItemRequest struct {

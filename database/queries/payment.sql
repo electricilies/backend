@@ -2,13 +2,11 @@
 WITH payments AS (
   INSERT INTO payments (
     amount,
-    method_id,
     status_id,
     provider_id
   )
   VALUES (
     @amount,
-    @method_id,
     @status_id,
     @provider_id
   )
@@ -18,13 +16,10 @@ WITH payments AS (
 SELECT
   sqlc.embed(payments),
   sqlc.embed(payment_statuses),
-  sqlc.embed(payment_methods),
   sqlc.embed(payment_providers)
 FROM payments
 INNER JOIN payment_statuses
   ON payments.status_id = payment_statuses.id
-INNER JOIN payment_methods
-  ON payments.method_id = payment_methods.id
 INNER JOIN payment_providers
   ON payments.provider_id = payment_providers.id;
 
@@ -32,7 +27,6 @@ INNER JOIN payment_providers
 SELECT
   sqlc.embed(payments),
   sqlc.embed(payment_statuses),
-  sqlc.embed(payment_methods),
   sqlc.embed(payment_providers),
   COUNT(*) OVER() AS current_count,
   COUNT(*) AS total_count
@@ -40,8 +34,6 @@ FROM
   payments
 INNER JOIN payment_statuses
   ON payments.status_id = payment_statuses.id
-INNER JOIN payment_methods
-  ON payments.method_id = payment_methods.id
 INNER JOIN payment_providers
   ON payments.provider_id = payment_providers.id
 ORDER BY
@@ -53,7 +45,6 @@ LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
 SELECT
   sqlc.embed(payments),
   sqlc.embed(payment_statuses),
-  sqlc.embed(payment_methods),
   sqlc.embed(payment_providers)
 FROM
   payments
@@ -61,8 +52,6 @@ INNER JOIN orders
   ON payments.id = orders.payment_id
 INNER JOIN payment_statuses
   ON payments.status_id = payment_statuses.id
-INNER JOIN payment_methods
-  ON payments.method_id = payment_methods.id
 INNER JOIN payment_providers
   ON payments.provider_id = payment_providers.id
 WHERE

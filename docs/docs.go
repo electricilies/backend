@@ -857,38 +857,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/payments/methods": {
-            "get": {
-                "description": "Get all available payment methods",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Payment"
-                ],
-                "summary": "List payment methods",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/products": {
             "get": {
                 "description": "Get all products",
@@ -2254,7 +2222,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "items",
-                "paymentId",
                 "userId"
             ],
             "properties": {
@@ -2263,9 +2230,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/request.OrderItemRequest"
                     }
-                },
-                "paymentId": {
-                    "type": "integer"
                 },
                 "userId": {
                     "type": "string"
@@ -2679,7 +2643,7 @@ const docTemplate = `{
                 "id",
                 "items",
                 "orderStatusId",
-                "paymentId",
+                "payment",
                 "updatedAt",
                 "userId"
             ],
@@ -2699,8 +2663,8 @@ const docTemplate = `{
                 "orderStatusId": {
                     "type": "integer"
                 },
-                "paymentId": {
-                    "type": "integer"
+                "payment": {
+                    "$ref": "#/definitions/response.Payment"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -2746,7 +2710,6 @@ const docTemplate = `{
             "required": [
                 "amount",
                 "id",
-                "paymentMethodId",
                 "paymentStatusId",
                 "updatedAt"
             ],
@@ -2756,9 +2719,6 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
-                },
-                "paymentMethodId": {
-                    "type": "string"
                 },
                 "paymentProviderId": {
                     "type": "string"

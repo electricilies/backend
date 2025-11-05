@@ -66,7 +66,6 @@ type Order struct {
 	UpdatedAt pgtype.Timestamp
 	userID    uuid.UUID
 	StatusID  int32
-	PaymentID int32
 }
 
 type OrderItem struct {
@@ -85,14 +84,9 @@ type Payment struct {
 	ID         int32
 	Amount     pgtype.Numeric
 	UpdatedAt  pgtype.Timestamp
-	MethodID   int32
 	StatusID   int32
 	ProviderID int32
-}
-
-type PaymentMethod struct {
-	ID   int32
-	Name string
+	OrderID    int32
 }
 
 type PaymentProvider struct {
