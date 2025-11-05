@@ -86,7 +86,7 @@ const getCartByUserID = `-- name: GetCartByUserID :many
 SELECT
   carts.id, carts.user_id, carts.updated_at,
   cart_items.id, cart_items.quantity, cart_items.cart_id, cart_items.product_variant_id,
-  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
+  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
   product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at
 FROM
   carts
@@ -136,6 +136,7 @@ func (q *Queries) GetCartByUserID(ctx context.Context, arg GetCartByUserIDParams
 			&i.Product.Price,
 			&i.Product.ViewsCount,
 			&i.Product.TotalPurchase,
+			&i.Product.Rating,
 			&i.Product.TrendingScore,
 			&i.Product.CreatedAt,
 			&i.Product.UpdatedAt,

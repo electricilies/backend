@@ -23,6 +23,7 @@ INNER JOIN payment_statuses
 INNER JOIN payment_providers
   ON payments.provider_id = payment_providers.id;
 
+-- NOTE: Filter by between dates? statuses?
 -- name: GetPayments :many
 SELECT
   sqlc.embed(payments),

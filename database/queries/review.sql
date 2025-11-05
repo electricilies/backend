@@ -1,10 +1,10 @@
 -- name: CreateReview :one
 INSERT INTO reviews (
-    rating,
-    content,
-    image_url,
-    user_id,
-    product_id
+  rating,
+  content,
+  image_url,
+  user_id,
+  product_id
 )
 VALUES (
   @rating,

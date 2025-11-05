@@ -107,7 +107,8 @@ type Product struct {
 	Price         pgtype.Numeric
 	ViewsCount    int32
 	TotalPurchase int32
-	TrendingScore float64
+	Rating        float32
+	TrendingScore float32
 	CreatedAt     pgtype.Timestamp
 	UpdatedAt     pgtype.Timestamp
 	DeletedAt     pgtype.Timestamp
@@ -174,7 +175,7 @@ type ReturnRequestStatus struct {
 
 type Review struct {
 	ID        int32
-	Rating    int32
+	Rating    int16
 	Content   pgtype.Text
 	ImageURL  string
 	CreatedAt pgtype.Timestamp

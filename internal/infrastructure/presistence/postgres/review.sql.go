@@ -14,11 +14,11 @@ import (
 
 const createReview = `-- name: CreateReview :one
 INSERT INTO reviews (
-    rating,
-    content,
-    image_url,
-    user_id,
-    product_id
+  rating,
+  content,
+  image_url,
+  user_id,
+  product_id
 )
 VALUES (
   $1,
@@ -32,7 +32,7 @@ RETURNING
 `
 
 type CreateReviewParams struct {
-	Rating    int32
+	Rating    int16
 	Content   pgtype.Text
 	ImageURL  string
 	userID    uuid.UUID
@@ -107,7 +107,7 @@ type GetReviewsByProductIDParams struct {
 
 type GetReviewsByProductIDRow struct {
 	ID           int32
-	Rating       int32
+	Rating       int16
 	Content      pgtype.Text
 	ImageURL     string
 	CreatedAt    pgtype.Timestamp

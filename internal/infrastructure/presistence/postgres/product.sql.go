@@ -22,7 +22,7 @@ VALUES (
   $2
 )
 RETURNING
-  id, name, description, price, views_count, total_purchase, trending_score, created_at, updated_at, deleted_at
+  id, name, description, price, views_count, total_purchase, rating, trending_score, created_at, updated_at, deleted_at
 `
 
 type CreateProductParams struct {
@@ -40,6 +40,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.Price,
 		&i.ViewsCount,
 		&i.TotalPurchase,
+		&i.Rating,
 		&i.TrendingScore,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -127,7 +128,7 @@ func (q *Queries) DeleteProducts(ctx context.Context, arg DeleteProductsParams) 
 
 const getProductByID = `-- name: GetProductByID :one
 SELECT
-  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
+  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
   product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at, product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at,
   product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_variant_id, product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_variant_id,
   products_attribute_values.product_id, products_attribute_values.attribute_value_id, products_attribute_values.product_id, products_attribute_values.attribute_value_id,
@@ -174,6 +175,8 @@ WHERE
   products.id = $1::integer -- sqlc requires this
   AND products.deleted_at IS NULL
   AND categories.deleted_at IS NULL
+  AND attributes.deleted_at IS NULL
+  AND options.deleted_at IS NULL
 `
 
 type GetProductByIDParams struct {
@@ -204,6 +207,7 @@ func (q *Queries) GetProductByID(ctx context.Context, arg GetProductByIDParams) 
 		&i.Product.Price,
 		&i.Product.ViewsCount,
 		&i.Product.TotalPurchase,
+		&i.Product.Rating,
 		&i.Product.TrendingScore,
 		&i.Product.CreatedAt,
 		&i.Product.UpdatedAt,
@@ -253,7 +257,7 @@ func (q *Queries) GetProductByID(ctx context.Context, arg GetProductByIDParams) 
 
 const getProducts = `-- name: GetProducts :many
 SELECT
-  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
+  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
   product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at, product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at,
   product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_variant_id, product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_variant_id,
   products_attribute_values.product_id, products_attribute_values.attribute_value_id, products_attribute_values.product_id, products_attribute_values.attribute_value_id,
@@ -301,6 +305,8 @@ INNER JOIN categories
 WHERE
   products.deleted_at IS NULL
   AND categories.deleted_at IS NULL
+  AND attributes.deleted_at IS NULL
+  AND options.deleted_at IS NULL
   AND (
     $1::integer IS NULL
     OR categories.id = $1::integer
@@ -359,6 +365,7 @@ func (q *Queries) GetProducts(ctx context.Context, arg GetProductsParams) ([]Get
 			&i.Product.Price,
 			&i.Product.ViewsCount,
 			&i.Product.TotalPurchase,
+			&i.Product.Rating,
 			&i.Product.TrendingScore,
 			&i.Product.CreatedAt,
 			&i.Product.UpdatedAt,
@@ -429,7 +436,7 @@ WHERE
   deleted_at IS NULL
   AND id = $1
 RETURNING
-  id, name, description, price, views_count, total_purchase, trending_score, created_at, updated_at, deleted_at
+  id, name, description, price, views_count, total_purchase, rating, trending_score, created_at, updated_at, deleted_at
 `
 
 type GetSuggestedProductsParams struct {
@@ -453,6 +460,7 @@ func (q *Queries) GetSuggestedProducts(ctx context.Context, arg GetSuggestedProd
 			&i.Price,
 			&i.ViewsCount,
 			&i.TotalPurchase,
+			&i.Rating,
 			&i.TrendingScore,
 			&i.CreatedAt,
 			&i.UpdatedAt,

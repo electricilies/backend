@@ -111,6 +111,8 @@ INNER JOIN categories
 WHERE
   products.deleted_at IS NULL
   AND categories.deleted_at IS NULL
+  AND attributes.deleted_at IS NULL
+  AND options.deleted_at IS NULL
   AND (
     sqlc.narg('category_id')::integer IS NULL
     OR categories.id = sqlc.narg('category_id')::integer
@@ -172,7 +174,9 @@ INNER JOIN categories
 WHERE
   products.id = @id::integer -- sqlc requires this
   AND products.deleted_at IS NULL
-  AND categories.deleted_at IS NULL;
+  AND categories.deleted_at IS NULL
+  AND attributes.deleted_at IS NULL
+  AND options.deleted_at IS NULL;
 
 -- name: GetSuggestedProducts :many
 -- TODO: Will we implement this?

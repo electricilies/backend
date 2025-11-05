@@ -73,6 +73,35 @@ func (q *Queries) CreateOptionValues(ctx context.Context, arg CreateOptionValues
 	return items, nil
 }
 
+const deleteOptionValue = `-- name: DeleteOptionValue :execrows
+WITH _ AS (
+  DELETE FROM
+    option_values
+  WHERE
+    id = $1
+    AND deleted_at IS NULL
+),
+_ AS (
+  DELETE FROM
+    option_values_product_variants
+  WHERE
+    option_value_id = $1
+)
+SELECT 1
+`
+
+type DeleteOptionValueParams struct {
+	ID int32
+}
+
+func (q *Queries) DeleteOptionValue(ctx context.Context, arg DeleteOptionValueParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteOptionValue, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const getOptionByID = `-- name: GetOptionByID :one
 SELECT
   options.id, options.name, options.product_id, options.deleted_at,
@@ -153,4 +182,27 @@ func (q *Queries) GetOptions(ctx context.Context) ([]GetOptionsRow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateOptionValue = `-- name: UpdateOptionValue :one
+UPDATE option_values
+SET
+  value = $1
+WHERE
+  id = $2
+  AND deleted_at IS NULL
+RETURNING
+  id, value, option_id
+`
+
+type UpdateOptionValueParams struct {
+	Value string
+	ID    int32
+}
+
+func (q *Queries) UpdateOptionValue(ctx context.Context, arg UpdateOptionValueParams) (OptionValue, error) {
+	row := q.db.QueryRow(ctx, updateOptionValue, arg.Value, arg.ID)
+	var i OptionValue
+	err := row.Scan(&i.ID, &i.Value, &i.OptionID)
+	return i, err
 }

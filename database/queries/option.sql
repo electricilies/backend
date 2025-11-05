@@ -41,3 +41,29 @@ WHERE
   options.id = @id::integer
   AND option_values.option_id = options.id
   AND options.deleted_at IS NULL;
+
+-- name: UpdateOptionValue :one
+UPDATE option_values
+SET
+  value = @value
+WHERE
+  id = @id
+  AND deleted_at IS NULL
+RETURNING
+  *;
+
+-- name: DeleteOptionValue :execrows
+WITH _ AS (
+  DELETE FROM
+    option_values
+  WHERE
+    id = @id
+    AND deleted_at IS NULL
+),
+_ AS (
+  DELETE FROM
+    option_values_product_variants
+  WHERE
+    option_value_id = @id
+)
+SELECT 1;

@@ -144,6 +144,7 @@ type GetPaymentsRow struct {
 	TotalCount      int64
 }
 
+// NOTE: Filter by between dates? statuses?
 func (q *Queries) GetPayments(ctx context.Context, arg GetPaymentsParams) ([]GetPaymentsRow, error) {
 	rows, err := q.db.Query(ctx, getPayments, arg.Offset, arg.Limit)
 	if err != nil {

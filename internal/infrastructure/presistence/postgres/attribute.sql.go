@@ -79,8 +79,10 @@ func (q *Queries) CreateAttributeValues(ctx context.Context, arg CreateAttribute
 }
 
 const deleteAttribute = `-- name: DeleteAttribute :execrows
-DELETE FROM
+UPDATE
   attributes
+SET
+  deleted_at = NOW()
 WHERE
   id = $1
 `

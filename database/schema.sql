@@ -20,7 +20,8 @@ CREATE TABLE products (
   price DECIMAL(12, 0) NOT NULL,
   views_count INTEGER NOT NULL DEFAULT 0,
   total_purchase INTEGER NOT NULL DEFAULT 0,
-  trending_score FLOAT NOT NULL DEFAULT 0,
+  rating REAL NOT NULL DEFAULT 0,
+  trending_score REAL NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP
@@ -37,8 +38,7 @@ CREATE TABLE attributes (
 -- attribute_values
 CREATE TABLE attribute_values (
   id SERIAL PRIMARY KEY,
-  attribute_id INTEGER NOT NULL REFERENCES attributes (id)
-  ON UPDATE CASCADE,
+  attribute_id INTEGER NOT NULL REFERENCES attributes (id) ON UPDATE CASCADE ON DELETE CASCADE,
   value TEXT NOT NULL
 );
 
@@ -74,7 +74,7 @@ CREATE TABLE product_images (
 -- reviews
 CREATE TABLE reviews (
   id SERIAL PRIMARY KEY,
-  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  rating SMALLINT NOT NULL CHECK (rating >= 1 AND rating <= 5),
   content TEXT,
   image_url TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),

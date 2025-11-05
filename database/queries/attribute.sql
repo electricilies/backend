@@ -53,7 +53,9 @@ RETURNING
   *;
 
 -- name: DeleteAttribute :execrows
-DELETE FROM
+UPDATE
   attributes
+SET
+  deleted_at = NOW()
 WHERE
   id = @id;
