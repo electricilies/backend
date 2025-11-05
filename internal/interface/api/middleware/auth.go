@@ -1,10 +1,12 @@
 package middleware
 
 import (
-	"backend/internal/constant"
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
+
+	"backend/internal/constant"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-gonic/gin"
@@ -72,6 +74,7 @@ func (j *jwtVerify) Handler() gin.HandlerFunc {
 			return
 		}
 		ctx.Set(constant.TokenKey, token)
+		fmt.Println("Token in middleware:", token)
 		c := context.WithValue(ctx.Request.Context(), constant.TokenKey, token)
 		ctx.Request = ctx.Request.WithContext(c)
 		ctx.Set("claims", claims)

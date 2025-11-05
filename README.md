@@ -70,6 +70,8 @@ TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keyclo
 ### Note
 
 - Running gen first, then format
+- Keycloak endpoint:
+  - [well-known](http://localhost:8081/realms/electricilies/.well-known/openid-configuration)
 
 ## References
 

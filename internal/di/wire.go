@@ -43,6 +43,7 @@ var AppSet = wire.NewSet(
 var MiddlewareSet = wire.NewSet(
 	middleware.NewMetric,
 	middleware.NewLogging,
+	middleware.NewJWTVerify,
 )
 
 var HandlerSet = wire.NewSet(

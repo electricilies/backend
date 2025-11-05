@@ -27,6 +27,7 @@ type router struct {
 	healthHandler     handler.HealthCheck
 	metricMiddleware  middleware.Metric
 	loggingMiddleware middleware.Logging
+	authMiddleware    middleware.JWTVerify // FIXME: Rename jwt to auth
 }
 
 func New(
@@ -34,6 +35,7 @@ func New(
 	healthCheckHandler handler.HealthCheck,
 	metricMiddleware middleware.Metric,
 	loggingMiddleware middleware.Logging,
+	authMiddleware middleware.JWTVerify,
 	categoryHandler handler.Category,
 	productHandler handler.Product,
 	attributeHandler handler.Attribute,
@@ -49,6 +51,7 @@ func New(
 		healthHandler:     healthCheckHandler,
 		metricMiddleware:  metricMiddleware,
 		loggingMiddleware: loggingMiddleware,
+		authMiddleware:    authMiddleware,
 		categoryHandler:   categoryHandler,
 		productHandler:    productHandler,
 		attributeHandler:  attributeHandler,
@@ -64,6 +67,7 @@ func New(
 func (r *router) RegisterRoutes(e *gin.Engine) {
 	e.Use(r.metricMiddleware.Handler())
 	e.Use(r.loggingMiddleware.Handler())
+	e.Use(r.authMiddleware.Handler())
 	e.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	e.GET("/health", r.healthHandler.Liveness)
 	e.GET("/ready", r.healthHandler.Readiness)

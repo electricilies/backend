@@ -1921,6 +1921,11 @@ const docTemplate = `{
         },
         "/users/{user_id}": {
             "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    }
+                ],
                 "description": "Get user by ID",
                 "consumes": [
                     "application/json"

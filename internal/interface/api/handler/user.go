@@ -42,6 +42,8 @@ func NewUser(app application.User) User {
 //	@Failure		404		{object}	mapper.NotFoundError		"not found"
 //	@Failure		500		{object}	mapper.InternalServerError	"internal error"
 //	@Router			/users/{user_id} [get]
+//
+//	@Security		OAuth2AccessCode
 func (h *userHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("user_id")
 	u, err := h.app.Get(ctx, id)
