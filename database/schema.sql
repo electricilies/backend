@@ -162,7 +162,7 @@ CREATE TABLE orders (
 -- payments
 CREATE TABLE payments (
   id SERIAL PRIMARY KEY,
-  amount DECIMAL NOT NULL,
+  amount DECIMAL(12, 0) NOT NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   status_id INTEGER NOT NULL DEFAULT 1 REFERENCES payment_statuses (id) ON UPDATE CASCADE,
   provider_id INTEGER NOT NULL REFERENCES payment_providers (id) ON UPDATE CASCADE,
