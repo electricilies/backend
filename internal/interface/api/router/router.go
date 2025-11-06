@@ -27,7 +27,7 @@ type router struct {
 	healthHandler     handler.HealthCheck
 	metricMiddleware  middleware.Metric
 	loggingMiddleware middleware.Logging
-	authMiddleware    middleware.JWTVerify // FIXME: Rename jwt to auth
+	authMiddleware    middleware.Auth // FIXME: Rename jwt to auth
 }
 
 func New(
@@ -35,7 +35,7 @@ func New(
 	healthCheckHandler handler.HealthCheck,
 	metricMiddleware middleware.Metric,
 	loggingMiddleware middleware.Logging,
-	authMiddleware middleware.JWTVerify,
+	authMiddleware middleware.Auth,
 	categoryHandler handler.Category,
 	productHandler handler.Product,
 	attributeHandler handler.Attribute,

@@ -19,19 +19,19 @@ type Role interface {
 	Handler() gin.HandlerFunc
 }
 
-type role struct {
+type roleMiddleware struct {
 	clientId      string
 	requiredRoles []UserRole
 }
 
 func NewRole(clientId string, requiredRoles []UserRole) Role {
-	return &role{
+	return &roleMiddleware{
 		clientId:      clientId,
 		requiredRoles: requiredRoles,
 	}
 }
 
-func (r *role) Handler() gin.HandlerFunc {
+func (r *roleMiddleware) Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		claimsInterface, exists := ctx.Get("claims")
 		if !exists {

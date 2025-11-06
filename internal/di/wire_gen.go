@@ -17,7 +17,6 @@ import (
 	"backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
-
 	"github.com/google/wire"
 )
 
@@ -38,6 +37,7 @@ func InitializeServer() *server.Server {
 	healthCheck := handler.NewHealthCheck(goCloak, redisClient, s3Client, pool)
 	metric := middleware.NewMetric()
 	logging := middleware.NewLogging()
+	auth := middleware.NewJWTVerify(goCloak)
 	category := handler.NewCategory()
 	product := handler.NewProduct()
 	attribute := handler.NewAttribute()
@@ -47,7 +47,7 @@ func InitializeServer() *server.Server {
 	refund := handler.NewRefund()
 	review := handler.NewReview()
 	cart := handler.NewCart()
-	routerRouter := router.New(handlerUser, healthCheck, metric, logging, category, product, attribute, payment, order, returnRequest, refund, review, cart)
+	routerRouter := router.New(handlerUser, healthCheck, metric, logging, auth, category, product, attribute, payment, order, returnRequest, refund, review, cart)
 	serverServer := server.New(engine, routerRouter)
 	return serverServer
 }
@@ -64,7 +64,7 @@ var ServiceSet = wire.NewSet(user2.NewService)
 
 var AppSet = wire.NewSet(application.NewUser)
 
-var MiddlewareSet = wire.NewSet(middleware.NewMetric, middleware.NewLogging)
+var MiddlewareSet = wire.NewSet(middleware.NewMetric, middleware.NewLogging, middleware.NewJWTVerify)
 
 var HandlerSet = wire.NewSet(handler.NewUser, handler.NewHealthCheck, handler.NewCategory, handler.NewProduct, handler.NewAttribute, handler.NewPayment, handler.NewOrder, handler.NewReturn, handler.NewRefund, handler.NewReview, handler.NewCart)
 

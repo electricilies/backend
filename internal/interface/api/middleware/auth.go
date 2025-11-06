@@ -1,39 +1,39 @@
 package middleware
 
 import (
+	"backend/config"
+	"backend/internal/constant"
 	"context"
 	"fmt"
 	"net/http"
 	"strings"
-
-	"backend/internal/constant"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type JWTVerify interface {
+type Auth interface {
 	Handler() gin.HandlerFunc
 }
 
-type jwtVerify struct {
+type authMiddleware struct {
 	keycloakClient *gocloak.GoCloak
 	clientId       string
 	clientSecret   string
 	realm          string
 }
 
-func NewJWTVerify(keycloakClient *gocloak.GoCloak, clientId, clientSecret, realm string) JWTVerify {
-	return &jwtVerify{
+func NewJWTVerify(keycloakClient *gocloak.GoCloak) Auth {
+	return &authMiddleware{
 		keycloakClient: keycloakClient,
-		clientId:       clientId,
-		clientSecret:   clientSecret,
-		realm:          realm,
+		clientId:       config.Cfg.KcClientId,
+		clientSecret:   config.Cfg.KcClientSecret,
+		realm:          config.Cfg.KcRealm,
 	}
 }
 
-func (j *jwtVerify) Handler() gin.HandlerFunc {
+func (j *authMiddleware) Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {

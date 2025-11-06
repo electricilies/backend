@@ -13,17 +13,17 @@ type Logging interface {
 	Handler() gin.HandlerFunc
 }
 
-type logging struct {
+type loggingMiddleware struct {
 	skipPaths []string
 }
 
 func NewLogging() Logging {
-	return &logging{
+	return &loggingMiddleware{
 		skipPaths: []string{"/health", "/metrics", "/swagger"},
 	}
 }
 
-func (l *logging) Handler() gin.HandlerFunc {
+func (l *loggingMiddleware) Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		skipPathSet := make(map[string]struct{}, len(l.skipPaths))
 		for _, p := range l.skipPaths {
