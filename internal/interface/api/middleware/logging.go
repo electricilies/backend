@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"backend/pkg/logger"
 	"time"
+
+	"backend/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -13,26 +14,14 @@ type Logging interface {
 	Handler() gin.HandlerFunc
 }
 
-type loggingMiddleware struct {
-	skipPaths []string
-}
+type loggingMiddleware struct{}
 
 func NewLogging() Logging {
-	return &loggingMiddleware{
-		skipPaths: []string{"/health", "/metrics", "/swagger"},
-	}
+	return &loggingMiddleware{}
 }
 
 func (l *loggingMiddleware) Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		skipPathSet := make(map[string]struct{}, len(l.skipPaths))
-		for _, p := range l.skipPaths {
-			skipPathSet[p] = struct{}{}
-		}
-		if _, ok := skipPathSet[ctx.Request.URL.Path]; ok {
-			ctx.Next()
-			return
-		}
 		start := time.Now()
 		path := ctx.Request.URL.Path
 		query := ctx.Request.URL.RawQuery

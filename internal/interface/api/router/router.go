@@ -27,7 +27,7 @@ type router struct {
 	healthHandler     handler.HealthCheck
 	metricMiddleware  middleware.Metric
 	loggingMiddleware middleware.Logging
-	authMiddleware    middleware.Auth // FIXME: Rename jwt to auth
+	authMiddleware    middleware.Auth
 }
 
 func New(
@@ -66,12 +66,12 @@ func New(
 
 func (r *router) RegisterRoutes(e *gin.Engine) {
 	e.Use(r.metricMiddleware.Handler())
-	e.Use(r.loggingMiddleware.Handler())
-	e.Use(r.authMiddleware.Handler())
 	e.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	e.GET("/health", r.healthHandler.Liveness)
 	e.GET("/ready", r.healthHandler.Readiness)
 	api := e.Group("/api")
+	api.Use(r.loggingMiddleware.Handler())
+	api.Use(r.authMiddleware.Handler())
 	{
 		users := api.Group("/users")
 		{
