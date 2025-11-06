@@ -1,8 +1,9 @@
 package request
 
 import (
-	"backend/internal/domain/user"
 	"time"
+
+	"backend/internal/domain/user"
 
 	"github.com/google/uuid"
 )

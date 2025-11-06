@@ -1,12 +1,13 @@
 package middleware
 
 import (
-	"backend/config"
-	"backend/internal/constant"
 	"context"
 	"fmt"
 	"net/http"
 	"strings"
+
+	"backend/config"
+	"backend/internal/constant"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-gonic/gin"
