@@ -74,6 +74,7 @@ jobs:
         continue-on-error: true
 
       - name: Gen and format
+        id: gen-and-format
         run: |
           just gen-wire
           just gen-swag -ot go
@@ -89,6 +90,7 @@ jobs:
             ["Lint check failed"]=${{ steps.lint.outcome == 'failure' }}
             ["Format check failed"]=${{ steps.format.outcome == 'failure' }}
             ["Sqlc diff failed"]=${{ steps.check-sql.outcome == 'failure' }}
+            ["Gen and format check failed"]=${{ steps.gen-and-format.outcome == 'failure' }}
           )
           fail=false
           for msg in "${!check_status[@]}"; do
