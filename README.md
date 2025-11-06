@@ -70,6 +70,8 @@ TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keyclo
 ### Note
 
 - Running gen first, then format
+- Go to keycloak, the app's realm (`electricilies`), `Realm settings`, `User profile`, `role`, set `Default value` to `customer`
+  > <https://github.com/keycloak/terraform-provider-keycloak/issues/1371>
 - Keycloak endpoint:
   - [well-known](http://localhost:8081/realms/electricilies/.well-known/openid-configuration)
 

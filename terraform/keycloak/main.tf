@@ -24,11 +24,11 @@ resource "keycloak_realm" "electricilies" {
 }
 
 resource "keycloak_openid_client" "backend" {
-  realm_id      = keycloak_realm.electricilies.id
-  client_id     = "backend"
-  name          = "Backend"
-  access_type   = "CONFIDENTIAL"
-  client_secret = var.keycloak_backend_client_secret
+  realm_id                 = keycloak_realm.electricilies.id
+  client_id                = "backend"
+  name                     = "Backend"
+  access_type              = "CONFIDENTIAL"
+  client_secret            = var.keycloak_backend_client_secret
   service_accounts_enabled = true # FIXME: @NTNGuyen when fix, tell me what to do to update kube
 }
 
@@ -102,6 +102,9 @@ resource "keycloak_realm_user_profile" "userprofile" {
         pattern = "^0[0-9]{9,10}$"
       }
     }
+    annotations = {
+      inputType = "html5-tel"
+    }
     required_for_roles = ["admin", "user"]
   }
 
@@ -129,7 +132,32 @@ resource "keycloak_realm_user_profile" "userprofile" {
   }
 
   attribute {
-    name         = "deleted-at"
+    name         = "role"
+    display_name = "Role"
+    permissions {
+      view = ["admin", "user"]
+      edit = ["admin"]
+    }
+    annotations = {
+      inputType = "select"
+    }
+    validator {
+      name = "options"
+      config = {
+        options = jsonencode(
+          [
+            "admin",
+            "staff",
+            "customer",
+          ],
+        )
+      }
+    }
+    required_for_roles = ["admin", "user"]
+  }
+
+  attribute {
+    name         = "deleted_at"
     display_name = "Deleted At"
     permissions {
       view = ["admin"]
@@ -141,13 +169,49 @@ resource "keycloak_realm_user_profile" "userprofile" {
   }
 }
 
-locals {
-  roles = [
-    "admin",
-    "staff",
-    "customer"
-  ]
+resource "keycloak_openid_client_scope" "role" {
+  realm_id               = keycloak_realm.electricilies.id
+  name                   = "role"
+  description            = "Role of Electricilies app"
+  include_in_token_scope = true
+}
 
+resource "keycloak_generic_protocol_mapper" "role" {
+  name            = "role"
+  realm_id        = keycloak_realm.electricilies.id
+  client_scope_id = keycloak_openid_client_scope.role.id
+  protocol        = "openid-connect"
+  protocol_mapper = "oidc-usermodel-attribute-mapper"
+  config = {
+    "introspection.token.claim" : "true",
+    "userinfo.token.claim" : "true",
+    "user.attribute" : "role",
+    "id.token.claim" : "false",
+    "lightweight.claim" : "false",
+    "access.token.claim" : "true",
+    "claim.name" : "role",
+    "jsonType.label" : "String"
+  }
+}
+
+resource "keycloak_openid_client_default_scopes" "frontend" {
+  realm_id  = keycloak_realm.electricilies.id
+  client_id = keycloak_openid_client.frontend.id
+
+  default_scopes = [
+    "profile",
+    "email",
+    keycloak_openid_client_scope.role.name,
+    # Below seem we don't need it
+    # "basic",
+    # "acr",
+    # "roles",
+    # "service_account",
+    # "web-origins",
+  ]
+}
+
+locals {
   users = {
     admin = {
       password      = "admin",
@@ -182,21 +246,6 @@ locals {
   }
 }
 
-resource "keycloak_role" "backend_roles" {
-  for_each = toset(local.roles)
-
-  realm_id  = keycloak_realm.electricilies.id
-  client_id = keycloak_openid_client.backend.id
-  name      = each.key
-}
-
-resource "keycloak_default_roles" "default_roles" {
-  realm_id = keycloak_realm.electricilies.id
-  default_roles = [
-    "${keycloak_openid_client.backend.client_id}/${keycloak_role.backend_roles["customer"].name}",
-  ]
-}
-
 resource "keycloak_user" "users" {
   for_each = local.users
   depends_on = [
@@ -206,30 +255,18 @@ resource "keycloak_user" "users" {
   realm_id = keycloak_realm.electricilies.id
   username = each.key
   initial_password {
-    value = each.value.password
+    value     = each.value.password
+    temporary = false
   }
   email          = "${each.key}@example.com"
   email_verified = true
   attributes = {
     first_name    = each.value.first_name
-    password      = each.value.password,
     role          = each.value.role,
     first_name    = each.value.first_name,
     last_name     = each.value.last_name,
-    email         = each.value.email,
     phone_number  = each.value.phone_number,
     address       = each.value.address,
     date_of_birth = each.value.date_of_birth,
   }
 }
-
-resource "keycloak_user_roles" "users" {
-  for_each = local.users
-
-  realm_id = keycloak_realm.electricilies.id
-  user_id  = keycloak_user.users[each.key].id
-  role_ids = [
-    keycloak_role.backend_roles[each.value.role].id,
-  ]
-}
-

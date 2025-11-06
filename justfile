@@ -99,18 +99,24 @@ atlas-gen-migration env="dev":
 
 [doc("Export a Keycloak realm to JSON")]
 export-realm container="electricilies-backend-keycloak-1" realm="electricilies":
-  docker exec -it {{container}} \
+  docker exec \
+    -it \
+    {{container}} \
     /opt/keycloak/bin/kc.sh export \
+    --optimized \
     --realm {{realm}} \
-    --file /{{realm}}.json
-  docker cp {{container}}:/{{realm}}.json ./keycloak/{{realm}}-export.json
+    --file /opt/keycloak/{{realm}}.json || true
+  docker cp {{container}}:/opt/keycloak/{{realm}}.json ./keycloak/{{realm}}-export.json
 
 [doc("Import a Keycloak realm from JSON")]
 import-realm container="electricilies-backend-keycloak-1" file="./keycloak/electricilies-export.json" realm="electricilies":
-  docker cp {{file}} {{container}}:/{{realm}}-export.json
-  docker exec -it {{container}} \
+  docker cp {{file}} {{container}}:/opt/keycloak/{{realm}}-export.json
+  docker exec \
+    -it \
+    {{container}} \
     /opt/keycloak/bin/kc.sh import \
-    --file {{realm}}-export.json
+    --optimized \
+    --file /opt/keycloak/{{realm}}-export.json
 
 gen-ctags:
   ctags -R \
