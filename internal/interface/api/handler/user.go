@@ -64,6 +64,10 @@ func (h *userHandler) Get(ctx *gin.Context) {
 //	@Success		200	{array}		response.User
 //	@Failure		500	{object}	mapper.InternalServerError
 //	@Router			/users [get]
+//
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2PasswordAdmin
+//	@Security		OAuth2PasswordStaff
 func (h *userHandler) List(ctx *gin.Context) {
 	users, err := h.app.List(ctx)
 	if err != nil {

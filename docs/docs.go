@@ -1016,12 +1016,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.ProductOptionValue"
-                        }
-                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -1839,6 +1833,17 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2PasswordAdmin": []
+                    },
+                    {
+                        "OAuth2PasswordStaff": []
+                    }
+                ],
                 "description": "Get all users",
                 "consumes": [
                     "application/json"
@@ -2244,9 +2249,17 @@ const docTemplate = `{
         "request.CreateProduct": {
             "type": "object",
             "required": [
-                "name"
+                "name",
+                "productImages",
+                "productVariants"
             ],
             "properties": {
+                "attributeValueIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
                 "categoryIds": {
                     "type": "array",
                     "items": {
@@ -2258,6 +2271,18 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "productImages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.CreateProductImage"
+                    }
+                },
+                "productVariants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.CreateProductVariant"
+                    }
                 }
             }
         },
@@ -2289,7 +2314,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "value": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -2302,12 +2330,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "price": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "productOptions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/request.productOption"
+                        "$ref": "#/definitions/request.CreateProductOption"
                     }
                 },
                 "quantity": {
@@ -2430,11 +2458,11 @@ const docTemplate = `{
         "request.UpdateOrderStatus": {
             "type": "object",
             "required": [
-                "orderStatusId"
+                "orderStatus"
             ],
             "properties": {
-                "orderStatusId": {
-                    "type": "integer"
+                "orderStatus": {
+                    "type": "string"
                 }
             }
         },
@@ -2464,7 +2492,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "price": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "quantity": {
                     "type": "integer"
@@ -2474,11 +2502,11 @@ const docTemplate = `{
         "request.UpdateReturnRequestStatus": {
             "type": "object",
             "required": [
-                "statusId"
+                "returnRequestStatus"
             ],
             "properties": {
-                "statusId": {
-                    "type": "integer"
+                "returnRequestStatus": {
+                    "type": "string"
                 }
             }
         },
@@ -2521,21 +2549,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phoneNumber": {
-                    "type": "string"
-                }
-            }
-        },
-        "request.productOption": {
-            "type": "object",
-            "required": [
-                "option",
-                "optionValue"
-            ],
-            "properties": {
-                "option": {
-                    "type": "string"
-                },
-                "optionValue": {
                     "type": "string"
                 }
             }
@@ -2697,7 +2710,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "price": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "product": {
                     "$ref": "#/definitions/response.Product"
@@ -2720,7 +2733,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "amount": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
@@ -2779,7 +2792,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "trendingScore": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -2792,21 +2805,6 @@ const docTemplate = `{
                 },
                 "viewsCount": {
                     "type": "integer"
-                }
-            }
-        },
-        "response.ProductOptionValue": {
-            "type": "object",
-            "required": [
-                "id",
-                "value"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "value": {
-                    "type": "string"
                 }
             }
         },
@@ -2841,11 +2839,11 @@ const docTemplate = `{
                 "optionValues": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/response.ProductOptionValue"
+                        "$ref": "#/definitions/response.ProductVariantOptionValue"
                     }
                 },
                 "price": {
-                    "type": "number"
+                    "type": "integer"
                 },
                 "purchaseCount": {
                     "type": "integer"
@@ -2877,6 +2875,21 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ProductVariantOptionValue": {
+            "type": "object",
+            "required": [
+                "id",
+                "value"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "value": {
                     "type": "string"
                 }
             }
@@ -3050,6 +3063,21 @@ const docTemplate = `{
             "type": "oauth2",
             "flow": "accessCode",
             "authorizationUrl": "/auth/realms/electricilies/protocol/openid-connect/auth",
+            "tokenUrl": "/auth/realms/electricilies/protocol/openid-connect/token"
+        },
+        "OAuth2PasswordAdmin": {
+            "type": "oauth2",
+            "flow": "password",
+            "tokenUrl": "/auth/realms/electricilies/protocol/openid-connect/token"
+        },
+        "OAuth2PasswordCustomer": {
+            "type": "oauth2",
+            "flow": "password",
+            "tokenUrl": "/auth/realms/electricilies/protocol/openid-connect/token"
+        },
+        "OAuth2PasswordStaff": {
+            "type": "oauth2",
+            "flow": "password",
             "tokenUrl": "/auth/realms/electricilies/protocol/openid-connect/token"
         }
     }
