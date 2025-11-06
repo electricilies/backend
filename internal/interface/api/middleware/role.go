@@ -1,37 +1,29 @@
 package middleware
 
 import (
+	"backend/config"
+	"backend/internal/constant"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type UserRole string
-
-const (
-	RoleCustomer UserRole = "customer"
-	RoleAdmin    UserRole = "admin"
-	RoleStaff    UserRole = "staff"
-)
-
 type Role interface {
-	Handler() gin.HandlerFunc
+	Handler(requiredRoles []constant.UserRole) gin.HandlerFunc
 }
 
 type roleMiddleware struct {
-	clientId      string
-	requiredRoles []UserRole
+	clientId string
 }
 
-func NewRole(clientId string, requiredRoles []UserRole) Role {
+func NewRole(requiredRoles []constant.UserRole) Role {
 	return &roleMiddleware{
-		clientId:      clientId,
-		requiredRoles: requiredRoles,
+		clientId: config.Cfg.KcClientId,
 	}
 }
 
-func (r *roleMiddleware) Handler() gin.HandlerFunc {
+func (r *roleMiddleware) Handler(rolesAllowed []constant.UserRole) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		claimsInterface, exists := ctx.Get("claims")
 		if !exists {
@@ -45,14 +37,13 @@ func (r *roleMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 
-		userRoles := extractRoles(claims, r.clientId)
-
-		userRoleEnums := make([]UserRole, 0, len(userRoles))
-		for _, role := range userRoles {
-			userRoleEnums = append(userRoleEnums, UserRole(role))
+		userRole := extractRoleFromRoot(claims)
+		if userRole == "" {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "No role found in JWT claims"})
+			return
 		}
 
-		if !hasRequiredRole(userRoleEnums, r.requiredRoles) {
+		if !roleAllowed(constant.UserRole(userRole), rolesAllowed) {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
 			return
 		}
@@ -61,44 +52,18 @@ func (r *roleMiddleware) Handler() gin.HandlerFunc {
 	}
 }
 
-func extractRoles(claims jwt.MapClaims, clientID string) []string {
-	var roles []string
-
-	resAccess, _ := claims["resource_access"].(map[string]interface{})
-	if resAccess == nil {
-		return roles
-	}
-
-	clientRes, _ := resAccess[clientID].(map[string]interface{})
-	if clientRes == nil {
-		return roles
-	}
-
-	resRoles, _ := clientRes["roles"].([]interface{})
-	for _, r := range resRoles {
-		if role, _ := r.(string); role != "" {
-			roles = append(roles, role)
-		}
-	}
-
-	return roles
+func extractRoleFromRoot(claims jwt.MapClaims) string {
+	role, _ := claims["role"].(string)
+	return role
 }
 
-func hasRequiredRole(userRoles []UserRole, requiredRoles []UserRole) bool {
-	if len(requiredRoles) == 0 {
+func roleAllowed(userRole constant.UserRole, allowedRole []constant.UserRole) bool {
+	set := make(map[constant.UserRole]struct{})
+	for _, requiredRole := range allowedRole {
+		set[requiredRole] = struct{}{}
+	}
+	if _, exists := set[userRole]; exists {
 		return true
 	}
-
-	roleMap := make(map[UserRole]bool)
-	for _, role := range userRoles {
-		roleMap[role] = true
-	}
-
-	for _, requiredRole := range requiredRoles {
-		if roleMap[requiredRole] {
-			return true
-		}
-	}
-
 	return false
 }
