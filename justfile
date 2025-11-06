@@ -3,6 +3,7 @@ set dotenv-load
 main-go := "./cmd/main.go"
 bin-out := "./backend"
 
+[doc("Dev build (no optimizations) and run")]
 dev:
   go build -gcflags='all=-N -l' -o {{bin-out}} {{main-go}}
   {{bin-out}}
@@ -14,6 +15,10 @@ dev-watch:
 [doc("Build")]
 build:
   go build -o {{bin-out}} {{main-go}}
+
+[doc("Run")]
+run: build
+  ./{{bin-out}}
 
 [doc("Debug")]
 debug:
