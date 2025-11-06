@@ -20,13 +20,13 @@ type AddAttributeValues struct {
 
 type CreateProductVariant struct {
 	SKU            string                `json:"sku" binding:"required"`
-	Price          float64               `json:"price" binding:"required"`
+	Price          int64               `json:"price" binding:"required"`
 	Quantity       int                   `json:"quantity" binding:"required"`
 	ProductOptions []CreateProductOption `json:"productOptions,omitempty"`
 }
 
 type UpdateProductVariant struct {
-	Price    float64 `json:"price,omitempty"`
+	Price    int64 `json:"price,omitempty"`
 	Quantity int     `json:"quantity,omitempty"`
 }
 

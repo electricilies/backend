@@ -18,5 +18,5 @@ type OrderItem struct {
 	Product        Product        `json:"product" binding:"required"`
 	ProductVariant ProductVariant `json:"productVariant" binding:"required"`
 	Quantity       int            `json:"quantity" binding:"required"`
-	Price          float64        `json:"price" binding:"required"`
+	Price          int64        `json:"price" binding:"required"`
 }

@@ -13,7 +13,7 @@ type Product struct {
 	Description     string           `json:"description" binding:"required"`
 	ViewsCount      int              `json:"viewsCount" binding:"required"`
 	TotalPurchase   int              `json:"totalPurchase" binding:"required"`
-	TrendingScore   float64          `json:"trendingScore" binding:"required"`
+	TrendingScore   int64          `json:"trendingScore" binding:"required"`
 	CreatedAt       time.Time        `json:"createdAt" binding:"required"`
 	UpdatedAt       time.Time        `json:"updatedAt" binding:"required"`
 	Categories      []Category       `json:"categories" binding:"required"`
@@ -31,7 +31,7 @@ type ProductVariantImage struct {
 type ProductVariant struct {
 	ID            int                         `json:"id" binding:"required"`
 	SKU           string                      `json:"sku" binding:"required"`
-	Price         float64                     `json:"price" binding:"required"`
+	Price         int64                     `json:"price" binding:"required"`
 	Quantity      int                         `json:"quantity" binding:"required"`
 	PurchaseCount int                         `json:"purchaseCount" binding:"required"`
 	CreatedAt     time.Time                   `json:"createdAt" binding:"required"`
