@@ -2748,7 +2748,6 @@ const docTemplate = `{
                 "totalPurchase",
                 "trendingScore",
                 "updatedAt",
-                "variants",
                 "viewsCount"
             ],
             "properties": {
@@ -2761,7 +2760,7 @@ const docTemplate = `{
                 "categories": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/response.Category"
                     }
                 },
                 "createdAt": {
@@ -2817,8 +2816,8 @@ const docTemplate = `{
                 "createdAt",
                 "id",
                 "images",
+                "optionValues",
                 "price",
-                "productOptions",
                 "purchaseCount",
                 "quantity",
                 "sku"
@@ -2839,14 +2838,14 @@ const docTemplate = `{
                         "$ref": "#/definitions/response.ProductVariantImage"
                     }
                 },
-                "price": {
-                    "type": "number"
-                },
-                "productOptions": {
+                "optionValues": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.ProductOptionValue"
                     }
+                },
+                "price": {
+                    "type": "number"
                 },
                 "purchaseCount": {
                     "type": "integer"

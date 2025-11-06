@@ -1,14 +1,12 @@
 package request
 
-type productOption struct {
-	Option      string `json:"option" binding:"required"`
-	OptionValue string `json:"optionValue" binding:"required"`
-}
-
 type CreateProduct struct {
-	Name        string `json:"name" binding:"required"`
-	Description string `json:"description,omitempty"`
-	CategoryIDs []int  `json:"categoryIds,omitempty"`
+	Name              string                 `json:"name" binding:"required"`
+	Description       string                 `json:"description,omitempty"`
+	CategoryIDs       []int                  `json:"categoryIds,omitempty"`
+	AttributeValueIDs []int                  `json:"attributeValueIds,omitempty"`
+	ProductVariants   []CreateProductVariant `json:"productVariants" binding:"required"`
+	ProductImages     []CreateProductImage   `json:"productImages" binding:"required"`
 }
 
 type UpdateProduct struct {
@@ -21,10 +19,10 @@ type AddAttributeValues struct {
 }
 
 type CreateProductVariant struct {
-	SKU            string           `json:"sku" binding:"required"`
-	Price          float64          `json:"price" binding:"required"`
-	Quantity       int              `json:"quantity" binding:"required"`
-	ProductOptions *[]productOption `json:"productOptions,omitempty"`
+	SKU            string                `json:"sku" binding:"required"`
+	Price          float64               `json:"price" binding:"required"`
+	Quantity       int                   `json:"quantity" binding:"required"`
+	ProductOptions []CreateProductOption `json:"productOptions,omitempty"`
 }
 
 type UpdateProductVariant struct {
@@ -39,8 +37,8 @@ type CreateProductImage struct {
 }
 
 type CreateProductOption struct {
-	Option string `json:"option" binding:"required"`
-	Value  string `json:"value" binding:"required"`
+	Option string   `json:"option" binding:"required"`
+	Value  []string `json:"value" binding:"required"`
 }
 
 type UpdateProductOption struct {
