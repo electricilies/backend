@@ -113,7 +113,9 @@ func (h *productHandler) Delete(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			productOption	body		request.CreateProductOption	true	"Product option request"
-//	@Success		201				{object}	response.ProductOptionValue
+//
+// //	@Success		201				{object}	response.ProductOptionValue	//		FIXME:	BRUHHHHH	SWAGGER
+//
 //	@Failure		400				{object}	mapper.BadRequestError
 //	@Failure		409				{object}	mapper.ConflictError
 //	@Failure		500				{object}	mapper.InternalServerError
