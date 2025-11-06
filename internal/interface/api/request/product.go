@@ -15,19 +15,19 @@ type UpdateProduct struct {
 }
 
 type AddAttributeValues struct {
-	AttributeValueIDs []int `json:"attributeValueIds" binding:"required"`
+	AttributeValue []string `json:"attributeValue" binding:"required"`
 }
 
 type CreateProductVariant struct {
 	SKU            string                `json:"sku" binding:"required"`
-	Price          int64               `json:"price" binding:"required"`
+	Price          int64                 `json:"price" binding:"required"`
 	Quantity       int                   `json:"quantity" binding:"required"`
 	ProductOptions []CreateProductOption `json:"productOptions,omitempty"`
 }
 
 type UpdateProductVariant struct {
 	Price    int64 `json:"price,omitempty"`
-	Quantity int     `json:"quantity,omitempty"`
+	Quantity int   `json:"quantity,omitempty"`
 }
 
 type CreateProductImage struct {

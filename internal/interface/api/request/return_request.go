@@ -1,5 +1,7 @@
 package request
 
+type ReturnRequestStatus string
+
 type CreateReturnRequest struct {
 	Reason      string `json:"reason" binding:"required"`
 	OrderItemID int    `json:"orderItemId" binding:"required"`
@@ -7,5 +9,5 @@ type CreateReturnRequest struct {
 }
 
 type UpdateReturnRequestStatus struct {
-	StatusID int `json:"statusId" binding:"required"`
+	Status ReturnRequestStatus `json:"returnRequestStatus" binding:"required"`
 }
