@@ -1,7 +1,13 @@
-### Code exchange
+### Frontend Direct Access
+
+# @prompt password
+# @prompt username
 
 POST http://localhost:8081/realms/electricilies/protocol/openid-connect/token HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
 
-code=890c89c7-8710-1c06-a7bc-e2a79180b514.4a430297-b179-50f3-a3d7-b0a58b10e369.715bb5e3-c1ac-498f-be32-09abeccbba9b&grant_type=authorization_code&client_id=frontend&redirect_uri=https%3A%2F%2Fwww.keycloak.org%2Fapp%2F%3Furl%3Dhttp%3A%2F%2Flocalhost%3A8081%26realm%3Delectricilies%26client%3Dfrontend&code_verifier=aVV8tqOEol5wZ5CFgndbqDVrIk5ymaVyEYLXVvdVqAffkrqA4bUPprdtjBMsZUAlq3eUnBknz0xFfIqdAFSIu8fFTBPP0MdY&
-client_secret=electricilies
+grant_type=password&
+client_id=frontend&
+client_secret=electricilies&
+username={{username}}&
+password={{password}}
