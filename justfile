@@ -3,8 +3,12 @@ set dotenv-load
 main-go := "./cmd/main.go"
 bin-out := "./backend"
 
-[doc("Watch dev")]
 dev:
+  go build -gcflags='all=-N -l' -o {{bin-out}} {{main-go}}
+  {{bin-out}}
+
+[doc("Dev watch")]
+dev-watch:
   air
 
 [doc("Build")]
