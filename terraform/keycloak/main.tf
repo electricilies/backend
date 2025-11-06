@@ -29,7 +29,7 @@ resource "keycloak_openid_client" "backend" {
   name                     = "Backend"
   access_type              = "CONFIDENTIAL"
   client_secret            = var.keycloak_backend_client_secret
-  service_accounts_enabled = true # FIXME: @NTNGuyen when fix, tell me what to do to update kube
+  service_accounts_enabled = true
 }
 
 resource "keycloak_openid_client" "frontend" {
@@ -209,6 +209,13 @@ resource "keycloak_openid_client_default_scopes" "frontend" {
     # "service_account",
     # "web-origins",
   ]
+}
+
+resource "keycloak_openid_client_service_account_role" "backend" {
+  realm_id                = keycloak_realm.electricilies.id
+  client_id               = "account"
+  service_account_user_id = keycloak_openid_client.backend.service_account_user_id
+  role                    = "view-profile"
 }
 
 locals {
