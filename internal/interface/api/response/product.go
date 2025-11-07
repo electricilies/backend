@@ -77,3 +77,7 @@ type ProductVariantWithImages struct {
 	OptionValue   []ProductVariantOptionValue `json:"optionValues" binding:"required"`
 	Images        []ProductVariantImage       `json:"images" binding:"required"`
 }
+
+type ProductImageUploadURL struct {
+	URL string `json:"url" binding:"required"`
+}

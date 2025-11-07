@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -63,19 +62,8 @@ func (j *authMiddleware) Handler() gin.HandlerFunc {
 		}
 
 		claims, _ := tokens.Claims.(jwt.MapClaims)
-		sub := claims["sub"].(string)
 
-		info, err := j.keycloakClient.GetUserByID(ctx, token, j.realm, sub)
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Cannot get user info", "detail": err.Error()})
-			return
-		}
-		if !*info.Enabled {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User is banned"})
-			return
-		}
 		ctx.Set(constant.TokenKey, token)
-		fmt.Println("Token in middleware:", token)
 		c := context.WithValue(ctx.Request.Context(), constant.TokenKey, token)
 		ctx.Request = ctx.Request.WithContext(c)
 		ctx.Set("claims", claims)

@@ -9,6 +9,7 @@ import (
 	"backend/internal/di/db"
 	"backend/internal/di/ginengine"
 	userservice "backend/internal/domain/user"
+	productrepo "backend/internal/infrastructure/product"
 	userrepo "backend/internal/infrastructure/user"
 	handler "backend/internal/interface/api/handler"
 	middleware "backend/internal/interface/api/middleware"
@@ -30,6 +31,7 @@ var EngineSet = wire.NewSet(
 
 var RepositorySet = wire.NewSet(
 	userrepo.NewRepository,
+	productrepo.NewRepository,
 )
 
 var ServiceSet = wire.NewSet(
@@ -38,6 +40,7 @@ var ServiceSet = wire.NewSet(
 
 var AppSet = wire.NewSet(
 	app.NewUser,
+	app.NewProduct,
 )
 
 var MiddlewareSet = wire.NewSet(
@@ -68,6 +71,7 @@ var ClientSet = wire.NewSet(
 	client.NewRedis,
 	client.NewS3,
 	client.NewKeycloak,
+	client.NewS3Presign,
 )
 
 func InitializeServer() *server.Server {

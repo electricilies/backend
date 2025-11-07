@@ -12,12 +12,12 @@ import (
 	"backend/internal/di/db"
 	"backend/internal/di/ginengine"
 	user2 "backend/internal/domain/user"
+	"backend/internal/infrastructure/product"
 	"backend/internal/infrastructure/user"
 	"backend/internal/interface/api/handler"
 	"backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
-
 	"github.com/google/wire"
 )
 
@@ -40,7 +40,10 @@ func InitializeServer() *server.Server {
 	logging := middleware.NewLogging()
 	auth := middleware.NewJWTVerify(goCloak)
 	category := handler.NewCategory()
-	product := handler.NewProduct()
+	presignClient := client.NewS3Presign(s3Client)
+	productRepository := product.NewRepository(queries, s3Client, presignClient, redisClient)
+	applicationProduct := application.NewProduct(productRepository)
+	handlerProduct := handler.NewProduct(applicationProduct)
 	attribute := handler.NewAttribute()
 	payment := handler.NewPayment()
 	order := handler.NewOrder()
@@ -48,7 +51,7 @@ func InitializeServer() *server.Server {
 	refund := handler.NewRefund()
 	review := handler.NewReview()
 	cart := handler.NewCart()
-	routerRouter := router.New(handlerUser, healthCheck, metric, logging, auth, category, product, attribute, payment, order, returnRequest, refund, review, cart)
+	routerRouter := router.New(handlerUser, healthCheck, metric, logging, auth, category, handlerProduct, attribute, payment, order, returnRequest, refund, review, cart)
 	serverServer := server.New(engine, routerRouter)
 	return serverServer
 }
@@ -59,11 +62,11 @@ var DbSet = wire.NewSet(db.NewConnection, db.New, db.NewTransactor)
 
 var EngineSet = wire.NewSet(ginengine.New)
 
-var RepositorySet = wire.NewSet(user.NewRepository)
+var RepositorySet = wire.NewSet(user.NewRepository, product.NewRepository)
 
 var ServiceSet = wire.NewSet(user2.NewService)
 
-var AppSet = wire.NewSet(application.NewUser)
+var AppSet = wire.NewSet(application.NewUser, application.NewProduct)
 
 var MiddlewareSet = wire.NewSet(middleware.NewMetric, middleware.NewLogging, middleware.NewJWTVerify)
 
@@ -71,4 +74,4 @@ var HandlerSet = wire.NewSet(handler.NewUser, handler.NewHealthCheck, handler.Ne
 
 var RouterSet = wire.NewSet(router.New)
 
-var ClientSet = wire.NewSet(client.NewRedis, client.NewS3, client.NewKeycloak)
+var ClientSet = wire.NewSet(client.NewRedis, client.NewS3, client.NewKeycloak, client.NewS3Presign)

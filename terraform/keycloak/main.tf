@@ -201,9 +201,9 @@ resource "keycloak_openid_client_default_scopes" "frontend" {
   default_scopes = [
     "profile",
     "email",
+    "basic",
     keycloak_openid_client_scope.role.name,
     # Below seem we don't need it
-    # "basic",
     # "acr",
     # "roles",
     # "service_account",
@@ -211,9 +211,14 @@ resource "keycloak_openid_client_default_scopes" "frontend" {
   ]
 }
 
+data "keycloak_openid_client" "account" {
+  realm_id  = keycloak_realm.electricilies.id
+  client_id = "account"
+}
+
 resource "keycloak_openid_client_service_account_role" "backend" {
   realm_id                = keycloak_realm.electricilies.id
-  client_id               = "account"
+  client_id               = data.keycloak_openid_client.account.id
   service_account_user_id = keycloak_openid_client.backend.service_account_user_id
   role                    = "view-profile"
 }

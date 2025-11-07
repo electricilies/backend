@@ -3,6 +3,9 @@ package handler
 import (
 	"net/http"
 
+	"backend/internal/application"
+	"backend/internal/interface/api/response"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,11 +20,18 @@ type Product interface {
 	CreateProductVariant(ctx *gin.Context)
 	UpdateProductVariant(ctx *gin.Context)
 	UpdateProductOption(ctx *gin.Context)
+	GetUploadImageURL(ctx *gin.Context)
 }
 
-type productHandler struct{}
+type productHandler struct {
+	app application.Product
+}
 
-func NewProduct() Product { return &productHandler{} }
+func NewProduct(app application.Product) Product {
+	return &productHandler{
+		app: app,
+	}
+}
 
 // GetProduct godoc
 //
@@ -124,6 +134,37 @@ func (h *productHandler) CreateProductOption(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
+// GetUploadImageURL godoc
+//
+//	@Summary		Get presigned URL for image upload
+//	@Description	Get a presigned URL to upload product images
+//	@Tags			Product
+//	@Produce		json
+//	@Success		200	{object}	response.ProductImageUploadURL
+//	@Failure		500	{object}	mapper.InternalServerError
+//	@Router			/products/images/upload-url [get]
+//
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2PasswordAdmin
+//	@Security		OAuth2PasswordStaff
+//	@Security		OAuth2PasswordCustomer
+func (h *productHandler) GetUploadImageURL(ctx *gin.Context) {
+	url, err := h.app.GetUploadImageURL(ctx)
+	if err != nil {
+		// TODO: Nguyen boc ham`
+		ctx.JSON(
+			http.StatusInternalServerError,
+			gin.H{"error": "Failed to get presigned URL"},
+		)
+		return
+	}
+	ctx.JSON(
+		http.StatusOK,
+		&response.ProductImageUploadURL{URL: url},
+	)
+}
+
+// TODO: No
 // CreateProductImage godoc
 //
 //	@Summary		Create a new product image

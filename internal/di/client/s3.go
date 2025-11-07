@@ -34,3 +34,7 @@ func NewS3() *s3.Client {
 
 	return client
 }
+
+func NewS3Presign(s3Client *s3.Client) *s3.PresignClient {
+	return s3.NewPresignClient(s3Client)
+}

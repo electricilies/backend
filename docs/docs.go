@@ -993,6 +993,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/products/images/upload-url": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2PasswordAdmin": []
+                    },
+                    {
+                        "OAuth2PasswordStaff": []
+                    },
+                    {
+                        "OAuth2PasswordCustomer": []
+                    }
+                ],
+                "description": "Get a presigned URL to upload product images",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get presigned URL for image upload",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProductImageUploadURL"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/products/options": {
             "post": {
                 "description": "Create a new product option for a product",
@@ -2891,6 +2931,17 @@ const docTemplate = `{
                 "productVariantId": {
                     "type": "integer"
                 },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ProductImageUploadURL": {
+            "type": "object",
+            "required": [
+                "url"
+            ],
+            "properties": {
                 "url": {
                     "type": "string"
                 }
