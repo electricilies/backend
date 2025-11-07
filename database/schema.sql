@@ -209,5 +209,6 @@ CREATE TABLE refunds (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   status_id INTEGER NOT NULL DEFAULT 1 REFERENCES refund_statuses (id) ON UPDATE CASCADE,
   payment_id INTEGER NOT NULL REFERENCES payments (id) ON UPDATE CASCADE,
+  order_item_id INTEGER NOT NULL REFERENCES order_items (id) ON UPDATE CASCADE,
   return_request_id INTEGER NOT NULL REFERENCES return_requests (id) ON UPDATE CASCADE
 );

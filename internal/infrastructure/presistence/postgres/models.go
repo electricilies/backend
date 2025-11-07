@@ -151,6 +151,7 @@ type Refund struct {
 	UpdatedAt       pgtype.Timestamp
 	StatusID        int32
 	PaymentID       int32
+	OrderItemID     int32
 	ReturnRequestID int32
 }
 
