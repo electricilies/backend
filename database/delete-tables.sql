@@ -1,0 +1,30 @@
+BEGIN;
+
+DROP TABLE public.attribute_values CASCADE;
+DROP TABLE public.attributes CASCADE;
+DROP TABLE public.cart_items CASCADE;
+DROP TABLE public.carts CASCADE;
+DROP TABLE public.categories CASCADE;
+DROP TABLE public.option_values CASCADE;
+DROP TABLE public.option_values_product_variants CASCADE;
+DROP TABLE public.options CASCADE;
+DROP TABLE public.order_items CASCADE;
+DROP TABLE public.order_statuses CASCADE;
+DROP TABLE public.orders CASCADE;
+DROP TABLE public.payment_methods CASCADE;
+DROP TABLE public.payment_providers CASCADE;
+DROP TABLE public.payment_statuses CASCADE;
+DROP TABLE public.payments CASCADE;
+DROP TABLE public.product_images CASCADE;
+DROP TABLE public.product_variants CASCADE;
+DROP TABLE public.products CASCADE;
+DROP TABLE public.products_attribute_values CASCADE;
+DROP TABLE public.products_categories CASCADE;
+DROP TABLE public.refund_statuses CASCADE;
+DROP TABLE public.refunds CASCADE;
+DROP TABLE public.return_request_statuses CASCADE;
+DROP TABLE public.return_requests CASCADE;
+DROP TABLE public.reviews CASCADE;
+DROP TABLE public.users CASCADE;
+
+COMMIT;

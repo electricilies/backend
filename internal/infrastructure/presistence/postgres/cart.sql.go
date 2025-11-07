@@ -71,7 +71,7 @@ WHERE
 `
 
 type DeleteCartItemByIDParams struct {
-	ID int32
+	ID uuid.UUID
 }
 
 func (q *Queries) DeleteCartItemByID(ctx context.Context, arg DeleteCartItemByIDParams) (int64, error) {
@@ -174,7 +174,7 @@ RETURNING
 
 type UpdateCartItemByIDParams struct {
 	Quantity int32
-	ID       int32
+	ID       uuid.UUID
 }
 
 func (q *Queries) UpdateCartItemByID(ctx context.Context, arg UpdateCartItemByIDParams) (CartItem, error) {

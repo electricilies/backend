@@ -1,1 +1,3 @@
 SET TIME ZONE 'Asia/Ho_Chi_Minh';
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

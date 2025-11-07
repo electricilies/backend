@@ -1,1 +1,1 @@
-SET TIME ZONE 'Asia/Ho_Chi_Minh';
+../../database/init.sql

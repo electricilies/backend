@@ -114,12 +114,9 @@ CREATE TABLE carts (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_user_id
-ON carts (user_id);
-
 -- cart_items
 CREATE TABLE cart_items (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT UUID_GENERATE_V4(),
   quantity INTEGER NOT NULL,
   cart_id INTEGER NOT NULL REFERENCES carts (id) ON UPDATE CASCADE,
   product_variant_id INTEGER NOT NULL REFERENCES product_variants (id) ON UPDATE CASCADE

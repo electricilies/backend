@@ -29,7 +29,7 @@ type Cart struct {
 }
 
 type CartItem struct {
-	ID               int32
+	ID               uuid.UUID
 	Quantity         int32
 	CartID           int32
 	ProductVariantID int32
