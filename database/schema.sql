@@ -175,6 +175,7 @@ CREATE TABLE order_items (
   id SERIAL PRIMARY KEY,
   quantity INTEGER NOT NULL,
   order_id INTEGER NOT NULL REFERENCES orders (id) ON UPDATE CASCADE,
+  price_at_order DECIMAL(12, 0) NOT NULL,
   product_variant_id INTEGER NOT NULL REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 

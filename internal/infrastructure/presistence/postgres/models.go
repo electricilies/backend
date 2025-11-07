@@ -73,6 +73,7 @@ type OrderItem struct {
 	ID               int32
 	Quantity         int32
 	OrderID          int32
+	PriceAtOrder     pgtype.Numeric
 	ProductVariantID int32
 }
 
