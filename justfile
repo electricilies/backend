@@ -96,8 +96,8 @@ swagger-local-json:
 swagger-web: gen-swag swagger-local-json
   xdg-open ./docs/local.html
 
-seed-db:
-  psql postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE} -f ./database/seed.sql
+db-seed-fake:
+  psql postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE} -f ./database/seed-fake.sql
 
 [doc("Apply schema for local development")]
 atlas-apply-schema env="local" *args='':
