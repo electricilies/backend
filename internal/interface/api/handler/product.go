@@ -31,7 +31,7 @@ func NewProduct() Product { return &productHandler{} }
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		int	true	"Product ID"
-//	@Success		200	{object}	response.Product
+//	@Success		200	{object}	response.ProductWithVariants
 //	@Failure		404	{object}	mapper.NotFoundError
 //	@Failure		500	{object}	mapper.InternalServerError
 //	@Router			/products/{id} [get]
@@ -61,7 +61,7 @@ func (h *productHandler) List(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			product	body		request.CreateProduct	true	"Product request"
-//	@Success		201		{object}	response.Product
+//	@Success		201		{object}	response.ProductWithVariants
 //	@Failure		400		{object}	mapper.BadRequestError
 //	@Failure		409		{object}	mapper.ConflictError
 //	@Failure		500		{object}	mapper.InternalServerError
@@ -114,7 +114,7 @@ func (h *productHandler) Delete(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			productOption	body		request.CreateProductOption	true	"Product option request"
 //
-// //	@Success		201				{object}	response.ProductOptionValue	//		FIXME:	BRUHHHHH	SWAGGER
+//	@Success		201				{object}	response.ProductOption
 //
 //	@Failure		400				{object}	mapper.BadRequestError
 //	@Failure		409				{object}	mapper.ConflictError
@@ -132,7 +132,7 @@ func (h *productHandler) CreateProductOption(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			productImage	body		request.CreateProductImage	true	"Product image request"
-//	@Success		201				{object}	response.ProductVariantImage
+//	@Success		201				{object}	response.ProductImage
 //	@Failure		400				{object}	mapper.BadRequestError
 //	@Failure		409				{object}	mapper.ConflictError
 //	@Failure		500				{object}	mapper.InternalServerError
@@ -149,7 +149,7 @@ func (h *productHandler) CreateProductImage(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			productVariant	body		request.CreateProductVariant	true	"Product variant request"
-//	@Success		201				{object}	response.ProductVariant
+//	@Success		201				{object}	response.ProductVariantWithImages
 //	@Failure		400				{object}	mapper.BadRequestError
 //	@Failure		409				{object}	mapper.ConflictError
 //	@Failure		500				{object}	mapper.InternalServerError

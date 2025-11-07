@@ -915,7 +915,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.Product"
+                            "$ref": "#/definitions/response.ProductWithVariants"
                         }
                     },
                     "400": {
@@ -967,7 +967,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.ProductVariantImage"
+                            "$ref": "#/definitions/response.ProductImage"
                         }
                     },
                     "400": {
@@ -1016,6 +1016,12 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProductOption"
+                        }
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -1130,7 +1136,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.ProductVariant"
+                            "$ref": "#/definitions/response.ProductVariantWithImages"
                         }
                     },
                     "400": {
@@ -1245,7 +1251,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Product"
+                            "$ref": "#/definitions/response.ProductWithVariants"
                         }
                     },
                     "404": {
@@ -2206,13 +2212,17 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "code",
-                "name"
+                "name",
+                "value"
             ],
             "properties": {
                 "code": {
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "string"
                 }
             }
@@ -2272,6 +2282,12 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "optionalAttributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.CreateAttribute"
+                    }
+                },
                 "productImages": {
                     "type": "array",
                     "items": {
@@ -2329,13 +2345,19 @@ const docTemplate = `{
                 "sku"
             ],
             "properties": {
-                "price": {
-                    "type": "integer"
-                },
-                "productOptions": {
+                "optionalProductOptions": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/request.CreateProductOption"
+                    }
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "productOptionValues": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
                     }
                 },
                 "quantity": {
@@ -2624,7 +2646,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "product": {
-                    "$ref": "#/definitions/response.Product"
+                    "$ref": "#/definitions/response.ProductWithVariants"
                 },
                 "quantity": {
                     "type": "integer"
@@ -2713,10 +2735,10 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "product": {
-                    "$ref": "#/definitions/response.Product"
+                    "$ref": "#/definitions/response.ProductWithVariants"
                 },
                 "productVariant": {
-                    "$ref": "#/definitions/response.ProductVariant"
+                    "$ref": "#/definitions/response.ProductVariantWithImages"
                 },
                 "quantity": {
                     "type": "integer"
@@ -2797,14 +2819,53 @@ const docTemplate = `{
                 "updatedAt": {
                     "type": "string"
                 },
-                "variants": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.ProductVariant"
-                    }
-                },
                 "viewsCount": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.ProductImage": {
+            "type": "object",
+            "required": [
+                "createdAt",
+                "id",
+                "order",
+                "url"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "productVariantId": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ProductOption": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "value"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },
@@ -2813,7 +2874,6 @@ const docTemplate = `{
             "required": [
                 "createdAt",
                 "id",
-                "images",
                 "optionValues",
                 "price",
                 "purchaseCount",
@@ -2829,12 +2889,6 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.ProductVariantImage"
-                    }
                 },
                 "optionValues": {
                     "type": "array",
@@ -2891,6 +2945,114 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "string"
+                }
+            }
+        },
+        "response.ProductVariantWithImages": {
+            "type": "object",
+            "required": [
+                "createdAt",
+                "id",
+                "images",
+                "optionValues",
+                "price",
+                "purchaseCount",
+                "quantity",
+                "sku"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ProductVariantImage"
+                    }
+                },
+                "optionValues": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ProductVariantOptionValue"
+                    }
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "purchaseCount": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ProductWithVariants": {
+            "type": "object",
+            "required": [
+                "attributeValues",
+                "categories",
+                "createdAt",
+                "description",
+                "id",
+                "name",
+                "totalPurchase",
+                "trendingScore",
+                "updatedAt",
+                "variants",
+                "viewsCount"
+            ],
+            "properties": {
+                "attributeValues": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.AttributeValue"
+                    }
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Category"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "totalPurchase": {
+                    "type": "integer"
+                },
+                "trendingScore": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "variants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ProductVariant"
+                    }
+                },
+                "viewsCount": {
+                    "type": "integer"
                 }
             }
         },
