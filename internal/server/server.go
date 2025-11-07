@@ -1,11 +1,10 @@
 package server
 
 import (
-	"net/http"
-	"strings"
-
 	"backend/config"
 	"backend/internal/interface/api/router"
+	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -41,6 +40,10 @@ func (s *Server) Run() error {
 }
 
 func authHandler(c *gin.Context) {
-	redirectURL := config.Cfg.KcBasePath + strings.TrimPrefix(c.Request.URL.String(), "/auth")
+	basePath := config.Cfg.KcBasePath
+	if env := config.Cfg.SwaggerEnv; env != "" {
+		basePath = strings.Replace(basePath, "keycloak", "keycloak."+env, 1)
+	}
+	redirectURL := basePath + strings.TrimPrefix(c.Request.URL.String(), "/auth")
 	c.Redirect(http.StatusTemporaryRedirect, redirectURL)
 }

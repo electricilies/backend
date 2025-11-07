@@ -50,6 +50,8 @@ S3_REGION_NAME=us-east-1
 S3_ENDPOINT=http://localhost:9000
 S3_BUCKET=electricilies
 
+SWAGGER_ENV= # Change if you need
+
 # Redis / Redis Compatible
 REDIS_ADDRESS=localhost:6379
 

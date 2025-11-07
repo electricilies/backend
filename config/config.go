@@ -27,6 +27,7 @@ const (
 	S3Endpoint          = "S3_ENDPOINT"
 	S3Bucket            = "S3_BUCKET"
 	TimeZone            = "TIMEZONE"
+	SwaggerEnv          = "SWAGGER_ENV"
 )
 
 type Config struct {
@@ -50,6 +51,7 @@ type Config struct {
 	S3Endpoint          string
 	S3Bucket            string
 	TimeZone            string
+	SwaggerEnv          string
 }
 
 var Cfg *Config
@@ -87,5 +89,6 @@ func LoadConfig() {
 		S3Endpoint:          viper.GetString(S3Endpoint),
 		S3Bucket:            viper.GetString(S3Bucket),
 		TimeZone:            viper.GetString(TimeZone),
+		SwaggerEnv:          viper.GetString(SwaggerEnv),
 	}
 }
