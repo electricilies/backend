@@ -22,6 +22,7 @@ CREATE TABLE products (
   total_purchase INTEGER NOT NULL DEFAULT 0,
   rating REAL NOT NULL DEFAULT 0,
   trending_score REAL NOT NULL DEFAULT 0,
+  category_id INTEGER NOT NULL REFERENCES categories (id) ON UPDATE CASCADE,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP
@@ -82,13 +83,6 @@ CREATE TABLE reviews (
   deleted_at TIMESTAMP,
   user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
   product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE
-);
-
--- products_categories
-CREATE TABLE products_categories (
-  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
-  category_id INTEGER NOT NULL REFERENCES categories (id) ON UPDATE CASCADE,
-  PRIMARY KEY (product_id, category_id)
 );
 
 -- options

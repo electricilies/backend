@@ -22,7 +22,7 @@ VALUES (
   $2
 )
 RETURNING
-  id, name, description, price, views_count, total_purchase, rating, trending_score, created_at, updated_at, deleted_at
+  id, name, description, price, views_count, total_purchase, rating, trending_score, category_id, created_at, updated_at, deleted_at
 `
 
 type CreateProductParams struct {
@@ -42,6 +42,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.TotalPurchase,
 		&i.Rating,
 		&i.TrendingScore,
+		&i.CategoryID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -128,7 +129,7 @@ func (q *Queries) DeleteProducts(ctx context.Context, arg DeleteProductsParams) 
 
 const getProductByID = `-- name: GetProductByID :one
 SELECT
-  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
+  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.category_id, products.created_at, products.updated_at, products.deleted_at,
   product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at, product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at,
   product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_variant_id, product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_variant_id,
   products_attribute_values.product_id, products_attribute_values.attribute_value_id, products_attribute_values.product_id, products_attribute_values.attribute_value_id,
@@ -137,8 +138,7 @@ SELECT
   option_values_product_variants.product_variant_id, option_values_product_variants.option_value_id, option_values_product_variants.product_variant_id, option_values_product_variants.option_value_id,
   option_values.id, option_values.value, option_values.option_id, option_values.id, option_values.value, option_values.option_id,
   options.id, options.name, options.product_id, options.deleted_at, options.id, options.name, options.product_id, options.deleted_at,
-  categories.id, categories.name, categories.created_at, categories.updated_at, categories.deleted_at, categories.id, categories.name, categories.created_at, categories.updated_at, categories.deleted_at,
-  products_categories.product_id, products_categories.category_id, products_categories.product_id, products_categories.category_id
+  categories.id, categories.name, categories.created_at, categories.updated_at, categories.deleted_at, categories.id, categories.name, categories.created_at, categories.updated_at, categories.deleted_at
 FROM
   products,
   product_variants,
@@ -149,8 +149,7 @@ FROM
   option_values_product_variants,
   option_values,
   options,
-  categories,
-  products_categories
+  categories
 INNER JOIN product_variants
   ON products.id = product_variants.product_id
 INNER JOIN product_images
@@ -167,10 +166,8 @@ INNER JOIN option_values
   ON option_values_product_variants.option_value_id = option_values.id
 INNER JOIN options
   ON option_values.option_id = options.id
-INNER JOIN products_categories
-  ON products.id = products_categories.product_id
 INNER JOIN categories
-  ON products_categories.category_id = categories.id
+  ON products.category_id = categories.id
 WHERE
   products.id = $1::integer -- sqlc requires this
   AND products.deleted_at IS NULL
@@ -194,7 +191,6 @@ type GetProductByIDRow struct {
 	OptionValue                OptionValue
 	Option                     Option
 	Category                   Category
-	ProductsCategory           ProductsCategory
 }
 
 func (q *Queries) GetProductByID(ctx context.Context, arg GetProductByIDParams) (GetProductByIDRow, error) {
@@ -209,6 +205,7 @@ func (q *Queries) GetProductByID(ctx context.Context, arg GetProductByIDParams) 
 		&i.Product.TotalPurchase,
 		&i.Product.Rating,
 		&i.Product.TrendingScore,
+		&i.Product.CategoryID,
 		&i.Product.CreatedAt,
 		&i.Product.UpdatedAt,
 		&i.Product.DeletedAt,
@@ -249,15 +246,13 @@ func (q *Queries) GetProductByID(ctx context.Context, arg GetProductByIDParams) 
 		&i.Category.CreatedAt,
 		&i.Category.UpdatedAt,
 		&i.Category.DeletedAt,
-		&i.ProductsCategory.ProductID,
-		&i.ProductsCategory.CategoryID,
 	)
 	return i, err
 }
 
 const getProducts = `-- name: GetProducts :many
 SELECT
-  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.created_at, products.updated_at, products.deleted_at,
+  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.category_id, products.created_at, products.updated_at, products.deleted_at,
   product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at, product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at,
   product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_variant_id, product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_variant_id,
   products_attribute_values.product_id, products_attribute_values.attribute_value_id, products_attribute_values.product_id, products_attribute_values.attribute_value_id,
@@ -267,7 +262,6 @@ SELECT
   option_values.id, option_values.value, option_values.option_id, option_values.id, option_values.value, option_values.option_id,
   options.id, options.name, options.product_id, options.deleted_at, options.id, options.name, options.product_id, options.deleted_at,
   categories.id, categories.name, categories.created_at, categories.updated_at, categories.deleted_at, categories.id, categories.name, categories.created_at, categories.updated_at, categories.deleted_at,
-  products_categories.product_id, products_categories.category_id, products_categories.product_id, products_categories.category_id,
   COUNT(*) OVER() AS current_count,
   COUNT(*) AS total_count
 FROM
@@ -280,8 +274,7 @@ FROM
   option_values_product_variants,
   option_values,
   options,
-  categories,
-  products_categories
+  categories
 INNER JOIN product_variants
   ON products.id = product_variants.product_id
 INNER JOIN product_images
@@ -298,10 +291,8 @@ INNER JOIN option_values
   ON option_values_product_variants.option_value_id = option_values.id
 INNER JOIN options
   ON option_values.option_id = options.id
-INNER JOIN products_categories
-  ON products.id = products_categories.product_id
 INNER JOIN categories
-  ON products_categories.category_id = categories.id
+  ON products.category_id = categories.id
 WHERE
   products.deleted_at IS NULL
   AND categories.deleted_at IS NULL
@@ -339,7 +330,6 @@ type GetProductsRow struct {
 	OptionValue                OptionValue
 	Option                     Option
 	Category                   Category
-	ProductsCategory           ProductsCategory
 	CurrentCount               int64
 	TotalCount                 int64
 }
@@ -367,6 +357,7 @@ func (q *Queries) GetProducts(ctx context.Context, arg GetProductsParams) ([]Get
 			&i.Product.TotalPurchase,
 			&i.Product.Rating,
 			&i.Product.TrendingScore,
+			&i.Product.CategoryID,
 			&i.Product.CreatedAt,
 			&i.Product.UpdatedAt,
 			&i.Product.DeletedAt,
@@ -407,8 +398,6 @@ func (q *Queries) GetProducts(ctx context.Context, arg GetProductsParams) ([]Get
 			&i.Category.CreatedAt,
 			&i.Category.UpdatedAt,
 			&i.Category.DeletedAt,
-			&i.ProductsCategory.ProductID,
-			&i.ProductsCategory.CategoryID,
 			&i.CurrentCount,
 			&i.TotalCount,
 		); err != nil {
@@ -436,7 +425,7 @@ WHERE
   deleted_at IS NULL
   AND id = $1
 RETURNING
-  id, name, description, price, views_count, total_purchase, rating, trending_score, created_at, updated_at, deleted_at
+  id, name, description, price, views_count, total_purchase, rating, trending_score, category_id, created_at, updated_at, deleted_at
 `
 
 type GetSuggestedProductsParams struct {
@@ -462,6 +451,7 @@ func (q *Queries) GetSuggestedProducts(ctx context.Context, arg GetSuggestedProd
 			&i.TotalPurchase,
 			&i.Rating,
 			&i.TrendingScore,
+			&i.CategoryID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -493,29 +483,6 @@ type LinkProductAttributeValuesParams struct {
 
 func (q *Queries) LinkProductAttributeValues(ctx context.Context, arg LinkProductAttributeValuesParams) (int64, error) {
 	result, err := q.db.Exec(ctx, linkProductAttributeValues, arg.ProductID, arg.AttributeValueIds)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
-const linkProductCategories = `-- name: LinkProductCategories :execrows
-INSERT INTO products_categories (
-  product_id,
-  category_id
-)
-SELECT
-  $1,
-  UNNEST($2::integer[]) AS category_id
-`
-
-type LinkProductCategoriesParams struct {
-	ProductID   int32
-	CategoryIds []int32
-}
-
-func (q *Queries) LinkProductCategories(ctx context.Context, arg LinkProductCategoriesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, linkProductCategories, arg.ProductID, arg.CategoryIds)
 	if err != nil {
 		return 0, err
 	}

@@ -52,15 +52,6 @@ SELECT
   UNNEST(@option_value_ids::integer[]) AS option_value_id,
   UNNEST(@product_variant_ids::integer[]) AS product_variant_id;
 
--- name: LinkProductCategories :execrows
-INSERT INTO products_categories (
-  product_id,
-  category_id
-)
-SELECT
-  @product_id,
-  UNNEST(@category_ids::integer[]) AS category_id;
-
 -- name: GetProducts :many
 SELECT
   sqlc.embed(products),
@@ -73,7 +64,6 @@ SELECT
   sqlc.embed(option_values),
   sqlc.embed(options),
   sqlc.embed(categories),
-  sqlc.embed(products_categories),
   COUNT(*) OVER() AS current_count,
   COUNT(*) AS total_count
 FROM
@@ -86,8 +76,7 @@ FROM
   option_values_product_variants,
   option_values,
   options,
-  categories,
-  products_categories
+  categories
 INNER JOIN product_variants
   ON products.id = product_variants.product_id
 INNER JOIN product_images
@@ -104,10 +93,8 @@ INNER JOIN option_values
   ON option_values_product_variants.option_value_id = option_values.id
 INNER JOIN options
   ON option_values.option_id = options.id
-INNER JOIN products_categories
-  ON products.id = products_categories.product_id
 INNER JOIN categories
-  ON products_categories.category_id = categories.id
+  ON products.category_id = categories.id
 WHERE
   products.deleted_at IS NULL
   AND categories.deleted_at IS NULL
@@ -137,8 +124,7 @@ SELECT
   sqlc.embed(option_values_product_variants),
   sqlc.embed(option_values),
   sqlc.embed(options),
-  sqlc.embed(categories),
-  sqlc.embed(products_categories)
+  sqlc.embed(categories)
 FROM
   products,
   product_variants,
@@ -149,8 +135,7 @@ FROM
   option_values_product_variants,
   option_values,
   options,
-  categories,
-  products_categories
+  categories
 INNER JOIN product_variants
   ON products.id = product_variants.product_id
 INNER JOIN product_images
@@ -167,10 +152,8 @@ INNER JOIN option_values
   ON option_values_product_variants.option_value_id = option_values.id
 INNER JOIN options
   ON option_values.option_id = options.id
-INNER JOIN products_categories
-  ON products.id = products_categories.product_id
 INNER JOIN categories
-  ON products_categories.category_id = categories.id
+  ON products.category_id = categories.id
 WHERE
   products.id = @id::integer -- sqlc requires this
   AND products.deleted_at IS NULL

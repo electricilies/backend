@@ -110,6 +110,7 @@ type Product struct {
 	TotalPurchase int32
 	Rating        float32
 	TrendingScore float32
+	CategoryID    int32
 	CreatedAt     pgtype.Timestamp
 	UpdatedAt     pgtype.Timestamp
 	DeletedAt     pgtype.Timestamp
@@ -138,11 +139,6 @@ type ProductVariant struct {
 type ProductsAttributeValue struct {
 	ProductID        int32
 	AttributeValueID int32
-}
-
-type ProductsCategory struct {
-	ProductID  int32
-	CategoryID int32
 }
 
 type Refund struct {
