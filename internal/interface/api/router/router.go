@@ -96,17 +96,17 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 		{
 			categories.GET("", r.categoryHandler.List)
 			categories.POST("", r.categoryHandler.Create)
-			categories.PUT("/:id", r.categoryHandler.Update)
-			categories.DELETE("/:id", r.categoryHandler.Delete)
+			categories.PUT("/:category_id", r.categoryHandler.Update)
+			categories.DELETE("/:category_id", r.categoryHandler.Delete)
 		}
 
 		products := api.Group("/products")
 		{
 			products.GET("", r.productHandler.List)
 			products.POST("", r.productHandler.Create)
-			products.GET("/:id", r.productHandler.Get)
-			products.PUT("/:id", r.productHandler.Update)
-			products.DELETE("/:id", r.productHandler.Delete)
+			products.GET("/:product_id", r.productHandler.Get)
+			products.PUT("/:product_id", r.productHandler.Update)
+			products.DELETE("/:product_id", r.productHandler.Delete)
 			products.POST("/options", r.productHandler.CreateProductOption)
 			products.POST("/images", r.productHandler.CreateProductImage)
 			products.POST("/variants", r.productHandler.CreateProductVariant)
@@ -119,8 +119,8 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 		{
 			attributes.GET("", r.attributeHandler.List)
 			attributes.POST("", r.attributeHandler.Create)
-			attributes.GET("/:id", r.attributeHandler.Get)
-			attributes.PUT("/:id", r.attributeHandler.Update)
+			attributes.GET("/:attribute_id", r.attributeHandler.Get)
+			attributes.PUT("/:attribute_id", r.attributeHandler.Update)
 			attributes.DELETE("/:id", r.attributeHandler.Delete)
 		}
 
@@ -132,32 +132,32 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 		{
 			orders.GET("", r.orderHandler.List)
 			orders.POST("", r.orderHandler.Create)
-			orders.GET("/:id", r.orderHandler.Get)
-			orders.PUT("/:id", r.orderHandler.Update)
-			orders.DELETE("/:id", r.orderHandler.Delete)
+			orders.GET("/:order_id", r.orderHandler.Get)
+			orders.PUT("/:order_id", r.orderHandler.Update)
+			orders.DELETE("/:order_id", r.orderHandler.Delete)
 		}
 
 		returnRequests := api.Group("/return-requests")
 		{
 			returnRequests.GET("", r.returnHandler.List)
 			returnRequests.POST("", r.returnHandler.Create)
-			returnRequests.GET("/:id", r.returnHandler.Get)
-			returnRequests.PUT("/:id", r.returnHandler.Update)
+			returnRequests.GET("/:return_request_id", r.returnHandler.Get)
+			returnRequests.PUT("/:return_request_id", r.returnHandler.Update)
 		}
 
 		refunds := api.Group("/refunds")
 		{
 			refunds.GET("", r.refundHandler.List)
-			refunds.GET("/:id", r.refundHandler.Get)
+			refunds.GET("/:refund_id", r.refundHandler.Get)
 		}
 
 		reviews := api.Group("/reviews")
 		{
 			reviews.GET("", r.reviewHandler.ListReviewsByProduct)
 			reviews.POST("", r.reviewHandler.Create)
-			reviews.GET("/:id", r.reviewHandler.Get)
-			reviews.PUT("/:id", r.reviewHandler.Update)
-			reviews.DELETE("/:id", r.reviewHandler.Delete)
+			reviews.GET("/:review_id", r.reviewHandler.Get)
+			reviews.PUT("/:review_id", r.reviewHandler.Update)
+			reviews.DELETE("/:review_id", r.reviewHandler.Delete)
 		}
 	}
 }

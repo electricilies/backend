@@ -30,11 +30,11 @@ func NewProduct() Product { return &productHandler{} }
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		int	true	"Product ID"
-//	@Success		200	{object}	response.ProductWithVariants
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/products/{id} [get]
+//	@Param			produdt_id	path		int	true	"Product ID"
+//	@Success		200			{object}	response.ProductWithVariants
+//	@Failure		404			{object}	mapper.NotFoundError
+//	@Failure		500			{object}	mapper.InternalServerError
+//	@Router			/products/{product_id} [get]
 func (h *productHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -77,14 +77,14 @@ func (h *productHandler) Create(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		int						true	"Product ID"
-//	@Param			product	body		request.UpdateProduct	true	"Update product request"
-//	@Success		204		{string}	string					"no content"
-//	@Failure		400		{object}	mapper.BadRequestError
-//	@Failure		404		{object}	mapper.NotFoundError
-//	@Failure		409		{object}	mapper.ConflictError
-//	@Failure		500		{object}	mapper.InternalServerError
-//	@Router			/products/{id} [put]
+//	@Param			product_id	path		int						true	"Product ID"
+//	@Param			product		body		request.UpdateProduct	true	"Update product request"
+//	@Success		204			{string}	string					"no content"
+//	@Failure		400			{object}	mapper.BadRequestError
+//	@Failure		404			{object}	mapper.NotFoundError
+//	@Failure		409			{object}	mapper.ConflictError
+//	@Failure		500			{object}	mapper.InternalServerError
+//	@Router			/products/{product_id} [put]
 func (h *productHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -96,11 +96,11 @@ func (h *productHandler) Update(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		int		true	"Product ID"
-//	@Success		204	{string}	string	"no content"
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/products/{id} [delete]
+//	@Param			product_id	path		int		true	"Product ID"
+//	@Success		204			{string}	string	"no content"
+//	@Failure		404			{object}	mapper.NotFoundError
+//	@Failure		500			{object}	mapper.InternalServerError
+//	@Router			/products/{product_id} [delete]
 func (h *productHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

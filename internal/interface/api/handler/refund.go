@@ -22,12 +22,11 @@ func NewRefund() Refund { return &refundHandler{} }
 //	@Tags			Refund
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		int	true	"Refund ID"
-//	@Success		200	{object}	response.Refund
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/refunds/{id} [get]
-
+//	@Param			refund_id	path		int	true	"Refund ID"
+//	@Success		200			{object}	response.Refund
+//	@Failure		404			{object}	mapper.NotFoundError
+//	@Failure		500			{object}	mapper.InternalServerError
+//	@Router			/refunds/{refund} [get]
 func (h *refundHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

@@ -25,11 +25,11 @@ func NewOrder() Order { return &orderHandler{} }
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		int	true	"Order ID"
-//	@Success		200	{object}	response.Order
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/orders/{id} [get]
+//	@Param			order_id	path		int	true	"Order ID"
+//	@Success		200			{object}	response.Order
+//	@Failure		404			{object}	mapper.NotFoundError
+//	@Failure		500			{object}	mapper.InternalServerError
+//	@Router			/orders/{order_id} [get]
 func (h *orderHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

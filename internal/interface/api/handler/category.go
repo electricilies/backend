@@ -55,14 +55,14 @@ func (h *categoryHandler) Create(ctx *gin.Context) {
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Param			id			path		int						true	"Category ID"
+//	@Param			category_id	path		int						true	"Category ID"
 //	@Param			category	body		request.UpdateCategory	true	"Update category request"
 //	@Success		204			{string}	string					"no content"
 //	@Failure		400			{object}	mapper.BadRequestError
 //	@Failure		404			{object}	mapper.NotFoundError
 //	@Failure		409			{object}	mapper.ConflictError
 //	@Failure		500			{object}	mapper.InternalServerError
-//	@Router			/categories/{id} [put]
+//	@Router			/categories/{category_id} [put]
 func (h *categoryHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -74,11 +74,11 @@ func (h *categoryHandler) Update(ctx *gin.Context) {
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		int		true	"Category ID"
-//	@Success		204	{string}	string	"no content"
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/categories/{id} [delete]
+//	@Param			category_id	path		int		true	"Category ID"
+//	@Success		204			{string}	string	"no content"
+//	@Failure		404			{object}	mapper.NotFoundError
+//	@Failure		500			{object}	mapper.InternalServerError
+//	@Router			/categories/{category_id} [delete]
 func (h *categoryHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

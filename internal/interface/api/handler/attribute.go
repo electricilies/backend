@@ -25,11 +25,11 @@ func NewAttribute() Attribute { return &attributeHandler{} }
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		string	true	"Attribute ID"
-//	@Success		200	{object}	response.Attribute
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/attributes/{id} [get]
+//	@Param			attribute_id	path		string	true	"Attribute ID"
+//	@Success		200				{object}	response.Attribute
+//	@Failure		404				{object}	mapper.NotFoundError
+//	@Failure		500				{object}	mapper.InternalServerError
+//	@Router			/attributes/{attribute_id} [get]
 func (h *attributeHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -72,14 +72,14 @@ func (h *attributeHandler) Create(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			id			path		string					true	"Attribute ID"
-//	@Param			attribute	body		request.UpdateAttribute	true	"Update attribute request"
-//	@Success		204			{string}	string					"no content"
-//	@Failure		400			{object}	mapper.BadRequestError
-//	@Failure		404			{object}	mapper.NotFoundError
-//	@Failure		409			{object}	mapper.ConflictError
-//	@Failure		500			{object}	mapper.InternalServerError
-//	@Router			/attributes/{id} [put]
+//	@Param			attribute_id	path		string					true	"Attribute ID"
+//	@Param			attribute		body		request.UpdateAttribute	true	"Update attribute request"
+//	@Success		204				{string}	string					"no content"
+//	@Failure		400				{object}	mapper.BadRequestError
+//	@Failure		404				{object}	mapper.NotFoundError
+//	@Failure		409				{object}	mapper.ConflictError
+//	@Failure		500				{object}	mapper.InternalServerError
+//	@Router			/attributes/{attribute_id} [put]
 func (h *attributeHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -91,11 +91,11 @@ func (h *attributeHandler) Update(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		string	true	"Attribute ID"
-//	@Success		204	{string}	string	"no content"
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/attributes/{id} [delete]
+//	@Param			attribute_id	path		string	true	"Attribute ID"
+//	@Success		204				{string}	string	"no content"
+//	@Failure		404				{object}	mapper.NotFoundError
+//	@Failure		500				{object}	mapper.InternalServerError
+//	@Router			/attributes/{attribute_id} [delete]
 func (h *attributeHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

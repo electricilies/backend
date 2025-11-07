@@ -24,11 +24,11 @@ func NewReturn() ReturnRequest { return &returnRequestHandler{} }
 //	@Tags			Return
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		int	true	"Return Request ID"
-//	@Success		200	{object}	response.ReturnRequest
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/return-requests/{id} [get]
+//	@Param			return_request_id	path		int	true	"Return Request ID"
+//	@Success		200					{object}	response.ReturnRequest
+//	@Failure		404					{object}	mapper.NotFoundError
+//	@Failure		500					{object}	mapper.InternalServerError
+//	@Router			/return-requests/{return_request_id} [get]
 func (h *returnRequestHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -71,14 +71,14 @@ func (h *returnRequestHandler) Create(ctx *gin.Context) {
 //	@Tags			Return
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		int									true	"Return Request ID"
-//	@Param			status	body		request.UpdateReturnRequestStatus	true	"Update return status request"
-//	@Success		204		{string}	string								"no content"
-//	@Failure		400		{object}	mapper.BadRequestError
-//	@Failure		404		{object}	mapper.NotFoundError
-//	@Failure		409		{object}	mapper.ConflictError
-//	@Failure		500		{object}	mapper.InternalServerError
-//	@Router			/return-requests/{id}/status [put]
+//	@Param			return_request_id	path		int									true	"Return Request ID"
+//	@Param			status				body		request.UpdateReturnRequestStatus	true	"Update return status request"
+//	@Success		204					{string}	string								"no content"
+//	@Failure		400					{object}	mapper.BadRequestError
+//	@Failure		404					{object}	mapper.NotFoundError
+//	@Failure		409					{object}	mapper.ConflictError
+//	@Failure		500					{object}	mapper.InternalServerError
+//	@Router			/return-requests/{return_request_id}/status [put]
 func (h *returnRequestHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

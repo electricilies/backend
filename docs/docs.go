@@ -97,7 +97,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/attributes/{id}": {
+        "/attributes/{attribute_id}": {
             "get": {
                 "description": "Get attribute details by ID",
                 "consumes": [
@@ -114,7 +114,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Attribute ID",
-                        "name": "id",
+                        "name": "attribute_id",
                         "in": "path",
                         "required": true
                     }
@@ -156,7 +156,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Attribute ID",
-                        "name": "id",
+                        "name": "attribute_id",
                         "in": "path",
                         "required": true
                     },
@@ -219,7 +219,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Attribute ID",
-                        "name": "id",
+                        "name": "attribute_id",
                         "in": "path",
                         "required": true
                     }
@@ -307,7 +307,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Cart Item ID",
-                        "name": "id",
+                        "name": "cart_item_id",
                         "in": "path",
                         "required": true
                     },
@@ -517,7 +517,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/categories/{id}": {
+        "/categories/{category_id}": {
             "put": {
                 "description": "Update category by ID",
                 "consumes": [
@@ -534,7 +534,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Category ID",
-                        "name": "id",
+                        "name": "category_id",
                         "in": "path",
                         "required": true
                     },
@@ -597,7 +597,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Category ID",
-                        "name": "id",
+                        "name": "category_id",
                         "in": "path",
                         "required": true
                     }
@@ -707,48 +707,6 @@ const docTemplate = `{
             }
         },
         "/orders/{id}": {
-            "get": {
-                "description": "Get order details by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Order"
-                ],
-                "summary": "Get order by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Order ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Order"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "description": "Delete an order by ID",
                 "consumes": [
@@ -846,6 +804,50 @@ const docTemplate = `{
                         "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/mapper.ConflictError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/{order_id}": {
+            "get": {
+                "description": "Get order details by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get order by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Order"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.NotFoundError"
                         }
                     },
                     "500": {
@@ -1225,7 +1227,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/{id}": {
+        "/products/{product_id}": {
             "get": {
                 "description": "Get product details by ID",
                 "consumes": [
@@ -1242,7 +1244,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Product ID",
-                        "name": "id",
+                        "name": "produdt_id",
                         "in": "path",
                         "required": true
                     }
@@ -1284,7 +1286,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Product ID",
-                        "name": "id",
+                        "name": "product_id",
                         "in": "path",
                         "required": true
                     },
@@ -1347,7 +1349,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Product ID",
-                        "name": "id",
+                        "name": "product_id",
                         "in": "path",
                         "required": true
                     }
@@ -1395,6 +1397,50 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/response.Refund"
                             }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/refunds/{refund}": {
+            "get": {
+                "description": "Get refund details by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Refund"
+                ],
+                "summary": "Get refund by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Refund ID",
+                        "name": "refund_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Refund"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.NotFoundError"
                         }
                     },
                     "500": {
@@ -1488,7 +1534,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/return-requests/{id}": {
+        "/return-requests/{return_request_id}": {
             "get": {
                 "description": "Get return request details by ID",
                 "consumes": [
@@ -1505,7 +1551,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Return Request ID",
-                        "name": "id",
+                        "name": "return_request_id",
                         "in": "path",
                         "required": true
                     }
@@ -1532,7 +1578,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/return-requests/{id}/status": {
+        "/return-requests/{return_request_id}/status": {
             "put": {
                 "description": "Update the status of a return request",
                 "consumes": [
@@ -1549,7 +1595,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Return Request ID",
-                        "name": "id",
+                        "name": "return_request_id",
                         "in": "path",
                         "required": true
                     },
@@ -1688,7 +1734,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/reviews/{id}": {
+        "/reviews/{review_id}": {
             "get": {
                 "description": "Get review details by ID",
                 "consumes": [
@@ -1705,7 +1751,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Review ID",
-                        "name": "id",
+                        "name": "review_id",
                         "in": "path",
                         "required": true
                     }
@@ -1747,7 +1793,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Review ID",
-                        "name": "id",
+                        "name": "review_id",
                         "in": "path",
                         "required": true
                     },
@@ -1810,7 +1856,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Review ID",
-                        "name": "id",
+                        "name": "review_id",
                         "in": "path",
                         "required": true
                     }

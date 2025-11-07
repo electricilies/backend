@@ -56,12 +56,12 @@ func (h *cartHandler) AddItem(ctx *gin.Context) {
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		int						true	"Cart Item ID"
-//	@Param			item	body		request.UpdateCartItem	true	"Update cart item request"
-//	@Success		204		{string}	string					"no content"
-//	@Failure		400		{object}	mapper.BadRequestError
-//	@Failure		404		{object}	mapper.NotFoundError
-//	@Failure		500		{object}	mapper.InternalServerError
+//	@Param			cart_item_id	path		int						true	"Cart Item ID"
+//	@Param			item			body		request.UpdateCartItem	true	"Update cart item request"
+//	@Success		204				{string}	string					"no content"
+//	@Failure		400				{object}	mapper.BadRequestError
+//	@Failure		404				{object}	mapper.NotFoundError
+//	@Failure		500				{object}	mapper.InternalServerError
 //	@Router			/carts/item [put]
 func (h *cartHandler) UpdateItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
