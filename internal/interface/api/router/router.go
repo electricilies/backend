@@ -73,9 +73,9 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 		health.GET("/ready", r.healthHandler.Readiness)
 	}
 	api := e.Group("/api")
-	api.Use(r.loggingMiddleware.Handler())
-	api.Use(r.authMiddleware.Handler())
 	{
+		api.Use(r.loggingMiddleware.Handler())
+		api.Use(r.authMiddleware.Handler())
 		users := api.Group("/users")
 		{
 			users.GET("", r.userHandler.List)
@@ -112,7 +112,6 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 			products.POST("/variants", r.productHandler.CreateProductVariant)
 			products.PUT("/variants/:variant_id", r.productHandler.UpdateProductVariant)
 			products.PUT("/options/:option_id", r.productHandler.UpdateProductOption)
-
 		}
 
 		attributes := api.Group("/attributes")
