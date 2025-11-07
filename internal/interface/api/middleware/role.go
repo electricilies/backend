@@ -1,10 +1,9 @@
 package middleware
 
 import (
-	"net/http"
-
 	"backend/config"
 	"backend/internal/constant"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -25,6 +24,10 @@ func NewRole(requiredRoles []constant.UserRole) Role {
 }
 
 func (r *roleMiddleware) Handler(rolesAllowed []constant.UserRole) gin.HandlerFunc {
+	set := make(map[constant.UserRole]struct{})
+	for _, requiredRole := range rolesAllowed {
+		set[requiredRole] = struct{}{}
+	}
 	return func(ctx *gin.Context) {
 		claimsInterface, exists := ctx.Get("claims")
 		if !exists {
@@ -44,7 +47,7 @@ func (r *roleMiddleware) Handler(rolesAllowed []constant.UserRole) gin.HandlerFu
 			return
 		}
 
-		if !roleAllowed(constant.UserRole(userRole), rolesAllowed) {
+		if _, exists := set[constant.UserRole(userRole)]; !exists {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
 			return
 		}
@@ -56,15 +59,4 @@ func (r *roleMiddleware) Handler(rolesAllowed []constant.UserRole) gin.HandlerFu
 func extractRoleFromRoot(claims jwt.MapClaims) string {
 	role, _ := claims["role"].(string)
 	return role
-}
-
-func roleAllowed(userRole constant.UserRole, allowedRole []constant.UserRole) bool {
-	set := make(map[constant.UserRole]struct{})
-	for _, requiredRole := range allowedRole {
-		set[requiredRole] = struct{}{}
-	}
-	if _, exists := set[userRole]; exists {
-		return true
-	}
-	return false
 }
