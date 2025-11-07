@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
 
   keycloak:
-    image: keycloak/keycloak:26.4
+    image: keycloak/keycloak:26.4.4
     command: start-dev
     environment:
       KC_HEALTH_ENABLED: true
