@@ -1,9 +1,10 @@
 package middleware
 
 import (
+	"net/http"
+
 	"backend/config"
 	"backend/internal/constant"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"

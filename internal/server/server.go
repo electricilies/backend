@@ -1,10 +1,11 @@
 package server
 
 import (
-	"backend/config"
-	"backend/internal/interface/api/router"
 	"net/http"
 	"strings"
+
+	"backend/config"
+	"backend/internal/interface/api/router"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
