@@ -67,6 +67,9 @@ resource "keycloak_realm_user_profile" "userprofile" {
       view = ["admin", "user"]
       edit = ["admin", "user"]
     }
+    validator {
+      name = "person-name-prohibited-characters"
+    }
     required_for_roles = ["admin", "user"]
   }
 
@@ -76,6 +79,9 @@ resource "keycloak_realm_user_profile" "userprofile" {
     permissions {
       view = ["admin", "user"]
       edit = ["admin", "user"]
+    }
+    validator {
+      name = "person-name-prohibited-characters"
     }
     required_for_roles = ["admin", "user"]
   }
