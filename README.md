@@ -78,6 +78,7 @@ TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keyclo
 ## References
 
 - keycloak
+  - Auth with keycloak.app: <https://www.keycloak.org/app/?url=http://localhost:8081&realm=electricilies&client=frontend>
   - <https://registry.terraform.io/providers/keycloak/keycloak/latest/docs>
 - sqlc
   - <https://github.com/sqlc-dev/sqlc/discussions/364>

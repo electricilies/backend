@@ -31,8 +31,7 @@ services:
 
   keycloak:
     image: keycloak/keycloak:26.4
-    command:
-      - start-dev
+    command: start-dev
     environment:
       KC_HEALTH_ENABLED: true
       KC_METRICS_ENABLED: true
@@ -46,8 +45,8 @@ services:
       KC_DB_PASSWORD: ${KC_DB_PASSWORD:-postgres}
       KC_HTTP_PORT: ${KC_HTTP_PORT:-8081}
     ports:
-      - ${KC_HTTP_PORT:-8081}:8081
-      - ${KC_HTTP_MANAGEMENT_PORT:-8082}:8082
+      - ${KC_HTTP_PORT:-8081}:${KC_HTTP_PORT:-8081}
+      - ${KC_HTTP_MANAGEMENT_PORT:-8082}:${KC_HTTP_MANAGEMENT_PORT:-8082}
     depends_on:
       - db
     restart: unless-stopped
@@ -74,22 +73,6 @@ services:
         - -f
         - http://localhost:9000/minio/health/live
       start_period: 5s
-
-  create-minio-bucket:
-    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
-    depends_on:
-      minio:
-        condition: service_healthy
-    entrypoint:
-      - /usr/bin/bash
-      - -c
-    command:
-      - |- # language: bash
-        set -euo pipefail
-
-        mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-electricilies} ${MINIO_ROOT_PASSWORD:-electricilies} &&
-        mc mb local/electricilies || true &&
-        mc anonymous set public local/electricilies
 
   redis:
     image: redis:8.2.2-alpine3.22
