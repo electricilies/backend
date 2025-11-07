@@ -1,5 +1,7 @@
 set dotenv-load
 
+db-connection := x'postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable'
+
 main-go := "./cmd/main.go"
 bin-out := "./backend"
 
@@ -96,8 +98,18 @@ swagger-local-json:
 swagger-web: gen-swag swagger-local-json
   xdg-open ./docs/local.html
 
+[unix]
+[doc("Apply database data")]
+db-apply-data:
+  psql {{db-connection}} -f ./database/init.sql
+  psql {{db-connection}} -f ./database/schema.sql
+  psql {{db-connection}} -f ./database/trigger.sql
+  psql {{db-connection}} -f ./database/seed.sql
+  psql {{db-connection}} -f ./database/paradedb-index.sql
+
+[doc("Seed fake data into the database")]
 db-seed-fake:
-  psql postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE} -f ./database/seed-fake.sql
+  psql {{db-connection}} -f ./database/seed-fake.sql
 
 [doc("Apply schema for local development")]
 atlas-apply-schema env="local" *args='':
