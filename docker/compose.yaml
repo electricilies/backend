@@ -73,6 +73,7 @@ services:
         - -f
         - http://localhost:9000/minio/health/live
       start_period: 5s
+    network_mode: host
 
   redis:
     image: redis:8.2.2-alpine3.22

@@ -63,7 +63,7 @@ func (h *healthCheck) Readiness(ctx *gin.Context) {
 			"status": redisStatus,
 			"reason": errorToString(redisErr),
 		},
-		"minio": gin.H{
+		"s3": gin.H{
 			"status": s3Status,
 			"reason": errorToString(s3Err),
 		},

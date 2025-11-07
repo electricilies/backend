@@ -64,16 +64,27 @@ TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keyclo
 > - More extra/optional:
 >   - [./docker/compose.yaml](./docker/compose.yaml)
 >   - [./terraform/keycloak/variables.tf](./terraform/keycloak/variables.tf)
+>   - [./terraform/minio/variables.tf](./terraform/minio/variables.tf)
 
 ### Dev environment
 
 - Tool required are in [mise.toml](./mise.toml)
 
+### Minio
+
+- Run minio (`just compose minio`,...)
+- Run backend
+- `cd ./terraform/minio/`
+- `terraform apply -auto-aprove`
+
+### Keycloak
+
+- Go to keycloak, the app's realm (`electricilies`), `Realm settings`, `User profile`, `role`, set `Default value` to `customer`
+  > <https://github.com/keycloak/terraform-provider-keycloak/issues/1371>
+
 ### Note
 
 - Running gen first, then format
-- Go to keycloak, the app's realm (`electricilies`), `Realm settings`, `User profile`, `role`, set `Default value` to `customer`
-  > <https://github.com/keycloak/terraform-provider-keycloak/issues/1371>
 - Keycloak endpoint:
   - [well-known](http://localhost:8081/realms/electricilies/.well-known/openid-configuration)
 
@@ -82,6 +93,8 @@ TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keyclo
 - keycloak
   - Auth with keycloak.app: <https://www.keycloak.org/app/?url=http://localhost:8081&realm=electricilies&client=frontend>
   - <https://registry.terraform.io/providers/keycloak/keycloak/latest/docs>
+- MinIO
+  - Bucket notification: <https://docs.min.io/enterprise/aistor-object-store/administration/bucket-notifications/>
 - sqlc
   - <https://github.com/sqlc-dev/sqlc/discussions/364>
   - <https://github.com/sqlc-dev/sqlc/issues/2061>
