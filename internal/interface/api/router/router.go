@@ -67,8 +67,11 @@ func New(
 func (r *router) RegisterRoutes(e *gin.Engine) {
 	e.Use(r.metricMiddleware.Handler())
 	e.GET("/metrics", gin.WrapH(promhttp.Handler()))
-	e.GET("/health", r.healthHandler.Liveness)
-	e.GET("/ready", r.healthHandler.Readiness)
+	health := e.Group("/health")
+	{
+		health.GET("/live", r.healthHandler.Liveness)
+		health.GET("/ready", r.healthHandler.Readiness)
+	}
 	api := e.Group("/api")
 	api.Use(r.loggingMiddleware.Handler())
 	api.Use(r.authMiddleware.Handler())
