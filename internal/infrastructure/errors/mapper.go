@@ -1,13 +1,15 @@
 package errors
 
 import (
+	"backend/internal/domain"
 	"context"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
 
-	"backend/internal/domain"
+	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
+	"github.com/aws/smithy-go"
 
 	"github.com/Nerzal/gocloak"
 	"github.com/jackc/pgerrcode"
@@ -127,11 +129,74 @@ func ToDomainErrorFromPostgres(err error) error {
 	}
 }
 
-func ToDomainErrorFromGoCloak(err error) error {
+func ToDomainErrorFromS3(err error) error {
 	if err == nil {
 		return nil
 	}
 
+	var smithyErr smithy.APIError
+	if errors.As(err, &smithyErr) {
+		switch smithyErr.ErrorCode() {
+		case "AccessDenied":
+			return domain.NewForbiddenError("access denied to S3 resource", err)
+		case "NoSuchBucket":
+			return domain.NewNotFoundError("S3 bucket not found", err)
+		case "NoSuchKey":
+			return domain.NewNotFoundError("S3 object not found", err)
+		case "InvalidBucketName":
+			return domain.NewBadRequestError("invalid S3 bucket name", err)
+		case "InvalidObjectState":
+			return domain.NewBadRequestError("invalid S3 object state", err)
+		case "BucketAlreadyExists":
+			return domain.NewConflictError("S3 bucket already exists", err)
+		case "BucketAlreadyOwnedByYou":
+			return domain.NewConflictError("S3 bucket already owned by you", err)
+		case "ServiceUnavailable":
+			return domain.NewUnavailableError("S3 service unavailable", err)
+		case "SlowDown":
+			return domain.NewUnavailableError("S3 is throttling requests", err)
+		case "RequestTimeout":
+			return domain.NewUnavailableError("S3 request timed out", err)
+		default:
+			return domain.NewInternalError("unexpected S3 error: "+smithyErr.ErrorMessage(), err)
+		}
+	}
+
+	var httpRespErr *awshttp.ResponseError
+	if errors.As(err, &httpRespErr) {
+		switch httpRespErr.HTTPStatusCode() {
+		case 403:
+			return domain.NewForbiddenError("access denied to S3 resource", err)
+		case 404:
+			return domain.NewNotFoundError("S3 resource not found", err)
+		case 400:
+			return domain.NewBadRequestError("bad request to S3", err)
+		case 409:
+			return domain.NewConflictError("conflict with S3 resource", err)
+		case 503:
+			return domain.NewUnavailableError("S3 service unavailable", err)
+		case 408:
+			return domain.NewUnavailableError("S3 request timed out", err)
+		default:
+			return domain.NewInternalError("unexpected S3 HTTP error", err)
+		}
+	}
+
+	var netErr net.Error
+	if errors.As(err, &netErr) {
+		if netErr.Timeout() {
+			return domain.NewUnavailableError("S3 network timeout", err)
+		}
+		return domain.NewConnectionError("S3 connection failed", err)
+	}
+
+	return domain.NewInternalError("unexpected S3 error", err)
+}
+
+func ToDomainErrorFromGoCloak(err error) error {
+	if err == nil {
+		return nil
+	}
 	var apiErr gocloak.APIError
 	if errors.As(err, &apiErr) {
 		switch apiErr.Code {
