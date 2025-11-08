@@ -2332,7 +2332,7 @@ const docTemplate = `{
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/request.OrderItemRequest"
+                        "$ref": "#/definitions/request.OrderItem"
                     }
                 },
                 "userId": {
@@ -2509,13 +2509,17 @@ const docTemplate = `{
                 }
             }
         },
-        "request.OrderItemRequest": {
+        "request.OrderItem": {
             "type": "object",
             "required": [
+                "price",
                 "productId",
                 "quantity"
             ],
             "properties": {
+                "price": {
+                    "type": "integer"
+                },
                 "productId": {
                     "type": "integer"
                 },
