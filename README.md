@@ -78,6 +78,8 @@ REDIS_ADDRESS=localhost:6379
 
 ### Keycloak
 
+- Import `terraform` client from ./keycloak/master-terraform-client-export.json
+- Add `Service account roles` `realm/admin` for `terraform` client
 - Go to keycloak, the app's realm (`electricilies`), `Realm settings`, `User profile`, `role`, set `Default value` to `customer`
   > <https://github.com/keycloak/terraform-provider-keycloak/issues/1371>
 
