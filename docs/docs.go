@@ -939,58 +939,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/images": {
-            "post": {
-                "description": "Create a new image for a product variant",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "Create a new product image",
-                "parameters": [
-                    {
-                        "description": "Product image request",
-                        "name": "productImage",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.CreateProductImage"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.ProductImage"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/products/images/delete-url": {
             "get": {
                 "security": [
@@ -2959,32 +2907,6 @@ const docTemplate = `{
                 },
                 "viewsCount": {
                     "type": "integer"
-                }
-            }
-        },
-        "response.ProductImage": {
-            "type": "object",
-            "required": [
-                "createdAt",
-                "id",
-                "order",
-                "url"
-            ],
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "order": {
-                    "type": "integer"
-                },
-                "productVariantId": {
-                    "type": "integer"
-                },
-                "url": {
-                    "type": "string"
                 }
             }
         },

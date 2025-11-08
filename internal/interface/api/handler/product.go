@@ -1,11 +1,12 @@
 package handler
 
 import (
+	"net/http"
+	"strconv"
+
 	"backend/internal/application"
 	"backend/internal/interface/api/mapper"
 	"backend/internal/interface/api/response"
-	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +18,6 @@ type Product interface {
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
 	CreateProductOption(ctx *gin.Context)
-	CreateProductImage(ctx *gin.Context)
 	CreateProductVariant(ctx *gin.Context)
 	UpdateProductVariant(ctx *gin.Context)
 	UpdateProductOption(ctx *gin.Context)
@@ -191,23 +191,6 @@ func (h *productHandler) GetDeleteImageURL(ctx *gin.Context) {
 		http.StatusOK,
 		&response.ProductImageDeleteURL{URL: url},
 	)
-}
-
-// CreateProductImage godoc
-//
-//	@Summary		Create a new product image
-//	@Description	Create a new image for a product variant
-//	@Tags			Product
-//	@Accept			json
-//	@Produce		json
-//	@Param			productImage	body		request.CreateProductImage	true	"Product image request"
-//	@Success		201				{object}	response.ProductImage
-//	@Failure		400				{object}	mapper.BadRequestError
-//	@Failure		409				{object}	mapper.ConflictError
-//	@Failure		500				{object}	mapper.InternalServerError
-//	@Router			/products/images [post]
-func (h *productHandler) CreateProductImage(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
 }
 
 // CreateProductVariant godoc

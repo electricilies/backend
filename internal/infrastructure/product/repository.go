@@ -1,16 +1,18 @@
 package product
 
 import (
+	"context"
+	"fmt"
+	"time"
+
 	"backend/config"
 	"backend/internal/domain/product"
 	"backend/internal/infrastructure/errors"
 	"backend/internal/infrastructure/presistence/postgres"
-	"context"
-	"strconv"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -36,11 +38,13 @@ func NewRepository(
 }
 
 func (r *repositoryImpl) GetUploadImageURL(ctx context.Context) (string, error) {
+	randomUUID, _ := uuid.NewV7()
+	key := fmt.Sprintf("products/%s", randomUUID.String())
 	url, err := r.s3PresignClient.PresignPutObject(
 		ctx,
 		&s3.PutObjectInput{
 			Bucket: aws.String(config.Cfg.S3Bucket),
-			Key:    aws.String(strconv.FormatInt(time.Now().Unix(), 10)),
+			Key:    aws.String(key),
 		},
 		s3.WithPresignExpires(10*time.Minute),
 	)

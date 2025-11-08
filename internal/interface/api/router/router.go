@@ -108,7 +108,6 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 			products.PUT("/:product_id", r.productHandler.Update)
 			products.DELETE("/:product_id", r.productHandler.Delete)
 			products.POST("/options", r.productHandler.CreateProductOption)
-			products.POST("/images", r.productHandler.CreateProductImage)
 			products.GET("/images/upload-url", r.productHandler.GetUploadImageURL)
 			products.GET("/images/delete-url/:image_id", r.productHandler.GetDeleteImageURL)
 			products.POST("/variants", r.productHandler.CreateProductVariant)
