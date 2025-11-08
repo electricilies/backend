@@ -18,6 +18,7 @@ import (
 	"backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
+
 	"github.com/google/wire"
 )
 
