@@ -72,14 +72,14 @@ func (h *orderHandler) Create(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path		int							true	"Order ID"
-//	@Param			status	body		request.UpdateOrderStatus	true	"Update order status request"
-//	@Success		204		{string}	string						"no content"
-//	@Failure		400		{object}	mapper.BadRequestError
-//	@Failure		404		{object}	mapper.NotFoundError
-//	@Failure		409		{object}	mapper.ConflictError
-//	@Failure		500		{object}	mapper.InternalServerError
-//	@Router			/orders/{id}/status [put]
+//	@Param			order_id	path		int							true	"Order ID"
+//	@Param			status		body		request.UpdateOrderStatus	true	"Update order status request"
+//	@Success		204			{string}	string						"no content"
+//	@Failure		400			{object}	mapper.BadRequestError
+//	@Failure		404			{object}	mapper.NotFoundError
+//	@Failure		409			{object}	mapper.ConflictError
+//	@Failure		500			{object}	mapper.InternalServerError
+//	@Router			/orders/{order_id}/status [put]
 func (h *orderHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -91,11 +91,11 @@ func (h *orderHandler) Update(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		int		true	"Order ID"
-//	@Success		204	{string}	string	"no content"
-//	@Failure		404	{object}	mapper.NotFoundError
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/orders/{id} [delete]
+//	@Param			order_id	path		int		true	"Order ID"
+//	@Success		204			{string}	string	"no content"
+//	@Failure		404			{object}	mapper.NotFoundError
+//	@Failure		500			{object}	mapper.InternalServerError
+//	@Router			/orders/{order_id} [delete]
 func (h *orderHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

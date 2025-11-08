@@ -1,10 +1,9 @@
 package handler
 
 import (
-	"net/http"
-
 	"backend/internal/application"
 	"backend/internal/interface/api/response"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -213,7 +212,7 @@ func (h *productHandler) CreateProductVariant(ctx *gin.Context) {
 //	@Failure		404				{object}	mapper.NotFoundError
 //	@Failure		409				{object}	mapper.ConflictError
 //	@Failure		500				{object}	mapper.InternalServerError
-//	@Router			/products/variants/{id} [put]
+//	@Router			/products/variants/{variant_id} [put]
 func (h *productHandler) UpdateProductVariant(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -232,7 +231,7 @@ func (h *productHandler) UpdateProductVariant(ctx *gin.Context) {
 //	@Failure		404				{object}	mapper.NotFoundError
 //	@Failure		409				{object}	mapper.ConflictError
 //	@Failure		500				{object}	mapper.InternalServerError
-//	@Router			/products/options/{id} [put]
+//	@Router			/products/options/{option_id} [put]
 func (h *productHandler) UpdateProductOption(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

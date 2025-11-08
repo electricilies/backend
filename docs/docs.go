@@ -706,7 +706,49 @@ const docTemplate = `{
                 }
             }
         },
-        "/orders/{id}": {
+        "/orders/{order_id}": {
+            "get": {
+                "description": "Get order details by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get order by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Order"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.NotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.InternalServerError"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete an order by ID",
                 "consumes": [
@@ -723,7 +765,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Order ID",
-                        "name": "id",
+                        "name": "order_id",
                         "in": "path",
                         "required": true
                     }
@@ -750,7 +792,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/orders/{id}/status": {
+        "/orders/{order_id}/status": {
             "put": {
                 "description": "Update the status of an order",
                 "consumes": [
@@ -767,7 +809,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Order ID",
-                        "name": "id",
+                        "name": "order_id",
                         "in": "path",
                         "required": true
                     },
@@ -804,50 +846,6 @@ const docTemplate = `{
                         "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/mapper.ConflictError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/orders/{order_id}": {
-            "get": {
-                "description": "Get order details by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Order"
-                ],
-                "summary": "Get order by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Order ID",
-                        "name": "order_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Order"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
                         }
                     },
                     "500": {
@@ -1085,7 +1083,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/options/{id}": {
+        "/products/options/{option_id}": {
             "put": {
                 "description": "Update a product option by ID",
                 "consumes": [
@@ -1202,7 +1200,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/variants/{id}": {
+        "/products/variants/{variant_id}": {
             "put": {
                 "description": "Update a product variant by ID",
                 "consumes": [
