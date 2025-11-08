@@ -54,9 +54,6 @@ SWAGGER_ENV= # Change if you need
 
 # Redis / Redis Compatible
 REDIS_ADDRESS=localhost:6379
-
-# Terraform variable
-TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keycloak terraform docs
 ```
 
 > [!NOTE]
@@ -76,6 +73,8 @@ TF_VAR_keycloak_terraform_client_secret= # Create manually in the UI from keyclo
 - Run backend
 - `cd ./terraform/minio/`
 - `terraform apply -auto-aprove`
+- It will failed to continue applying because changing the config. You can either restart the container or use `mc admin service restart ALIAS`
+- apply terraform again
 
 ### Keycloak
 

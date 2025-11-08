@@ -12,13 +12,13 @@ import (
 	"backend/internal/di/db"
 	"backend/internal/di/ginengine"
 	user2 "backend/internal/domain/user"
+	"backend/internal/helper"
 	"backend/internal/infrastructure/product"
 	"backend/internal/infrastructure/user"
 	"backend/internal/interface/api/handler"
 	"backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
-
 	"github.com/google/wire"
 )
 
@@ -31,7 +31,8 @@ func InitializeServer() *server.Server {
 	s3Client := client.NewS3()
 	redisClient := client.NewRedis()
 	goCloak := client.NewKeycloak()
-	repository := user.NewRepository(queries, s3Client, redisClient, goCloak)
+	tokenManager := helper.NewTokenManager(goCloak)
+	repository := user.NewRepository(queries, s3Client, redisClient, goCloak, tokenManager)
 	transactor := db.NewTransactor(pool)
 	service := user2.NewService(repository, transactor)
 	applicationUser := application.NewUser(repository, service)

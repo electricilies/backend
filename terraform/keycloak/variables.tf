@@ -1,5 +1,6 @@
 variable "keycloak_terraform_client_secret" {
-  type = string
+  type    = string
+  default = "electricilies"
 }
 
 variable "keycloak_backend_client_secret" {
