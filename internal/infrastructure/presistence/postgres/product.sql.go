@@ -250,6 +250,32 @@ func (q *Queries) GetProductByID(ctx context.Context, arg GetProductByIDParams) 
 	return i, err
 }
 
+const getProductImageByID = `-- name: GetProductImageByID :one
+SELECT
+  id, url, created_at, "order", product_variant_id
+FROM
+  product_images
+WHERE
+  id = $1::integer
+`
+
+type GetProductImageByIDParams struct {
+	ID int32
+}
+
+func (q *Queries) GetProductImageByID(ctx context.Context, arg GetProductImageByIDParams) (ProductImage, error) {
+	row := q.db.QueryRow(ctx, getProductImageByID, arg.ID)
+	var i ProductImage
+	err := row.Scan(
+		&i.ID,
+		&i.URL,
+		&i.CreatedAt,
+		&i.Order,
+		&i.ProductVariantID,
+	)
+	return i, err
+}
+
 const getProducts = `-- name: GetProducts :many
 SELECT
   products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.category_id, products.created_at, products.updated_at, products.deleted_at,

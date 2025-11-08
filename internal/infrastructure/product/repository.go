@@ -1,13 +1,13 @@
 package product
 
 import (
+	"backend/config"
+	"backend/internal/domain/product"
+	"backend/internal/infrastructure/errors"
+	"backend/internal/infrastructure/presistence/postgres"
 	"context"
 	"strconv"
 	"time"
-
-	"backend/config"
-	"backend/internal/domain/product"
-	"backend/internal/infrastructure/presistence/postgres"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -45,7 +45,26 @@ func (r *repositoryImpl) GetUploadImageURL(ctx context.Context) (string, error) 
 		s3.WithPresignExpires(10*time.Minute),
 	)
 	if err != nil {
-		return "", err
+		return "", errors.ToDomainErrorFromS3(err)
+	}
+	return url.URL, nil
+}
+
+func (r *repositoryImpl) GetDeleteImageUrl(ctx context.Context, id int) (string, error) {
+	imageURL, err := r.db.GetProductImageByID(ctx, *ToGetProductImageByIDParams(id))
+	if err != nil {
+		return "", errors.ToDomainErrorFromPostgres(err)
+	}
+	url, err := r.s3PresignClient.PresignDeleteObject(
+		ctx,
+		&s3.DeleteObjectInput{
+			Bucket: aws.String(config.Cfg.S3Bucket),
+			Key:    aws.String(imageURL.URL),
+		},
+		s3.WithPresignExpires(10*time.Minute),
+	)
+	if err != nil {
+		return "", errors.ToDomainErrorFromS3(err)
 	}
 	return url.URL, nil
 }

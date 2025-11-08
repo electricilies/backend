@@ -215,5 +215,15 @@ WHERE
   deleted_at IS NULL
   AND id = ANY(@ids::integer[]);
 
+-- name: GetProductImageByID :one
+SELECT
+  *
+FROM
+  product_images
+WHERE
+  id = @id::integer;
+
 -- name: DeleteProductVariants :execrows
 -- TODO: Soft delete or delete all
+
+
