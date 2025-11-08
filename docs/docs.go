@@ -2343,6 +2343,7 @@ const docTemplate = `{
         "request.CreateProduct": {
             "type": "object",
             "required": [
+                "category",
                 "name",
                 "productImages",
                 "productVariants"
@@ -2353,6 +2354,9 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                },
+                "category": {
+                    "type": "integer"
                 },
                 "categoryIds": {
                     "type": "array",
@@ -2863,7 +2867,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "attributeValues",
-                "categories",
+                "category",
                 "createdAt",
                 "description",
                 "id",
@@ -2880,11 +2884,8 @@ const docTemplate = `{
                         "$ref": "#/definitions/response.AttributeValue"
                     }
                 },
-                "categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.Category"
-                    }
+                "category": {
+                    "$ref": "#/definitions/response.Category"
                 },
                 "createdAt": {
                     "type": "string"
@@ -3099,7 +3100,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "attributeValues",
-                "categories",
+                "category",
                 "createdAt",
                 "description",
                 "id",
@@ -3117,11 +3118,8 @@ const docTemplate = `{
                         "$ref": "#/definitions/response.AttributeValue"
                     }
                 },
-                "categories": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.Category"
-                    }
+                "category": {
+                    "$ref": "#/definitions/response.Category"
                 },
                 "createdAt": {
                     "type": "string"

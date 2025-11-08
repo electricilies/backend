@@ -5,6 +5,7 @@ type CreateProduct struct {
 	Description       string                 `json:"description,omitempty"`
 	CategoryIDs       []int                  `json:"categoryIds,omitempty"`
 	AttributeValueIDs []int                  `json:"attributeValueIds,omitempty"`
+	Category          int                    `json:"category" binding:"required"`
 	OptionalAtributes []CreateAttribute      `json:"optionalAttributes,omitempty"`
 	ProductVariants   []CreateProductVariant `json:"productVariants" binding:"required"`
 	ProductImages     []CreateProductImage   `json:"productImages" binding:"required"`

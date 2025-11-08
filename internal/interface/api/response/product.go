@@ -22,7 +22,7 @@ type ProductWithVariants struct {
 	TrendingScore   int64            `json:"trendingScore" binding:"required"`
 	CreatedAt       time.Time        `json:"createdAt" binding:"required"`
 	UpdatedAt       time.Time        `json:"updatedAt" binding:"required"`
-	Categories      []Category       `json:"categories" binding:"required"`
+	Category        Category         `json:"category" binding:"required"`
 	AttributeValues []AttributeValue `json:"attributeValues" binding:"required"`
 	Variants        []ProductVariant `json:"variants," binding:"required"`
 }
@@ -36,7 +36,7 @@ type Product struct {
 	TrendingScore   int64            `json:"trendingScore" binding:"required"`
 	CreatedAt       time.Time        `json:"createdAt" binding:"required"`
 	UpdatedAt       time.Time        `json:"updatedAt" binding:"required"`
-	Categories      []Category       `json:"categories" binding:"required"`
+	Category        Category         `json:"category" binding:"required"`
 	AttributeValues []AttributeValue `json:"attributeValues" binding:"required"`
 }
 
