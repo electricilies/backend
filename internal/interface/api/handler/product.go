@@ -142,7 +142,7 @@ func (h *productHandler) CreateProductOption(ctx *gin.Context) {
 //	@Description	Get a presigned URL to upload product images
 //	@Tags			Product
 //	@Produce		json
-//	@Success		200	{object}	response.ProductImageUploadURL
+//	@Success		200	{object}	response.ProductUploadURLImage
 //	@Failure		500	{object}	mapper.InternalServerError
 //	@Router			/products/images/upload-url [get]
 //
@@ -151,14 +151,14 @@ func (h *productHandler) CreateProductOption(ctx *gin.Context) {
 //	@Security		OAuth2PasswordStaff
 //	@Security		OAuth2PasswordCustomer
 func (h *productHandler) GetUploadImageURL(ctx *gin.Context) {
-	url, err := h.app.GetUploadImageURL(ctx)
+	res, err := h.app.GetUploadImageURL(ctx)
 	if err != nil {
 		mapper.ErrorFromDomain(ctx, err)
 		return
 	}
 	ctx.JSON(
 		http.StatusOK,
-		&response.ProductImageUploadURL{URL: url},
+		response.ProductUploadURLImageFromDomain(res),
 	)
 }
 

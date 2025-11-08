@@ -1,6 +1,10 @@
 package response
 
-import "time"
+import (
+	"time"
+
+	"backend/internal/domain/product"
+)
 
 type ProductOption struct {
 	ID    int    `json:"id" binding:"required"`
@@ -78,10 +82,20 @@ type ProductVariantWithImages struct {
 	Images        []ProductVariantImage       `json:"images" binding:"required"`
 }
 
-type ProductImageUploadURL struct {
+type ProductImageDeleteURL struct {
 	URL string `json:"url" binding:"required"`
 }
 
-type ProductImageDeleteURL struct {
+type ProductUploadURLImage struct {
 	URL string `json:"url" binding:"required"`
+	Key string `json:"key" binding:"required"`
+}
+
+func ProductUploadURLImageFromDomain(
+	u *product.UploadImageURLModel,
+) *ProductUploadURLImage {
+	return &ProductUploadURLImage{
+		URL: u.URL,
+		Key: u.Key,
+	}
 }

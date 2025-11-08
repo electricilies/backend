@@ -1016,7 +1016,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.ProductImageUploadURL"
+                            "$ref": "#/definitions/response.ProductUploadURLImage"
                         }
                     },
                     "500": {
@@ -2921,17 +2921,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.ProductImageUploadURL": {
-            "type": "object",
-            "required": [
-                "url"
-            ],
-            "properties": {
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
         "response.ProductOption": {
             "type": "object",
             "required": [
@@ -2947,6 +2936,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ProductUploadURLImage": {
+            "type": "object",
+            "required": [
+                "key",
+                "url"
+            ],
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "url": {
                     "type": "string"
                 }
             }

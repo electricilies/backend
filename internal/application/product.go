@@ -1,12 +1,13 @@
 package application
 
 import (
-	"backend/internal/domain/product"
 	"context"
+
+	"backend/internal/domain/product"
 )
 
 type Product interface {
-	GetUploadImageURL(ctx context.Context) (string, error)
+	GetUploadImageURL(ctx context.Context) (*product.UploadImageURLModel, error)
 	GetDeleteImageURL(ctx context.Context, id int) (string, error)
 }
 
@@ -20,7 +21,7 @@ func NewProduct(productRepo product.Repository) Product {
 	}
 }
 
-func (a *productApp) GetUploadImageURL(ctx context.Context) (string, error) {
+func (a *productApp) GetUploadImageURL(ctx context.Context) (*product.UploadImageURLModel, error) {
 	return a.productRepo.GetUploadImageURL(ctx)
 }
 

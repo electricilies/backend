@@ -3,6 +3,7 @@ package product
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"backend/config"
@@ -37,9 +38,9 @@ func NewRepository(
 	}
 }
 
-func (r *repositoryImpl) GetUploadImageURL(ctx context.Context) (string, error) {
+func (r *repositoryImpl) GetUploadImageURL(ctx context.Context) (*product.UploadImageURLModel, error) {
 	randomUUID, _ := uuid.NewV7()
-	key := fmt.Sprintf("products/%s", randomUUID.String())
+	key := fmt.Sprintf("temp/products/%s", randomUUID.String()) // TODO: use env variable for folder
 	url, err := r.s3PresignClient.PresignPutObject(
 		ctx,
 		&s3.PutObjectInput{
@@ -49,9 +50,13 @@ func (r *repositoryImpl) GetUploadImageURL(ctx context.Context) (string, error) 
 		s3.WithPresignExpires(10*time.Minute),
 	)
 	if err != nil {
-		return "", errors.ToDomainErrorFromS3(err)
+		return nil, errors.ToDomainErrorFromS3(err)
 	}
-	return url.URL, nil
+	model := &UploadURLImage{
+		URL: url.URL,
+		Key: strings.Replace(key, "temp/", "", 1),
+	}
+	return model.ToDomain(), nil
 }
 
 func (r *repositoryImpl) GetDeleteImageURL(ctx context.Context, id int) (string, error) {
