@@ -9,5 +9,5 @@ type Repository interface {
 	// Update(ctx context.Context, user *User) error
 	// Delete(ctx context.Context, id string) error
 	GetUploadImageURL(ctx context.Context) (string, error)
-	GetDeleteImageUrl(ctx context.Context, id int) (string, error)
+	GetDeleteImageURL(ctx context.Context, id int) (string, error)
 }

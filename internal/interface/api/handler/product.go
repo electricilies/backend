@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"net/http"
-
 	"backend/internal/application"
+	"backend/internal/interface/api/mapper"
 	"backend/internal/interface/api/response"
+	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +22,7 @@ type Product interface {
 	UpdateProductVariant(ctx *gin.Context)
 	UpdateProductOption(ctx *gin.Context)
 	GetUploadImageURL(ctx *gin.Context)
+	GetDeleteImageURL(ctx *gin.Context)
 }
 
 type productHandler struct {
@@ -151,11 +153,7 @@ func (h *productHandler) CreateProductOption(ctx *gin.Context) {
 func (h *productHandler) GetUploadImageURL(ctx *gin.Context) {
 	url, err := h.app.GetUploadImageURL(ctx)
 	if err != nil {
-		// TODO: Nguyen boc ham`
-		ctx.JSON(
-			http.StatusInternalServerError,
-			gin.H{"error": "Failed to get presigned URL"},
-		)
+		mapper.ErrorFromDomain(ctx, err)
 		return
 	}
 	ctx.JSON(
@@ -164,7 +162,37 @@ func (h *productHandler) GetUploadImageURL(ctx *gin.Context) {
 	)
 }
 
-// TODO: No
+// GetDeleteImageURL godoc
+//
+//	@Summary		Get presigned URL for image deletion
+//	@Description	Get a presigned URL to delete product images
+//	@Tags			Product
+//	@Produce		json
+//
+//	@Param			image_id	query		int	true	"Product Image ID"
+//
+//	@Success		204			{object}	response.ProductImageDeleteURL
+//	@Failure		500			{object}	mapper.InternalServerError
+//	@Router			/products/images/delete-url [get]
+//
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2PasswordAdmin
+//	@Security		OAuth2PasswordStaff
+//	@Security		OAuth2PasswordCustomer
+func (h *productHandler) GetDeleteImageURL(ctx *gin.Context) {
+	q := ctx.Query("image_id")
+	id, _ := strconv.Atoi(q)
+	url, err := h.app.GetDeleteImageURL(ctx, id)
+	if err != nil {
+		mapper.ErrorFromDomain(ctx, err)
+		return
+	}
+	ctx.JSON(
+		http.StatusOK,
+		&response.ProductImageDeleteURL{URL: url},
+	)
+}
+
 // CreateProductImage godoc
 //
 //	@Summary		Create a new product image

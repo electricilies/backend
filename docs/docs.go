@@ -991,6 +991,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/products/images/delete-url": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2PasswordAdmin": []
+                    },
+                    {
+                        "OAuth2PasswordStaff": []
+                    },
+                    {
+                        "OAuth2PasswordCustomer": []
+                    }
+                ],
+                "description": "Get a presigned URL to delete product images",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get presigned URL for image deletion",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product Image ID",
+                        "name": "image_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProductImageDeleteURL"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/mapper.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/products/images/upload-url": {
             "get": {
                 "security": [
@@ -2934,6 +2983,17 @@ const docTemplate = `{
                 "productVariantId": {
                     "type": "integer"
                 },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ProductImageDeleteURL": {
+            "type": "object",
+            "required": [
+                "url"
+            ],
+            "properties": {
                 "url": {
                     "type": "string"
                 }

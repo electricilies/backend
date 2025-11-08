@@ -81,3 +81,7 @@ type ProductVariantWithImages struct {
 type ProductImageUploadURL struct {
 	URL string `json:"url" binding:"required"`
 }
+
+type ProductImageDeleteURL struct {
+	URL string `json:"url" binding:"required"`
+}

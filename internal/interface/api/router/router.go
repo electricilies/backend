@@ -110,6 +110,7 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 			products.POST("/options", r.productHandler.CreateProductOption)
 			products.POST("/images", r.productHandler.CreateProductImage)
 			products.GET("/images/upload-url", r.productHandler.GetUploadImageURL)
+			products.GET("/images/delete-url/:image_id", r.productHandler.GetDeleteImageURL)
 			products.POST("/variants", r.productHandler.CreateProductVariant)
 			products.PUT("/variants/:variant_id", r.productHandler.UpdateProductVariant)
 			products.PUT("/options/:option_id", r.productHandler.UpdateProductOption)

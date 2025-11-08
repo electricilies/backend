@@ -50,7 +50,7 @@ func (r *repositoryImpl) GetUploadImageURL(ctx context.Context) (string, error) 
 	return url.URL, nil
 }
 
-func (r *repositoryImpl) GetDeleteImageUrl(ctx context.Context, id int) (string, error) {
+func (r *repositoryImpl) GetDeleteImageURL(ctx context.Context, id int) (string, error) {
 	imageURL, err := r.db.GetProductImageByID(ctx, *ToGetProductImageByIDParams(id))
 	if err != nil {
 		return "", errors.ToDomainErrorFromPostgres(err)
