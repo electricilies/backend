@@ -121,6 +121,7 @@ type ProductImage struct {
 	URL              string
 	CreatedAt        pgtype.Timestamp
 	Order            int32
+	ProductID        pgtype.Int4
 	ProductVariantID pgtype.Int4
 }
 

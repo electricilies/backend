@@ -69,6 +69,7 @@ CREATE TABLE product_images (
   url TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   "order" INTEGER NOT NULL,
+  product_id INTEGER REFERENCES products (id) ON UPDATE CASCADE,
   product_variant_id INTEGER REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 
