@@ -42,13 +42,20 @@ func (r *roleMiddleware) Handler(rolesAllowed []constant.UserRole) gin.HandlerFu
 			return
 		}
 
-		userRole := extractRoleFromRoot(claims)
-		if userRole == "" {
+		userRoles := extractRolesFromClaims(claims)
+		if len(userRoles) == 0 {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "No role found in JWT claims"})
 			return
 		}
 
-		if _, exists := set[constant.UserRole(userRole)]; !exists {
+		allowed := false
+		for _, role := range userRoles {
+			if _, exists := set[constant.UserRole(role)]; exists {
+				allowed = true
+				break
+			}
+		}
+		if !allowed {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
 			return
 		}
@@ -57,7 +64,22 @@ func (r *roleMiddleware) Handler(rolesAllowed []constant.UserRole) gin.HandlerFu
 	}
 }
 
-func extractRoleFromRoot(claims jwt.MapClaims) string {
-	role, _ := claims["role"].(string)
-	return role
+func extractRolesFromClaims(claims jwt.MapClaims) []string {
+	var roles []string
+	if rawRoles, ok := claims["roles"]; ok {
+		switch v := rawRoles.(type) {
+		case []any:
+			for _, r := range v {
+				if s, ok := r.(string); ok {
+					roles = append(roles, s)
+				}
+			}
+		case []string:
+			roles = append(roles, v...)
+		}
+	}
+	if role, ok := claims["role"].(string); ok && role != "" {
+		roles = append(roles, role)
+	}
+	return roles
 }
