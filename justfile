@@ -126,18 +126,18 @@ export-realm container="electricilies-backend-keycloak-1" realm="electricilies":
     /opt/keycloak/bin/kc.sh export \
     --optimized \
     --realm {{realm}} \
-    --file /opt/keycloak/{{realm}}.json || true
-  docker cp {{container}}:/opt/keycloak/{{realm}}.json ./keycloak/{{realm}}-export.json
+    --file /opt/keycloak/{{realm}}-realm-export.json || true
+  docker cp {{container}}:/opt/keycloak/{{realm}}-realm-export.json ./keycloak/{{realm}}-realm-export.json
 
 [doc("Import a Keycloak realm from JSON")]
-import-realm container="electricilies-backend-keycloak-1" file="./keycloak/electricilies-export.json" realm="electricilies":
-  docker cp {{file}} {{container}}:/opt/keycloak/{{realm}}-export.json
+import-realm container="electricilies-backend-keycloak-1" file="./keycloak/electricilies-realm-export.json" realm="electricilies":
+  docker cp {{file}} {{container}}:/opt/keycloak/{{realm}}-realm-export.json
   docker exec \
     -it \
     {{container}} \
     /opt/keycloak/bin/kc.sh import \
     --optimized \
-    --file /opt/keycloak/{{realm}}-export.json
+    --file /opt/keycloak/{{realm}}-realm-export.json
 
 gen-ctags:
   ctags -R \
