@@ -67,21 +67,20 @@ REDIS_ADDRESS=localhost:6379
 
 - Tool required are in [mise.toml](./mise.toml)
 
-### Minio
+### Bootstrap
 
-- Run minio (`just compose minio`,...)
-- Run backend
-- `cd ./terraform/minio/`
-- `terraform apply -auto-aprove`
-- It will failed to continue applying because changing the config. You can either restart the container or use `mc admin service restart ALIAS`
-- apply terraform again
-
-### Keycloak
-
-- Import `terraform` client from ./keycloak/master-terraform-client-export.json
-- Add `Service account roles` `realm/admin` for `terraform` client
-- Go to keycloak, the app's realm (`electricilies`), `Realm settings`, `User profile`, `role`, set `Default value` to `customer`
-  > <https://github.com/keycloak/terraform-provider-keycloak/issues/1371>
+1. `just compose` to spin up all services
+   > with `db` service, it init, create schema, trigger, and other necessary stuff
+2. `just` to run backend
+3. Setup keycloak
+   1. Import `terraform` client from ./keycloak/master-terraform-client-export.json
+   2. Add `Service account roles` `realm/admin` for `terraform` client
+   3. `cd ./terraform/keycloak/`
+   4. `terraform apply -auto-aprove`
+4. MinIO
+   1. `cd ./terraform/minio/`
+   2. `terraform apply -auto-aprove`
+5. `just db-seed-fake` to seed fake data to backend database (optional)
 
 ### Note
 
