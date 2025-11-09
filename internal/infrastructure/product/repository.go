@@ -40,7 +40,7 @@ func NewRepository(
 
 func (r *repositoryImpl) GetUploadImageURL(ctx context.Context) (*product.UploadImageURLModel, error) {
 	randomUUID, _ := uuid.NewV7()
-	key := fmt.Sprintf("temp/products/%s", randomUUID.String()) // TODO: use env variable for folder
+	key := fmt.Sprintf("temp/products/image/%s", randomUUID.String()) // TODO: use env variable for folder
 	url, err := r.s3PresignClient.PresignPutObject(
 		ctx,
 		&s3.PutObjectInput{
