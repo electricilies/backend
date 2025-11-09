@@ -1,19 +1,12 @@
 variable "minio_server_endpoint" {
-  type    = string
-  default = "localhost:9000"
+  type = string
 }
 
 variable "minio_username" {
-  type    = string
-  default = "electricilies"
+  type = string
 }
 
 variable "minio_password" {
-  type    = string
-  default = "electricilies"
-}
-
-variable "backend_webhook" {
-  type    = string
-  default = "http://localhost:8080/api"
+  type      = string
+  sensitive = true
 }
