@@ -15,12 +15,12 @@ import (
 
 // @BasePath								/api
 //
+// @securitydefinitions.oauth2.password	OAuth2Password
+// @tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
+//
 // @securitydefinitions.oauth2.accessCode	OAuth2AccessCode
 // @tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
 // @authorizationUrl						/auth/realms/electricilies/protocol/openid-connect/auth
-//
-// @securitydefinitions.oauth2.password	OAuth2Password
-// @tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
 func main() {
 	config.LoadConfig()
 	s := di.InitializeServer()
