@@ -28,6 +28,7 @@ const (
 	S3Bucket            = "S3_BUCKET"
 	TimeZone            = "TIMEZONE"
 	SwaggerEnv          = "SWAGGER_ENV"
+	PublicKeycloakURL   = "PUBLIC_KEYCLOAK_URL"
 )
 
 type Config struct {
@@ -52,6 +53,7 @@ type Config struct {
 	S3Bucket            string
 	TimeZone            string
 	SwaggerEnv          string
+	PublicKeycloakURL   string
 }
 
 var Cfg *Config
@@ -90,5 +92,6 @@ func LoadConfig() {
 		S3Bucket:            viper.GetString(S3Bucket),
 		TimeZone:            viper.GetString(TimeZone),
 		SwaggerEnv:          viper.GetString(SwaggerEnv),
+		PublicKeycloakURL:   viper.GetString(PublicKeycloakURL),
 	}
 }
