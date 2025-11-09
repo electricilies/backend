@@ -1,12 +1,10 @@
 package middleware
 
 import (
-	"context"
 	"net/http"
 	"strings"
 
 	"backend/config"
-	"backend/internal/constant"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-gonic/gin"
@@ -62,10 +60,6 @@ func (j *authMiddleware) Handler() gin.HandlerFunc {
 		}
 
 		claims, _ := tokens.Claims.(jwt.MapClaims)
-
-		ctx.Set(constant.TokenKey, token)
-		c := context.WithValue(ctx.Request.Context(), constant.TokenKey, token)
-		ctx.Request = ctx.Request.WithContext(c)
 		ctx.Set("claims", claims)
 		ctx.Next()
 	}
