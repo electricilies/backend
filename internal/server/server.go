@@ -28,7 +28,7 @@ func New(e *gin.Engine, r router.Router) *Server {
 		ginSwagger.WrapHandler(
 			swaggerfiles.Handler,
 			ginSwagger.PersistAuthorization(true),
-			ginSwagger.Oauth2DefaultClientID("frontend"),
+			ginSwagger.Oauth2DefaultClientID("swagger"),
 		),
 	)
 	return &Server{

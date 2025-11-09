@@ -946,13 +946,7 @@ const docTemplate = `{
                         "OAuth2AccessCode": []
                     },
                     {
-                        "OAuth2PasswordAdmin": []
-                    },
-                    {
-                        "OAuth2PasswordStaff": []
-                    },
-                    {
-                        "OAuth2PasswordCustomer": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Get a presigned URL to delete product images",
@@ -995,13 +989,7 @@ const docTemplate = `{
                         "OAuth2AccessCode": []
                     },
                     {
-                        "OAuth2PasswordAdmin": []
-                    },
-                    {
-                        "OAuth2PasswordStaff": []
-                    },
-                    {
-                        "OAuth2PasswordCustomer": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Get a presigned URL to upload product images",
@@ -1925,10 +1913,7 @@ const docTemplate = `{
                         "OAuth2AccessCode": []
                     },
                     {
-                        "OAuth2PasswordAdmin": []
-                    },
-                    {
-                        "OAuth2PasswordStaff": []
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Get all users",
@@ -2016,6 +2001,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
                     }
                 ],
                 "description": "Get user by ID",
@@ -3310,17 +3298,7 @@ const docTemplate = `{
             "authorizationUrl": "/auth/realms/electricilies/protocol/openid-connect/auth",
             "tokenUrl": "/auth/realms/electricilies/protocol/openid-connect/token"
         },
-        "OAuth2PasswordAdmin": {
-            "type": "oauth2",
-            "flow": "password",
-            "tokenUrl": "/auth/realms/electricilies/protocol/openid-connect/token"
-        },
-        "OAuth2PasswordCustomer": {
-            "type": "oauth2",
-            "flow": "password",
-            "tokenUrl": "/auth/realms/electricilies/protocol/openid-connect/token"
-        },
-        "OAuth2PasswordStaff": {
+        "OAuth2Password": {
             "type": "oauth2",
             "flow": "password",
             "tokenUrl": "/auth/realms/electricilies/protocol/openid-connect/token"

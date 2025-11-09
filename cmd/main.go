@@ -19,13 +19,7 @@ import (
 // @tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
 // @authorizationUrl						/auth/realms/electricilies/protocol/openid-connect/auth
 //
-// @securitydefinitions.oauth2.password	OAuth2PasswordAdmin
-// @tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
-//
-// @securitydefinitions.oauth2.password	OAuth2PasswordStaff
-// @tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
-//
-// @securitydefinitions.oauth2.password	OAuth2PasswordCustomer
+// @securitydefinitions.oauth2.password	OAuth2Password
 // @tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
 func main() {
 	config.LoadConfig()

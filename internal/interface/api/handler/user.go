@@ -44,6 +44,7 @@ func NewUser(app application.User) User {
 //	@Router			/users/{user_id} [get]
 //
 //	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *userHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("user_id")
 	u, err := h.app.Get(ctx, id)
@@ -66,8 +67,7 @@ func (h *userHandler) Get(ctx *gin.Context) {
 //	@Router			/users [get]
 //
 //	@Security		OAuth2AccessCode
-//	@Security		OAuth2PasswordAdmin
-//	@Security		OAuth2PasswordStaff
+//	@Security		OAuth2Password
 func (h *userHandler) List(ctx *gin.Context) {
 	users, err := h.app.List(ctx)
 	if err != nil {

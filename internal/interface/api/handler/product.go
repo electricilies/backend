@@ -147,9 +147,7 @@ func (h *productHandler) CreateProductOption(ctx *gin.Context) {
 //	@Router			/products/images/upload-url [get]
 //
 //	@Security		OAuth2AccessCode
-//	@Security		OAuth2PasswordAdmin
-//	@Security		OAuth2PasswordStaff
-//	@Security		OAuth2PasswordCustomer
+//	@Security		OAuth2Password
 func (h *productHandler) GetUploadImageURL(ctx *gin.Context) {
 	res, err := h.app.GetUploadImageURL(ctx)
 	if err != nil {
@@ -176,9 +174,7 @@ func (h *productHandler) GetUploadImageURL(ctx *gin.Context) {
 //	@Router			/products/images/delete-url [get]
 //
 //	@Security		OAuth2AccessCode
-//	@Security		OAuth2PasswordAdmin
-//	@Security		OAuth2PasswordStaff
-//	@Security		OAuth2PasswordCustomer
+//	@Security		OAuth2Password
 func (h *productHandler) GetDeleteImageURL(ctx *gin.Context) {
 	q := ctx.Query("image_id")
 	id, _ := strconv.Atoi(q)
