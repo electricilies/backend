@@ -13,10 +13,10 @@ type Order struct {
 }
 
 type OrderItem struct {
-	ID             int                      `json:"id" binding:"required"`
-	OrderID        int                      `json:"orderId" binding:"required"`
-	Product        ProductWithVariants      `json:"product" binding:"required"`
-	ProductVariant ProductVariantWithImages `json:"productVariant" binding:"required"`
-	Quantity       int                      `json:"quantity" binding:"required"`
-	Price          int64                    `json:"price" binding:"required"`
+	ID             int            `json:"id" binding:"required"`
+	OrderID        int            `json:"orderId" binding:"required"`
+	Product        Product        `json:"product" binding:"required"`
+	ProductVariant ProductVariant `json:"productVariant" binding:"required"`
+	Quantity       int            `json:"quantity" binding:"required"`
+	Price          int64          `json:"price" binding:"required"`
 }

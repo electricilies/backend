@@ -44,7 +44,7 @@ func NewProduct(app application.Product) Product {
 //	@Accept			json
 //	@Produce		json
 //	@Param			produdt_id	path		int	true	"Product ID"
-//	@Success		200			{object}	response.ProductWithVariants
+//	@Success		200			{object}	response.Product
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/products/{product_id} [get]
@@ -93,134 +93,10 @@ func (h *productHandler) List(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			product	body		request.CreateProduct	true	"Product request"
-//	@Success		201		{object}	response.ProductWithVariants
+//	@Success		201		{object}	response.Product
 //	@Failure		400		{object}	response.BadRequestError
 //	@Failure		409		{object}	response.ConflictError
 //	@Failure		500		{object}	response.InternalServerError
-//	@Router			/products [post]
-func (h *productHandler) Create(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
-}
-
-// UpdateProduct godoc
-//
-//	@Summary		Update a product
-//	@Description	Update product by ID
-//	@Tags			Product
-//	@Accept			json
-//	@Produce		json
-//	@Param			product_id	path		int						true	"Product ID"
-//	@Param			product		body		request.UpdateProduct	true	"Update product request"
-//	@Success		204			{string}	string					"no content"
-//	@Failure		400			{object}	response.BadRequestError
-//	@Failure		404			{object}	response.NotFoundError
-//	@Failure		409			{object}	response.ConflictError
-//	@Failure		500			{object}	response.InternalServerError
-//	@Router			/products/{product_id} [put]
-func (h *productHandler) Update(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
-}
-
-// DeleteProduct godoc
-//
-//	@Summary		Delete a product
-//	@Description	Delete product by ID
-//	@Tags			Product
-//	@Accept			json
-//	@Produce		json
-//	@Param			product_id	path		int		true	"Product ID"
-//	@Success		204			{string}	string	"no content"
-//	@Failure		404			{object}	response.NotFoundError
-//	@Failure		500			{object}	response.InternalServerError
-//	@Router			/products/{product_id} [delete]
-func (h *productHandler) Delete(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
-}
-
-// CreateProductOption godoc
-//
-//	@Summary		Create a new product option
-//	@Description	Create a new product option for a product
-//	@Tags			Product
-//	@Accept			json
-//	@Produce		json
-//	@Param			productOption	body		request.CreateProductOption	true	"Product option request"
-//
-//	@Success		201				{object}	response.ProductOption
-//
-//	@Failure		400				{object}	response.BadRequestError
-//	@Failure		409				{object}	response.ConflictError
-//	@Failure		500				{object}	response.InternalServerError
-//	@Router			/products/options [post]
-func (h *productHandler) CreateProductOption(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
-}
-
-// GetUploadImageURL godoc
-//
-//	@Summary		Get presigned URL for image upload
-//	@Description	Get a presigned URL to upload product images
-//	@Tags			Product
-//	@Produce		json
-//	@Success		200	{object}	response.ProductUploadURLImage
-//	@Failure		500	{object}	response.InternalServerError
-//	@Router			/products/images/upload-url [get]
-//
-//	@Security		OAuth2AccessCode
-//	@Security		OAuth2Password
-func (h *productHandler) GetUploadImageURL(ctx *gin.Context) {
-	res, err := h.app.GetUploadImageURL(ctx)
-	if err != nil {
-		response.ErrorFromDomain(ctx, err)
-		return
-	}
-	ctx.JSON(
-		http.StatusOK,
-		response.ProductUploadURLImageFromDomain(res),
-	)
-}
-
-// GetDeleteImageURL godoc
-//
-//	@Summary		Get presigned URL for image deletion
-//	@Description	Get a presigned URL to delete product images
-//	@Tags			Product
-//	@Produce		json
-//
-//	@Param			image_id	query		int	true	"Product Image ID"
-//
-//	@Success		204			{object}	response.ProductImageDeleteURL
-//	@Failure		500			{object}	response.InternalServerError
-//	@Router			/products/images/delete-url [get]
-//
-//	@Security		OAuth2AccessCode
-//	@Security		OAuth2Password
-func (h *productHandler) GetDeleteImageURL(ctx *gin.Context) {
-	q := ctx.Query("image_id")
-	id, _ := strconv.Atoi(q)
-	url, err := h.app.GetDeleteImageURL(ctx, id)
-	if err != nil {
-		response.ErrorFromDomain(ctx, err)
-		return
-	}
-	ctx.JSON(
-		http.StatusOK,
-		&response.ProductImageDeleteURL{URL: url},
-	)
-}
-
-// CreateProductVariant godoc
-//
-//	@Summary		Create a new product variant
-//	@Description	Create a new variant for a product
-//	@Tags			Product
-//	@Accept			json
-//	@Produce		json
-//	@Param			productVariant	body		request.CreateProductVariant	true	"Product variant request"
-//	@Success		201				{object}	response.ProductVariantWithImages
-//	@Failure		400				{object}	response.BadRequestError
-//	@Failure		409				{object}	response.ConflictError
-//	@Failure		500				{object}	response.InternalServerError
 //	@Router			/products/variants [post]
 func (h *productHandler) CreateProductVariant(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)

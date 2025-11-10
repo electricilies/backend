@@ -935,185 +935,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "Create a new product",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "Create a new product",
-                "parameters": [
-                    {
-                        "description": "Product request",
-                        "name": "product",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.CreateProduct"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.ProductWithVariants"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.BadRequestError"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.ConflictError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/products/images/delete-url": {
-            "get": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    },
-                    {
-                        "OAuth2Password": []
-                    }
-                ],
-                "description": "Get a presigned URL to delete product images",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "Get presigned URL for image deletion",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product Image ID",
-                        "name": "image_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "$ref": "#/definitions/response.ProductImageDeleteURL"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/products/images/upload-url": {
-            "get": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    },
-                    {
-                        "OAuth2Password": []
-                    }
-                ],
-                "description": "Get a presigned URL to upload product images",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "Get presigned URL for image upload",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.ProductUploadURLImage"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/products/options": {
-            "post": {
-                "description": "Create a new product option for a product",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "Create a new product option",
-                "parameters": [
-                    {
-                        "description": "Product option request",
-                        "name": "productOption",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.CreateProductOption"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/response.ProductOption"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.BadRequestError"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.ConflictError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.InternalServerError"
-                        }
-                    }
-                }
             }
         },
         "/products/options/{option_id}": {
@@ -1183,7 +1004,7 @@ const docTemplate = `{
         },
         "/products/variants": {
             "post": {
-                "description": "Create a new variant for a product",
+                "description": "Create a new product",
                 "consumes": [
                     "application/json"
                 ],
@@ -1193,15 +1014,15 @@ const docTemplate = `{
                 "tags": [
                     "Product"
                 ],
-                "summary": "Create a new product variant",
+                "summary": "Create a new product",
                 "parameters": [
                     {
-                        "description": "Product variant request",
-                        "name": "productVariant",
+                        "description": "Product request",
+                        "name": "product",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.CreateProductVariant"
+                            "$ref": "#/definitions/request.CreateProduct"
                         }
                     }
                 ],
@@ -1209,7 +1030,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.ProductVariantWithImages"
+                            "$ref": "#/definitions/response.Product"
                         }
                     },
                     "400": {
@@ -1324,112 +1145,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.ProductWithVariants"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.NotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.InternalServerError"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Update product by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "Update a product",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "product_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Update product request",
-                        "name": "product",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.UpdateProduct"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "no content",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.BadRequestError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.NotFoundError"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.ConflictError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.InternalServerError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete product by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "Delete a product",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "product_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "no content",
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Product"
                         }
                     },
                     "404": {
@@ -2396,24 +2112,6 @@ const docTemplate = `{
                 }
             }
         },
-        "request.CreateProductOption": {
-            "type": "object",
-            "required": [
-                "option",
-                "value"
-            ],
-            "properties": {
-                "option": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
         "request.CreateProductVariant": {
             "type": "object",
             "required": [
@@ -2559,17 +2257,6 @@ const docTemplate = `{
             ],
             "properties": {
                 "orderStatus": {
-                    "type": "string"
-                }
-            }
-        },
-        "request.UpdateProduct": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "name": {
                     "type": "string"
                 }
             }
@@ -2752,7 +2439,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "product": {
-                    "$ref": "#/definitions/response.ProductWithVariants"
+                    "$ref": "#/definitions/response.Product"
                 },
                 "quantity": {
                     "type": "integer"
@@ -2898,10 +2585,10 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "product": {
-                    "$ref": "#/definitions/response.ProductWithVariants"
+                    "$ref": "#/definitions/response.Product"
                 },
                 "productVariant": {
-                    "$ref": "#/definitions/response.ProductVariantWithImages"
+                    "$ref": "#/definitions/response.ProductVariant"
                 },
                 "quantity": {
                     "type": "integer"
@@ -2998,56 +2685,14 @@ const docTemplate = `{
                 "updatedAt": {
                     "type": "string"
                 },
-                "viewsCount": {
-                    "type": "integer"
-                }
-            }
-        },
-        "response.ProductImageDeleteURL": {
-            "type": "object",
-            "required": [
-                "url"
-            ],
-            "properties": {
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "response.ProductOption": {
-            "type": "object",
-            "required": [
-                "id",
-                "name",
-                "values"
-            ],
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "values": {
+                "variants": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/response.ProductVariant"
                     }
-                }
-            }
-        },
-        "response.ProductUploadURLImage": {
-            "type": "object",
-            "required": [
-                "key",
-                "url"
-            ],
-            "properties": {
-                "key": {
-                    "type": "string"
                 },
-                "url": {
-                    "type": "string"
+                "viewsCount": {
+                    "type": "integer"
                 }
             }
         },
@@ -3071,6 +2716,12 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ProductVariantImage"
+                    }
                 },
                 "optionValues": {
                     "type": "array",
@@ -3127,111 +2778,6 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "string"
-                }
-            }
-        },
-        "response.ProductVariantWithImages": {
-            "type": "object",
-            "required": [
-                "createdAt",
-                "id",
-                "images",
-                "optionValues",
-                "price",
-                "purchaseCount",
-                "quantity",
-                "sku"
-            ],
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.ProductVariantImage"
-                    }
-                },
-                "optionValues": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.ProductVariantOptionValue"
-                    }
-                },
-                "price": {
-                    "type": "integer"
-                },
-                "purchaseCount": {
-                    "type": "integer"
-                },
-                "quantity": {
-                    "type": "integer"
-                },
-                "sku": {
-                    "type": "string"
-                }
-            }
-        },
-        "response.ProductWithVariants": {
-            "type": "object",
-            "required": [
-                "attributeValues",
-                "category",
-                "createdAt",
-                "description",
-                "id",
-                "name",
-                "totalPurchase",
-                "trendingScore",
-                "updatedAt",
-                "variants",
-                "viewsCount"
-            ],
-            "properties": {
-                "attributeValues": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.AttributeValue"
-                    }
-                },
-                "category": {
-                    "$ref": "#/definitions/response.Category"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "totalPurchase": {
-                    "type": "integer"
-                },
-                "trendingScore": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "variants": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.ProductVariant"
-                    }
-                },
-                "viewsCount": {
-                    "type": "integer"
                 }
             }
         },
