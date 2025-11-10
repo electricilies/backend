@@ -58,8 +58,11 @@ func (h *productHandler) Get(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{array}		response.Product
-//	@Failure		500	{object}	mapper.InternalServerError
+//	@Param			offset	query		int	true	"Offset for pagination"
+//	@Param			limit	query		int	true	"Limit for pagination"
+//
+//	@Success		200		{array}		response.ProductsPagination
+//	@Failure		500		{object}	mapper.InternalServerError
 //	@Router			/products [get]
 func (h *productHandler) List(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)

@@ -44,6 +44,11 @@ type Product struct {
 	AttributeValues []AttributeValue `json:"attributeValues" binding:"required"`
 }
 
+type ProductsPagination struct {
+	Meta Pagination `json:"meta" binding:"required"`
+	Data []Product  `json:"data" binding:"required"`
+}
+
 type ProductImage struct {
 	ID               int       `json:"id" binding:"required"`
 	URL              string    `json:"url" binding:"required"`

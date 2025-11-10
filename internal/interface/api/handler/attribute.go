@@ -41,9 +41,12 @@ func (h *attributeHandler) Get(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{array}		response.Attribute
-//	@Failure		500	{object}	mapper.InternalServerError
-//	@Router			/attributes [get]
+//	@Param			offset	query	int	true	"Offset for pagination"
+//	@Param			limit	query	int	true	"Limit for pagination"
+
+// @Success	200	{array}		response.AttributesPagination
+// @Failure	500	{object}	mapper.InternalServerError
+// @Router		/attributes [get]
 func (h *attributeHandler) List(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

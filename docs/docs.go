@@ -17,24 +17,13 @@ const docTemplate = `{
     "paths": {
         "/attributes": {
             "get": {
-                "description": "Get all attributes",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Attribute"
-                ],
-                "summary": "List all attributes",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/response.Attribute"
+                                "$ref": "#/definitions/response.AttributesPagination"
                             }
                         }
                     },
@@ -448,13 +437,29 @@ const docTemplate = `{
                     "Category"
                 ],
                 "summary": "List all categories",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit for pagination",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/response.Category"
+                                "$ref": "#/definitions/response.CategoriesPagination"
                             }
                         }
                     },
@@ -870,13 +875,29 @@ const docTemplate = `{
                     "Product"
                 ],
                 "summary": "List all products",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit for pagination",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/response.Product"
+                                "$ref": "#/definitions/response.ProductsPagination"
                             }
                         }
                     },
@@ -1668,33 +1689,13 @@ const docTemplate = `{
         },
         "/reviews": {
             "get": {
-                "description": "Get all reviews",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Review"
-                ],
-                "summary": "List all reviews",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "product_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/response.Review"
+                                "$ref": "#/definitions/response.ReviewsPagination"
                             }
                         }
                     },
@@ -2681,6 +2682,24 @@ const docTemplate = `{
                 }
             }
         },
+        "response.AttributesPagination": {
+            "type": "object",
+            "required": [
+                "data",
+                "meta"
+            ],
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Attribute"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/response.Pagination"
+                }
+            }
+        },
         "response.Cart": {
             "type": "object",
             "required": [
@@ -2715,6 +2734,24 @@ const docTemplate = `{
                 },
                 "quantity": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.CategoriesPagination": {
+            "type": "object",
+            "required": [
+                "data",
+                "meta"
+            ],
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Category"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/response.Pagination"
                 }
             }
         },
@@ -2806,6 +2843,25 @@ const docTemplate = `{
                     "$ref": "#/definitions/response.ProductVariantWithImages"
                 },
                 "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.Pagination": {
+            "type": "object",
+            "required": [
+                "currentPage",
+                "itemsPerPage",
+                "totalItems"
+            ],
+            "properties": {
+                "currentPage": {
+                    "type": "integer"
+                },
+                "itemsPerPage": {
+                    "type": "integer"
+                },
+                "totalItems": {
                     "type": "integer"
                 }
             }
@@ -3115,6 +3171,24 @@ const docTemplate = `{
                 }
             }
         },
+        "response.ProductsPagination": {
+            "type": "object",
+            "required": [
+                "data",
+                "meta"
+            ],
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Product"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/response.Pagination"
+                }
+            }
+        },
         "response.Refund": {
             "type": "object",
             "required": [
@@ -3211,6 +3285,24 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/response.User"
+                }
+            }
+        },
+        "response.ReviewsPagination": {
+            "type": "object",
+            "required": [
+                "data",
+                "meta"
+            ],
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Review"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/response.Pagination"
                 }
             }
         },
