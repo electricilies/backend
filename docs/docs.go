@@ -57,7 +57,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -95,19 +95,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -145,13 +145,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -196,25 +196,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -250,13 +250,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -294,13 +294,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -347,19 +347,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -397,13 +397,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -439,13 +439,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -493,7 +493,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -531,19 +531,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -590,25 +590,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -644,13 +644,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -682,7 +682,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -720,19 +720,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -770,13 +770,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -812,13 +812,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -865,25 +865,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -931,7 +931,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -969,19 +969,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1024,7 +1024,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1058,7 +1058,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1098,19 +1098,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1157,25 +1157,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1215,19 +1215,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1274,25 +1274,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1330,13 +1330,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1381,25 +1381,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1435,13 +1435,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1473,7 +1473,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1511,13 +1511,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1549,7 +1549,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1587,19 +1587,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1637,13 +1637,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1690,25 +1690,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1763,7 +1763,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1801,19 +1801,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1851,13 +1851,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1902,25 +1902,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -1956,13 +1956,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -2002,7 +2002,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -2040,19 +2040,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -2096,19 +2096,19 @@ const docTemplate = `{
                     "400": {
                         "description": "bad request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "not found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "internal error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -2153,25 +2153,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/mapper.ConflictError"
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -2207,13 +2207,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/mapper.NotFoundError"
+                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -2254,13 +2254,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/mapper.BadRequestError"
+                            "$ref": "#/definitions/response.BadRequestError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/mapper.InternalServerError"
+                            "$ref": "#/definitions/response.InternalServerError"
                         }
                     }
                 }
@@ -2268,58 +2268,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "mapper.BadRequestError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "example": "INVALID_EMAIL"
-                },
-                "error": {
-                    "type": "string",
-                    "example": "Email address is invalid"
-                }
-            }
-        },
-        "mapper.ConflictError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "example": "EMAIL_EXISTS"
-                },
-                "error": {
-                    "type": "string",
-                    "example": "User with email already exists"
-                }
-            }
-        },
-        "mapper.InternalServerError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "example": "INTERNAL_ERROR"
-                },
-                "error": {
-                    "type": "string",
-                    "example": "An unexpected error occurred"
-                }
-            }
-        },
-        "mapper.NotFoundError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "example": "USER_NOT_FOUND"
-                },
-                "error": {
-                    "type": "string",
-                    "example": "User with ID 123 not found"
-                }
-            }
-        },
         "request.AddCartItem": {
             "type": "object",
             "required": [
@@ -2761,6 +2709,19 @@ const docTemplate = `{
                 }
             }
         },
+        "response.BadRequestError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "INVALID_EMAIL"
+                },
+                "error": {
+                    "type": "string",
+                    "example": "Email address is invalid"
+                }
+            }
+        },
         "response.Cart": {
             "type": "object",
             "required": [
@@ -2836,6 +2797,45 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "response.ConflictError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "EMAIL_EXISTS"
+                },
+                "error": {
+                    "type": "string",
+                    "example": "User with email already exists"
+                }
+            }
+        },
+        "response.InternalServerError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "INTERNAL_ERROR"
+                },
+                "error": {
+                    "type": "string",
+                    "example": "An unexpected error occurred"
+                }
+            }
+        },
+        "response.NotFoundError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "USER_NOT_FOUND"
+                },
+                "error": {
+                    "type": "string",
+                    "example": "User with ID 123 not found"
                 }
             }
         },
