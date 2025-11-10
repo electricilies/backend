@@ -1,12 +1,13 @@
 package errors
 
 import (
-	"backend/internal/domain"
 	"context"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
+
+	"backend/internal/domain"
 
 	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 	"github.com/aws/smithy-go"

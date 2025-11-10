@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://golangci-lint.run/jsonschema/golangci.jsonschema.json
+version: "2"
+linters:
+  exclusions:
+    generated: strict
+  settings:
+    testifylint:
+      enable-all: true
+formatters:
+  enable:
+    - gofumpt
+    - swaggo
+  settings:
+    gofumpt:
+      module-path: backend
+  exclusions:
+    generated: strict
+    paths:
+      - docs/docs.go
+      - internal/di/wire_gen.go
+      - internal/infrastructure/presistence/postgres/*.go
+run:
+  build-tags:
+    - wireinject
+    - integration
