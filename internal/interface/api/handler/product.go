@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"backend/internal/application"
+	"backend/internal/domain/pagination"
+	"backend/internal/domain/product"
 	"backend/internal/interface/api/mapper"
 	"backend/internal/interface/api/response"
 
@@ -65,7 +67,23 @@ func (h *productHandler) Get(ctx *gin.Context) {
 //	@Failure		500		{object}	mapper.InternalServerError
 //	@Router			/products [get]
 func (h *productHandler) List(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
+	limit, _ := strconv.Atoi(ctx.Query("limit"))
+	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check if the json is checked of need to check in here
+	pParams := pagination.Params{
+		Limit:  limit,
+		Offset: offset,
+	}
+	products, error := h.app.ListProducts(ctx, product.QueryParams{
+		PaginationParams: pParams,
+	})
+	if error != nil {
+		mapper.ErrorFromDomain(ctx, error)
+		return
+	}
+	ctx.JSON(
+		http.StatusOK,
+		response.ProductsPaginationFromDomain(products),
+	)
 }
 
 // CreateProduct godoc

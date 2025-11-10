@@ -7,9 +7,9 @@ import (
 )
 
 type ProductOption struct {
-	ID    int    `json:"id" binding:"required"`
-	Name  string `json:"name" binding:"required"`
-	Value string `json:"value" binding:"required"`
+	ID     int      `json:"id" binding:"required"`
+	Name   string   `json:"name" binding:"required"`
+	Values []string `json:"values" binding:"required"`
 }
 
 type ProductVariantOptionValue struct {
@@ -44,9 +44,27 @@ type Product struct {
 	AttributeValues []AttributeValue `json:"attributeValues" binding:"required"`
 }
 
+// TODO: implement
+func ProductFromDomain(p *product.Model) *Product {
+	return &Product{}
+}
+
+func ProductsFromDomain(products *[]product.Model) []Product {
+	return []Product{}
+}
+
 type ProductsPagination struct {
 	Meta Pagination `json:"meta" binding:"required"`
 	Data []Product  `json:"data" binding:"required"`
+}
+
+func ProductsPaginationFromDomain(
+	p *product.Pagination,
+) *ProductsPagination {
+	return &ProductsPagination{
+		Meta: PaginationFromDomain(&p.Metadata),
+		Data: ProductsFromDomain(&p.Products),
+	}
 }
 
 type ProductImage struct {

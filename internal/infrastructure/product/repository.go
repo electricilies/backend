@@ -99,3 +99,9 @@ func (r *repositoryImpl) MoveImage(ctx context.Context, key string) error {
 	}
 	return nil
 }
+
+// TODO: implement
+func (r *repositoryImpl) ListProducts(ctx context.Context, queryParams product.QueryParams) ([]product.Model, error) {
+	products := []product.Model{}
+	return products, nil
+}
