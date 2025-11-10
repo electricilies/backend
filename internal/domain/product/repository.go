@@ -10,4 +10,5 @@ type Repository interface {
 	// Delete(ctx context.Context, id string) error
 	GetUploadImageURL(ctx context.Context) (*UploadImageURLModel, error)
 	GetDeleteImageURL(ctx context.Context, id int) (string, error)
+	MoveImage(ctx context.Context, key string) error
 }

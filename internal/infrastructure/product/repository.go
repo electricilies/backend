@@ -77,3 +77,22 @@ func (r *repositoryImpl) GetDeleteImageURL(ctx context.Context, id int) (string,
 	}
 	return url.URL, nil
 }
+
+func (r *repositoryImpl) MoveImage(ctx context.Context, key string) error {
+	_, err := r.s3Client.CopyObject(ctx, &s3.CopyObjectInput{
+		Bucket:     aws.String(config.Cfg.S3Bucket),
+		CopySource: aws.String(fmt.Sprintf("%s/%s", config.Cfg.S3Bucket, "temp/"+key)),
+		Key:        aws.String(key),
+	})
+	if err != nil {
+		return errors.ToDomainErrorFromS3(err)
+	}
+	_, err = r.s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(config.Cfg.S3Bucket),
+		Key:    aws.String("temp/" + key),
+	})
+	if err != nil {
+		return errors.ToDomainErrorFromS3(err)
+	}
+	return nil
+}
