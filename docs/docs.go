@@ -2355,12 +2355,6 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "optionalAttributes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/request.CreateAttribute"
-                    }
-                },
                 "productImages": {
                     "type": "array",
                     "items": {
@@ -2418,12 +2412,6 @@ const docTemplate = `{
                 "sku"
             ],
             "properties": {
-                "optionalProductOptions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/request.CreateProductOption"
-                    }
-                },
                 "price": {
                     "type": "integer"
                 },
