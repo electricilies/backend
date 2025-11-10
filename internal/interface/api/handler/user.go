@@ -4,9 +4,8 @@ import (
 	"net/http"
 
 	"backend/internal/application"
-	"backend/internal/interface/api/mapper"
-	"backend/internal/interface/api/request"
 	"backend/internal/interface/api/response"
+	"backend/internal/interface/api/request"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -38,9 +37,9 @@ func NewUser(app application.User) User {
 //	@Produce		json
 //	@Param			user_id	path		string	true	"User ID"
 //	@Success		200		{object}	User
-//	@Failure		400		{object}	mapper.BadRequestError		"bad request"
-//	@Failure		404		{object}	mapper.NotFoundError		"not found"
-//	@Failure		500		{object}	mapper.InternalServerError	"internal error"
+//	@Failure		400		{object}	response.BadRequestError		"bad request"
+//	@Failure		404		{object}	response.NotFoundError		"not found"
+//	@Failure		500		{object}	response.InternalServerError	"internal error"
 //	@Router			/users/{user_id} [get]
 //
 //	@Security		OAuth2AccessCode
@@ -49,7 +48,7 @@ func (h *userHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("user_id")
 	u, err := h.app.Get(ctx, id)
 	if err != nil {
-		mapper.ErrorFromDomain(ctx, err)
+		response.ErrorFromDomain(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, u)
@@ -63,7 +62,7 @@ func (h *userHandler) Get(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{array}		response.User
-//	@Failure		500	{object}	mapper.InternalServerError
+//	@Failure		500	{object}	response.InternalServerError
 //	@Router			/users [get]
 //
 //	@Security		OAuth2AccessCode
@@ -71,7 +70,7 @@ func (h *userHandler) Get(ctx *gin.Context) {
 func (h *userHandler) List(ctx *gin.Context) {
 	users, err := h.app.List(ctx)
 	if err != nil {
-		mapper.ErrorFromDomain(ctx, err)
+		response.ErrorFromDomain(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, response.UsersFromDomain(users))
@@ -86,21 +85,21 @@ func (h *userHandler) List(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			user	body		request.CreateUser	true	"User request"
 //	@Success		201		{object}	user.User
-//	@Failure		400		{object}	mapper.BadRequestError
-//	@Failure		409		{object}	mapper.ConflictError
-//	@Failure		500		{object}	mapper.InternalServerError
+//	@Failure		400		{object}	response.BadRequestError
+//	@Failure		409		{object}	response.ConflictError
+//	@Failure		500		{object}	response.InternalServerError
 //	@Router			/users [post]
 func (h *userHandler) Create(ctx *gin.Context) {
 	var req request.CreateUser
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		mapper.SendBadRequestError(ctx, err.Error())
+		response.SendBadRequestError(ctx, err.Error())
 		return
 	}
 
 	u := req.ToDomain()
 	created, err := h.app.Create(ctx, u)
 	if err != nil {
-		mapper.ErrorFromDomain(ctx, err)
+		response.ErrorFromDomain(ctx, err)
 		return
 	}
 
@@ -117,10 +116,10 @@ func (h *userHandler) Create(ctx *gin.Context) {
 //	@Param			user_id	path		string				true	"User ID"
 //	@Param			user	body		request.UpdateUser	true	"User request"
 //	@Success		204		{string}	string				"no content"
-//	@Failure		400		{object}	mapper.BadRequestError
-//	@Failure		404		{object}	mapper.NotFoundError
-//	@Failure		409		{object}	mapper.ConflictError
-//	@Failure		500		{object}	mapper.InternalServerError
+//	@Failure		400		{object}	response.BadRequestError
+//	@Failure		404		{object}	response.NotFoundError
+//	@Failure		409		{object}	response.ConflictError
+//	@Failure		500		{object}	response.InternalServerError
 //	@Router			/users/{user_id} [put]
 func (h *userHandler) Update(ctx *gin.Context) {
 	id := ctx.Param("user_id")
@@ -135,7 +134,7 @@ func (h *userHandler) Update(ctx *gin.Context) {
 	u.ID = uuid.MustParse(id)
 
 	if err := h.app.Update(ctx, u); err != nil {
-		mapper.ErrorFromDomain(ctx, err)
+		response.ErrorFromDomain(ctx, err)
 		return
 	}
 
@@ -151,13 +150,13 @@ func (h *userHandler) Update(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			user_id	path		string	true	"User ID"
 //	@Success		204		{string}	string	"no content"
-//	@Failure		404		{object}	mapper.NotFoundError
-//	@Failure		500		{object}	mapper.InternalServerError
+//	@Failure		404		{object}	response.NotFoundError
+//	@Failure		500		{object}	response.InternalServerError
 //	@Router			/users/{user_id} [delete]
 func (h *userHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("user_id")
 	if err := h.app.Delete(ctx, id); err != nil {
-		mapper.ErrorFromDomain(ctx, err)
+		response.ErrorFromDomain(ctx, err)
 		return
 	}
 	ctx.Status(http.StatusNoContent)
@@ -172,8 +171,8 @@ func (h *userHandler) Delete(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			user_id	path		string	true	"User ID"
 //	@Success		200		{array}		response.ReturnRequest
-//	@Failure		400		{object}	mapper.BadRequestError
-//	@Failure		500		{object}	mapper.InternalServerError
+//	@Failure		400		{object}	response.BadRequestError
+//	@Failure		500		{object}	response.InternalServerError
 //	@Router			/users/{user_id}/returns [get]
 func (h *userHandler) GetReturnRequests(ctx *gin.Context) {
 	// TODO: implement getting return requests for a user

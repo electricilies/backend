@@ -45,7 +45,7 @@ type Product struct {
 }
 
 // TODO: implement
-// TODO: move to mapper?
+// TODO: move to response?
 func ProductFromDomain(p *product.Model) *Product {
 	return &Product{}
 }
@@ -116,7 +116,7 @@ type ProductUploadURLImage struct {
 	Key string `json:"key" binding:"required"`
 }
 
-// TODO: move to mapper?
+// TODO: move to response?
 func ProductUploadURLImageFromDomain(
 	u *product.UploadImageURLModel,
 ) *ProductUploadURLImage {

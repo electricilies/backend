@@ -27,8 +27,8 @@ func NewOrder() Order { return &orderHandler{} }
 //	@Produce		json
 //	@Param			order_id	path		int	true	"Order ID"
 //	@Success		200			{object}	response.Order
-//	@Failure		404			{object}	mapper.NotFoundError
-//	@Failure		500			{object}	mapper.InternalServerError
+//	@Failure		404			{object}	response.NotFoundError
+//	@Failure		500			{object}	response.InternalServerError
 //	@Router			/orders/{order_id} [get]
 func (h *orderHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -42,7 +42,7 @@ func (h *orderHandler) Get(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{array}		response.Order
-//	@Failure		500	{object}	mapper.InternalServerError
+//	@Failure		500	{object}	response.InternalServerError
 //	@Router			/orders [get]
 func (h *orderHandler) List(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -57,9 +57,9 @@ func (h *orderHandler) List(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			order	body		request.CreateOrder	true	"Order request"
 //	@Success		201		{object}	response.Order
-//	@Failure		400		{object}	mapper.BadRequestError
-//	@Failure		409		{object}	mapper.ConflictError
-//	@Failure		500		{object}	mapper.InternalServerError
+//	@Failure		400		{object}	response.BadRequestError
+//	@Failure		409		{object}	response.ConflictError
+//	@Failure		500		{object}	response.InternalServerError
 //	@Router			/orders [post]
 func (h *orderHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -75,10 +75,10 @@ func (h *orderHandler) Create(ctx *gin.Context) {
 //	@Param			order_id	path		int							true	"Order ID"
 //	@Param			status		body		request.UpdateOrderStatus	true	"Update order status request"
 //	@Success		204			{string}	string						"no content"
-//	@Failure		400			{object}	mapper.BadRequestError
-//	@Failure		404			{object}	mapper.NotFoundError
-//	@Failure		409			{object}	mapper.ConflictError
-//	@Failure		500			{object}	mapper.InternalServerError
+//	@Failure		400			{object}	response.BadRequestError
+//	@Failure		404			{object}	response.NotFoundError
+//	@Failure		409			{object}	response.ConflictError
+//	@Failure		500			{object}	response.InternalServerError
 //	@Router			/orders/{order_id}/status [put]
 func (h *orderHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -93,8 +93,8 @@ func (h *orderHandler) Update(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			order_id	path		int		true	"Order ID"
 //	@Success		204			{string}	string	"no content"
-//	@Failure		404			{object}	mapper.NotFoundError
-//	@Failure		500			{object}	mapper.InternalServerError
+//	@Failure		404			{object}	response.NotFoundError
+//	@Failure		500			{object}	response.InternalServerError
 //	@Router			/orders/{order_id} [delete]
 func (h *orderHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)

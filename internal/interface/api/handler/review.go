@@ -27,8 +27,8 @@ func NewReview() Review { return &reviewHandler{} }
 //	@Produce		json
 //	@Param			review_id	path		int	true	"Review ID"
 //	@Success		200			{object}	response.Review
-//	@Failure		404			{object}	mapper.NotFoundError
-//	@Failure		500			{object}	mapper.InternalServerError
+//	@Failure		404			{object}	response.NotFoundError
+//	@Failure		500			{object}	response.InternalServerError
 //	@Router			/reviews/{review_id} [get]
 func (h *reviewHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -45,7 +45,7 @@ func (h *reviewHandler) Get(ctx *gin.Context) {
 //	@Param			offset		query		int	true	"Offset for pagination"
 //	@Param			limit		query		int	true	"Limit for pagination"
 //	@Success		200			{array}		response.ReviewsPagination
-//	@Failure		500			{object}	mapper.InternalServerError
+//	@Failure		500			{object}	response.InternalServerError
 //	@Router			/reviews [get]
 func (h *reviewHandler) ListReviewsByProduct(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -60,9 +60,9 @@ func (h *reviewHandler) ListReviewsByProduct(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			review	body		request.CreateReview	true	"Review request"
 //	@Success		201		{object}	response.Review
-//	@Failure		400		{object}	mapper.BadRequestError
-//	@Failure		409		{object}	mapper.ConflictError
-//	@Failure		500		{object}	mapper.InternalServerError
+//	@Failure		400		{object}	response.BadRequestError
+//	@Failure		409		{object}	response.ConflictError
+//	@Failure		500		{object}	response.InternalServerError
 //	@Router			/reviews [post]
 func (h *reviewHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -78,10 +78,10 @@ func (h *reviewHandler) Create(ctx *gin.Context) {
 //	@Param			review_id	path		int						true	"Review ID"
 //	@Param			review		body		request.UpdateReview	true	"Update review request"
 //	@Success		204			{string}	string					"no content"
-//	@Failure		400			{object}	mapper.BadRequestError
-//	@Failure		404			{object}	mapper.NotFoundError
-//	@Failure		409			{object}	mapper.ConflictError
-//	@Failure		500			{object}	mapper.InternalServerError
+//	@Failure		400			{object}	response.BadRequestError
+//	@Failure		404			{object}	response.NotFoundError
+//	@Failure		409			{object}	response.ConflictError
+//	@Failure		500			{object}	response.InternalServerError
 //	@Router			/reviews/{review_id} [put]
 func (h *reviewHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -96,8 +96,8 @@ func (h *reviewHandler) Update(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			review_id	path		int		true	"Review ID"
 //	@Success		204			{string}	string	"no content"
-//	@Failure		404			{object}	mapper.NotFoundError
-//	@Failure		500			{object}	mapper.InternalServerError
+//	@Failure		404			{object}	response.NotFoundError
+//	@Failure		500			{object}	response.InternalServerError
 //	@Router			/reviews/{review_id} [delete]
 func (h *reviewHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)

@@ -27,7 +27,7 @@ func NewCategory() Category { return &categoryHandler{} }
 //	@Param			offset	query		int	true	"Offset for pagination"
 //	@Param			limit	query		int	true	"Limit for pagination"
 //	@Success		200		{array}		response.CategoriesPagination
-//	@Failure		500		{object}	mapper.InternalServerError
+//	@Failure		500		{object}	response.InternalServerError
 //	@Router			/categories [get]
 func (h *categoryHandler) List(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -42,9 +42,9 @@ func (h *categoryHandler) List(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			category	body		request.CreateCategory	true	"Category request"
 //	@Success		201			{object}	response.Category
-//	@Failure		400			{object}	mapper.BadRequestError
-//	@Failure		409			{object}	mapper.ConflictError
-//	@Failure		500			{object}	mapper.InternalServerError
+//	@Failure		400			{object}	response.BadRequestError
+//	@Failure		409			{object}	response.ConflictError
+//	@Failure		500			{object}	response.InternalServerError
 //	@Router			/categories [post]
 func (h *categoryHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -60,10 +60,10 @@ func (h *categoryHandler) Create(ctx *gin.Context) {
 //	@Param			category_id	path		int						true	"Category ID"
 //	@Param			category	body		request.UpdateCategory	true	"Update category request"
 //	@Success		204			{string}	string					"no content"
-//	@Failure		400			{object}	mapper.BadRequestError
-//	@Failure		404			{object}	mapper.NotFoundError
-//	@Failure		409			{object}	mapper.ConflictError
-//	@Failure		500			{object}	mapper.InternalServerError
+//	@Failure		400			{object}	response.BadRequestError
+//	@Failure		404			{object}	response.NotFoundError
+//	@Failure		409			{object}	response.ConflictError
+//	@Failure		500			{object}	response.InternalServerError
 //	@Router			/categories/{category_id} [put]
 func (h *categoryHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -78,8 +78,8 @@ func (h *categoryHandler) Update(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			category_id	path		int		true	"Category ID"
 //	@Success		204			{string}	string	"no content"
-//	@Failure		404			{object}	mapper.NotFoundError
-//	@Failure		500			{object}	mapper.InternalServerError
+//	@Failure		404			{object}	response.NotFoundError
+//	@Failure		500			{object}	response.InternalServerError
 //	@Router			/categories/{category_id} [delete]
 func (h *categoryHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
