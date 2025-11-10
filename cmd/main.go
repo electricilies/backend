@@ -4,9 +4,7 @@ import (
 	"io"
 	"log"
 
-	"backend/config"
 	"backend/internal/di"
-	"backend/pkg/logger"
 
 	_ "backend/docs"
 
@@ -23,11 +21,9 @@ import (
 //	@authorizationUrl						/auth/realms/electricilies/protocol/openid-connect/auth
 
 func main() {
-	config.NewDefaultConfig()
 	s := di.InitializeServer()
 	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = io.Discard
-	logger.New()
 	err := s.Run()
 	if err != nil {
 		log.Fatal("Server run error", err)
