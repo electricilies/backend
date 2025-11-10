@@ -2,6 +2,11 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
+
+	"backend/internal/application"
+	"backend/internal/interface/api/request"
+	"backend/internal/interface/api/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +18,9 @@ type Cart interface {
 	RemoveItem(ctx *gin.Context)
 }
 
-type cartHandler struct{}
+type cartHandler struct {
+	app application.Cart
+}
 
 func NewCart() Cart { return &cartHandler{} }
 
@@ -24,13 +31,24 @@ func NewCart() Cart { return &cartHandler{} }
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
+//	@Param			limit	query		int		false	"Limit"
+//	@Param			offset	query		int		false	"Offset"
 //	@Param			user_id	path		string	true	"User ID"
 //	@Success		200		{object}	response.Cart
 //	@Failure		404		{object}	response.NotFoundError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/carts [get]
 func (h *cartHandler) GetCartByUser(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
+	limit, _ := strconv.Atoi(ctx.Query("limit"))
+	offset, _ := strconv.Atoi(ctx.Query("offset"))
+	id := ctx.Param("user_id")
+
+	cart, err := h.app.GetCartByUser(id, request.PaginationToDomain(limit, offset))
+	if err != nil {
+		response.ErrorFromDomain(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, response.CartFromDomain(cart))
 }
 
 // AddCartItem godoc
