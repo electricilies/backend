@@ -1,11 +1,15 @@
-package integration
+//go:build integration
+
+package component
 
 import (
 	"context"
 	"log"
 	"path/filepath"
+	"testing"
 
 	keycloak "github.com/stillya/testcontainers-keycloak"
+	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/minio"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/modules/redis"
@@ -41,18 +45,18 @@ type RedisConfig struct {
 	Image   string
 }
 
-type Config struct {
+type ContainersConfig struct {
 	db       DBConfig
 	keycloak KeycloakConfig
 	minio    MinIOConfig
 	redis    RedisConfig
 }
 
-func NewConfig() *Config {
-	return &Config{
+func NewContainersConfig() *ContainersConfig {
+	return &ContainersConfig{
 		db: DBConfig{
-			Enabled:  true,
-			Image:    "paradedb/paradedb:17-v0.18.11",
+			Enabled:  false,
+			Image:    DBImage,
 			User:     "electricilies",
 			Password: "electricilies",
 			Database: "electricilies",
@@ -66,22 +70,22 @@ func NewConfig() *Config {
 			},
 		},
 		keycloak: KeycloakConfig{
-			Enabled:       true,
-			Image:         "keycloak/keycloak:26.4.4",
+			Enabled:       false,
+			Image:         KeycloakImage,
 			AdminUsername: "electricilies",
 			AdminPassword: "electricilies",
 			ContextPath:   "/auth",
 			RealmFilePath: filepath.Join("testdata", "electricilies-realm-export.json"),
 		},
 		minio: MinIOConfig{
-			Enabled:  true,
-			Image:    "minio/minio:RELEASE.2025-09-07T16-13-09Z",
+			Enabled:  false,
+			Image:    MinIOImage,
 			User:     "electricilies",
-			Password: "electricilies123",
+			Password: "electricilies",
 		},
 		redis: RedisConfig{
-			Enabled: true,
-			Image:   "redis:8.2.2-alpine3.22",
+			Enabled: false,
+			Image:   RedisImage,
 		},
 	}
 }
@@ -93,7 +97,10 @@ type Containers struct {
 	Redis    *redis.RedisContainer
 }
 
-func NewContainers(ctx context.Context, cfg *Config) (*Containers, error) {
+func NewContainers(ctx context.Context, cfg *ContainersConfig) (*Containers, error) {
+	if cfg == nil {
+		cfg = NewContainersConfig()
+	}
 	var postgresContainer *postgres.PostgresContainer
 	var keycloakContainer *keycloak.KeycloakContainer
 	var minioContainer *minio.MinioContainer
@@ -154,7 +161,6 @@ func NewContainers(ctx context.Context, cfg *Config) (*Containers, error) {
 			return nil, err
 		}
 	}
-
 	containers := &Containers{
 		Postgres: postgresContainer,
 		Keycloak: keycloakContainer,
@@ -162,4 +168,18 @@ func NewContainers(ctx context.Context, cfg *Config) (*Containers, error) {
 		Redis:    redisContainer,
 	}
 	return containers, nil
+}
+
+func (c *Containers) Cleanup(t testing.TB) {
+	for _, container := range []testcontainers.Container{
+		c.Postgres,
+		c.Keycloak,
+		c.MinIO,
+		c.Redis,
+	} {
+		if container == nil {
+			continue
+		}
+		testcontainers.CleanupContainer(t, container)
+	}
 }
