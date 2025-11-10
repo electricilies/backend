@@ -10,7 +10,7 @@ VALUES (
 RETURNING
   *;
 
--- name: CreateProductVariants :execresult
+-- name: CreateProductVariants :many
 INSERT INTO product_variants (
   sku,
   price,
@@ -21,18 +21,24 @@ SELECT
   UNNEST(@skus::text[]) AS sku,
   UNNEST(@prices::decimal[]) AS price,
   UNNEST(@quantities::integer[]) AS quantity,
-  @product_id;
+  @product_id
+RETURNING
+  *;
 
--- name: CreateProductImages :execresult
+-- name: CreateProductImages :many
 INSERT INTO product_images (
   url,
   "order",
-  product_variant_id
+  product_variant_id,
+  product_id
 )
 SELECT
   UNNEST(@urls::text[]) AS url,
   UNNEST(@orders::integer[]) AS "order",
-  UNNEST(@product_variant_ids::integer[]) AS product_variant_id;
+  UNNEST(@product_variant_ids::integer[]) AS product_variant_id,
+  @product_id
+RETURNING
+  *;
 
 -- name: LinkProductAttributeValues :execrows
 INSERT INTO products_attribute_values (
@@ -43,7 +49,7 @@ SELECT
   @product_id,
   UNNEST(@attribute_value_ids::integer[]) AS attribute_value_id;
 
--- name: LinkProductOptionValues :execrows
+-- name: LinkProductVariantsWithOptionValues :execrows
 INSERT INTO option_values_product_variants (
   option_value_id,
   product_variant_id
@@ -52,117 +58,112 @@ SELECT
   UNNEST(@option_value_ids::integer[]) AS option_value_id,
   UNNEST(@product_variant_ids::integer[]) AS product_variant_id;
 
--- name: GetProducts :many
+-- This is used for list, search (with filter, order), suggest
+-- name: ListProducts :many
 SELECT
   sqlc.embed(products),
-  sqlc.embed(product_variants),
-  sqlc.embed(product_images),
-  sqlc.embed(products_attribute_values),
-  sqlc.embed(attribute_values),
-  sqlc.embed(attributes),
-  sqlc.embed(option_values_product_variants),
-  sqlc.embed(option_values),
-  sqlc.embed(options),
-  sqlc.embed(categories),
   COUNT(*) OVER() AS current_count,
   COUNT(*) AS total_count
 FROM
-  products,
-  product_variants,
-  product_images,
-  products_attribute_values,
-  attribute_values,
-  attributes,
-  option_values_product_variants,
-  option_values,
-  options,
-  categories
-INNER JOIN product_variants
-  ON products.id = product_variants.product_id
-INNER JOIN product_images
-  ON product_variants.id = product_images.product_variant_id
-INNER JOIN products_attribute_values
-  ON products.id = products_attribute_values.product_id
-INNER JOIN attribute_values
-  ON products_attribute_values.attribute_value_id = attribute_values.id
-INNER JOIN attributes
-  ON attribute_values.attribute_id = attributes.id
-INNER JOIN option_values_product_variants
-  ON product_variants.id = option_values_product_variants.product_variant_id
-INNER JOIN option_values
-  ON option_values_product_variants.option_value_id = option_values.id
-INNER JOIN options
-  ON option_values.option_id = options.id
-INNER JOIN categories
-  ON products.category_id = categories.id
+  products
+LEFT JOIN (
+  SELECT
+    products.id,
+    pdb.score(product.id) AS category_score
+  FROM products
+  INNER JOIN categories
+    ON products.category_id = categories.id
+  WHERE
+    categories.deleted_at IS NULL
+    AND CASE
+      WHEN sqlc.narg('search')::text IS NULL THEN TRUE
+      ELSE categories.name ||| sqlc.narg('search')::pdb.fuzzy(2)
+    END
+) AS category_scores
+  ON products.id = category_scores.id
 WHERE
-  products.deleted_at IS NULL
-  AND categories.deleted_at IS NULL
-  AND attributes.deleted_at IS NULL
-  AND options.deleted_at IS NULL
-  AND (
-    sqlc.narg('category_id')::integer IS NULL
-    OR categories.id = sqlc.narg('category_id')::integer
-  )
-  AND (
-    sqlc.narg('search')::text IS NULL
-    OR products.name ||| sqlc.narg('search')::pdb.fuzzy(products.trending_score) -- TODO: Have to check does paradedb support this
-    OR categories.name ||| sqlc.narg('search')::pdb.fuzzy(2)
-  )
-  -- TODO: Do we support rating?
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE products.id = ANY(sqlc.narg('ids'))
+  END
+  AND CASE
+    WHEN sqlc.narg('min_price')::decimal IS NULL THEN TRUE
+    ELSE products.price >= sqlc.narg('min_price')
+  END
+  AND CASE
+    WHEN sqlc.narg('max_price')::decimal IS NULL THEN TRUE
+    ELSE products.price <= sqlc.narg('max_price')
+  END
+  AND CASE
+    WHEN sqlc.narg('rating')::real IS NULL THEN TRUE
+    ELSE products.rating >= sqlc.narg('rating')
+  END
+  AND CASE
+    WHEN sqlc.narg('category_ids')::integer[] IS NULL THEN TRUE
+    ELSE products.category_id = ANY(sqlc.narg('category_ids'))
+  END
+  AND (products.deleted_at IS NOT NULL) = @deleted::bool
+  AND CASE
+    WHEN sqlc.narg('search')::text IS NULL THEN TRUE
+    ELSE
+      products.name ||| sqlc.narg('search')::pdb.fuzzy(products.trending_score)
+  END
+ORDER BY
+  CASE WHEN sqlc.narg('search') IS NOT NULL THEN pdb.score(products.id) + category_scores END DESC,
+  CASE WHEN @sort_rating_asc::bool THEN products.rating END ASC,
+  CASE WHEN NOT @sort_rating_asc::bool THEN products.rating END DESC,
+  CASE WHEN @sort_price_asc::bool THEN products.price END ASC,
+  CASE WHEN NOT @sort_price_asc::bool THEN products.price END DESC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
 
 -- name: GetProductByID :one
 SELECT
-  sqlc.embed(products),
-  sqlc.embed(product_variants),
-  sqlc.embed(product_images),
-  sqlc.embed(products_attribute_values),
-  sqlc.embed(attribute_values),
-  sqlc.embed(attributes),
-  sqlc.embed(option_values_product_variants),
-  sqlc.embed(option_values),
-  sqlc.embed(options),
-  sqlc.embed(categories)
+  *
 FROM
-  products,
-  product_variants,
-  product_images,
-  products_attribute_values,
-  attribute_values,
-  attributes,
-  option_values_product_variants,
-  option_values,
-  options,
-  categories
-INNER JOIN product_variants
-  ON products.id = product_variants.product_id
-INNER JOIN product_images
-  ON product_variants.id = product_images.product_variant_id
-INNER JOIN products_attribute_values
-  ON products.id = products_attribute_values.product_id
-INNER JOIN attribute_values
-  ON products_attribute_values.attribute_value_id = attribute_values.id
-INNER JOIN attributes
-  ON attribute_values.attribute_id = attributes.id
-INNER JOIN option_values_product_variants
-  ON product_variants.id = option_values_product_variants.product_variant_id
-INNER JOIN option_values
-  ON option_values_product_variants.option_value_id = option_values.id
-INNER JOIN options
-  ON option_values.option_id = options.id
-INNER JOIN categories
-  ON products.category_id = categories.id
+  products
 WHERE
-  products.id = @id::integer -- sqlc requires this
-  AND products.deleted_at IS NULL
-  AND categories.deleted_at IS NULL
-  AND attributes.deleted_at IS NULL
-  AND options.deleted_at IS NULL;
+  products.id = @id
+  AND (products.deleted_at IS NOT NULL) = @deleted::bool;
 
--- name: GetSuggestedProducts :many
--- TODO: Will we implement this?
+-- name: ListProductVariants :one
+SELECT
+  *
+FROM
+  product_variants
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE product_variants.id = ANY(sqlc.narg('id'))
+  END
+  AND CASE
+    WHEN sqlc.narg('product_ids')::integer[] IS NULL THEN TRUE
+    ELSE product_variants.product_id = ANY(sqlc.narg('product_ids'))
+  END
+  AND (product_variants.deleted_at IS NOT NULL) = @deleted::bool
+ORDER BY
+  product_variants.id;
+
+-- name: ListProductImages :many
+SELECT
+  *
+FROM
+  product_images
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE product_images.id = ANY(sqlc.narg('ids'))
+  END
+  AND CASE
+    WHEN sqlc.narg('product_variant_ids')::integer[] IS NULL THEN TRUE
+    ELSE product_images.product_variant_id = ANY(sqlc.narg('product_variant_ids'))
+  END
+  AND CASE
+    WHEN sqlc.narg('product_ids')::integer[] IS NULL THEN TRUE
+    ELSE product_images.product_id = ANY(sqlc.narg('product_ids'))
+  END
+ORDER BY
+  product_images.id ASC;
 
 -- name: UpdateProduct :one
 UPDATE
@@ -195,16 +196,13 @@ SET
   sku = updated_variants.sku,
   price = updated_variants.price,
   quantity = updated_variants.quantity,
-  purchase_count = updated_variants.purchase_count
-  -- FIXME: Maybe missing updated_at field?
+  purchase_count = updated_variants.purchase_count,
+  updated_at = NOW()
 FROM
   updated_variants
 WHERE
   product_variants.id = updated_variants.id
   AND product_variants.deleted_at IS NULL;
-
--- naee: UpdateProductImages :execrows
--- TODO: Will we implement this?
 
 -- name: DeleteProducts :execrows
 UPDATE
@@ -215,15 +213,17 @@ WHERE
   deleted_at IS NULL
   AND id = ANY(@ids::integer[]);
 
--- name: GetProductImageByID :one
-SELECT
-  *
-FROM
+-- name: DeleteProductVariants :execrows
+UPDATE
+  product_variants
+SET
+  deleted_at = NOW()
+WHERE
+  deleted_at IS NULL
+  AND id = ANY(@ids::integer[]);
+
+-- name: DeleteProductImages :execrows
+DELETE FROM
   product_images
 WHERE
-  id = @id::integer;
-
--- name: DeleteProductVariants :execrows
--- TODO: Soft delete or delete all
-
-
+  id = ANY(@ids::integer[]);

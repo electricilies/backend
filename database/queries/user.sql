@@ -7,7 +7,7 @@ INSERT INTO users (
 RETURNING
   *;
 
--- name: GetUsers :many
+-- name: ListUsers :many
 SELECT
   *
 FROM

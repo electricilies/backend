@@ -19,16 +19,25 @@ SELECT
 RETURNING
   *;
 
--- name: GetOptions :many
+-- name: ListOptions :many
 SELECT
   sqlc.embed(options),
-  sqlc.embed(option_values)
+  COUNT(*) OVER() AS current_count,
+  COUNT(*) AS total_count
 FROM
-  options,
-  option_values
+  options
 WHERE
-  options.id = option_values.option_id
-  AND options.deleted_at IS NULL;
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE options.id = ANY(sqlc.narg('ids'))
+  END
+  AND CASE
+    WHEN sqlc.narg('product_id')::integer IS NULL THEN TRUE
+    ELSE options.product_id = sqlc.narg('product_id')
+  END
+  AND (options.deleted_at IS NULL) = @deleted::bool
+ORDER BY
+  options.id;
 
 -- name: GetOptionByID :one
 SELECT

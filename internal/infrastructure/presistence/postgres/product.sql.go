@@ -8,7 +8,6 @@ package postgres
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -50,29 +49,62 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 	return i, err
 }
 
-const createProductImages = `-- name: CreateProductImages :execresult
+const createProductImages = `-- name: CreateProductImages :many
 INSERT INTO product_images (
   url,
   "order",
-  product_variant_id
+  product_variant_id,
+  product_id
 )
 SELECT
   UNNEST($1::text[]) AS url,
   UNNEST($2::integer[]) AS "order",
-  UNNEST($3::integer[]) AS product_variant_id
+  UNNEST($3::integer[]) AS product_variant_id,
+  $4
+RETURNING
+  id, url, created_at, "order", product_id, product_variant_id
 `
 
 type CreateProductImagesParams struct {
 	Urls              []string
 	Orders            []int32
 	ProductVariantIds []int32
+	ProductID         pgtype.Int4
 }
 
-func (q *Queries) CreateProductImages(ctx context.Context, arg CreateProductImagesParams) (pgconn.CommandTag, error) {
-	return q.db.Exec(ctx, createProductImages, arg.Urls, arg.Orders, arg.ProductVariantIds)
+func (q *Queries) CreateProductImages(ctx context.Context, arg CreateProductImagesParams) ([]ProductImage, error) {
+	rows, err := q.db.Query(ctx, createProductImages,
+		arg.Urls,
+		arg.Orders,
+		arg.ProductVariantIds,
+		arg.ProductID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ProductImage
+	for rows.Next() {
+		var i ProductImage
+		if err := rows.Scan(
+			&i.ID,
+			&i.URL,
+			&i.CreatedAt,
+			&i.Order,
+			&i.ProductID,
+			&i.ProductVariantID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-const createProductVariants = `-- name: CreateProductVariants :execresult
+const createProductVariants = `-- name: CreateProductVariants :many
 INSERT INTO product_variants (
   sku,
   price,
@@ -84,6 +116,8 @@ SELECT
   UNNEST($2::decimal[]) AS price,
   UNNEST($3::integer[]) AS quantity,
   $4
+RETURNING
+  id, sku, price, quantity, purchase_count, product_id, created_at, updated_at, deleted_at
 `
 
 type CreateProductVariantsParams struct {
@@ -93,17 +127,83 @@ type CreateProductVariantsParams struct {
 	ProductID  int32
 }
 
-func (q *Queries) CreateProductVariants(ctx context.Context, arg CreateProductVariantsParams) (pgconn.CommandTag, error) {
-	return q.db.Exec(ctx, createProductVariants,
+func (q *Queries) CreateProductVariants(ctx context.Context, arg CreateProductVariantsParams) ([]ProductVariant, error) {
+	rows, err := q.db.Query(ctx, createProductVariants,
 		arg.Skus,
 		arg.Prices,
 		arg.Quantities,
 		arg.ProductID,
 	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ProductVariant
+	for rows.Next() {
+		var i ProductVariant
+		if err := rows.Scan(
+			&i.ID,
+			&i.SKU,
+			&i.Price,
+			&i.Quantity,
+			&i.PurchaseCount,
+			&i.ProductID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const deleteProductImages = `-- name: DeleteProductImages :execrows
+DELETE FROM
+  product_images
+WHERE
+  id = ANY($1::integer[])
+`
+
+type DeleteProductImagesParams struct {
+	Ids []int32
+}
+
+func (q *Queries) DeleteProductImages(ctx context.Context, arg DeleteProductImagesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteProductImages, arg.Ids)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const deleteProductVariants = `-- name: DeleteProductVariants :execrows
+UPDATE
+  product_variants
+SET
+  deleted_at = NOW()
+WHERE
+  deleted_at IS NULL
+  AND id = ANY($1::integer[])
+`
+
+type DeleteProductVariantsParams struct {
+	Ids []int32
+}
+
+func (q *Queries) DeleteProductVariants(ctx context.Context, arg DeleteProductVariantsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteProductVariants, arg.Ids)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const deleteProducts = `-- name: DeleteProducts :execrows
-
 UPDATE
   products
 SET
@@ -117,8 +217,6 @@ type DeleteProductsParams struct {
 	Ids []int32
 }
 
-// naee: UpdateProductImages :execrows
-// TODO: Will we implement this?
 func (q *Queries) DeleteProducts(ctx context.Context, arg DeleteProductsParams) (int64, error) {
 	result, err := q.db.Exec(ctx, deleteProducts, arg.Ids)
 	if err != nil {
@@ -129,370 +227,37 @@ func (q *Queries) DeleteProducts(ctx context.Context, arg DeleteProductsParams) 
 
 const getProductByID = `-- name: GetProductByID :one
 SELECT
-  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.category_id, products.created_at, products.updated_at, products.deleted_at,
-  product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at, product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at,
-  product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_id, product_images.product_variant_id, product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_id, product_images.product_variant_id,
-  products_attribute_values.product_id, products_attribute_values.attribute_value_id, products_attribute_values.product_id, products_attribute_values.attribute_value_id,
-  attribute_values.id, attribute_values.attribute_id, attribute_values.value, attribute_values.id, attribute_values.attribute_id, attribute_values.value,
-  attributes.id, attributes.code, attributes.name, attributes.deleted_at, attributes.id, attributes.code, attributes.name, attributes.deleted_at,
-  option_values_product_variants.product_variant_id, option_values_product_variants.option_value_id, option_values_product_variants.product_variant_id, option_values_product_variants.option_value_id,
-  option_values.id, option_values.value, option_values.option_id, option_values.id, option_values.value, option_values.option_id,
-  options.id, options.name, options.product_id, options.deleted_at, options.id, options.name, options.product_id, options.deleted_at,
-  categories.id, categories.name, categories.created_at, categories.updated_at, categories.deleted_at, categories.id, categories.name, categories.created_at, categories.updated_at, categories.deleted_at
+  id, name, description, price, views_count, total_purchase, rating, trending_score, category_id, created_at, updated_at, deleted_at
 FROM
-  products,
-  product_variants,
-  product_images,
-  products_attribute_values,
-  attribute_values,
-  attributes,
-  option_values_product_variants,
-  option_values,
-  options,
-  categories
-INNER JOIN product_variants
-  ON products.id = product_variants.product_id
-INNER JOIN product_images
-  ON product_variants.id = product_images.product_variant_id
-INNER JOIN products_attribute_values
-  ON products.id = products_attribute_values.product_id
-INNER JOIN attribute_values
-  ON products_attribute_values.attribute_value_id = attribute_values.id
-INNER JOIN attributes
-  ON attribute_values.attribute_id = attributes.id
-INNER JOIN option_values_product_variants
-  ON product_variants.id = option_values_product_variants.product_variant_id
-INNER JOIN option_values
-  ON option_values_product_variants.option_value_id = option_values.id
-INNER JOIN options
-  ON option_values.option_id = options.id
-INNER JOIN categories
-  ON products.category_id = categories.id
+  products
 WHERE
-  products.id = $1::integer -- sqlc requires this
-  AND products.deleted_at IS NULL
-  AND categories.deleted_at IS NULL
-  AND attributes.deleted_at IS NULL
-  AND options.deleted_at IS NULL
+  products.id = $1
+  AND (products.deleted_at IS NOT NULL) = $2::bool
 `
 
 type GetProductByIDParams struct {
-	ID int32
+	ID      int32
+	Deleted bool
 }
 
-type GetProductByIDRow struct {
-	Product                    Product
-	ProductVariant             ProductVariant
-	ProductImage               ProductImage
-	ProductsAttributeValue     ProductsAttributeValue
-	AttributeValue             AttributeValue
-	Attribute                  Attribute
-	OptionValuesProductVariant OptionValuesProductVariant
-	OptionValue                OptionValue
-	Option                     Option
-	Category                   Category
-}
-
-func (q *Queries) GetProductByID(ctx context.Context, arg GetProductByIDParams) (GetProductByIDRow, error) {
-	row := q.db.QueryRow(ctx, getProductByID, arg.ID)
-	var i GetProductByIDRow
-	err := row.Scan(
-		&i.Product.ID,
-		&i.Product.Name,
-		&i.Product.Description,
-		&i.Product.Price,
-		&i.Product.ViewsCount,
-		&i.Product.TotalPurchase,
-		&i.Product.Rating,
-		&i.Product.TrendingScore,
-		&i.Product.CategoryID,
-		&i.Product.CreatedAt,
-		&i.Product.UpdatedAt,
-		&i.Product.DeletedAt,
-		&i.ProductVariant.ID,
-		&i.ProductVariant.SKU,
-		&i.ProductVariant.Price,
-		&i.ProductVariant.Quantity,
-		&i.ProductVariant.PurchaseCount,
-		&i.ProductVariant.ProductID,
-		&i.ProductVariant.CreatedAt,
-		&i.ProductVariant.UpdatedAt,
-		&i.ProductVariant.DeletedAt,
-		&i.ProductImage.ID,
-		&i.ProductImage.URL,
-		&i.ProductImage.CreatedAt,
-		&i.ProductImage.Order,
-		&i.ProductImage.ProductID,
-		&i.ProductImage.ProductVariantID,
-		&i.ProductsAttributeValue.ProductID,
-		&i.ProductsAttributeValue.AttributeValueID,
-		&i.AttributeValue.ID,
-		&i.AttributeValue.AttributeID,
-		&i.AttributeValue.Value,
-		&i.Attribute.ID,
-		&i.Attribute.Code,
-		&i.Attribute.Name,
-		&i.Attribute.DeletedAt,
-		&i.OptionValuesProductVariant.ProductVariantID,
-		&i.OptionValuesProductVariant.OptionValueID,
-		&i.OptionValue.ID,
-		&i.OptionValue.Value,
-		&i.OptionValue.OptionID,
-		&i.Option.ID,
-		&i.Option.Name,
-		&i.Option.ProductID,
-		&i.Option.DeletedAt,
-		&i.Category.ID,
-		&i.Category.Name,
-		&i.Category.CreatedAt,
-		&i.Category.UpdatedAt,
-		&i.Category.DeletedAt,
-	)
-	return i, err
-}
-
-const getProductImageByID = `-- name: GetProductImageByID :one
-SELECT
-  id, url, created_at, "order", product_id, product_variant_id
-FROM
-  product_images
-WHERE
-  id = $1::integer
-`
-
-type GetProductImageByIDParams struct {
-	ID int32
-}
-
-func (q *Queries) GetProductImageByID(ctx context.Context, arg GetProductImageByIDParams) (ProductImage, error) {
-	row := q.db.QueryRow(ctx, getProductImageByID, arg.ID)
-	var i ProductImage
+func (q *Queries) GetProductByID(ctx context.Context, arg GetProductByIDParams) (Product, error) {
+	row := q.db.QueryRow(ctx, getProductByID, arg.ID, arg.Deleted)
+	var i Product
 	err := row.Scan(
 		&i.ID,
-		&i.URL,
+		&i.Name,
+		&i.Description,
+		&i.Price,
+		&i.ViewsCount,
+		&i.TotalPurchase,
+		&i.Rating,
+		&i.TrendingScore,
+		&i.CategoryID,
 		&i.CreatedAt,
-		&i.Order,
-		&i.ProductID,
-		&i.ProductVariantID,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
-}
-
-const getProducts = `-- name: GetProducts :many
-SELECT
-  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.category_id, products.created_at, products.updated_at, products.deleted_at,
-  product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at, product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at,
-  product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_id, product_images.product_variant_id, product_images.id, product_images.url, product_images.created_at, product_images."order", product_images.product_id, product_images.product_variant_id,
-  products_attribute_values.product_id, products_attribute_values.attribute_value_id, products_attribute_values.product_id, products_attribute_values.attribute_value_id,
-  attribute_values.id, attribute_values.attribute_id, attribute_values.value, attribute_values.id, attribute_values.attribute_id, attribute_values.value,
-  attributes.id, attributes.code, attributes.name, attributes.deleted_at, attributes.id, attributes.code, attributes.name, attributes.deleted_at,
-  option_values_product_variants.product_variant_id, option_values_product_variants.option_value_id, option_values_product_variants.product_variant_id, option_values_product_variants.option_value_id,
-  option_values.id, option_values.value, option_values.option_id, option_values.id, option_values.value, option_values.option_id,
-  options.id, options.name, options.product_id, options.deleted_at, options.id, options.name, options.product_id, options.deleted_at,
-  categories.id, categories.name, categories.created_at, categories.updated_at, categories.deleted_at, categories.id, categories.name, categories.created_at, categories.updated_at, categories.deleted_at,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
-FROM
-  products,
-  product_variants,
-  product_images,
-  products_attribute_values,
-  attribute_values,
-  attributes,
-  option_values_product_variants,
-  option_values,
-  options,
-  categories
-INNER JOIN product_variants
-  ON products.id = product_variants.product_id
-INNER JOIN product_images
-  ON product_variants.id = product_images.product_variant_id
-INNER JOIN products_attribute_values
-  ON products.id = products_attribute_values.product_id
-INNER JOIN attribute_values
-  ON products_attribute_values.attribute_value_id = attribute_values.id
-INNER JOIN attributes
-  ON attribute_values.attribute_id = attributes.id
-INNER JOIN option_values_product_variants
-  ON product_variants.id = option_values_product_variants.product_variant_id
-INNER JOIN option_values
-  ON option_values_product_variants.option_value_id = option_values.id
-INNER JOIN options
-  ON option_values.option_id = options.id
-INNER JOIN categories
-  ON products.category_id = categories.id
-WHERE
-  products.deleted_at IS NULL
-  AND categories.deleted_at IS NULL
-  AND attributes.deleted_at IS NULL
-  AND options.deleted_at IS NULL
-  AND (
-    $1::integer IS NULL
-    OR categories.id = $1::integer
-  )
-  AND (
-    $2::text IS NULL
-    OR products.name ||| $2::pdb.fuzzy(products.trending_score) -- TODO: Have to check does paradedb support this
-    OR categories.name ||| $2::pdb.fuzzy(2)
-  )
-  -- TODO: Do we support rating?
-OFFSET COALESCE($3::integer, 0)
-LIMIT COALESCE($4::integer, 20)
-`
-
-type GetProductsParams struct {
-	CategoryID pgtype.Int4
-	Search     pgtype.Text
-	Offset     pgtype.Int4
-	Limit      pgtype.Int4
-}
-
-type GetProductsRow struct {
-	Product                    Product
-	ProductVariant             ProductVariant
-	ProductImage               ProductImage
-	ProductsAttributeValue     ProductsAttributeValue
-	AttributeValue             AttributeValue
-	Attribute                  Attribute
-	OptionValuesProductVariant OptionValuesProductVariant
-	OptionValue                OptionValue
-	Option                     Option
-	Category                   Category
-	CurrentCount               int64
-	TotalCount                 int64
-}
-
-func (q *Queries) GetProducts(ctx context.Context, arg GetProductsParams) ([]GetProductsRow, error) {
-	rows, err := q.db.Query(ctx, getProducts,
-		arg.CategoryID,
-		arg.Search,
-		arg.Offset,
-		arg.Limit,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetProductsRow
-	for rows.Next() {
-		var i GetProductsRow
-		if err := rows.Scan(
-			&i.Product.ID,
-			&i.Product.Name,
-			&i.Product.Description,
-			&i.Product.Price,
-			&i.Product.ViewsCount,
-			&i.Product.TotalPurchase,
-			&i.Product.Rating,
-			&i.Product.TrendingScore,
-			&i.Product.CategoryID,
-			&i.Product.CreatedAt,
-			&i.Product.UpdatedAt,
-			&i.Product.DeletedAt,
-			&i.ProductVariant.ID,
-			&i.ProductVariant.SKU,
-			&i.ProductVariant.Price,
-			&i.ProductVariant.Quantity,
-			&i.ProductVariant.PurchaseCount,
-			&i.ProductVariant.ProductID,
-			&i.ProductVariant.CreatedAt,
-			&i.ProductVariant.UpdatedAt,
-			&i.ProductVariant.DeletedAt,
-			&i.ProductImage.ID,
-			&i.ProductImage.URL,
-			&i.ProductImage.CreatedAt,
-			&i.ProductImage.Order,
-			&i.ProductImage.ProductID,
-			&i.ProductImage.ProductVariantID,
-			&i.ProductsAttributeValue.ProductID,
-			&i.ProductsAttributeValue.AttributeValueID,
-			&i.AttributeValue.ID,
-			&i.AttributeValue.AttributeID,
-			&i.AttributeValue.Value,
-			&i.Attribute.ID,
-			&i.Attribute.Code,
-			&i.Attribute.Name,
-			&i.Attribute.DeletedAt,
-			&i.OptionValuesProductVariant.ProductVariantID,
-			&i.OptionValuesProductVariant.OptionValueID,
-			&i.OptionValue.ID,
-			&i.OptionValue.Value,
-			&i.OptionValue.OptionID,
-			&i.Option.ID,
-			&i.Option.Name,
-			&i.Option.ProductID,
-			&i.Option.DeletedAt,
-			&i.Category.ID,
-			&i.Category.Name,
-			&i.Category.CreatedAt,
-			&i.Category.UpdatedAt,
-			&i.Category.DeletedAt,
-			&i.CurrentCount,
-			&i.TotalCount,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getSuggestedProducts = `-- name: GetSuggestedProducts :many
-
-UPDATE
-  products
-SET
-  name = COALESCE(sql.narg('name')::text, name),
-  description = COALESCE(sql.narg('description')::text, description),
-  views_count = COALESCE(sql.narg('views_count')::integer, views_count),
-  total_purchase = COALESCE(sql.narg('total_purchase')::integer, purchase_count),
-  trending_score = COALESCE(sql.narg('trending_score')::float, trending_score) -- TODO: Do we ever update this manually?
-WHERE
-  deleted_at IS NULL
-  AND id = $1
-RETURNING
-  id, name, description, price, views_count, total_purchase, rating, trending_score, category_id, created_at, updated_at, deleted_at
-`
-
-type GetSuggestedProductsParams struct {
-	ID int32
-}
-
-// TODO: Will we implement this?
-func (q *Queries) GetSuggestedProducts(ctx context.Context, arg GetSuggestedProductsParams) ([]Product, error) {
-	rows, err := q.db.Query(ctx, getSuggestedProducts, arg.ID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Product
-	for rows.Next() {
-		var i Product
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Description,
-			&i.Price,
-			&i.ViewsCount,
-			&i.TotalPurchase,
-			&i.Rating,
-			&i.TrendingScore,
-			&i.CategoryID,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const linkProductAttributeValues = `-- name: LinkProductAttributeValues :execrows
@@ -518,7 +283,7 @@ func (q *Queries) LinkProductAttributeValues(ctx context.Context, arg LinkProduc
 	return result.RowsAffected(), nil
 }
 
-const linkProductOptionValues = `-- name: LinkProductOptionValues :execrows
+const linkProductVariantsWithOptionValues = `-- name: LinkProductVariantsWithOptionValues :execrows
 INSERT INTO option_values_product_variants (
   option_value_id,
   product_variant_id
@@ -528,17 +293,287 @@ SELECT
   UNNEST($2::integer[]) AS product_variant_id
 `
 
-type LinkProductOptionValuesParams struct {
+type LinkProductVariantsWithOptionValuesParams struct {
 	OptionValueIds    []int32
 	ProductVariantIds []int32
 }
 
-func (q *Queries) LinkProductOptionValues(ctx context.Context, arg LinkProductOptionValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, linkProductOptionValues, arg.OptionValueIds, arg.ProductVariantIds)
+func (q *Queries) LinkProductVariantsWithOptionValues(ctx context.Context, arg LinkProductVariantsWithOptionValuesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, linkProductVariantsWithOptionValues, arg.OptionValueIds, arg.ProductVariantIds)
 	if err != nil {
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const listProductImages = `-- name: ListProductImages :many
+SELECT
+  id, url, created_at, "order", product_id, product_variant_id
+FROM
+  product_images
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE product_images.id = ANY($1)
+  END
+  AND CASE
+    WHEN $2::integer[] IS NULL THEN TRUE
+    ELSE product_images.product_variant_id = ANY($2)
+  END
+  AND CASE
+    WHEN $3::integer[] IS NULL THEN TRUE
+    ELSE product_images.product_id = ANY($3)
+  END
+ORDER BY
+  product_images.id ASC
+`
+
+type ListProductImagesParams struct {
+	Ids               []int32
+	ProductVariantIds []int32
+	ProductIds        []int32
+}
+
+func (q *Queries) ListProductImages(ctx context.Context, arg ListProductImagesParams) ([]ProductImage, error) {
+	rows, err := q.db.Query(ctx, listProductImages, arg.Ids, arg.ProductVariantIds, arg.ProductIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ProductImage
+	for rows.Next() {
+		var i ProductImage
+		if err := rows.Scan(
+			&i.ID,
+			&i.URL,
+			&i.CreatedAt,
+			&i.Order,
+			&i.ProductID,
+			&i.ProductVariantID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listProductVariants = `-- name: ListProductVariants :one
+SELECT
+  id, sku, price, quantity, purchase_count, product_id, created_at, updated_at, deleted_at
+FROM
+  product_variants
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE product_variants.id = ANY($2)
+  END
+  AND CASE
+    WHEN $3::integer[] IS NULL THEN TRUE
+    ELSE product_variants.product_id = ANY($3)
+  END
+  AND (product_variants.deleted_at IS NOT NULL) = $4::bool
+ORDER BY
+  product_variants.id
+`
+
+type ListProductVariantsParams struct {
+	Ids        []int32
+	ID         pgtype.Int4
+	ProductIds []int32
+	Deleted    bool
+}
+
+func (q *Queries) ListProductVariants(ctx context.Context, arg ListProductVariantsParams) (ProductVariant, error) {
+	row := q.db.QueryRow(ctx, listProductVariants,
+		arg.Ids,
+		arg.ID,
+		arg.ProductIds,
+		arg.Deleted,
+	)
+	var i ProductVariant
+	err := row.Scan(
+		&i.ID,
+		&i.SKU,
+		&i.Price,
+		&i.Quantity,
+		&i.PurchaseCount,
+		&i.ProductID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const listProducts = `-- name: ListProducts :many
+SELECT
+  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.category_id, products.created_at, products.updated_at, products.deleted_at,
+  COUNT(*) OVER() AS current_count,
+  COUNT(*) AS total_count
+FROM
+  products
+LEFT JOIN (
+  SELECT
+    products.id,
+    pdb.score(product.id) AS category_score
+  FROM products
+  INNER JOIN categories
+    ON products.category_id = categories.id
+  WHERE
+    categories.deleted_at IS NULL
+    AND CASE
+      WHEN $1::text IS NULL THEN TRUE
+      ELSE categories.name ||| $1::pdb.fuzzy(2)
+    END
+) AS category_scores
+  ON products.id = category_scores.id
+WHERE
+  CASE
+    WHEN $2::integer[] IS NULL THEN TRUE
+    ELSE products.id = ANY($2)
+  END
+  AND CASE
+    WHEN $3::decimal IS NULL THEN TRUE
+    ELSE products.price >= $3
+  END
+  AND CASE
+    WHEN $4::decimal IS NULL THEN TRUE
+    ELSE products.price <= $4
+  END
+  AND CASE
+    WHEN $5::real IS NULL THEN TRUE
+    ELSE products.rating >= $5
+  END
+  AND CASE
+    WHEN $6::integer[] IS NULL THEN TRUE
+    ELSE products.category_id = ANY($6)
+  END
+  AND (products.deleted_at IS NOT NULL) = $7::bool
+  AND CASE
+    WHEN $1::text IS NULL THEN TRUE
+    ELSE
+      products.name ||| $1::pdb.fuzzy(products.trending_score)
+  END
+ORDER BY
+  CASE WHEN $1 IS NOT NULL THEN pdb.score(products.id) + category_scores END DESC,
+  CASE WHEN $8::bool THEN products.rating END ASC,
+  CASE WHEN NOT $8::bool THEN products.rating END DESC,
+  CASE WHEN $9::bool THEN products.price END ASC,
+  CASE WHEN NOT $9::bool THEN products.price END DESC
+OFFSET COALESCE($10::integer, 0)
+LIMIT COALESCE($11::integer, 20)
+`
+
+type ListProductsParams struct {
+	Search        pgtype.Text
+	Ids           []int32
+	MinPrice      pgtype.Numeric
+	MaxPrice      pgtype.Numeric
+	Rating        pgtype.Float4
+	CategoryIds   []int32
+	Deleted       bool
+	SortRatingAsc bool
+	SortPriceAsc  bool
+	Offset        pgtype.Int4
+	Limit         pgtype.Int4
+}
+
+type ListProductsRow struct {
+	Product      Product
+	CurrentCount int64
+	TotalCount   int64
+}
+
+// This is used for list, search (with filter, order), suggest
+func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]ListProductsRow, error) {
+	rows, err := q.db.Query(ctx, listProducts,
+		arg.Search,
+		arg.Ids,
+		arg.MinPrice,
+		arg.MaxPrice,
+		arg.Rating,
+		arg.CategoryIds,
+		arg.Deleted,
+		arg.SortRatingAsc,
+		arg.SortPriceAsc,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListProductsRow
+	for rows.Next() {
+		var i ListProductsRow
+		if err := rows.Scan(
+			&i.Product.ID,
+			&i.Product.Name,
+			&i.Product.Description,
+			&i.Product.Price,
+			&i.Product.ViewsCount,
+			&i.Product.TotalPurchase,
+			&i.Product.Rating,
+			&i.Product.TrendingScore,
+			&i.Product.CategoryID,
+			&i.Product.CreatedAt,
+			&i.Product.UpdatedAt,
+			&i.Product.DeletedAt,
+			&i.CurrentCount,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateProduct = `-- name: UpdateProduct :one
+UPDATE
+  products
+SET
+  name = COALESCE(sql.narg('name')::text, name),
+  description = COALESCE(sql.narg('description')::text, description),
+  views_count = COALESCE(sql.narg('views_count')::integer, views_count),
+  total_purchase = COALESCE(sql.narg('total_purchase')::integer, purchase_count),
+  trending_score = COALESCE(sql.narg('trending_score')::float, trending_score) -- TODO: Do we ever update this manually?
+WHERE
+  deleted_at IS NULL
+  AND id = $1
+RETURNING
+  id, name, description, price, views_count, total_purchase, rating, trending_score, category_id, created_at, updated_at, deleted_at
+`
+
+type UpdateProductParams struct {
+	ID int32
+}
+
+func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
+	row := q.db.QueryRow(ctx, updateProduct, arg.ID)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Price,
+		&i.ViewsCount,
+		&i.TotalPurchase,
+		&i.Rating,
+		&i.TrendingScore,
+		&i.CategoryID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
 const updateProductVariants = `-- name: UpdateProductVariants :execrows
@@ -557,8 +592,8 @@ SET
   sku = updated_variants.sku,
   price = updated_variants.price,
   quantity = updated_variants.quantity,
-  purchase_count = updated_variants.purchase_count
-  -- FIXME: Maybe missing updated_at field?
+  purchase_count = updated_variants.purchase_count,
+  updated_at = NOW()
 FROM
   updated_variants
 WHERE

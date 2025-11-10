@@ -7,6 +7,8 @@ package postgres
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createOption = `-- name: CreateOption :one
@@ -139,40 +141,55 @@ func (q *Queries) GetOptionByID(ctx context.Context, arg GetOptionByIDParams) (G
 	return i, err
 }
 
-const getOptions = `-- name: GetOptions :many
+const listOptions = `-- name: ListOptions :many
 SELECT
   options.id, options.name, options.product_id, options.deleted_at,
-  option_values.id, option_values.value, option_values.option_id
+  COUNT(*) OVER() AS current_count,
+  COUNT(*) AS total_count
 FROM
-  options,
-  option_values
+  options
 WHERE
-  options.id = option_values.option_id
-  AND options.deleted_at IS NULL
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE options.id = ANY($1)
+  END
+  AND CASE
+    WHEN $2::integer IS NULL THEN TRUE
+    ELSE options.product_id = $2
+  END
+  AND (options.deleted_at IS NULL) = $3::bool
+ORDER BY
+  options.id
 `
 
-type GetOptionsRow struct {
-	Option      Option
-	OptionValue OptionValue
+type ListOptionsParams struct {
+	Ids       []int32
+	ProductID pgtype.Int4
+	Deleted   bool
 }
 
-func (q *Queries) GetOptions(ctx context.Context) ([]GetOptionsRow, error) {
-	rows, err := q.db.Query(ctx, getOptions)
+type ListOptionsRow struct {
+	Option       Option
+	CurrentCount int64
+	TotalCount   int64
+}
+
+func (q *Queries) ListOptions(ctx context.Context, arg ListOptionsParams) ([]ListOptionsRow, error) {
+	rows, err := q.db.Query(ctx, listOptions, arg.Ids, arg.ProductID, arg.Deleted)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetOptionsRow
+	var items []ListOptionsRow
 	for rows.Next() {
-		var i GetOptionsRow
+		var i ListOptionsRow
 		if err := rows.Scan(
 			&i.Option.ID,
 			&i.Option.Name,
 			&i.Option.ProductID,
 			&i.Option.DeletedAt,
-			&i.OptionValue.ID,
-			&i.OptionValue.Value,
-			&i.OptionValue.OptionID,
+			&i.CurrentCount,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}

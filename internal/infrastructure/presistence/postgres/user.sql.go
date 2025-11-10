@@ -52,7 +52,7 @@ func (q *Queries) GetUserByID(ctx context.Context, arg GetUserByIDParams) (uuid.
 	return id, err
 }
 
-const getUsers = `-- name: GetUsers :many
+const listUsers = `-- name: ListUsers :many
 SELECT
   id
 FROM
@@ -61,8 +61,8 @@ ORDER BY
   id ASC
 `
 
-func (q *Queries) GetUsers(ctx context.Context) ([]uuid.UUID, error) {
-	rows, err := q.db.Query(ctx, getUsers)
+func (q *Queries) ListUsers(ctx context.Context) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, listUsers)
 	if err != nil {
 		return nil, err
 	}
