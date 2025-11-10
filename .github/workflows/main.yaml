@@ -63,9 +63,10 @@ jobs:
         run: sqlc diff
         continue-on-error: true
 
-      - name: Generate
-        id: generate
+      - name: Make changes
+        id: make-changes
         run: |
+          go mod tidy
           just gen-wire
           just gen-swag -ot go
         continue-on-error: true
@@ -84,7 +85,7 @@ jobs:
         run: |
           declare -A check_status=(
             ["Static type check failed"]=${{ steps.static-type.outcome == 'failure' }}
-            ["Generate check failed"]=${{ steps.generate.outcome == 'failure' }}
+            ["Make changes check failed"]=${{ steps.make-changes.outcome == 'failure' }}
             ["Sqlc diff failed"]=${{ steps.check-sql.outcome == 'failure' }}
             ["Lint check failed"]=${{ steps.lint.outcome == 'failure' }}
             ["Format check failed"]=${{ steps.format.outcome == 'failure' }}
