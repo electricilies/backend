@@ -22,5 +22,4 @@ formatters:
       - internal/infrastructure/presistence/postgres/*.go
 run:
   build-tags:
-    - wireinject
     - integration
