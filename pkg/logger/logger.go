@@ -9,23 +9,19 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-var Lgr *zap.Logger
-
-func InitializeLogger() {
-	c := newDefaultLoggingConfig()
-	if !c.EnableStdout && !c.EnableFile {
-		Lgr = zap.NewNop()
-		return
+func New(cfg *loggerConfig) *zap.Logger {
+	if !cfg.EnableStdout && !cfg.EnableFile {
+		return zap.NewNop()
 	}
 
 	var cores []zapcore.Core
 	logLevel := zap.NewAtomicLevelAt(zap.InfoLevel)
 
 	timeEncoder := func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-		loc, _ := time.LoadLocation(c.TimeZone)
+		loc, _ := time.LoadLocation(cfg.TimeZone)
 		enc.AppendString(t.In(loc).Format(time.RFC3339))
 	}
-	if c.EnableStdout {
+	if cfg.EnableStdout {
 		stdout := zapcore.AddSync(os.Stdout)
 		encoderConfig := zapcore.EncoderConfig{
 			TimeKey:        "time",
@@ -46,13 +42,13 @@ func InitializeLogger() {
 		cores = append(cores, zapcore.NewCore(consoleEncoder, stdout, logLevel))
 	}
 
-	if c.EnableFile {
+	if cfg.EnableFile {
 		file := zapcore.AddSync(&lumberjack.Logger{
-			Filename:   c.LogFile,
-			MaxSize:    c.MaxSize,
-			MaxBackups: c.MaxBackups,
-			MaxAge:     c.MaxAge,
-			Compress:   c.Compress,
+			Filename:   cfg.LogFile,
+			MaxSize:    cfg.MaxSize,
+			MaxBackups: cfg.MaxBackups,
+			MaxAge:     cfg.MaxAge,
+			Compress:   cfg.Compress,
 		})
 
 		cfg := zap.NewProductionEncoderConfig()
@@ -64,7 +60,5 @@ func InitializeLogger() {
 	}
 	core := zapcore.NewTee(cores...)
 	logger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))
-	Lgr = logger
-
-	zap.ReplaceGlobals(Lgr)
+	return logger
 }

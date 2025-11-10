@@ -14,14 +14,16 @@ import (
 
 type Server struct {
 	engine *gin.Engine
+	cfg    *config.Config
 }
 
-func New(e *gin.Engine, r router.Router) *Server {
+func New(e *gin.Engine, r router.Router, cfg *config.Config) *Server {
 	r.RegisterRoutes(e)
 	auth := e.Group("/auth")
 	{
-		auth.GET("/*path", authHandler)
-		auth.POST("/*path", authHandler)
+		handler := authHandler(cfg)
+		auth.GET("/*path", handler)
+		auth.POST("/*path", handler)
 	}
 	e.GET(
 		"/swagger/*any",
@@ -33,6 +35,7 @@ func New(e *gin.Engine, r router.Router) *Server {
 	)
 	return &Server{
 		engine: e,
+		cfg:    cfg,
 	}
 }
 
@@ -40,11 +43,10 @@ func (s *Server) Run() error {
 	return s.engine.Run()
 }
 
-func authHandler(c *gin.Context) {
-	basePath := config.Cfg.KcBasePath
-	if env := config.Cfg.SwaggerEnv; env != "" {
-		basePath = strings.Replace(basePath, "keycloak", "keycloak."+env, 1)
+func authHandler(cfg *config.Config) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		basePath := cfg.KcBasePath
+		redirectURL := basePath + strings.TrimPrefix(c.Request.URL.String(), "/auth")
+		c.Redirect(http.StatusTemporaryRedirect, redirectURL)
 	}
-	redirectURL := basePath + strings.TrimPrefix(c.Request.URL.String(), "/auth")
-	c.Redirect(http.StatusTemporaryRedirect, redirectURL)
 }

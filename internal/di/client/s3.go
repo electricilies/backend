@@ -12,21 +12,21 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-func NewS3() *s3.Client {
-	cfg, err := awsconfig.LoadDefaultConfig(
+func NewS3(cfg *config.Config) *s3.Client {
+	c, err := awsconfig.LoadDefaultConfig(
 		context.Background(),
-		awsconfig.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(config.Cfg.S3AccessKey, config.Cfg.S3SecretKey, "")), awsconfig.WithRegion(config.Cfg.S3RegionName))
+		awsconfig.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(cfg.S3AccessKey, cfg.S3SecretKey, "")), awsconfig.WithRegion(cfg.S3RegionName))
 	if err != nil {
 		log.Printf("failed to load config: %v", err)
 		return nil
 	}
-	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
+	client := s3.NewFromConfig(c, func(o *s3.Options) {
 		o.UsePathStyle = true
-		o.BaseEndpoint = aws.String(config.Cfg.S3Endpoint)
+		o.BaseEndpoint = aws.String(cfg.S3Endpoint)
 	})
 	exist, err := client.HeadBucket(
 		context.Background(),
-		&s3.HeadBucketInput{Bucket: aws.String(config.Cfg.S3Bucket)},
+		&s3.HeadBucketInput{Bucket: aws.String(cfg.S3Bucket)},
 	)
 	if err != nil || exist == nil {
 		log.Printf("bucket not exist: %v", err)

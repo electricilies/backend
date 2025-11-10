@@ -3,8 +3,6 @@ package middleware
 import (
 	"time"
 
-	"backend/pkg/logger"
-
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -14,10 +12,14 @@ type Logging interface {
 	Handler() gin.HandlerFunc
 }
 
-type loggingMiddleware struct{}
+type loggingMiddleware struct {
+	logger *zap.Logger
+}
 
-func NewLogging() Logging {
-	return &loggingMiddleware{}
+func NewLogging(logger *zap.Logger) Logging {
+	return &loggingMiddleware{
+		logger: logger,
+	}
 }
 
 func (l *loggingMiddleware) Handler() gin.HandlerFunc {
@@ -42,10 +44,10 @@ func (l *loggingMiddleware) Handler() gin.HandlerFunc {
 
 		if len(ctx.Errors) > 0 && status >= 500 {
 			for _, e := range ctx.Errors.Errors() {
-				logger.Lgr.Error(e, fields...)
+				l.logger.Error(e, fields...)
 			}
 			return
 		}
-		logger.Lgr.Info(path, fields...)
+		l.logger.Info(path, fields...)
 	}
 }

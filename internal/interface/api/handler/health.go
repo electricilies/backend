@@ -25,18 +25,21 @@ type healthCheck struct {
 	redisClient    *redis.Client
 	s3Client       *s3.Client
 	dbConn         *pgxpool.Pool
+	cfg            *config.Config
 }
 
 func NewHealthCheck(keycloakClient *gocloak.GoCloak,
 	redisClient *redis.Client,
 	s3Client *s3.Client,
 	db *pgxpool.Pool,
+	cfg *config.Config,
 ) HealthCheck {
 	return &healthCheck{
 		keycloakClient: keycloakClient,
 		redisClient:    redisClient,
 		s3Client:       s3Client,
 		dbConn:         db,
+		cfg:            cfg,
 	}
 }
 
@@ -46,8 +49,8 @@ func (h *healthCheck) Readiness(ctx *gin.Context) {
 
 	dbStatus, dbErr := IsDbReady(c, h.dbConn)
 	redisStatus, redisErr := IsRedisReady(c, h.redisClient)
-	s3Status, s3Err := IsS3Ready(c, h.s3Client)
-	keycloakStatus, keycloakErr := IsKeycloakReady(c, h.keycloakClient)
+	s3Status, s3Err := IsS3Ready(c, h.s3Client, h.cfg.S3Bucket)
+	keycloakStatus, keycloakErr := IsKeycloakReady(c, h.keycloakClient, h.cfg.KcHttpManagmentPath)
 
 	backendStatus := dbStatus && redisStatus && s3Status && keycloakStatus
 
@@ -84,13 +87,13 @@ func (h *healthCheck) Liveness(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, time.Now())
 }
 
-func IsS3Ready(ctx context.Context, s3Client *s3.Client) (bool, error) {
+func IsS3Ready(ctx context.Context, s3Client *s3.Client, s3Bucket string) (bool, error) {
 	if s3Client == nil {
 		return false, ErrNilClient("s3")
 	}
 	exist, err := s3Client.HeadBucket(
 		ctx,
-		&s3.HeadBucketInput{Bucket: aws.String(config.Cfg.S3Bucket)},
+		&s3.HeadBucketInput{Bucket: aws.String(s3Bucket)},
 	)
 	if err != nil {
 		return false, err
@@ -112,11 +115,11 @@ func IsDbReady(ctx context.Context, dbConn *pgxpool.Pool) (bool, error) {
 	return true, nil
 }
 
-func IsKeycloakReady(ctx context.Context, keycloakClient *gocloak.GoCloak) (bool, error) {
+func IsKeycloakReady(ctx context.Context, keycloakClient *gocloak.GoCloak, kcManagmentPath string) (bool, error) {
 	if keycloakClient == nil {
 		return false, ErrNilClient("keycloak")
 	}
-	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, config.Cfg.KcHttpManagmentPath+"/health/ready", nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, kcManagmentPath+"/health/ready", nil)
 	client := &http.Client{Timeout: 2 * time.Second} // TODO: move http client to helper
 	resp, err := client.Do(req)
 	if err != nil {

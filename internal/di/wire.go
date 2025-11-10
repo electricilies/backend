@@ -4,6 +4,7 @@
 package di
 
 import (
+	"backend/config"
 	app "backend/internal/application"
 	"backend/internal/di/client"
 	"backend/internal/di/db"
@@ -16,8 +17,18 @@ import (
 	middleware "backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
+	"backend/pkg/logger"
 
 	"github.com/google/wire"
+)
+
+var ConfigSet = wire.NewSet(
+	config.New,
+	logger.NewConfig,
+)
+
+var LoggerSet = wire.NewSet(
+	logger.New,
 )
 
 var DbSet = wire.NewSet(
@@ -76,6 +87,6 @@ var ClientSet = wire.NewSet(
 )
 
 func InitializeServer() *server.Server {
-	wire.Build(DbSet, EngineSet, RepositorySet, ServiceSet, AppSet, MiddlewareSet, HandlerSet, RouterSet, ClientSet, helper.NewTokenManager, server.New)
+	wire.Build(ConfigSet, LoggerSet, DbSet, EngineSet, RepositorySet, ServiceSet, AppSet, MiddlewareSet, HandlerSet, RouterSet, ClientSet, helper.NewTokenManager, server.New)
 	return nil
 }

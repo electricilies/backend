@@ -13,14 +13,14 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewConnection() *pgxpool.Pool {
+func NewConnection(cfg *config.Config) *pgxpool.Pool {
 	conn, err := pgxpool.New(context.Background(), fmt.Sprintf(
 		"postgres://%s:%s@%s:%d/%s",
-		config.Cfg.DbUsername,
-		config.Cfg.DbPassword,
-		config.Cfg.DbHost,
-		config.Cfg.DbPort,
-		config.Cfg.DbName,
+		cfg.DbUsername,
+		cfg.DbPassword,
+		cfg.DbHost,
+		cfg.DbPort,
+		cfg.DbName,
 	))
 	if err != nil {
 		log.Printf("Cannot connect to Db: %v", err)

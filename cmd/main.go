@@ -22,11 +22,11 @@ import (
 // @tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
 // @authorizationUrl						/auth/realms/electricilies/protocol/openid-connect/auth
 func main() {
-	config.LoadConfig()
+	config.NewDefaultConfig()
 	s := di.InitializeServer()
 	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = io.Discard
-	logger.InitializeLogger()
+	logger.New()
 	err := s.Run()
 	if err != nil {
 		log.Fatal("Server run error", err)

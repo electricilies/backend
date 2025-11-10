@@ -15,12 +15,12 @@ type Role interface {
 }
 
 type roleMiddleware struct {
-	clientId string
+	cfg *config.Config
 }
 
-func NewRole(requiredRoles []constant.UserRole) Role {
+func NewRole(requiredRoles []constant.UserRole, cfg *config.Config) Role {
 	return &roleMiddleware{
-		clientId: config.Cfg.KcClientId,
+		cfg: cfg,
 	}
 }
 

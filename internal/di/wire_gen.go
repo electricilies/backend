@@ -7,6 +7,7 @@
 package di
 
 import (
+	"backend/config"
 	"backend/internal/application"
 	"backend/internal/di/client"
 	"backend/internal/di/db"
@@ -19,6 +20,7 @@ import (
 	"backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
+	"backend/pkg/logger"
 	"github.com/google/wire"
 )
 
@@ -26,24 +28,27 @@ import (
 
 func InitializeServer() *server.Server {
 	engine := ginengine.New()
-	pool := db.NewConnection()
+	configConfig := config.New()
+	pool := db.NewConnection(configConfig)
 	queries := db.New(pool)
-	s3Client := client.NewS3()
-	redisClient := client.NewRedis()
-	goCloak := client.NewKeycloak()
-	tokenManager := helper.NewTokenManager(goCloak)
-	repository := user.NewRepository(queries, s3Client, redisClient, goCloak, tokenManager)
+	s3Client := client.NewS3(configConfig)
+	redisClient := client.NewRedis(configConfig)
+	goCloak := client.NewKeycloak(configConfig)
+	tokenManager := helper.NewTokenManager(goCloak, configConfig)
+	loggerConfig := logger.NewConfig(configConfig)
+	zapLogger := logger.New(loggerConfig)
+	repository := user.NewRepository(queries, s3Client, redisClient, goCloak, tokenManager, configConfig, zapLogger)
 	transactor := db.NewTransactor(pool)
 	service := user2.NewService(repository, transactor)
 	applicationUser := application.NewUser(repository, service)
 	handlerUser := handler.NewUser(applicationUser)
-	healthCheck := handler.NewHealthCheck(goCloak, redisClient, s3Client, pool)
+	healthCheck := handler.NewHealthCheck(goCloak, redisClient, s3Client, pool, configConfig)
 	metric := middleware.NewMetric()
-	logging := middleware.NewLogging()
-	auth := middleware.NewJWTVerify(goCloak)
+	logging := middleware.NewLogging(zapLogger)
+	auth := middleware.NewJWTVerify(goCloak, configConfig)
 	category := handler.NewCategory()
 	presignClient := client.NewS3Presign(s3Client)
-	productRepository := product.NewRepository(queries, s3Client, presignClient, redisClient)
+	productRepository := product.NewRepository(queries, s3Client, presignClient, redisClient, configConfig)
 	applicationProduct := application.NewProduct(productRepository)
 	handlerProduct := handler.NewProduct(applicationProduct)
 	attribute := handler.NewAttribute()
@@ -54,11 +59,15 @@ func InitializeServer() *server.Server {
 	review := handler.NewReview()
 	cart := handler.NewCart()
 	routerRouter := router.New(handlerUser, healthCheck, metric, logging, auth, category, handlerProduct, attribute, payment, order, returnRequest, refund, review, cart)
-	serverServer := server.New(engine, routerRouter)
+	serverServer := server.New(engine, routerRouter, configConfig)
 	return serverServer
 }
 
 // wire.go:
+
+var ConfigSet = wire.NewSet(config.New, logger.NewConfig)
+
+var LoggerSet = wire.NewSet(logger.New)
 
 var DbSet = wire.NewSet(db.NewConnection, db.New, db.NewTransactor)
 

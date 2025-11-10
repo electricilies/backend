@@ -17,17 +17,13 @@ type Auth interface {
 
 type authMiddleware struct {
 	keycloakClient *gocloak.GoCloak
-	clientId       string
-	clientSecret   string
-	realm          string
+	cfg            *config.Config
 }
 
-func NewJWTVerify(keycloakClient *gocloak.GoCloak) Auth {
+func NewJWTVerify(keycloakClient *gocloak.GoCloak, cfg *config.Config) Auth {
 	return &authMiddleware{
 		keycloakClient: keycloakClient,
-		clientId:       config.Cfg.KcClientId,
-		clientSecret:   config.Cfg.KcClientSecret,
-		realm:          config.Cfg.KcRealm,
+		cfg:            cfg,
 	}
 }
 
@@ -44,7 +40,7 @@ func (j *authMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 		token := parts[1]
-		rptResult, err := j.keycloakClient.RetrospectToken(ctx, token, j.clientId, j.clientSecret, j.realm)
+		rptResult, err := j.keycloakClient.RetrospectToken(ctx, token, j.cfg.KcClientId, j.cfg.KcClientSecret, j.cfg.KcRealm)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Failed to introspect token", "detail": err.Error()})
 			return
@@ -53,7 +49,7 @@ func (j *authMiddleware) Handler() gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Inactive or invalid token"})
 			return
 		}
-		tokens, _, err := j.keycloakClient.DecodeAccessToken(ctx, token, j.realm)
+		tokens, _, err := j.keycloakClient.DecodeAccessToken(ctx, token, j.cfg.KcRealm)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Cannot decode access token", "detail": err.Error()})
 			return

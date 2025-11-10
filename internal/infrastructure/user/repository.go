@@ -15,6 +15,7 @@ import (
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 )
 
 type repositoryImpl struct {
@@ -23,15 +24,19 @@ type repositoryImpl struct {
 	redisClient    *redis.Client
 	keycloakClient *gocloak.GoCloak
 	tokenManager   helper.TokenManager
+	cfg            *config.Config
+	logger         *zap.Logger
 }
 
-func NewRepository(query *postgres.Queries, s3Client *s3.Client, redisClient *redis.Client, keycloakClient *gocloak.GoCloak, tokenManager helper.TokenManager) user.Repository {
+func NewRepository(query *postgres.Queries, s3Client *s3.Client, redisClient *redis.Client, keycloakClient *gocloak.GoCloak, tokenManager helper.TokenManager, cfg *config.Config, logger *zap.Logger) user.Repository {
 	return &repositoryImpl{
 		db:             query,
 		s3Client:       s3Client,
 		redisClient:    redisClient,
 		keycloakClient: keycloakClient,
 		tokenManager:   tokenManager,
+		cfg:            cfg,
+		logger:         logger,
 	}
 }
 
@@ -40,7 +45,7 @@ func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error)
 	cached, err := r.redisClient.Get(ctx, cacheKey).Result()
 	switch {
 	case err != nil && err != redis.Nil:
-		logger.Lgr.Error(constant.ErrRedisGetUserMsg, *logger.CreateRedisGetField(id, cacheKey, err)...)
+		r.logger.Error(constant.ErrRedisGetUserMsg, *logger.CreateRedisGetField(id, cacheKey, err)...)
 	default:
 		var cachedUser user.User
 		if err := json.Unmarshal([]byte(cached), &cachedUser); err == nil {
@@ -52,7 +57,7 @@ func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error)
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
-	u, err := r.keycloakClient.GetUserByID(ctx, token, config.Cfg.KcRealm, id)
+	u, err := r.keycloakClient.GetUserByID(ctx, token, r.cfg.KcRealm, id)
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
@@ -70,7 +75,7 @@ func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
 	cached, err := r.redisClient.Get(ctx, constant.UserListCacheKey).Result()
 	switch {
 	case err != nil && err != redis.Nil:
-		logger.Lgr.Error(constant.ErrRedisGetUserMsg, *logger.CreateRedisListField(constant.UserListCacheKey, err)...)
+		r.logger.Error(constant.ErrRedisGetUserMsg, *logger.CreateRedisListField(constant.UserListCacheKey, err)...)
 	default:
 
 		var usersCache []*user.User
@@ -84,7 +89,7 @@ func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
 	enabled := false
-	users, err := r.keycloakClient.GetUsers(ctx, token, config.Cfg.KcRealm, gocloak.GetUsersParams{
+	users, err := r.keycloakClient.GetUsers(ctx, token, r.cfg.KcRealm, gocloak.GetUsersParams{
 		Enabled: &enabled,
 	})
 	if err != nil {
@@ -112,8 +117,7 @@ func (r *repositoryImpl) Create(ctx context.Context, u *user.User) (*user.User, 
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
-	user, _ := (r.keycloakClient.GetUserByID(ctx, token, config.Cfg.KcRealm, createdUser.String()))
-
+	user, _ := (r.keycloakClient.GetUserByID(ctx, token, r.cfg.KcRealm, createdUser.String()))
 	r.redisClient.Del(ctx, constant.UserListCacheKey)
 
 	return ToDomain(user), nil
@@ -124,7 +128,7 @@ func (r *repositoryImpl) Update(ctx context.Context, u *user.User) error {
 	if err != nil {
 		return errors.ToDomainErrorFromGoCloak(err)
 	}
-	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.UpdateUser(ctx, token, config.Cfg.KcRealm, ToUpdateUserParams(u)))
+	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.UpdateUser(ctx, token, r.cfg.KcRealm, ToUpdateUserParams(u)))
 	if err != nil {
 		return err
 	}
@@ -140,7 +144,7 @@ func (r *repositoryImpl) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return errors.ToDomainErrorFromGoCloak(err)
 	}
-	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.DeleteUser(ctx, token, config.Cfg.KcRealm, id))
+	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.DeleteUser(ctx, token, r.cfg.KcRealm, id))
 	if err != nil {
 		return err
 	}
