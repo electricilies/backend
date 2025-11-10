@@ -45,6 +45,7 @@ type Product struct {
 }
 
 // TODO: implement
+// TODO: move to mapper?
 func ProductFromDomain(p *product.Model) *Product {
 	return &Product{}
 }
@@ -62,8 +63,9 @@ func ProductsPaginationFromDomain(
 	p *product.Pagination,
 ) *ProductsPagination {
 	return &ProductsPagination{
-		Meta: PaginationFromDomain(&p.Metadata),
-		Data: ProductsFromDomain(&p.Products),
+		// TODO: Imple
+		// Meta: PaginationFromDomain(&p.Metadata),
+		// Data: ProductsFromDomain(&p.Products),
 	}
 }
 
@@ -114,6 +116,7 @@ type ProductUploadURLImage struct {
 	Key string `json:"key" binding:"required"`
 }
 
+// TODO: move to mapper?
 func ProductUploadURLImageFromDomain(
 	u *product.UploadImageURLModel,
 ) *ProductUploadURLImage {

@@ -4,8 +4,6 @@ import (
 	"time"
 
 	"backend/internal/domain/pagination"
-
-	"github.com/docker/docker/distribution/metadata"
 )
 
 type UploadImageURLModel struct {

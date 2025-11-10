@@ -3019,7 +3019,7 @@ const docTemplate = `{
             "required": [
                 "id",
                 "name",
-                "value"
+                "values"
             ],
             "properties": {
                 "id": {
@@ -3028,8 +3028,11 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "value": {
-                    "type": "string"
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
