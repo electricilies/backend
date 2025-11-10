@@ -17,6 +17,33 @@ const docTemplate = `{
     "paths": {
         "/attributes": {
             "get": {
+                "description": "Get all attributes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attribute"
+                ],
+                "summary": "List all attributes",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit for pagination",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1689,6 +1716,40 @@ const docTemplate = `{
         },
         "/reviews": {
             "get": {
+                "description": "Get all reviews",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Review"
+                ],
+                "summary": "List all reviews",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit for pagination",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

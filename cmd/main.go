@@ -13,14 +13,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @BasePath								/api
-//
-// @securitydefinitions.oauth2.password	OAuth2Password
-// @tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
-//
-// @securitydefinitions.oauth2.accessCode	OAuth2AccessCode
-// @tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
-// @authorizationUrl						/auth/realms/electricilies/protocol/openid-connect/auth
+//	@BasePath	/api
+
+//	@securitydefinitions.oauth2.password	OAuth2Password
+//	@tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
+
+//	@securitydefinitions.oauth2.accessCode	OAuth2AccessCode
+//	@tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
+//	@authorizationUrl						/auth/realms/electricilies/protocol/openid-connect/auth
+
 func main() {
 	config.NewDefaultConfig()
 	s := di.InitializeServer()

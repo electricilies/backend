@@ -41,13 +41,12 @@ func (h *reviewHandler) Get(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id	query	int	true	"Product ID"
-//	@Param			offset		query	int	true	"Offset for pagination"
-//	@Param			limit		query	int	true	"Limit for pagination"
-
-// @Success	200	{array}		response.ReviewsPagination
-// @Failure	500	{object}	mapper.InternalServerError
-// @Router		/reviews [get]
+//	@Param			product_id	query		int	true	"Product ID"
+//	@Param			offset		query		int	true	"Offset for pagination"
+//	@Param			limit		query		int	true	"Limit for pagination"
+//	@Success		200			{array}		response.ReviewsPagination
+//	@Failure		500			{object}	mapper.InternalServerError
+//	@Router			/reviews [get]
 func (h *reviewHandler) ListReviewsByProduct(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
