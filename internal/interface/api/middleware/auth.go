@@ -40,6 +40,11 @@ func (j *authMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 		token := parts[1]
+		tokens, _, err := j.keycloakClient.DecodeAccessToken(ctx, token, j.cfg.KcRealm)
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Cannot decode access token", "detail": err.Error()})
+			return
+		}
 		rptResult, err := j.keycloakClient.RetrospectToken(ctx, token, j.cfg.KcClientId, j.cfg.KcClientSecret, j.cfg.KcRealm)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Failed to introspect token", "detail": err.Error()})
@@ -47,11 +52,6 @@ func (j *authMiddleware) Handler() gin.HandlerFunc {
 		}
 		if rptResult == nil || !*rptResult.Active {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Inactive or invalid token"})
-			return
-		}
-		tokens, _, err := j.keycloakClient.DecodeAccessToken(ctx, token, j.cfg.KcRealm)
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Cannot decode access token", "detail": err.Error()})
 			return
 		}
 
