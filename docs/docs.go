@@ -2753,13 +2753,16 @@ const docTemplate = `{
                     }
                 },
                 "code": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "color"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Color"
                 }
             }
         },
@@ -2771,10 +2774,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "1"
                 },
                 "value": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Red"
                 }
             }
         },
