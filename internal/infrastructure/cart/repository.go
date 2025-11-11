@@ -1,6 +1,8 @@
 package cart
 
 import (
+	"context"
+
 	"backend/internal/domain/cart"
 	"backend/internal/domain/pagination"
 )
@@ -11,6 +13,6 @@ func NewRepository() cart.Repository {
 	return &repository{}
 }
 
-func (r *repository) GetCartByUser(userID string, paginationParams *pagination.Params) (*cart.Model, error) {
+func (r *repository) GetCartByUser(ctx context.Context, userID string, paginationParams *pagination.Params) (*cart.Model, error) {
 	return &cart.Model{}, nil
 }

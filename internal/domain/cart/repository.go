@@ -1,7 +1,11 @@
 package cart
 
-import "backend/internal/domain/pagination"
+import (
+	"context"
+
+	"backend/internal/domain/pagination"
+)
 
 type Repository interface {
-	GetCartByUser(userID string, pagination *pagination.Params) (*Model, error)
+	GetCartByUser(ctx context.Context, userID string, pagination *pagination.Params) (*Model, error)
 }
