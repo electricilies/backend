@@ -15,3 +15,15 @@ func PaginationFromDomain(p *pagination.Metadata) *Pagination {
 		ItemsPerPage: p.ItemsPerPage,
 	}
 }
+
+type DataPagination struct {
+	Data interface{} `json:"data" binding:"required"`
+	Meta *Pagination `json:"pagination" binding:"required"`
+}
+
+func DataPaginationFromDomain(data interface{}, p *pagination.Metadata) *DataPagination {
+	return &DataPagination{
+		Data: data,
+		Meta: PaginationFromDomain(p),
+	}
+}

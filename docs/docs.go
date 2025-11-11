@@ -48,10 +48,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.AttributesPagination"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.DataPagination"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/response.Attribute"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -300,7 +312,34 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.Cart"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Cart"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "items": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.DataPagination"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "data": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.CartItem"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "404": {
@@ -496,10 +535,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.CategoriesPagination"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.DataPagination"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/response.Category"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -934,10 +985,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.ProductsPagination"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.DataPagination"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/response.Product"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -1766,10 +1829,22 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.ReviewsPagination"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.DataPagination"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/response.Review"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -2703,24 +2778,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.AttributesPagination": {
-            "type": "object",
-            "required": [
-                "data",
-                "meta"
-            ],
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.Attribute"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/response.Pagination"
-                }
-            }
-        },
         "response.BadRequestError": {
             "type": "object",
             "properties": {
@@ -2747,7 +2804,7 @@ const docTemplate = `{
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/response.CartItemsPagination"
+                        "$ref": "#/definitions/response.DataPagination"
                     }
                 }
             }
@@ -2768,42 +2825,6 @@ const docTemplate = `{
                 },
                 "quantity": {
                     "type": "integer"
-                }
-            }
-        },
-        "response.CartItemsPagination": {
-            "type": "object",
-            "required": [
-                "data",
-                "meta"
-            ],
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.CartItem"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/response.Pagination"
-                }
-            }
-        },
-        "response.CategoriesPagination": {
-            "type": "object",
-            "required": [
-                "data",
-                "meta"
-            ],
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.Category"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/response.Pagination"
                 }
             }
         },
@@ -2840,6 +2861,19 @@ const docTemplate = `{
                 "error": {
                     "type": "string",
                     "example": "User with email already exists"
+                }
+            }
+        },
+        "response.DataPagination": {
+            "type": "object",
+            "required": [
+                "data",
+                "pagination"
+            ],
+            "properties": {
+                "data": {},
+                "pagination": {
+                    "$ref": "#/definitions/response.Pagination"
                 }
             }
         },
@@ -3172,24 +3206,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.ProductsPagination": {
-            "type": "object",
-            "required": [
-                "data",
-                "meta"
-            ],
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.Product"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/response.Pagination"
-                }
-            }
-        },
         "response.Refund": {
             "type": "object",
             "required": [
@@ -3286,24 +3302,6 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/response.User"
-                }
-            }
-        },
-        "response.ReviewsPagination": {
-            "type": "object",
-            "required": [
-                "data",
-                "meta"
-            ],
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.Review"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/response.Pagination"
                 }
             }
         },

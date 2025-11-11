@@ -34,7 +34,7 @@ func NewCart() Cart { return &cartHandler{} }
 //	@Param			limit	query		int		false	"Limit"
 //	@Param			offset	query		int		false	"Offset"
 //	@Param			user_id	path		string	true	"User ID"
-//	@Success		200		{object}	response.Cart
+//	@Success		200		{object}	response.Cart{items=response.DataPagination{data=[]response.CartItem}}
 //	@Failure		404		{object}	response.NotFoundError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/carts [get]

@@ -11,40 +11,24 @@ type CartItem struct {
 func CartItemFromDomain(i *cart.ItemModel) *CartItem {
 	return &CartItem{
 		ID:       i.ID,
-		Product:  *ProductFromDomain(&i.Product),
+		Product:  *ProductFromDomain(i.Product),
 		Quantity: i.Quantity,
 	}
 }
 
 type Cart struct {
-	ID    int                   `json:"id" binding:"required"`
-	Items []CartItemsPagination `json:"items" binding:"required"`
+	ID    int              `json:"id" binding:"required"`
+	Items []DataPagination `json:"items" binding:"required"`
 }
 
 func CartFromDomain(c *cart.Model) *Cart {
-	cartItemsPagination := make([]CartItemsPagination, len(c.Items))
-	for i, itemPagination := range c.Items {
-		cartItemsPagination[i] = CartItemsPagination{
-			Meta: *PaginationFromDomain(&itemPagination.Metadata),
-			Data: CartItemsPaginationFromDomain(itemPagination.Items),
-		}
+	cartItemsPagination := make([]DataPagination, len(*c.Items))
+	for i, item := range *c.Items {
+		cartItemsPagination[i] = *DataPaginationFromDomain(item.Items, item.Metadata)
 	}
 
 	return &Cart{
 		ID:    c.ID,
 		Items: cartItemsPagination,
 	}
-}
-
-type CartItemsPagination struct {
-	Meta Pagination `json:"meta" binding:"required"`
-	Data []CartItem `json:"data" binding:"required"`
-}
-
-func CartItemsPaginationFromDomain(items []cart.ItemModel) []CartItem {
-	cartItems := make([]CartItem, len(items))
-	for i, item := range items {
-		cartItems[i] = *CartItemFromDomain(&item)
-	}
-	return cartItems
 }

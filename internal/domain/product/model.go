@@ -79,7 +79,7 @@ type Category struct {
 }
 
 type Pagination struct {
-	Metadata pagination.Metadata
+	Metadata *pagination.Metadata
 	Products []Model
 }
 

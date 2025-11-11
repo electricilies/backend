@@ -62,7 +62,7 @@ func (h *productHandler) Get(ctx *gin.Context) {
 //	@Param			offset	query		int	true	"Offset for pagination"
 //	@Param			limit	query		int	true	"Limit for pagination"
 //
-//	@Success		200		{array}		response.ProductsPagination
+//	@Success		200		{object}	response.DataPagination{data=[]response.Product}
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/products [get]
 func (h *productHandler) List(ctx *gin.Context) {
@@ -72,7 +72,7 @@ func (h *productHandler) List(ctx *gin.Context) {
 		Limit:  limit,
 		Offset: offset,
 	}
-	products, error := h.app.ListProducts(ctx, product.QueryParams{
+	pagination, error := h.app.ListProducts(ctx, product.QueryParams{
 		PaginationParams: pParams,
 	})
 	if error != nil {
@@ -81,7 +81,7 @@ func (h *productHandler) List(ctx *gin.Context) {
 	}
 	ctx.JSON(
 		http.StatusOK,
-		response.ProductsPaginationFromDomain(products),
+		response.DataPaginationFromDomain(pagination.Products, pagination.Metadata),
 	)
 }
 

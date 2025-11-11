@@ -44,7 +44,7 @@ func (h *reviewHandler) Get(ctx *gin.Context) {
 //	@Param			product_id	query		int	true	"Product ID"
 //	@Param			offset		query		int	true	"Offset for pagination"
 //	@Param			limit		query		int	true	"Limit for pagination"
-//	@Success		200			{array}		response.ReviewsPagination
+//	@Success		200			{object}	response.DataPagination{data=[]response.Review}
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/reviews [get]
 func (h *reviewHandler) ListReviewsByProduct(ctx *gin.Context) {

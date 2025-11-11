@@ -11,8 +11,3 @@ type Review struct {
 	CreatedAt time.Time `json:"createdAt" binding:"required"`
 	UpdatedAt time.Time `json:"updatedAt" binding:"required"`
 }
-
-type ReviewsPagination struct {
-	Meta Pagination `json:"meta" binding:"required"`
-	Data []Review   `json:"data" binding:"required"`
-}

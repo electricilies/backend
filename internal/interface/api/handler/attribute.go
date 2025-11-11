@@ -43,7 +43,7 @@ func (h *attributeHandler) Get(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			offset	query		int	true	"Offset for pagination"
 //	@Param			limit	query		int	true	"Limit for pagination"
-//	@Success		200		{array}		response.AttributesPagination
+//	@Success		200		{object}	response.DataPagination{data=[]response.Attribute}
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/attributes [get]
 func (h *attributeHandler) List(ctx *gin.Context) {

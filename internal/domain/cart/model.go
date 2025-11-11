@@ -7,16 +7,16 @@ import (
 
 type Model struct {
 	ID    int
-	Items []ItemsPaginationPagination
+	Items *[]ItemsPagination
 }
 
 type ItemModel struct {
 	ID       int
-	Product  product.Model
+	Product  *product.Model
 	Quantity int
 }
 
-type ItemsPaginationPagination struct {
-	Metadata pagination.Metadata
-	Items    []ItemModel
+type ItemsPagination struct {
+	Metadata *pagination.Metadata
+	Items    *[]ItemModel
 }

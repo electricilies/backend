@@ -41,21 +41,6 @@ func ProductsFromDomain(products *[]product.Model) []Product {
 	return []Product{}
 }
 
-type ProductsPagination struct {
-	Meta Pagination `json:"meta" binding:"required"`
-	Data []Product  `json:"data" binding:"required"`
-}
-
-func ProductsPaginationFromDomain(
-	p *product.Pagination,
-) *ProductsPagination {
-	return &ProductsPagination{
-		// TODO: Imple
-		// Meta: PaginationFromDomain(&p.Metadata),
-		// Data: ProductsFromDomain(&p.Products),
-	}
-}
-
 type ProductImage struct {
 	ID               int       `json:"id" binding:"required"`
 	URL              string    `json:"url" binding:"required"`

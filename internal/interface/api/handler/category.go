@@ -26,7 +26,7 @@ func NewCategory() Category { return &categoryHandler{} }
 //	@Produce		json
 //	@Param			offset	query		int	true	"Offset for pagination"
 //	@Param			limit	query		int	true	"Limit for pagination"
-//	@Success		200		{array}		response.CategoriesPagination
+//	@Success		200		{object}	response.DataPagination{data=[]response.Category}
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/categories [get]
 func (h *categoryHandler) List(ctx *gin.Context) {
