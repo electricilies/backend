@@ -76,10 +76,11 @@ jobs:
         run: just lint
         continue-on-error: true
 
-      - name: Check format
-        id: format
-        run: just check-format
-        continue-on-error: true
+      # NOTE: Because there is only gofumpt, add later if any else
+      # - name: Check format
+      #   id: format
+      #   run: just check-format
+      #   continue-on-error: true
 
       - name: Fail check
         run: |
@@ -88,7 +89,7 @@ jobs:
             ["Make changes check failed"]=${{ steps.make-changes.outcome == 'failure' }}
             ["Sqlc diff failed"]=${{ steps.check-sql.outcome == 'failure' }}
             ["Lint check failed"]=${{ steps.lint.outcome == 'failure' }}
-            ["Format check failed"]=${{ steps.format.outcome == 'failure' }}
+            # ["Format check failed"]=$ {{ steps.format.outcome == 'failure' }}
           )
           fail=false
           for msg in "${!check_status[@]}"; do
