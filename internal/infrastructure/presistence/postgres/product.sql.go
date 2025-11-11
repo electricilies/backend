@@ -281,7 +281,7 @@ func (q *Queries) DeleteProducts(ctx context.Context, arg DeleteProductsParams) 
 	return result.RowsAffected(), nil
 }
 
-const getProductByID = `-- name: GetProductByID :one
+const getProduct = `-- name: GetProduct :one
 SELECT
   id, name, description, price, views_count, total_purchase, rating, trending_score, category_id, created_at, updated_at, deleted_at
 FROM
@@ -295,13 +295,13 @@ WHERE
   END
 `
 
-type GetProductByIDParams struct {
+type GetProductParams struct {
 	ID                 int32
 	IncludeDeletedOnly pgtype.Bool
 }
 
-func (q *Queries) GetProductByID(ctx context.Context, arg GetProductByIDParams) (Product, error) {
-	row := q.db.QueryRow(ctx, getProductByID, arg.ID, arg.IncludeDeletedOnly)
+func (q *Queries) GetProduct(ctx context.Context, arg GetProductParams) (Product, error) {
+	row := q.db.QueryRow(ctx, getProduct, arg.ID, arg.IncludeDeletedOnly)
 	var i Product
 	err := row.Scan(
 		&i.ID,
@@ -607,7 +607,7 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]L
 	return items, nil
 }
 
-const updateProductByID = `-- name: UpdateProductByID :execrows
+const updateProduct = `-- name: UpdateProduct :execrows
 UPDATE
   products
 SET
@@ -622,7 +622,7 @@ WHERE
   AND deleted_at IS NULL
 `
 
-type UpdateProductByIDParams struct {
+type UpdateProductParams struct {
 	Name          pgtype.Text
 	Description   pgtype.Text
 	ViewsCount    pgtype.Int4
@@ -631,8 +631,8 @@ type UpdateProductByIDParams struct {
 	ID            int32
 }
 
-func (q *Queries) UpdateProductByID(ctx context.Context, arg UpdateProductByIDParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateProductByID,
+func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateProduct,
 		arg.Name,
 		arg.Description,
 		arg.ViewsCount,
@@ -646,7 +646,7 @@ func (q *Queries) UpdateProductByID(ctx context.Context, arg UpdateProductByIDPa
 	return result.RowsAffected(), nil
 }
 
-const updateProductVariantsByIDs = `-- name: UpdateProductVariantsByIDs :execrows
+const updateProductVariants = `-- name: UpdateProductVariants :execrows
 WITH updated_variants AS (
   SELECT
     UNNEST($1::integer[]) AS id,
@@ -670,7 +670,7 @@ WHERE
   AND product_variants.deleted_at IS NULL
 `
 
-type UpdateProductVariantsByIDsParams struct {
+type UpdateProductVariantsParams struct {
 	Ids            []int32
 	Skus           []string
 	Prices         []pgtype.Numeric
@@ -678,8 +678,8 @@ type UpdateProductVariantsByIDsParams struct {
 	PurchaseCounts []int32
 }
 
-func (q *Queries) UpdateProductVariantsByIDs(ctx context.Context, arg UpdateProductVariantsByIDsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateProductVariantsByIDs,
+func (q *Queries) UpdateProductVariants(ctx context.Context, arg UpdateProductVariantsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateProductVariants,
 		arg.Ids,
 		arg.Skus,
 		arg.Prices,

@@ -118,7 +118,7 @@ func (q *Queries) DeleteAttributes(ctx context.Context, arg DeleteAttributesPara
 	return result.RowsAffected(), nil
 }
 
-const getAttributeByID = `-- name: GetAttributeByID :one
+const getAttribute = `-- name: GetAttribute :one
 SELECT
   id, code, name, deleted_at
 FROM
@@ -127,12 +127,12 @@ WHERE
   id = $1
 `
 
-type GetAttributeByIDParams struct {
+type GetAttributeParams struct {
 	ID int32
 }
 
-func (q *Queries) GetAttributeByID(ctx context.Context, arg GetAttributeByIDParams) (Attribute, error) {
-	row := q.db.QueryRow(ctx, getAttributeByID, arg.ID)
+func (q *Queries) GetAttribute(ctx context.Context, arg GetAttributeParams) (Attribute, error) {
+	row := q.db.QueryRow(ctx, getAttribute, arg.ID)
 	var i Attribute
 	err := row.Scan(
 		&i.ID,

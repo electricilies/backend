@@ -130,7 +130,7 @@ ORDER BY
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
 
--- name: GetProductByID :one
+-- name: GetProduct :one
 SELECT
   *
 FROM
@@ -186,7 +186,7 @@ WHERE
 ORDER BY
   id ASC;
 
--- name: UpdateProductByID :execrows
+-- name: UpdateProduct :execrows
 UPDATE
   products
 SET
@@ -200,7 +200,7 @@ WHERE
   id = @id
   AND deleted_at IS NULL;
 
--- name: UpdateProductVariantsByIDs :execrows
+-- name: UpdateProductVariants :execrows
 WITH updated_variants AS (
   SELECT
     UNNEST(@ids::integer[]) AS id,

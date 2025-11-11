@@ -83,7 +83,7 @@ func (q *Queries) DeleteReviews(ctx context.Context, arg DeleteReviewsParams) (i
 	return result.RowsAffected(), nil
 }
 
-const getReviewsByProductID = `-- name: GetReviewsByProductID :many
+const getReviews = `-- name: GetReviews :many
 SELECT
   id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, product_id,
   COUNT(*) OVER() AS current_count,
@@ -91,21 +91,34 @@ SELECT
 FROM
   reviews
 WHERE
-  product_id = $1
-  AND deleted_at IS NULL
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::integer[] IS NULL THEN TRUE
+    ELSE product_id = ANY ($2::integer[])
+  END
+  AND CASE
+    WHEN $3::boolean IS TRUE THEN deleted_at IS NOT NULL
+    WHEN $3::boolean IS FALSE THEN deleted_at IS NULL
+    ELSE TRUE
+  END
 ORDER BY
   created_at DESC
-OFFSET COALESCE($2::integer, 0)
-LIMIT COALESCE($3::integer, 10)
+OFFSET COALESCE($4::integer, 0)
+LIMIT COALESCE($5::integer, 10)
 `
 
-type GetReviewsByProductIDParams struct {
-	ProductID int32
-	Offset    pgtype.Int4
-	Limit     pgtype.Int4
+type GetReviewsParams struct {
+	Ids                []int32
+	ProductIDs         []int32
+	IncludeDeletedOnly pgtype.Bool
+	Offset             pgtype.Int4
+	Limit              pgtype.Int4
 }
 
-type GetReviewsByProductIDRow struct {
+type GetReviewsRow struct {
 	ID           int32
 	Rating       int16
 	Content      pgtype.Text
@@ -119,15 +132,21 @@ type GetReviewsByProductIDRow struct {
 	TotalCount   int64
 }
 
-func (q *Queries) GetReviewsByProductID(ctx context.Context, arg GetReviewsByProductIDParams) ([]GetReviewsByProductIDRow, error) {
-	rows, err := q.db.Query(ctx, getReviewsByProductID, arg.ProductID, arg.Offset, arg.Limit)
+func (q *Queries) GetReviews(ctx context.Context, arg GetReviewsParams) ([]GetReviewsRow, error) {
+	rows, err := q.db.Query(ctx, getReviews,
+		arg.Ids,
+		arg.ProductIDs,
+		arg.IncludeDeletedOnly,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetReviewsByProductIDRow
+	var items []GetReviewsRow
 	for rows.Next() {
-		var i GetReviewsByProductIDRow
+		var i GetReviewsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Rating,

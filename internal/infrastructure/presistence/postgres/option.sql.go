@@ -79,7 +79,7 @@ const deleteOptionValues = `-- name: DeleteOptionValues :execrows
 DELETE FROM
   option_values
 WHERE
-  id = ANY($1::integer[])
+  id = ANY ($1::integer[])
 `
 
 type DeleteOptionValuesParams struct {
@@ -100,7 +100,7 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY($1::integer[])
+  id = ANY ($1::integer[])
   AND deleted_at IS NULL
 `
 
@@ -116,7 +116,7 @@ func (q *Queries) DeleteOptions(ctx context.Context, arg DeleteOptionsParams) (i
 	return result.RowsAffected(), nil
 }
 
-const getOptionByID = `-- name: GetOptionByID :one
+const getOption = `-- name: GetOption :one
 SELECT
   id, name, product_id, deleted_at
 FROM
@@ -130,13 +130,13 @@ WHERE
   END
 `
 
-type GetOptionByIDParams struct {
+type GetOptionParams struct {
 	ID                 int32
 	IncludeDeletedOnly pgtype.Bool
 }
 
-func (q *Queries) GetOptionByID(ctx context.Context, arg GetOptionByIDParams) (Option, error) {
-	row := q.db.QueryRow(ctx, getOptionByID, arg.ID, arg.IncludeDeletedOnly)
+func (q *Queries) GetOption(ctx context.Context, arg GetOptionParams) (Option, error) {
+	row := q.db.QueryRow(ctx, getOption, arg.ID, arg.IncludeDeletedOnly)
 	var i Option
 	err := row.Scan(
 		&i.ID,
@@ -155,7 +155,7 @@ FROM
 WHERE
   CASE
     WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE options.id = ANY($1::integer[])
+    ELSE options.id = ANY ($1::integer[])
   END
   AND CASE
     WHEN $2::integer IS NULL THEN TRUE

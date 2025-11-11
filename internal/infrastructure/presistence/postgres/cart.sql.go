@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createCart = `-- name: CreateCart :one
@@ -67,7 +68,7 @@ func (q *Queries) CreateCartItem(ctx context.Context, arg CreateCartItemParams) 
 const deleteCartItemByIDs = `-- name: DeleteCartItemByIDs :execrows
 DELETE FROM cart_items
 WHERE
-  id = ANY($1::UUID[])
+  id = ANY ($1::UUID[])
 `
 
 type DeleteCartItemByIDsParams struct {
@@ -82,21 +83,29 @@ func (q *Queries) DeleteCartItemByIDs(ctx context.Context, arg DeleteCartItemByI
 	return result.RowsAffected(), nil
 }
 
-const getCartByUserID = `-- name: GetCartByUserID :many
+const getCart = `-- name: GetCart :many
 SELECT
   id, user_id, updated_at
 FROM
   carts
 WHERE
-  carts.user_id = $1
+  CASE
+    WHEN $1::integer IS NULL THEN TRUE
+    ELSE id = $1::integer
+  END
+  AND CASE
+    WHEN $2::UUID IS NULL THEN TRUE
+    ELSE user_id = $2::UUID
+  END
 `
 
-type GetCartByUserIDParams struct {
-	userID uuid.UUID
+type GetCartParams struct {
+	ID     pgtype.Int4
+	userID pgtype.UUID
 }
 
-func (q *Queries) GetCartByUserID(ctx context.Context, arg GetCartByUserIDParams) ([]Cart, error) {
-	rows, err := q.db.Query(ctx, getCartByUserID, arg.userID)
+func (q *Queries) GetCart(ctx context.Context, arg GetCartParams) ([]Cart, error) {
+	rows, err := q.db.Query(ctx, getCart, arg.ID, arg.userID)
 	if err != nil {
 		return nil, err
 	}
@@ -115,21 +124,26 @@ func (q *Queries) GetCartByUserID(ctx context.Context, arg GetCartByUserIDParams
 	return items, nil
 }
 
-const getCartItemByCarID = `-- name: GetCartItemByCarID :many
+const getCartItems = `-- name: GetCartItems :many
 SELECT
   id, quantity, cart_id, product_variant_id
 FROM
   cart_items
 WHERE
-  cart_items.cart_id = $1
+  CASE
+    WHEN $1::integer IS NULL THEN TRUE
+    ELSE cart_id = $1::integer
+  END
+ORDER BY
+  id ASC
 `
 
-type GetCartItemByCarIDParams struct {
-	CartID int32
+type GetCartItemsParams struct {
+	CartID pgtype.Int4
 }
 
-func (q *Queries) GetCartItemByCarID(ctx context.Context, arg GetCartItemByCarIDParams) ([]CartItem, error) {
-	rows, err := q.db.Query(ctx, getCartItemByCarID, arg.CartID)
+func (q *Queries) GetCartItems(ctx context.Context, arg GetCartItemsParams) ([]CartItem, error) {
+	rows, err := q.db.Query(ctx, getCartItems, arg.CartID)
 	if err != nil {
 		return nil, err
 	}

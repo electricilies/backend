@@ -27,7 +27,7 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE options.id = ANY(sqlc.narg('ids')::integer[])
+    ELSE options.id = ANY (sqlc.narg('ids')::integer[])
   END
   AND CASE
     WHEN sqlc.narg('product_id')::integer IS NULL THEN TRUE
@@ -41,7 +41,7 @@ WHERE
 ORDER BY
   options.id;
 
--- name: GetOptionByID :one
+-- name: GetOption :one
 SELECT
   *
 FROM
@@ -89,11 +89,11 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY(@ids::integer[])
+  id = ANY (@ids::integer[])
   AND deleted_at IS NULL;
 
 -- name: DeleteOptionValues :execrows
 DELETE FROM
   option_values
 WHERE
-  id = ANY(@ids::integer[]);
+  id = ANY (@ids::integer[]);

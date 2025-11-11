@@ -49,7 +49,7 @@ ORDER BY
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
 
--- name: GetAttributeByID :one
+-- name: GetAttribute :one
 SELECT
   *
 FROM

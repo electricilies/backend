@@ -20,21 +20,33 @@ INSERT INTO cart_items (
 RETURNING
   *;
 
--- name: GetCartByUserID :many
+-- name: GetCart :many
 SELECT
   *
 FROM
   carts
 WHERE
-  carts.user_id = @user_id;
+  CASE
+    WHEN sqlc.narg('id')::integer IS NULL THEN TRUE
+    ELSE id = sqlc.narg('id')::integer
+  END
+  AND CASE
+    WHEN sqlc.narg('user_id')::UUID IS NULL THEN TRUE
+    ELSE user_id = sqlc.narg('user_id')::UUID
+  END;
 
--- name: GetCartItemByCarID :many
+-- name: GetCartItems :many
 SELECT
   *
 FROM
   cart_items
 WHERE
-  cart_items.cart_id = @cart_id;
+  CASE
+    WHEN sqlc.narg('cart_id')::integer IS NULL THEN TRUE
+    ELSE cart_id = sqlc.narg('cart_id')::integer
+  END
+ORDER BY
+  id ASC;
 
 -- name: UpdateCartItemByID :execrows
 UPDATE cart_items
@@ -46,4 +58,4 @@ WHERE
 -- name: DeleteCartItemByIDs :execrows
 DELETE FROM cart_items
 WHERE
-  id = ANY(@ids::UUID[]);
+  id = ANY (@ids::UUID[]);
