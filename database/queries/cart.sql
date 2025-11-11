@@ -22,33 +22,28 @@ RETURNING
 
 -- name: GetCartByUserID :many
 SELECT
-  sqlc.embed(carts),
-  sqlc.embed(cart_items),
-  sqlc.embed(products),
-  sqlc.embed(product_variants)
+  *
 FROM
   carts
-INNER JOIN cart_items
-  ON carts.id = cart_items.cart_id
-INNER JOIN product_variants
-  ON cart_items.product_variant_id = product_variants.id
-INNER JOIN products
-  ON product_variants.product_id = products.id
 WHERE
-  carts.user_id = @user_id
-ORDER BY
-  cart_items.id ASC;
+  carts.user_id = @user_id;
 
--- name: UpdateCartItemByID :one
+-- name: GetCartItemByCarID :many
+SELECT
+  *
+FROM
+  cart_items
+WHERE
+  cart_items.cart_id = @cart_id;
+
+-- name: UpdateCartItemByID :execrows
 UPDATE cart_items
 SET
   quantity = @quantity
 WHERE
-  id = @id
-RETURNING
-  *;
+  id = @id;
 
--- name: DeleteCartItemByID :execrows
+-- name: DeleteCartItemByIDs :execrows
 DELETE FROM cart_items
 WHERE
-  id = @id;
+  id = ANY(@ids::UUID[]);

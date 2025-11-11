@@ -64,18 +64,18 @@ func (q *Queries) CreateCartItem(ctx context.Context, arg CreateCartItemParams) 
 	return i, err
 }
 
-const deleteCartItemByID = `-- name: DeleteCartItemByID :execrows
+const deleteCartItemByIDs = `-- name: DeleteCartItemByIDs :execrows
 DELETE FROM cart_items
 WHERE
-  id = $1
+  id = ANY($1::UUID[])
 `
 
-type DeleteCartItemByIDParams struct {
-	ID uuid.UUID
+type DeleteCartItemByIDsParams struct {
+	Ids []uuid.UUID
 }
 
-func (q *Queries) DeleteCartItemByID(ctx context.Context, arg DeleteCartItemByIDParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteCartItemByID, arg.ID)
+func (q *Queries) DeleteCartItemByIDs(ctx context.Context, arg DeleteCartItemByIDsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteCartItemByIDs, arg.Ids)
 	if err != nil {
 		return 0, err
 	}
@@ -84,73 +84,64 @@ func (q *Queries) DeleteCartItemByID(ctx context.Context, arg DeleteCartItemByID
 
 const getCartByUserID = `-- name: GetCartByUserID :many
 SELECT
-  carts.id, carts.user_id, carts.updated_at,
-  cart_items.id, cart_items.quantity, cart_items.cart_id, cart_items.product_variant_id,
-  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.category_id, products.created_at, products.updated_at, products.deleted_at,
-  product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at
+  id, user_id, updated_at
 FROM
   carts
-INNER JOIN cart_items
-  ON carts.id = cart_items.cart_id
-INNER JOIN product_variants
-  ON cart_items.product_variant_id = product_variants.id
-INNER JOIN products
-  ON product_variants.product_id = products.id
 WHERE
   carts.user_id = $1
-ORDER BY
-  cart_items.id ASC
 `
 
 type GetCartByUserIDParams struct {
 	userID uuid.UUID
 }
 
-type GetCartByUserIDRow struct {
-	Cart           Cart
-	CartItem       CartItem
-	Product        Product
-	ProductVariant ProductVariant
-}
-
-func (q *Queries) GetCartByUserID(ctx context.Context, arg GetCartByUserIDParams) ([]GetCartByUserIDRow, error) {
+func (q *Queries) GetCartByUserID(ctx context.Context, arg GetCartByUserIDParams) ([]Cart, error) {
 	rows, err := q.db.Query(ctx, getCartByUserID, arg.userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetCartByUserIDRow
+	var items []Cart
 	for rows.Next() {
-		var i GetCartByUserIDRow
+		var i Cart
+		if err := rows.Scan(&i.ID, &i.userID, &i.UpdatedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getCartItemByCarID = `-- name: GetCartItemByCarID :many
+SELECT
+  id, quantity, cart_id, product_variant_id
+FROM
+  cart_items
+WHERE
+  cart_items.cart_id = $1
+`
+
+type GetCartItemByCarIDParams struct {
+	CartID int32
+}
+
+func (q *Queries) GetCartItemByCarID(ctx context.Context, arg GetCartItemByCarIDParams) ([]CartItem, error) {
+	rows, err := q.db.Query(ctx, getCartItemByCarID, arg.CartID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []CartItem
+	for rows.Next() {
+		var i CartItem
 		if err := rows.Scan(
-			&i.Cart.ID,
-			&i.Cart.userID,
-			&i.Cart.UpdatedAt,
-			&i.CartItem.ID,
-			&i.CartItem.Quantity,
-			&i.CartItem.CartID,
-			&i.CartItem.ProductVariantID,
-			&i.Product.ID,
-			&i.Product.Name,
-			&i.Product.Description,
-			&i.Product.Price,
-			&i.Product.ViewsCount,
-			&i.Product.TotalPurchase,
-			&i.Product.Rating,
-			&i.Product.TrendingScore,
-			&i.Product.CategoryID,
-			&i.Product.CreatedAt,
-			&i.Product.UpdatedAt,
-			&i.Product.DeletedAt,
-			&i.ProductVariant.ID,
-			&i.ProductVariant.SKU,
-			&i.ProductVariant.Price,
-			&i.ProductVariant.Quantity,
-			&i.ProductVariant.PurchaseCount,
-			&i.ProductVariant.ProductID,
-			&i.ProductVariant.CreatedAt,
-			&i.ProductVariant.UpdatedAt,
-			&i.ProductVariant.DeletedAt,
+			&i.ID,
+			&i.Quantity,
+			&i.CartID,
+			&i.ProductVariantID,
 		); err != nil {
 			return nil, err
 		}
@@ -162,14 +153,12 @@ func (q *Queries) GetCartByUserID(ctx context.Context, arg GetCartByUserIDParams
 	return items, nil
 }
 
-const updateCartItemByID = `-- name: UpdateCartItemByID :one
+const updateCartItemByID = `-- name: UpdateCartItemByID :execrows
 UPDATE cart_items
 SET
   quantity = $1
 WHERE
   id = $2
-RETURNING
-  id, quantity, cart_id, product_variant_id
 `
 
 type UpdateCartItemByIDParams struct {
@@ -177,14 +166,10 @@ type UpdateCartItemByIDParams struct {
 	ID       uuid.UUID
 }
 
-func (q *Queries) UpdateCartItemByID(ctx context.Context, arg UpdateCartItemByIDParams) (CartItem, error) {
-	row := q.db.QueryRow(ctx, updateCartItemByID, arg.Quantity, arg.ID)
-	var i CartItem
-	err := row.Scan(
-		&i.ID,
-		&i.Quantity,
-		&i.CartID,
-		&i.ProductVariantID,
-	)
-	return i, err
+func (q *Queries) UpdateCartItemByID(ctx context.Context, arg UpdateCartItemByIDParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateCartItemByID, arg.Quantity, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
