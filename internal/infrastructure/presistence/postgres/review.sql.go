@@ -83,7 +83,7 @@ func (q *Queries) DeleteReviews(ctx context.Context, arg DeleteReviewsParams) (i
 	return result.RowsAffected(), nil
 }
 
-const getReviews = `-- name: GetReviews :many
+const listReviews = `-- name: ListReviews :many
 SELECT
   id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, product_id,
   COUNT(*) OVER() AS current_count,
@@ -110,7 +110,7 @@ OFFSET COALESCE($4::integer, 0)
 LIMIT COALESCE($5::integer, 10)
 `
 
-type GetReviewsParams struct {
+type ListReviewsParams struct {
 	IDs                []int32
 	ProductIDs         []int32
 	IncludeDeletedOnly pgtype.Bool
@@ -118,7 +118,7 @@ type GetReviewsParams struct {
 	Limit              pgtype.Int4
 }
 
-type GetReviewsRow struct {
+type ListReviewsRow struct {
 	ID           int32
 	Rating       int16
 	Content      pgtype.Text
@@ -132,8 +132,8 @@ type GetReviewsRow struct {
 	TotalCount   int64
 }
 
-func (q *Queries) GetReviews(ctx context.Context, arg GetReviewsParams) ([]GetReviewsRow, error) {
-	rows, err := q.db.Query(ctx, getReviews,
+func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]ListReviewsRow, error) {
+	rows, err := q.db.Query(ctx, listReviews,
 		arg.IDs,
 		arg.ProductIDs,
 		arg.IncludeDeletedOnly,
@@ -144,9 +144,9 @@ func (q *Queries) GetReviews(ctx context.Context, arg GetReviewsParams) ([]GetRe
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetReviewsRow
+	var items []ListReviewsRow
 	for rows.Next() {
-		var i GetReviewsRow
+		var i ListReviewsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Rating,

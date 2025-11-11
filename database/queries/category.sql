@@ -8,6 +8,7 @@ VALUES (
 RETURNING
   *;
 
+-- TODO: Get category by name (paradedb)
 -- name: GetCategories :many
 SELECT
   *,

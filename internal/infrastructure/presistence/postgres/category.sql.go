@@ -91,6 +91,7 @@ type GetCategoriesRow struct {
 	TotalCount   int64
 }
 
+// TODO: Get category by name (paradedb)
 func (q *Queries) GetCategories(ctx context.Context, arg GetCategoriesParams) ([]GetCategoriesRow, error) {
 	rows, err := q.db.Query(ctx, getCategories, arg.Offset, arg.Limit)
 	if err != nil {

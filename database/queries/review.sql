@@ -16,7 +16,7 @@ VALUES (
 RETURNING
   *;
 
--- name: GetReviews :many
+-- name: ListReviews :many
 SELECT
   *,
   COUNT(*) OVER() AS current_count,
