@@ -2,6 +2,12 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
+
+	"backend/internal/application"
+	"backend/internal/domain/attribute"
+	"backend/internal/interface/api/request"
+	"backend/internal/interface/api/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,9 +20,15 @@ type Attribute interface {
 	Delete(ctx *gin.Context)
 }
 
-type attributeHandler struct{}
+type attributeHandler struct {
+	app application.Attribute
+}
 
-func NewAttribute() Attribute { return &attributeHandler{} }
+func NewAttribute(app application.Attribute) Attribute {
+	return &attributeHandler{
+		app: app,
+	}
+}
 
 // GetAttribute godoc
 //
@@ -41,13 +53,29 @@ func (h *attributeHandler) Get(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			offset	query		int	true	"Offset for pagination"
-//	@Param			limit	query		int	true	"Limit for pagination"
-//	@Success		200		{object}	response.DataPagination{data=[]response.Attribute}
-//	@Failure		500		{object}	response.InternalServerError
+//	@Param			offset		query		int	true	"Offset for pagination"
+//	@Param			limit		query		int	true	"Limit for pagination"
+//	@Param			product_id	query		int	false	"Product ID"
+//
+//	@Success		200			{object}	response.DataPagination{data=[]response.Attribute}
+//	@Failure		500			{object}	response.InternalServerError
 //	@Router			/attributes [get]
 func (h *attributeHandler) List(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
+	offset, _ := strconv.Atoi(ctx.Query("offset"))
+	limit, _ := strconv.Atoi(ctx.Query("limit"))
+	productID, err := strconv.Atoi(ctx.Query("product_id"))
+	if err != nil {
+		productID = 0
+	}
+	pagination, err := h.app.ListAttributes(ctx, &attribute.QueryParams{
+		PaginationParams: request.PaginationToDomain(limit, offset),
+		ProductID:        &productID,
+	})
+	if err != nil {
+		response.ErrorFromDomain(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, response.DataPaginationFromDomain(pagination.Attributes, pagination.Metadata))
 }
 
 // CreateAttribute godoc

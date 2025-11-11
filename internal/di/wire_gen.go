@@ -14,6 +14,7 @@ import (
 	"backend/internal/di/ginengine"
 	user2 "backend/internal/domain/user"
 	"backend/internal/helper"
+	"backend/internal/infrastructure/attribute"
 	"backend/internal/infrastructure/cart"
 	"backend/internal/infrastructure/category"
 	"backend/internal/infrastructure/product"
@@ -56,7 +57,9 @@ func InitializeServer() *server.Server {
 	productRepository := product.NewRepository(queries, s3Client, presignClient, redisClient, configConfig)
 	applicationProduct := application.NewProduct(productRepository)
 	handlerProduct := handler.NewProduct(applicationProduct)
-	attribute := handler.NewAttribute()
+	attributeRepository := attribute.NewRepository()
+	applicationAttribute := application.NewAttribute(attributeRepository)
+	handlerAttribute := handler.NewAttribute(applicationAttribute)
 	payment := handler.NewPayment()
 	order := handler.NewOrder()
 	returnRequest := handler.NewReturn()
@@ -65,7 +68,7 @@ func InitializeServer() *server.Server {
 	applicationReview := application.NewReview(reviewRepository)
 	handlerReview := handler.NewReview(applicationReview)
 	cart := handler.NewCart()
-	routerRouter := router.New(handlerUser, healthCheck, metric, logging, auth, handlerCategory, handlerProduct, attribute, payment, order, returnRequest, refund, handlerReview, cart)
+	routerRouter := router.New(handlerUser, healthCheck, metric, logging, auth, handlerCategory, handlerProduct, handlerAttribute, payment, order, returnRequest, refund, handlerReview, cart)
 	serverServer := server.New(engine, routerRouter, configConfig)
 	return serverServer
 }
@@ -80,11 +83,11 @@ var DbSet = wire.NewSet(db.NewConnection, db.New, db.NewTransactor)
 
 var EngineSet = wire.NewSet(ginengine.New)
 
-var RepositorySet = wire.NewSet(user.NewRepository, product.NewRepository, review.NewRepository, cart.NewRepository, category.NewRepository)
+var RepositorySet = wire.NewSet(user.NewRepository, product.NewRepository, attribute.NewRepository, review.NewRepository, cart.NewRepository, category.NewRepository)
 
 var ServiceSet = wire.NewSet(user2.NewService)
 
-var AppSet = wire.NewSet(application.NewUser, application.NewProduct, application.NewCart, application.NewReview, application.NewCategory)
+var AppSet = wire.NewSet(application.NewUser, application.NewProduct, application.NewCart, application.NewReview, application.NewCategory, application.NewAttribute)
 
 var MiddlewareSet = wire.NewSet(middleware.NewMetric, middleware.NewLogging, middleware.NewJWTVerify)
 

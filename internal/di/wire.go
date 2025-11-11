@@ -11,6 +11,7 @@ import (
 	"backend/internal/di/ginengine"
 	userservice "backend/internal/domain/user"
 	"backend/internal/helper"
+	attributerepo "backend/internal/infrastructure/attribute"
 	cartrepo "backend/internal/infrastructure/cart"
 	categoryrepo "backend/internal/infrastructure/category"
 	productrepo "backend/internal/infrastructure/product"
@@ -47,6 +48,7 @@ var EngineSet = wire.NewSet(
 var RepositorySet = wire.NewSet(
 	userrepo.NewRepository,
 	productrepo.NewRepository,
+	attributerepo.NewRepository,
 	reviewrepo.NewRepository,
 	cartrepo.NewRepository,
 	categoryrepo.NewRepository,
@@ -62,6 +64,7 @@ var AppSet = wire.NewSet(
 	app.NewCart,
 	app.NewReview,
 	app.NewCategory,
+	app.NewAttribute,
 )
 
 var MiddlewareSet = wire.NewSet(

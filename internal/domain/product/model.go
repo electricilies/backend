@@ -3,6 +3,7 @@ package product
 import (
 	"time"
 
+	"backend/internal/domain/attribute"
 	"backend/internal/domain/category"
 	"backend/internal/domain/pagination"
 )
@@ -54,21 +55,8 @@ type Model struct {
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	Category        *category.Model
-	AttributeValues *[]AttributeValue
+	AttributeValues *[]attribute.ValueModel
 	Variants        *[]VariantModel
-}
-
-// TODO: move to attribute package
-type Attribute struct {
-	ID              string
-	Code            string
-	Name            string
-	AttributeValues *[]AttributeValue
-}
-
-type AttributeValue struct {
-	ID    string
-	Value string
 }
 
 type PaginationModel struct {
