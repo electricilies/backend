@@ -2121,7 +2121,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/user.User"
+                            "$ref": "#/definitions/response.User"
                         }
                     },
                     "400": {
@@ -3311,38 +3311,6 @@ const docTemplate = `{
             }
         },
         "response.User": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "dateOfBirth": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "phoneNumber": {
-                    "type": "string"
-                },
-                "userName": {
-                    "type": "string"
-                }
-            }
-        },
-        "user.User": {
             "type": "object",
             "properties": {
                 "address": {

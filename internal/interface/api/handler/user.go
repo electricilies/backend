@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"backend/internal/application"
-	"backend/internal/interface/api/response"
 	"backend/internal/interface/api/request"
+	"backend/internal/interface/api/response"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -38,7 +38,7 @@ func NewUser(app application.User) User {
 //	@Param			user_id	path		string	true	"User ID"
 //	@Success		200		{object}	User
 //	@Failure		400		{object}	response.BadRequestError		"bad request"
-//	@Failure		404		{object}	response.NotFoundError		"not found"
+//	@Failure		404		{object}	response.NotFoundError			"not found"
 //	@Failure		500		{object}	response.InternalServerError	"internal error"
 //	@Router			/users/{user_id} [get]
 //
@@ -84,7 +84,7 @@ func (h *userHandler) List(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			user	body		request.CreateUser	true	"User request"
-//	@Success		201		{object}	user.User
+//	@Success		201		{object}	response.User
 //	@Failure		400		{object}	response.BadRequestError
 //	@Failure		409		{object}	response.ConflictError
 //	@Failure		500		{object}	response.InternalServerError
