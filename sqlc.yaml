@@ -27,7 +27,15 @@ sql:
           sku: SKU
           image_url: ImageURL
           user_id: userID
-
+          product_ids: ProductIDs
+          product_variant_ids: ProductVariantIDs
+          options_ids: OptionsIDs
+          option_value_ids: OptionValueIDs
+          attribute_ids: AttributeIDs
+          attribute_value_ids: AttributeValueIDs
+          category_ids: CategoryIDs
+          cart_ids : CartIDs
+          cart_items_ids : CartItemIDs
 rules:
   - name: postgresql-query-too-costly
     message: "Query cost estimate is too high"

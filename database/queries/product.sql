@@ -74,17 +74,17 @@ LEFT JOIN (
   INNER JOIN categories
     ON products.category_id = categories.id
   WHERE
-    CASE
-      WHEN sqlc.narg('search')::text IS NULL THEN FALSE
-      ELSE categories.name ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
-    END
-    AND categories.deleted_at IS NULL
+    sqlc.narg('search')::text IS NULL
+    OR (
+      categories.name ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
+      AND categories.deleted_at IS NULL
+    )
 ) AS category_scores
   ON products.id = category_scores.id
 WHERE
   CASE
     WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE products.id = ANY(sqlc.narg('ids')::integer[])
+    ELSE products.id = ANY (sqlc.narg('ids')::integer[])
   END
   AND CASE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE
@@ -104,7 +104,7 @@ WHERE
   END
   AND CASE
     WHEN sqlc.narg('category_ids')::integer[] IS NULL THEN TRUE
-    ELSE products.category_id = ANY(sqlc.narg('category_ids')::integer[])
+    ELSE products.category_id = ANY (sqlc.narg('category_ids')::integer[])
   END
   AND CASE
     WHEN sqlc.narg('include_deleted_only')::bool THEN products.deleted_at IS NOT NULL
@@ -112,11 +112,21 @@ WHERE
     ELSE TRUE
   END
 ORDER BY
-  CASE WHEN sqlc.narg('search') IS NOT NULL THEN pdb.score(products.id) + category_scores END DESC,
-  CASE WHEN @sort_rating_asc::bool THEN products.rating END ASC,
-  CASE WHEN NOT @sort_rating_asc::bool THEN products.rating END DESC,
-  CASE WHEN @sort_price_asc::bool THEN products.price END ASC,
-  CASE WHEN NOT @sort_price_asc::bool THEN products.price END DESC
+  CASE WHEN
+    sqlc.narg('search') IS NOT NULL THEN pdb.score(products.id) + category_scores
+  END DESC,
+  CASE WHEN
+    sqlc.narg('sort_rating_asc')::bool = TRUE THEN products.rating
+  END ASC,
+  CASE WHEN
+    sqlc.narg('sort_rating_asc')::bool = FALSE THEN products.rating
+  END DESC,
+  CASE WHEN
+   sqlc.narg('sort_price_asc')::bool = TRUE THEN products.price
+  END ASC,
+  CASE WHEN
+   sqlc.narg('sort_price_asc')::bool = FALSE THEN products.price
+  END DESC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
 
@@ -141,11 +151,11 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY(sqlc.narg('ids')::integer[])
+    ELSE id = ANY (sqlc.narg('ids')::integer[])
   END
   AND CASE
     WHEN sqlc.narg('product_ids')::integer[] IS NULL THEN TRUE
-    ELSE product_id = ANY(sqlc.narg('product_ids')::integer[])
+    ELSE product_id = ANY (sqlc.narg('product_ids')::integer[])
   END
   AND CASE
     WHEN sqlc.narg('include_deleted_only')::bool THEN deleted_at IS NOT NULL
@@ -163,15 +173,15 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY(sqlc.narg('ids')::integer[])
+    ELSE id = ANY (sqlc.narg('ids')::integer[])
   END
   AND CASE
     WHEN sqlc.narg('product_variant_ids')::integer[] IS NULL THEN TRUE
-    ELSE product_variant_id = ANY(sqlc.narg('product_variant_ids'))
+    ELSE product_variant_id = ANY (sqlc.narg('product_variant_ids'))
   END
   AND CASE
     WHEN sqlc.narg('product_ids')::integer[] IS NULL THEN TRUE
-    ELSE product_id = ANY(sqlc.narg('product_ids')::integer[])
+    ELSE product_id = ANY (sqlc.narg('product_ids')::integer[])
   END
 ORDER BY
   id ASC;
@@ -219,7 +229,7 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY(@ids::integer[])
+  id = ANY (@ids::integer[])
   AND deleted_at IS NULL;
 
 -- name: DeleteProductVariants :execrows
@@ -228,11 +238,39 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY(@ids::integer[])
+  id = ANY (@ids::integer[])
   AND deleted_at IS NULL;
 
 -- name: DeleteProductImages :execrows
 DELETE FROM
   product_images
 WHERE
-  id = ANY(@ids::integer[]);
+  id = ANY (@ids::integer[]);
+
+-- name: DeleteLinkedProductAttributeValues :execrows
+WITH deleted_links AS (
+  SELECT
+    UNNEST(@product_id::integer[]) AS product_id,
+    UNNEST(@attribute_value_ids::integer[]) AS attribute_value_id
+)
+DELETE FROM
+  products_attribute_values
+USING
+  deleted_links
+WHERE
+  products_attribute_values.product_id = deleted_links.product_id
+  AND products_attribute_values.attribute_value_id = deleted_links.attribute_value_id;
+
+-- name: DeleteLinkedProductVariantsOptionValues :execrows
+WITH deleted_links AS (
+  SELECT
+    UNNEST(@product_variant_ids::integer[]) AS product_variant_id,
+    UNNEST(@option_value_ids::integer[]) AS option_value_id
+)
+DELETE FROM
+  option_values_product_variants
+USING
+  deleted_links
+WHERE
+  option_values_product_variants.product_variant_id = deleted_links.product_variant_id
+  AND option_values_product_variants.option_value_id = deleted_links.option_value_id;

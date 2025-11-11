@@ -68,7 +68,7 @@ RETURNING
 type CreateProductImagesParams struct {
 	Urls              []string
 	Orders            []int32
-	ProductVariantIds []int32
+	ProductVariantIDs []int32
 	ProductID         pgtype.Int4
 }
 
@@ -76,7 +76,7 @@ func (q *Queries) CreateProductImages(ctx context.Context, arg CreateProductImag
 	rows, err := q.db.Query(ctx, createProductImages,
 		arg.Urls,
 		arg.Orders,
-		arg.ProductVariantIds,
+		arg.ProductVariantIDs,
 		arg.ProductID,
 	)
 	if err != nil {
@@ -162,11 +162,67 @@ func (q *Queries) CreateProductVariants(ctx context.Context, arg CreateProductVa
 	return items, nil
 }
 
+const deleteLinkedProductAttributeValues = `-- name: DeleteLinkedProductAttributeValues :execrows
+WITH deleted_links AS (
+  SELECT
+    UNNEST($1::integer[]) AS product_id,
+    UNNEST($2::integer[]) AS attribute_value_id
+)
+DELETE FROM
+  products_attribute_values
+USING
+  deleted_links
+WHERE
+  products_attribute_values.product_id = deleted_links.product_id
+  AND products_attribute_values.attribute_value_id = deleted_links.attribute_value_id
+`
+
+type DeleteLinkedProductAttributeValuesParams struct {
+	ProductID         []int32
+	AttributeValueIDs []int32
+}
+
+func (q *Queries) DeleteLinkedProductAttributeValues(ctx context.Context, arg DeleteLinkedProductAttributeValuesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteLinkedProductAttributeValues, arg.ProductID, arg.AttributeValueIDs)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const deleteLinkedProductVariantsOptionValues = `-- name: DeleteLinkedProductVariantsOptionValues :execrows
+WITH deleted_links AS (
+  SELECT
+    UNNEST($1::integer[]) AS product_variant_id,
+    UNNEST($2::integer[]) AS option_value_id
+)
+DELETE FROM
+  option_values_product_variants
+USING
+  deleted_links
+WHERE
+  option_values_product_variants.product_variant_id = deleted_links.product_variant_id
+  AND option_values_product_variants.option_value_id = deleted_links.option_value_id
+`
+
+type DeleteLinkedProductVariantsOptionValuesParams struct {
+	ProductVariantIDs []int32
+	OptionValueIDs    []int32
+}
+
+func (q *Queries) DeleteLinkedProductVariantsOptionValues(ctx context.Context, arg DeleteLinkedProductVariantsOptionValuesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteLinkedProductVariantsOptionValues, arg.ProductVariantIDs, arg.OptionValueIDs)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deleteProductImages = `-- name: DeleteProductImages :execrows
 DELETE FROM
   product_images
 WHERE
-  id = ANY($1::integer[])
+  id = ANY ($1::integer[])
 `
 
 type DeleteProductImagesParams struct {
@@ -187,7 +243,7 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY($1::integer[])
+  id = ANY ($1::integer[])
   AND deleted_at IS NULL
 `
 
@@ -209,7 +265,7 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY($1::integer[])
+  id = ANY ($1::integer[])
   AND deleted_at IS NULL
 `
 
@@ -276,11 +332,11 @@ SELECT
 
 type LinkProductAttributeValuesParams struct {
 	ProductID         int32
-	AttributeValueIds []int32
+	AttributeValueIDs []int32
 }
 
 func (q *Queries) LinkProductAttributeValues(ctx context.Context, arg LinkProductAttributeValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, linkProductAttributeValues, arg.ProductID, arg.AttributeValueIds)
+	result, err := q.db.Exec(ctx, linkProductAttributeValues, arg.ProductID, arg.AttributeValueIDs)
 	if err != nil {
 		return 0, err
 	}
@@ -298,12 +354,12 @@ SELECT
 `
 
 type LinkProductVariantsWithOptionValuesParams struct {
-	OptionValueIds    []int32
-	ProductVariantIds []int32
+	OptionValueIDs    []int32
+	ProductVariantIDs []int32
 }
 
 func (q *Queries) LinkProductVariantsWithOptionValues(ctx context.Context, arg LinkProductVariantsWithOptionValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, linkProductVariantsWithOptionValues, arg.OptionValueIds, arg.ProductVariantIds)
+	result, err := q.db.Exec(ctx, linkProductVariantsWithOptionValues, arg.OptionValueIDs, arg.ProductVariantIDs)
 	if err != nil {
 		return 0, err
 	}
@@ -318,15 +374,15 @@ FROM
 WHERE
   CASE
     WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY($1::integer[])
+    ELSE id = ANY ($1::integer[])
   END
   AND CASE
     WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE product_variant_id = ANY($2)
+    ELSE product_variant_id = ANY ($2)
   END
   AND CASE
     WHEN $3::integer[] IS NULL THEN TRUE
-    ELSE product_id = ANY($3::integer[])
+    ELSE product_id = ANY ($3::integer[])
   END
 ORDER BY
   id ASC
@@ -334,12 +390,12 @@ ORDER BY
 
 type ListProductImagesParams struct {
 	Ids               []int32
-	ProductVariantIds []int32
-	ProductIds        []int32
+	ProductVariantIDs []int32
+	ProductIDs        []int32
 }
 
 func (q *Queries) ListProductImages(ctx context.Context, arg ListProductImagesParams) ([]ProductImage, error) {
-	rows, err := q.db.Query(ctx, listProductImages, arg.Ids, arg.ProductVariantIds, arg.ProductIds)
+	rows, err := q.db.Query(ctx, listProductImages, arg.Ids, arg.ProductVariantIDs, arg.ProductIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -373,11 +429,11 @@ FROM
 WHERE
   CASE
     WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY($1::integer[])
+    ELSE id = ANY ($1::integer[])
   END
   AND CASE
     WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE product_id = ANY($2::integer[])
+    ELSE product_id = ANY ($2::integer[])
   END
   AND CASE
     WHEN $3::bool THEN deleted_at IS NOT NULL
@@ -390,12 +446,12 @@ ORDER BY
 
 type ListProductVariantsParams struct {
 	Ids                []int32
-	ProductIds         []int32
+	ProductIDs         []int32
 	IncludeDeletedOnly pgtype.Bool
 }
 
 func (q *Queries) ListProductVariants(ctx context.Context, arg ListProductVariantsParams) (ProductVariant, error) {
-	row := q.db.QueryRow(ctx, listProductVariants, arg.Ids, arg.ProductIds, arg.IncludeDeletedOnly)
+	row := q.db.QueryRow(ctx, listProductVariants, arg.Ids, arg.ProductIDs, arg.IncludeDeletedOnly)
 	var i ProductVariant
 	err := row.Scan(
 		&i.ID,
@@ -426,17 +482,17 @@ LEFT JOIN (
   INNER JOIN categories
     ON products.category_id = categories.id
   WHERE
-    CASE
-      WHEN $1::text IS NULL THEN FALSE
-      ELSE categories.name ||| ($1::text)::pdb.fuzzy(2)
-    END
-    AND categories.deleted_at IS NULL
+    $1::text IS NULL
+    OR (
+      categories.name ||| ($1::text)::pdb.fuzzy(2)
+      AND categories.deleted_at IS NULL
+    )
 ) AS category_scores
   ON products.id = category_scores.id
 WHERE
   CASE
     WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE products.id = ANY($2::integer[])
+    ELSE products.id = ANY ($2::integer[])
   END
   AND CASE
     WHEN $1::text IS NULL THEN TRUE
@@ -456,7 +512,7 @@ WHERE
   END
   AND CASE
     WHEN $6::integer[] IS NULL THEN TRUE
-    ELSE products.category_id = ANY($6::integer[])
+    ELSE products.category_id = ANY ($6::integer[])
   END
   AND CASE
     WHEN $7::bool THEN products.deleted_at IS NOT NULL
@@ -464,11 +520,21 @@ WHERE
     ELSE TRUE
   END
 ORDER BY
-  CASE WHEN $1 IS NOT NULL THEN pdb.score(products.id) + category_scores END DESC,
-  CASE WHEN $8::bool THEN products.rating END ASC,
-  CASE WHEN NOT $8::bool THEN products.rating END DESC,
-  CASE WHEN $9::bool THEN products.price END ASC,
-  CASE WHEN NOT $9::bool THEN products.price END DESC
+  CASE WHEN
+    $1 IS NOT NULL THEN pdb.score(products.id) + category_scores
+  END DESC,
+  CASE WHEN
+    $8::bool = TRUE THEN products.rating
+  END ASC,
+  CASE WHEN
+    $8::bool = FALSE THEN products.rating
+  END DESC,
+  CASE WHEN
+   $9::bool = TRUE THEN products.price
+  END ASC,
+  CASE WHEN
+   $9::bool = FALSE THEN products.price
+  END DESC
 OFFSET COALESCE($10::integer, 0)
 LIMIT COALESCE($11::integer, 20)
 `
@@ -479,10 +545,10 @@ type ListProductsParams struct {
 	MinPrice           pgtype.Numeric
 	MaxPrice           pgtype.Numeric
 	Rating             pgtype.Float4
-	CategoryIds        []int32
+	CategoryIDs        []int32
 	IncludeDeletedOnly pgtype.Bool
-	SortRatingAsc      bool
-	SortPriceAsc       bool
+	SortRatingAsc      pgtype.Bool
+	SortPriceAsc       pgtype.Bool
 	Offset             pgtype.Int4
 	Limit              pgtype.Int4
 }
@@ -501,7 +567,7 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]L
 		arg.MinPrice,
 		arg.MaxPrice,
 		arg.Rating,
-		arg.CategoryIds,
+		arg.CategoryIDs,
 		arg.IncludeDeletedOnly,
 		arg.SortRatingAsc,
 		arg.SortPriceAsc,

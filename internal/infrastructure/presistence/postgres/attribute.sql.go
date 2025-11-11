@@ -54,12 +54,12 @@ RETURNING
 `
 
 type CreateAttributeValuesParams struct {
-	AttributeIds []int32
+	AttributeIDs []int32
 	Values       []string
 }
 
 func (q *Queries) CreateAttributeValues(ctx context.Context, arg CreateAttributeValuesParams) ([]AttributeValue, error) {
-	rows, err := q.db.Query(ctx, createAttributeValues, arg.AttributeIds, arg.Values)
+	rows, err := q.db.Query(ctx, createAttributeValues, arg.AttributeIDs, arg.Values)
 	if err != nil {
 		return nil, err
 	}
@@ -78,21 +78,40 @@ func (q *Queries) CreateAttributeValues(ctx context.Context, arg CreateAttribute
 	return items, nil
 }
 
-const deleteAttribute = `-- name: DeleteAttribute :execrows
+const deleteAttributeValues = `-- name: DeleteAttributeValues :execrows
+DELETE FROM
+  attribute_values
+WHERE
+  id = ANY ($1::integer[])
+`
+
+type DeleteAttributeValuesParams struct {
+	Ids []int32
+}
+
+func (q *Queries) DeleteAttributeValues(ctx context.Context, arg DeleteAttributeValuesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteAttributeValues, arg.Ids)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const deleteAttributes = `-- name: DeleteAttributes :execrows
 UPDATE
   attributes
 SET
   deleted_at = NOW()
 WHERE
-  id = $1
+  id = ANY ($1::integer[])
 `
 
-type DeleteAttributeParams struct {
-	ID int32
+type DeleteAttributesParams struct {
+	Ids []int32
 }
 
-func (q *Queries) DeleteAttribute(ctx context.Context, arg DeleteAttributeParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteAttribute, arg.ID)
+func (q *Queries) DeleteAttributes(ctx context.Context, arg DeleteAttributesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteAttributes, arg.Ids)
 	if err != nil {
 		return 0, err
 	}
@@ -124,25 +143,87 @@ func (q *Queries) GetAttributeByID(ctx context.Context, arg GetAttributeByIDPara
 	return i, err
 }
 
-const getAttributes = `-- name: GetAttributes :many
+const listAttributeValues = `-- name: ListAttributeValues :many
+SELECT
+  id, attribute_id, value
+FROM
+  attribute_values
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::integer[] IS NULL THEN TRUE
+    ELSE attribute_id = ANY ($2::integer[])
+  END
+ORDER BY
+  id ASC
+`
+
+type ListAttributeValuesParams struct {
+	Ids          []int32
+	AttributeIDs []int32
+}
+
+func (q *Queries) ListAttributeValues(ctx context.Context, arg ListAttributeValuesParams) ([]AttributeValue, error) {
+	rows, err := q.db.Query(ctx, listAttributeValues, arg.Ids, arg.AttributeIDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AttributeValue
+	for rows.Next() {
+		var i AttributeValue
+		if err := rows.Scan(&i.ID, &i.AttributeID, &i.Value); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAttributes = `-- name: ListAttributes :many
 SELECT
   id, code, name, deleted_at,
   COUNT(*) OVER() AS current_count,
   COUNT(*) AS total_count
 FROM
   attributes
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::text IS NULL THEN TRUE
+    ELSE
+      code ||| ($2::text)::pdb.fuzzy(2)
+      OR name ||| ($2::text)::pdb.fuzzy(2)
+  END
+  AND CASE
+    WHEN $3::boolean IS TRUE THEN deleted_at IS NOT NULL
+    WHEN $3::boolean IS FALSE THEN deleted_at IS NULL
+    ELSE TRUE
+  END
 ORDER BY
   id ASC
-OFFSET COALESCE($1::integer, 0)
-LIMIT COALESCE($2::integer, 20)
+OFFSET COALESCE($4::integer, 0)
+LIMIT COALESCE($5::integer, 20)
 `
 
-type GetAttributesParams struct {
-	Offset pgtype.Int4
-	Limit  pgtype.Int4
+type ListAttributesParams struct {
+	Ids                []int32
+	Search             pgtype.Text
+	IncludeDeletedOnly pgtype.Bool
+	Offset             pgtype.Int4
+	Limit              pgtype.Int4
 }
 
-type GetAttributesRow struct {
+type ListAttributesRow struct {
 	ID           int32
 	Code         string
 	Name         string
@@ -151,15 +232,21 @@ type GetAttributesRow struct {
 	TotalCount   int64
 }
 
-func (q *Queries) GetAttributes(ctx context.Context, arg GetAttributesParams) ([]GetAttributesRow, error) {
-	rows, err := q.db.Query(ctx, getAttributes, arg.Offset, arg.Limit)
+func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) ([]ListAttributesRow, error) {
+	rows, err := q.db.Query(ctx, listAttributes,
+		arg.Ids,
+		arg.Search,
+		arg.IncludeDeletedOnly,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetAttributesRow
+	var items []ListAttributesRow
 	for rows.Next() {
-		var i GetAttributesRow
+		var i ListAttributesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Code,
@@ -178,7 +265,7 @@ func (q *Queries) GetAttributes(ctx context.Context, arg GetAttributesParams) ([
 	return items, nil
 }
 
-const updateAttribute = `-- name: UpdateAttribute :one
+const updateAttribute = `-- name: UpdateAttribute :execrows
 UPDATE
   attributes
 SET
@@ -186,8 +273,6 @@ SET
   name = $2
 WHERE
   id = $3
-RETURNING
-  id, code, name, deleted_at
 `
 
 type UpdateAttributeParams struct {
@@ -196,14 +281,39 @@ type UpdateAttributeParams struct {
 	ID   int32
 }
 
-func (q *Queries) UpdateAttribute(ctx context.Context, arg UpdateAttributeParams) (Attribute, error) {
-	row := q.db.QueryRow(ctx, updateAttribute, arg.Code, arg.Name, arg.ID)
-	var i Attribute
-	err := row.Scan(
-		&i.ID,
-		&i.Code,
-		&i.Name,
-		&i.DeletedAt,
-	)
-	return i, err
+func (q *Queries) UpdateAttribute(ctx context.Context, arg UpdateAttributeParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateAttribute, arg.Code, arg.Name, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const updateAttributeValues = `-- name: UpdateAttributeValues :execrows
+WITH updated_attribute_values AS (
+  SELECT
+    UNNEST($1::integer[]) AS id,
+    UNNEST($2::text[]) AS value
+)
+UPDATE
+  attribute_values
+SET
+  value = updated_attribute_values.value
+FROM
+  updated_attribute_values
+WHERE
+  attribute_values.id = updated_attribute_values.id
+`
+
+type UpdateAttributeValuesParams struct {
+	Ids    []int32
+	Values []string
+}
+
+func (q *Queries) UpdateAttributeValues(ctx context.Context, arg UpdateAttributeValuesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateAttributeValues, arg.Ids, arg.Values)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }

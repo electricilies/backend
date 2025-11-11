@@ -21,13 +21,29 @@ SELECT
 RETURNING
   *;
 
--- name: GetAttributes :many
+-- name: ListAttributes :many
 SELECT
   *,
   COUNT(*) OVER() AS current_count,
   COUNT(*) AS total_count
 FROM
   attributes
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.narg('search')::text IS NULL THEN TRUE
+    ELSE
+      code ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
+      OR name ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
+  END
+  AND CASE
+    WHEN sqlc.narg('include_deleted_only')::boolean IS TRUE THEN deleted_at IS NOT NULL
+    WHEN sqlc.narg('include_deleted_only')::boolean IS FALSE THEN deleted_at IS NULL
+    ELSE TRUE
+  END
 ORDER BY
   id ASC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
@@ -41,21 +57,57 @@ FROM
 WHERE
   id = @id;
 
--- name: UpdateAttribute :one
+-- name: ListAttributeValues :many
+SELECT
+  *
+FROM
+  attribute_values
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.narg('attribute_ids')::integer[] IS NULL THEN TRUE
+    ELSE attribute_id = ANY (sqlc.narg('attribute_ids')::integer[])
+  END
+ORDER BY
+  id ASC;
+
+-- name: UpdateAttribute :execrows
 UPDATE
   attributes
 SET
   code = @code,
   name = @name
 WHERE
-  id = @id
-RETURNING
-  *;
+  id = @id;
 
--- name: DeleteAttribute :execrows
+-- name: UpdateAttributeValues :execrows
+WITH updated_attribute_values AS (
+  SELECT
+    UNNEST(@ids::integer[]) AS id,
+    UNNEST(@values::text[]) AS value
+)
+UPDATE
+  attribute_values
+SET
+  value = updated_attribute_values.value
+FROM
+  updated_attribute_values
+WHERE
+  attribute_values.id = updated_attribute_values.id;
+
+-- name: DeleteAttributes :execrows
 UPDATE
   attributes
 SET
   deleted_at = NOW()
 WHERE
-  id = @id;
+  id = ANY (@ids::integer[]);
+
+-- name: DeleteAttributeValues :execrows
+DELETE FROM
+  attribute_values
+WHERE
+  id = ANY (@ids::integer[]);
