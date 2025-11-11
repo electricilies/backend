@@ -74,39 +74,42 @@ LEFT JOIN (
   INNER JOIN categories
     ON products.category_id = categories.id
   WHERE
-    categories.deleted_at IS NULL
-    AND CASE
-      WHEN sqlc.narg('search')::text IS NULL THEN TRUE
-      ELSE categories.name ||| sqlc.narg('search')::pdb.fuzzy(2)
+    CASE
+      WHEN sqlc.narg('search')::text IS NULL THEN FALSE
+      ELSE categories.name ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
     END
+    AND categories.deleted_at IS NULL
 ) AS category_scores
   ON products.id = category_scores.id
 WHERE
   CASE
     WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE products.id = ANY(sqlc.narg('ids'))
+    ELSE products.id = ANY(sqlc.narg('ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.narg('search')::text IS NULL THEN TRUE
+    ELSE products.name ||| (sqlc.narg('search')::text)::pdb.fuzzy(products.trending_score)
   END
   AND CASE
     WHEN sqlc.narg('min_price')::decimal IS NULL THEN TRUE
-    ELSE products.price >= sqlc.narg('min_price')
+    ELSE products.price >= sqlc.narg('min_price')::decimal
   END
   AND CASE
     WHEN sqlc.narg('max_price')::decimal IS NULL THEN TRUE
-    ELSE products.price <= sqlc.narg('max_price')
+    ELSE products.price <= sqlc.narg('max_price')::decimal
   END
   AND CASE
     WHEN sqlc.narg('rating')::real IS NULL THEN TRUE
-    ELSE products.rating >= sqlc.narg('rating')
+    ELSE products.rating >= sqlc.narg('rating')::real
   END
   AND CASE
     WHEN sqlc.narg('category_ids')::integer[] IS NULL THEN TRUE
-    ELSE products.category_id = ANY(sqlc.narg('category_ids'))
+    ELSE products.category_id = ANY(sqlc.narg('category_ids')::integer[])
   END
-  AND (products.deleted_at IS NOT NULL) = @deleted::bool
   AND CASE
-    WHEN sqlc.narg('search')::text IS NULL THEN TRUE
-    ELSE
-      products.name ||| sqlc.narg('search')::pdb.fuzzy(products.trending_score)
+    WHEN sqlc.narg('include_deleted_only')::bool THEN products.deleted_at IS NOT NULL
+    WHEN sqlc.narg('include_deleted_only')::bool = FALSE THEN products.deleted_at IS NULL
+    ELSE TRUE
   END
 ORDER BY
   CASE WHEN sqlc.narg('search') IS NOT NULL THEN pdb.score(products.id) + category_scores END DESC,
@@ -124,7 +127,11 @@ FROM
   products
 WHERE
   products.id = @id
-  AND (products.deleted_at IS NOT NULL) = @deleted::bool;
+  AND CASE
+    WHEN sqlc.narg('include_deleted_only')::bool THEN deleted_at IS NOT NULL
+    WHEN sqlc.narg('include_deleted_only')::bool = FALSE THEN deleted_at IS NULL
+    ELSE TRUE
+  END;
 
 -- name: ListProductVariants :one
 SELECT
@@ -134,15 +141,19 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE product_variants.id = ANY(sqlc.narg('id'))
+    ELSE id = ANY(sqlc.narg('ids')::integer[])
   END
   AND CASE
     WHEN sqlc.narg('product_ids')::integer[] IS NULL THEN TRUE
-    ELSE product_variants.product_id = ANY(sqlc.narg('product_ids'))
+    ELSE product_id = ANY(sqlc.narg('product_ids')::integer[])
   END
-  AND (product_variants.deleted_at IS NOT NULL) = @deleted::bool
+  AND CASE
+    WHEN sqlc.narg('include_deleted_only')::bool THEN deleted_at IS NOT NULL
+    WHEN sqlc.narg('include_deleted_only')::bool = FALSE THEN deleted_at IS NULL
+    ELSE TRUE
+  END
 ORDER BY
-  product_variants.id;
+  id;
 
 -- name: ListProductImages :many
 SELECT
@@ -152,51 +163,49 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE product_images.id = ANY(sqlc.narg('ids'))
+    ELSE id = ANY(sqlc.narg('ids')::integer[])
   END
   AND CASE
     WHEN sqlc.narg('product_variant_ids')::integer[] IS NULL THEN TRUE
-    ELSE product_images.product_variant_id = ANY(sqlc.narg('product_variant_ids'))
+    ELSE product_variant_id = ANY(sqlc.narg('product_variant_ids'))
   END
   AND CASE
     WHEN sqlc.narg('product_ids')::integer[] IS NULL THEN TRUE
-    ELSE product_images.product_id = ANY(sqlc.narg('product_ids'))
+    ELSE product_id = ANY(sqlc.narg('product_ids')::integer[])
   END
 ORDER BY
-  product_images.id ASC;
+  id ASC;
 
--- name: UpdateProduct :one
+-- name: UpdateProductByID :execrows
 UPDATE
   products
 SET
-  name = COALESCE(sql.narg('name')::text, name),
-  description = COALESCE(sql.narg('description')::text, description),
-  views_count = COALESCE(sql.narg('views_count')::integer, views_count),
-  total_purchase = COALESCE(sql.narg('total_purchase')::integer, purchase_count),
-  trending_score = COALESCE(sql.narg('trending_score')::float, trending_score) -- TODO: Do we ever update this manually?
+  name = COALESCE(sqlc.narg('name')::text, name),
+  description = COALESCE(sqlc.narg('description')::text, description),
+  views_count = COALESCE(sqlc.narg('views_count')::integer, views_count),
+  total_purchase = COALESCE(sqlc.narg('total_purchase')::integer, purchase_count),
+  trending_score = COALESCE(sqlc.narg('trending_score')::float, trending_score), -- TODO: Do we ever update this manually?
+  updated_at = NOW()
 WHERE
-  deleted_at IS NULL
-  AND id = @id
-RETURNING
-  *;
+  id = @id
+  AND deleted_at IS NULL;
 
--- name: UpdateProductVariants :execrows
+-- name: UpdateProductVariantsByIDs :execrows
 WITH updated_variants AS (
   SELECT
     UNNEST(@ids::integer[]) AS id,
     UNNEST(@skus::text[]) AS sku,
     UNNEST(@prices::decimal[]) AS price,
     UNNEST(@quantities::integer[]) AS quantity,
-    UNNEST(@purchase_counts::integer[]) AS purchase_count,
-    @updated_at::timestamp AS updated_at
+    UNNEST(@purchase_counts::integer[]) AS purchase_count
 )
 UPDATE
   product_variants
 SET
-  sku = updated_variants.sku,
-  price = updated_variants.price,
-  quantity = updated_variants.quantity,
-  purchase_count = updated_variants.purchase_count,
+  sku = COALESCE(updated_variants.sku, product_variants.sku),
+  price = COALESCE(updated_variants.price, product_variants.price),
+  quantity = COALESCE(updated_variants.quantity, product_variants.quantity),
+  purchase_count = COALESCE(updated_variants.purchase_count, product_variants.purchase_count),
   updated_at = NOW()
 FROM
   updated_variants
@@ -210,8 +219,8 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  deleted_at IS NULL
-  AND id = ANY(@ids::integer[]);
+  id = ANY(@ids::integer[])
+  AND deleted_at IS NULL;
 
 -- name: DeleteProductVariants :execrows
 UPDATE
@@ -219,8 +228,8 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  deleted_at IS NULL
-  AND id = ANY(@ids::integer[]);
+  id = ANY(@ids::integer[])
+  AND deleted_at IS NULL;
 
 -- name: DeleteProductImages :execrows
 DELETE FROM

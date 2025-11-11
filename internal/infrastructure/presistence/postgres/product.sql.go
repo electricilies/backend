@@ -187,8 +187,8 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  deleted_at IS NULL
-  AND id = ANY($1::integer[])
+  id = ANY($1::integer[])
+  AND deleted_at IS NULL
 `
 
 type DeleteProductVariantsParams struct {
@@ -209,8 +209,8 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  deleted_at IS NULL
-  AND id = ANY($1::integer[])
+  id = ANY($1::integer[])
+  AND deleted_at IS NULL
 `
 
 type DeleteProductsParams struct {
@@ -232,16 +232,20 @@ FROM
   products
 WHERE
   products.id = $1
-  AND (products.deleted_at IS NOT NULL) = $2::bool
+  AND CASE
+    WHEN $2::bool THEN deleted_at IS NOT NULL
+    WHEN $2::bool = FALSE THEN deleted_at IS NULL
+    ELSE TRUE
+  END
 `
 
 type GetProductByIDParams struct {
-	ID      int32
-	Deleted bool
+	ID                 int32
+	IncludeDeletedOnly pgtype.Bool
 }
 
 func (q *Queries) GetProductByID(ctx context.Context, arg GetProductByIDParams) (Product, error) {
-	row := q.db.QueryRow(ctx, getProductByID, arg.ID, arg.Deleted)
+	row := q.db.QueryRow(ctx, getProductByID, arg.ID, arg.IncludeDeletedOnly)
 	var i Product
 	err := row.Scan(
 		&i.ID,
@@ -314,18 +318,18 @@ FROM
 WHERE
   CASE
     WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE product_images.id = ANY($1)
+    ELSE id = ANY($1::integer[])
   END
   AND CASE
     WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE product_images.product_variant_id = ANY($2)
+    ELSE product_variant_id = ANY($2)
   END
   AND CASE
     WHEN $3::integer[] IS NULL THEN TRUE
-    ELSE product_images.product_id = ANY($3)
+    ELSE product_id = ANY($3::integer[])
   END
 ORDER BY
-  product_images.id ASC
+  id ASC
 `
 
 type ListProductImagesParams struct {
@@ -369,31 +373,29 @@ FROM
 WHERE
   CASE
     WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE product_variants.id = ANY($2)
+    ELSE id = ANY($1::integer[])
   END
   AND CASE
-    WHEN $3::integer[] IS NULL THEN TRUE
-    ELSE product_variants.product_id = ANY($3)
+    WHEN $2::integer[] IS NULL THEN TRUE
+    ELSE product_id = ANY($2::integer[])
   END
-  AND (product_variants.deleted_at IS NOT NULL) = $4::bool
+  AND CASE
+    WHEN $3::bool THEN deleted_at IS NOT NULL
+    WHEN $3::bool = FALSE THEN deleted_at IS NULL
+    ELSE TRUE
+  END
 ORDER BY
-  product_variants.id
+  id
 `
 
 type ListProductVariantsParams struct {
-	Ids        []int32
-	ID         pgtype.Int4
-	ProductIds []int32
-	Deleted    bool
+	Ids                []int32
+	ProductIds         []int32
+	IncludeDeletedOnly pgtype.Bool
 }
 
 func (q *Queries) ListProductVariants(ctx context.Context, arg ListProductVariantsParams) (ProductVariant, error) {
-	row := q.db.QueryRow(ctx, listProductVariants,
-		arg.Ids,
-		arg.ID,
-		arg.ProductIds,
-		arg.Deleted,
-	)
+	row := q.db.QueryRow(ctx, listProductVariants, arg.Ids, arg.ProductIds, arg.IncludeDeletedOnly)
 	var i ProductVariant
 	err := row.Scan(
 		&i.ID,
@@ -424,39 +426,42 @@ LEFT JOIN (
   INNER JOIN categories
     ON products.category_id = categories.id
   WHERE
-    categories.deleted_at IS NULL
-    AND CASE
-      WHEN $1::text IS NULL THEN TRUE
-      ELSE categories.name ||| $1::pdb.fuzzy(2)
+    CASE
+      WHEN $1::text IS NULL THEN FALSE
+      ELSE categories.name ||| ($1::text)::pdb.fuzzy(2)
     END
+    AND categories.deleted_at IS NULL
 ) AS category_scores
   ON products.id = category_scores.id
 WHERE
   CASE
     WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE products.id = ANY($2)
+    ELSE products.id = ANY($2::integer[])
+  END
+  AND CASE
+    WHEN $1::text IS NULL THEN TRUE
+    ELSE products.name ||| ($1::text)::pdb.fuzzy(products.trending_score)
   END
   AND CASE
     WHEN $3::decimal IS NULL THEN TRUE
-    ELSE products.price >= $3
+    ELSE products.price >= $3::decimal
   END
   AND CASE
     WHEN $4::decimal IS NULL THEN TRUE
-    ELSE products.price <= $4
+    ELSE products.price <= $4::decimal
   END
   AND CASE
     WHEN $5::real IS NULL THEN TRUE
-    ELSE products.rating >= $5
+    ELSE products.rating >= $5::real
   END
   AND CASE
     WHEN $6::integer[] IS NULL THEN TRUE
-    ELSE products.category_id = ANY($6)
+    ELSE products.category_id = ANY($6::integer[])
   END
-  AND (products.deleted_at IS NOT NULL) = $7::bool
   AND CASE
-    WHEN $1::text IS NULL THEN TRUE
-    ELSE
-      products.name ||| $1::pdb.fuzzy(products.trending_score)
+    WHEN $7::bool THEN products.deleted_at IS NOT NULL
+    WHEN $7::bool = FALSE THEN products.deleted_at IS NULL
+    ELSE TRUE
   END
 ORDER BY
   CASE WHEN $1 IS NOT NULL THEN pdb.score(products.id) + category_scores END DESC,
@@ -469,17 +474,17 @@ LIMIT COALESCE($11::integer, 20)
 `
 
 type ListProductsParams struct {
-	Search        pgtype.Text
-	Ids           []int32
-	MinPrice      pgtype.Numeric
-	MaxPrice      pgtype.Numeric
-	Rating        pgtype.Float4
-	CategoryIds   []int32
-	Deleted       bool
-	SortRatingAsc bool
-	SortPriceAsc  bool
-	Offset        pgtype.Int4
-	Limit         pgtype.Int4
+	Search             pgtype.Text
+	Ids                []int32
+	MinPrice           pgtype.Numeric
+	MaxPrice           pgtype.Numeric
+	Rating             pgtype.Float4
+	CategoryIds        []int32
+	IncludeDeletedOnly pgtype.Bool
+	SortRatingAsc      bool
+	SortPriceAsc       bool
+	Offset             pgtype.Int4
+	Limit              pgtype.Int4
 }
 
 type ListProductsRow struct {
@@ -497,7 +502,7 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]L
 		arg.MaxPrice,
 		arg.Rating,
 		arg.CategoryIds,
-		arg.Deleted,
+		arg.IncludeDeletedOnly,
 		arg.SortRatingAsc,
 		arg.SortPriceAsc,
 		arg.Offset,
@@ -536,63 +541,61 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]L
 	return items, nil
 }
 
-const updateProduct = `-- name: UpdateProduct :one
+const updateProductByID = `-- name: UpdateProductByID :execrows
 UPDATE
   products
 SET
-  name = COALESCE(sql.narg('name')::text, name),
-  description = COALESCE(sql.narg('description')::text, description),
-  views_count = COALESCE(sql.narg('views_count')::integer, views_count),
-  total_purchase = COALESCE(sql.narg('total_purchase')::integer, purchase_count),
-  trending_score = COALESCE(sql.narg('trending_score')::float, trending_score) -- TODO: Do we ever update this manually?
+  name = COALESCE($1::text, name),
+  description = COALESCE($2::text, description),
+  views_count = COALESCE($3::integer, views_count),
+  total_purchase = COALESCE($4::integer, purchase_count),
+  trending_score = COALESCE($5::float, trending_score), -- TODO: Do we ever update this manually?
+  updated_at = NOW()
 WHERE
-  deleted_at IS NULL
-  AND id = $1
-RETURNING
-  id, name, description, price, views_count, total_purchase, rating, trending_score, category_id, created_at, updated_at, deleted_at
+  id = $6
+  AND deleted_at IS NULL
 `
 
-type UpdateProductParams struct {
-	ID int32
+type UpdateProductByIDParams struct {
+	Name          pgtype.Text
+	Description   pgtype.Text
+	ViewsCount    pgtype.Int4
+	TotalPurchase pgtype.Int4
+	TrendingScore pgtype.Float8
+	ID            int32
 }
 
-func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
-	row := q.db.QueryRow(ctx, updateProduct, arg.ID)
-	var i Product
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Description,
-		&i.Price,
-		&i.ViewsCount,
-		&i.TotalPurchase,
-		&i.Rating,
-		&i.TrendingScore,
-		&i.CategoryID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
+func (q *Queries) UpdateProductByID(ctx context.Context, arg UpdateProductByIDParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateProductByID,
+		arg.Name,
+		arg.Description,
+		arg.ViewsCount,
+		arg.TotalPurchase,
+		arg.TrendingScore,
+		arg.ID,
 	)
-	return i, err
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
-const updateProductVariants = `-- name: UpdateProductVariants :execrows
+const updateProductVariantsByIDs = `-- name: UpdateProductVariantsByIDs :execrows
 WITH updated_variants AS (
   SELECT
     UNNEST($1::integer[]) AS id,
     UNNEST($2::text[]) AS sku,
     UNNEST($3::decimal[]) AS price,
     UNNEST($4::integer[]) AS quantity,
-    UNNEST($5::integer[]) AS purchase_count,
-    $6::timestamp AS updated_at
+    UNNEST($5::integer[]) AS purchase_count
 )
 UPDATE
   product_variants
 SET
-  sku = updated_variants.sku,
-  price = updated_variants.price,
-  quantity = updated_variants.quantity,
-  purchase_count = updated_variants.purchase_count,
+  sku = COALESCE(updated_variants.sku, product_variants.sku),
+  price = COALESCE(updated_variants.price, product_variants.price),
+  quantity = COALESCE(updated_variants.quantity, product_variants.quantity),
+  purchase_count = COALESCE(updated_variants.purchase_count, product_variants.purchase_count),
   updated_at = NOW()
 FROM
   updated_variants
@@ -601,23 +604,21 @@ WHERE
   AND product_variants.deleted_at IS NULL
 `
 
-type UpdateProductVariantsParams struct {
+type UpdateProductVariantsByIDsParams struct {
 	Ids            []int32
 	Skus           []string
 	Prices         []pgtype.Numeric
 	Quantities     []int32
 	PurchaseCounts []int32
-	UpdatedAt      pgtype.Timestamp
 }
 
-func (q *Queries) UpdateProductVariants(ctx context.Context, arg UpdateProductVariantsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateProductVariants,
+func (q *Queries) UpdateProductVariantsByIDs(ctx context.Context, arg UpdateProductVariantsByIDsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateProductVariantsByIDs,
 		arg.Ids,
 		arg.Skus,
 		arg.Prices,
 		arg.Quantities,
 		arg.PurchaseCounts,
-		arg.UpdatedAt,
 	)
 	if err != nil {
 		return 0, err

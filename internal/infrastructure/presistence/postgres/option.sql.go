@@ -75,29 +75,41 @@ func (q *Queries) CreateOptionValues(ctx context.Context, arg CreateOptionValues
 	return items, nil
 }
 
-const deleteOptionValue = `-- name: DeleteOptionValue :execrows
-WITH _ AS (
-  DELETE FROM
-    option_values
-  WHERE
-    id = $1
-    AND deleted_at IS NULL
-),
-_ AS (
-  DELETE FROM
-    option_values_product_variants
-  WHERE
-    option_value_id = $1
-)
-SELECT 1
+const deleteOptionValues = `-- name: DeleteOptionValues :execrows
+DELETE FROM
+  option_values
+WHERE
+  id = ANY($1::integer[])
 `
 
-type DeleteOptionValueParams struct {
-	ID int32
+type DeleteOptionValuesParams struct {
+	Ids []int32
 }
 
-func (q *Queries) DeleteOptionValue(ctx context.Context, arg DeleteOptionValueParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteOptionValue, arg.ID)
+func (q *Queries) DeleteOptionValues(ctx context.Context, arg DeleteOptionValuesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteOptionValues, arg.Ids)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const deleteOptions = `-- name: DeleteOptions :execrows
+UPDATE
+  options
+SET
+  deleted_at = NOW()
+WHERE
+  id = ANY($1::integer[])
+  AND deleted_at IS NULL
+`
+
+type DeleteOptionsParams struct {
+	Ids []int32
+}
+
+func (q *Queries) DeleteOptions(ctx context.Context, arg DeleteOptionsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteOptions, arg.Ids)
 	if err != nil {
 		return 0, err
 	}
@@ -106,90 +118,78 @@ func (q *Queries) DeleteOptionValue(ctx context.Context, arg DeleteOptionValuePa
 
 const getOptionByID = `-- name: GetOptionByID :one
 SELECT
-  options.id, options.name, options.product_id, options.deleted_at,
-  option_values.id, option_values.value, option_values.option_id
+  id, name, product_id, deleted_at
 FROM
-  options,
-  option_values
+  options
 WHERE
-  options.id = $1::integer
-  AND option_values.option_id = options.id
-  AND options.deleted_at IS NULL
+  id = $1::integer
+  AND CASE
+    WHEN $2::bool THEN deleted_at IS NOT NULL
+    WHEN $2::bool = FALSE THEN deleted_at IS NULL
+    ELSE TRUE
+  END
 `
 
 type GetOptionByIDParams struct {
-	ID int32
+	ID                 int32
+	IncludeDeletedOnly pgtype.Bool
 }
 
-type GetOptionByIDRow struct {
-	Option      Option
-	OptionValue OptionValue
-}
-
-func (q *Queries) GetOptionByID(ctx context.Context, arg GetOptionByIDParams) (GetOptionByIDRow, error) {
-	row := q.db.QueryRow(ctx, getOptionByID, arg.ID)
-	var i GetOptionByIDRow
+func (q *Queries) GetOptionByID(ctx context.Context, arg GetOptionByIDParams) (Option, error) {
+	row := q.db.QueryRow(ctx, getOptionByID, arg.ID, arg.IncludeDeletedOnly)
+	var i Option
 	err := row.Scan(
-		&i.Option.ID,
-		&i.Option.Name,
-		&i.Option.ProductID,
-		&i.Option.DeletedAt,
-		&i.OptionValue.ID,
-		&i.OptionValue.Value,
-		&i.OptionValue.OptionID,
+		&i.ID,
+		&i.Name,
+		&i.ProductID,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const listOptions = `-- name: ListOptions :many
 SELECT
-  options.id, options.name, options.product_id, options.deleted_at,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  id, name, product_id, deleted_at
 FROM
   options
 WHERE
   CASE
     WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE options.id = ANY($1)
+    ELSE options.id = ANY($1::integer[])
   END
   AND CASE
     WHEN $2::integer IS NULL THEN TRUE
-    ELSE options.product_id = $2
+    ELSE options.product_id = $2::integer
   END
-  AND (options.deleted_at IS NULL) = $3::bool
+  AND CASE
+    WHEN $3::bool THEN deleted_at IS NOT NULL
+    WHEN $3::bool = FALSE THEN deleted_at IS NULL
+    ELSE TRUE
+  END
 ORDER BY
   options.id
 `
 
 type ListOptionsParams struct {
-	Ids       []int32
-	ProductID pgtype.Int4
-	Deleted   bool
+	Ids                []int32
+	ProductID          pgtype.Int4
+	IncludeDeletedOnly pgtype.Bool
 }
 
-type ListOptionsRow struct {
-	Option       Option
-	CurrentCount int64
-	TotalCount   int64
-}
-
-func (q *Queries) ListOptions(ctx context.Context, arg ListOptionsParams) ([]ListOptionsRow, error) {
-	rows, err := q.db.Query(ctx, listOptions, arg.Ids, arg.ProductID, arg.Deleted)
+func (q *Queries) ListOptions(ctx context.Context, arg ListOptionsParams) ([]Option, error) {
+	rows, err := q.db.Query(ctx, listOptions, arg.Ids, arg.ProductID, arg.IncludeDeletedOnly)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListOptionsRow
+	var items []Option
 	for rows.Next() {
-		var i ListOptionsRow
+		var i Option
 		if err := rows.Scan(
-			&i.Option.ID,
-			&i.Option.Name,
-			&i.Option.ProductID,
-			&i.Option.DeletedAt,
-			&i.CurrentCount,
-			&i.TotalCount,
+			&i.ID,
+			&i.Name,
+			&i.ProductID,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -201,25 +201,59 @@ func (q *Queries) ListOptions(ctx context.Context, arg ListOptionsParams) ([]Lis
 	return items, nil
 }
 
-const updateOptionValue = `-- name: UpdateOptionValue :one
+const updateOptionValues = `-- name: UpdateOptionValues :execrows
+WITH updated_option_values AS (
+  SELECT
+    UNNEST($1::integer[]) AS id,
+    UNNEST($2::text[]) AS value
+)
 UPDATE option_values
 SET
-  value = $1
+  value = updated_option_values.value
+FROM
+  updated_option_values
 WHERE
-  id = $2
-  AND deleted_at IS NULL
-RETURNING
-  id, value, option_id
+  option_values.id = updated_option_values.id
 `
 
-type UpdateOptionValueParams struct {
-	Value string
-	ID    int32
+type UpdateOptionValuesParams struct {
+	Ids    []int32
+	Values []string
 }
 
-func (q *Queries) UpdateOptionValue(ctx context.Context, arg UpdateOptionValueParams) (OptionValue, error) {
-	row := q.db.QueryRow(ctx, updateOptionValue, arg.Value, arg.ID)
-	var i OptionValue
-	err := row.Scan(&i.ID, &i.Value, &i.OptionID)
-	return i, err
+func (q *Queries) UpdateOptionValues(ctx context.Context, arg UpdateOptionValuesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateOptionValues, arg.Ids, arg.Values)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const updateOptions = `-- name: UpdateOptions :execrows
+WITH updated_options AS (
+  SELECT
+    UNNEST($1::integer[]) AS id,
+    UNNEST($2::text[]) AS name
+)
+UPDATE options
+SET
+  name = updated_options.name
+FROM
+  updated_options
+WHERE
+  options.id = updated_options.id
+  AND options.deleted_at IS NULL
+`
+
+type UpdateOptionsParams struct {
+	Ids   []int32
+	Names []string
+}
+
+func (q *Queries) UpdateOptions(ctx context.Context, arg UpdateOptionsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateOptions, arg.Ids, arg.Names)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }

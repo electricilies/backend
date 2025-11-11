@@ -21,58 +21,79 @@ RETURNING
 
 -- name: ListOptions :many
 SELECT
-  sqlc.embed(options),
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  *
 FROM
   options
 WHERE
   CASE
     WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE options.id = ANY(sqlc.narg('ids'))
+    ELSE options.id = ANY(sqlc.narg('ids')::integer[])
   END
   AND CASE
     WHEN sqlc.narg('product_id')::integer IS NULL THEN TRUE
-    ELSE options.product_id = sqlc.narg('product_id')
+    ELSE options.product_id = sqlc.narg('product_id')::integer
   END
-  AND (options.deleted_at IS NULL) = @deleted::bool
+  AND CASE
+    WHEN sqlc.narg('include_deleted_only')::bool THEN deleted_at IS NOT NULL
+    WHEN sqlc.narg('include_deleted_only')::bool = FALSE THEN deleted_at IS NULL
+    ELSE TRUE
+  END
 ORDER BY
   options.id;
 
 -- name: GetOptionByID :one
 SELECT
-  sqlc.embed(options),
-  sqlc.embed(option_values)
+  *
 FROM
-  options,
-  option_values
+  options
 WHERE
-  options.id = @id::integer
-  AND option_values.option_id = options.id
+  id = @id::integer
+  AND CASE
+    WHEN sqlc.narg('include_deleted_only')::bool THEN deleted_at IS NOT NULL
+    WHEN sqlc.narg('include_deleted_only')::bool = FALSE THEN deleted_at IS NULL
+    ELSE TRUE
+  END;
+
+-- name: UpdateOptions :execrows
+WITH updated_options AS (
+  SELECT
+    UNNEST(@ids::integer[]) AS id,
+    UNNEST(@names::text[]) AS name
+)
+UPDATE options
+SET
+  name = updated_options.name
+FROM
+  updated_options
+WHERE
+  options.id = updated_options.id
   AND options.deleted_at IS NULL;
 
--- name: UpdateOptionValue :one
+-- name: UpdateOptionValues :execrows
+WITH updated_option_values AS (
+  SELECT
+    UNNEST(@ids::integer[]) AS id,
+    UNNEST(@values::text[]) AS value
+)
 UPDATE option_values
 SET
-  value = @value
+  value = updated_option_values.value
+FROM
+  updated_option_values
 WHERE
-  id = @id
-  AND deleted_at IS NULL
-RETURNING
-  *;
+  option_values.id = updated_option_values.id;
 
--- name: DeleteOptionValue :execrows
-WITH _ AS (
-  DELETE FROM
-    option_values
-  WHERE
-    id = @id
-    AND deleted_at IS NULL
-),
-_ AS (
-  DELETE FROM
-    option_values_product_variants
-  WHERE
-    option_value_id = @id
-)
-SELECT 1;
+-- name: DeleteOptions :execrows
+UPDATE
+  options
+SET
+  deleted_at = NOW()
+WHERE
+  id = ANY(@ids::integer[])
+  AND deleted_at IS NULL;
+
+-- name: DeleteOptionValues :execrows
+DELETE FROM
+  option_values
+WHERE
+  id = ANY(@ids::integer[]);
