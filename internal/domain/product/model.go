@@ -71,7 +71,7 @@ type AttributeValue struct {
 	Value string
 }
 
-type Pagination struct {
+type PaginationModel struct {
 	Metadata *pagination.Metadata
 	Products *[]Model
 }

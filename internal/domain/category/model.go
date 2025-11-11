@@ -13,7 +13,7 @@ type Model struct {
 	CreatedAt   time.Time
 }
 
-type Pagination struct {
+type PaginationModel struct {
 	Metadata   *pagination.Metadata
 	Categories *[]Model
 }

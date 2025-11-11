@@ -7,7 +7,7 @@ import (
 
 type Model struct {
 	ID    int
-	Items *[]ItemsPagination
+	Items *[]ItemsPaginationModel
 }
 
 type ItemModel struct {
@@ -16,7 +16,7 @@ type ItemModel struct {
 	Quantity int
 }
 
-type ItemsPagination struct {
+type ItemsPaginationModel struct {
 	Metadata *pagination.Metadata
 	Items    *[]ItemModel
 }
