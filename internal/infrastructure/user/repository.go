@@ -40,14 +40,14 @@ func NewRepository(query *postgres.Queries, s3Client *s3.Client, redisClient *re
 	}
 }
 
-func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error) {
+func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.Model, error) {
 	cacheKey := constant.UserCachePrefix + id
 	cached, err := r.redisClient.Get(ctx, cacheKey).Result()
 	switch {
 	case err != nil && err != redis.Nil:
 		r.logger.Error(constant.ErrRedisGetUserMsg, *logger.CreateRedisGetField(id, cacheKey, err)...)
 	default:
-		var cachedUser user.User
+		var cachedUser user.Model
 		if err := json.Unmarshal([]byte(cached), &cachedUser); err == nil {
 			return &cachedUser, nil
 		}
@@ -71,14 +71,14 @@ func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.User, error)
 	return domainUser, nil
 }
 
-func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
+func (r *repositoryImpl) List(ctx context.Context) ([]*user.Model, error) {
 	cached, err := r.redisClient.Get(ctx, constant.UserListCacheKey).Result()
 	switch {
 	case err != nil && err != redis.Nil:
 		r.logger.Error(constant.ErrRedisGetUserMsg, *logger.CreateRedisListField(constant.UserListCacheKey, err)...)
 	default:
 
-		var usersCache []*user.User
+		var usersCache []*user.Model
 		if err := json.Unmarshal([]byte(cached), &usersCache); err == nil {
 			return usersCache, nil
 		}
@@ -96,7 +96,7 @@ func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
 
-	result := make([]*user.User, len(users))
+	result := make([]*user.Model, len(users))
 	for i, u := range users {
 		result[i] = ToDomain(u)
 	}
@@ -108,7 +108,7 @@ func (r *repositoryImpl) List(ctx context.Context) ([]*user.User, error) {
 	return result, nil
 }
 
-func (r *repositoryImpl) Create(ctx context.Context, u *user.User) (*user.User, error) {
+func (r *repositoryImpl) Create(ctx context.Context, u *user.Model) (*user.Model, error) {
 	createdUser, err := r.db.CreateUser(ctx, ToCreateUserParams(u))
 	if err != nil {
 		return nil, errors.ToDomainErrorFromPostgres(err)
@@ -123,7 +123,7 @@ func (r *repositoryImpl) Create(ctx context.Context, u *user.User) (*user.User, 
 	return ToDomain(user), nil
 }
 
-func (r *repositoryImpl) Update(ctx context.Context, u *user.User) error {
+func (r *repositoryImpl) Update(ctx context.Context, u *user.Model) error {
 	token, err := r.tokenManager.GetClientToken(ctx)
 	if err != nil {
 		return errors.ToDomainErrorFromGoCloak(err)

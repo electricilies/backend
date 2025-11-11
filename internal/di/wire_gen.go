@@ -14,7 +14,9 @@ import (
 	"backend/internal/di/ginengine"
 	user2 "backend/internal/domain/user"
 	"backend/internal/helper"
+	"backend/internal/infrastructure/cart"
 	"backend/internal/infrastructure/product"
+	"backend/internal/infrastructure/review"
 	"backend/internal/infrastructure/user"
 	"backend/internal/interface/api/handler"
 	"backend/internal/interface/api/middleware"
@@ -56,9 +58,11 @@ func InitializeServer() *server.Server {
 	order := handler.NewOrder()
 	returnRequest := handler.NewReturn()
 	refund := handler.NewRefund()
-	review := handler.NewReview()
+	reviewRepository := review.NewRepository()
+	applicationReview := application.NewReview(reviewRepository)
+	handlerReview := handler.NewReview(applicationReview)
 	cart := handler.NewCart()
-	routerRouter := router.New(handlerUser, healthCheck, metric, logging, auth, category, handlerProduct, attribute, payment, order, returnRequest, refund, review, cart)
+	routerRouter := router.New(handlerUser, healthCheck, metric, logging, auth, category, handlerProduct, attribute, payment, order, returnRequest, refund, handlerReview, cart)
 	serverServer := server.New(engine, routerRouter, configConfig)
 	return serverServer
 }
@@ -73,11 +77,11 @@ var DbSet = wire.NewSet(db.NewConnection, db.New, db.NewTransactor)
 
 var EngineSet = wire.NewSet(ginengine.New)
 
-var RepositorySet = wire.NewSet(user.NewRepository, product.NewRepository)
+var RepositorySet = wire.NewSet(user.NewRepository, product.NewRepository, review.NewRepository, cart.NewRepository)
 
 var ServiceSet = wire.NewSet(user2.NewService)
 
-var AppSet = wire.NewSet(application.NewUser, application.NewProduct)
+var AppSet = wire.NewSet(application.NewUser, application.NewProduct, application.NewCart, application.NewReview)
 
 var MiddlewareSet = wire.NewSet(middleware.NewMetric, middleware.NewLogging, middleware.NewJWTVerify)
 

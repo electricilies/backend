@@ -9,7 +9,7 @@ import (
 type Product interface {
 	GetUploadImageURL(ctx context.Context) (*product.UploadImageURLModel, error)
 	GetDeleteImageURL(ctx context.Context, id int) (string, error)
-	ListProducts(ctx context.Context, queryParams product.QueryParams) (*product.Pagination, error)
+	ListProducts(ctx context.Context, queryParams *product.QueryParams) (*product.Pagination, error)
 }
 
 type productApp struct {
@@ -30,6 +30,6 @@ func (a *productApp) GetDeleteImageURL(ctx context.Context, id int) (string, err
 	return a.productRepo.GetDeleteImageURL(ctx, id)
 }
 
-func (a *productApp) ListProducts(ctx context.Context, queryParams product.QueryParams) (*product.Pagination, error) {
+func (a *productApp) ListProducts(ctx context.Context, queryParams *product.QueryParams) (*product.Pagination, error) {
 	return a.productRepo.ListProducts(ctx, queryParams)
 }

@@ -11,9 +11,9 @@ import (
 
 type mockUserRepo struct{}
 
-func (m *mockUserRepo) Get(ctx context.Context, id string) (*user.User, error) {
+func (m *mockUserRepo) Get(ctx context.Context, id string) (*user.Model, error) {
 	if id == "1" {
-		return &user.User{
+		return &user.Model{
 			ID:        uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 			UserName:  "testuser",
 			FirstName: "Test",
@@ -25,17 +25,17 @@ func (m *mockUserRepo) Get(ctx context.Context, id string) (*user.User, error) {
 }
 
 // TODO: Complete this
-func (m *mockUserRepo) List(ctx context.Context) ([]*user.User, error) {
+func (m *mockUserRepo) List(ctx context.Context) ([]*user.Model, error) {
 	return nil, nil
 }
 
 // TODO: Complete this
-func (m *mockUserRepo) Create(ctx context.Context, u *user.User) (*user.User, error) {
+func (m *mockUserRepo) Create(ctx context.Context, u *user.Model) (*user.Model, error) {
 	return nil, nil
 }
 
 // TODO: Complete this
-func (m *mockUserRepo) Update(ctx context.Context, u *user.User) error {
+func (m *mockUserRepo) Update(ctx context.Context, u *user.Model) error {
 	return nil
 }
 
@@ -54,13 +54,13 @@ func Test_userApp_Get(t *testing.T) {
 	tests := []struct {
 		name    string
 		id      string
-		want    *user.User
+		want    *user.Model
 		wantErr bool
 	}{
 		{
 			name: "success: user found",
 			id:   "1",
-			want: &user.User{
+			want: &user.Model{
 				ID:        uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 				UserName:  "testuser",
 				FirstName: "Test",

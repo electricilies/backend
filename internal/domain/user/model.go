@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type User struct {
+type Model struct {
 	ID          uuid.UUID
 	UserName    string
 	FirstName   string

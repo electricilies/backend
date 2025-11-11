@@ -31,7 +31,7 @@ type VariantModel struct {
 	PurchaseCount int
 	CreatedAt     time.Time
 	DeletedAt     *time.Time
-	OptionValue   []VariantOptionValueModel
+	OptionValue   *[]VariantOptionValueModel
 	Images        *[]VariantImageModel
 }
 
@@ -53,8 +53,8 @@ type Model struct {
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	Category        Category
-	AttributeValues []AttributeValue
-	Variants        []VariantModel
+	AttributeValues *[]AttributeValue
+	Variants        *[]VariantModel
 }
 
 // TODO: move to attribute package
@@ -62,7 +62,7 @@ type Attribute struct {
 	ID              string
 	Code            string
 	Name            string
-	AttributeValues []AttributeValue
+	AttributeValues *[]AttributeValue
 }
 
 type AttributeValue struct {
@@ -80,10 +80,10 @@ type Category struct {
 
 type Pagination struct {
 	Metadata *pagination.Metadata
-	Products []Model
+	Products *[]Model
 }
 
 // TODO: Add params later
 type QueryParams struct {
-	PaginationParams pagination.Params
+	PaginationParams *pagination.Params
 }

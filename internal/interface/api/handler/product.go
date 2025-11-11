@@ -68,11 +68,11 @@ func (h *productHandler) Get(ctx *gin.Context) {
 func (h *productHandler) List(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check if the json is checked of need to check in here
-	pParams := pagination.Params{
+	pParams := &pagination.Params{
 		Limit:  limit,
 		Offset: offset,
 	}
-	pagination, error := h.app.ListProducts(ctx, product.QueryParams{
+	pagination, error := h.app.ListProducts(ctx, &product.QueryParams{
 		PaginationParams: pParams,
 	})
 	if error != nil {

@@ -11,10 +11,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func ToDomain(u *gocloak.User) *user.User {
+func ToDomain(u *gocloak.User) *user.Model {
 	dob, _ := (time.Parse("2006-01-02", getAttr(u, string(constant.UserAttributeDateOfBirth))))
 	createdAt := time.UnixMilli(*u.CreatedTimestamp)
-	return &user.User{
+	return &user.Model{
 		ID:          uuid.MustParse(*u.ID),
 		FirstName:   getAttr(u, string(constant.UserAttributeFirstName)),
 		LastName:    getAttr(u, string(constant.UserAttributeLastName)),
@@ -27,13 +27,13 @@ func ToDomain(u *gocloak.User) *user.User {
 	}
 }
 
-func ToCreateUserParams(u *user.User) postgres.CreateUserParams {
+func ToCreateUserParams(u *user.Model) postgres.CreateUserParams {
 	return postgres.CreateUserParams{
 		ID: u.ID,
 	}
 }
 
-func ToUpdateUserParams(u *user.User) gocloak.User {
+func ToUpdateUserParams(u *user.Model) gocloak.User {
 	attributes := make(map[string][]string)
 	attributes["email"] = []string{u.Email}
 	attributes["phone_numer"] = []string{u.PhoneNumber}

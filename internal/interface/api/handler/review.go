@@ -2,6 +2,12 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
+
+	"backend/internal/application"
+	"backend/internal/domain/review"
+	"backend/internal/interface/api/request"
+	"backend/internal/interface/api/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,9 +20,15 @@ type Review interface {
 	Delete(ctx *gin.Context)
 }
 
-type reviewHandler struct{}
+type reviewHandler struct {
+	app application.Review
+}
 
-func NewReview() Review { return &reviewHandler{} }
+func NewReview(app application.Review) Review {
+	return &reviewHandler{
+		app: app,
+	}
+}
 
 // GetReview godoc
 //
@@ -48,7 +60,15 @@ func (h *reviewHandler) Get(ctx *gin.Context) {
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/reviews [get]
 func (h *reviewHandler) ListReviewsByProduct(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
+	offset, _ := strconv.Atoi(ctx.Query("offset"))
+	limit, _ := strconv.Atoi(ctx.Query("limit"))
+	productID, _ := strconv.Atoi(ctx.Query("product_id"))
+	pagination, err := h.app.ListReviewsByProductID(ctx, productID, &review.QueryParams{PaginationParams: *request.PaginationToDomain(offset, limit)})
+	if err != nil {
+		response.ErrorFromDomain(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, response.DataPaginationFromDomain(pagination.Reviews, pagination.Metadata))
 }
 
 // CreateReview godoc

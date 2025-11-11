@@ -7,10 +7,10 @@ import (
 )
 
 type User interface {
-	Get(ctx context.Context, id string) (*user.User, error)
-	List(ctx context.Context) ([]*user.User, error)
-	Create(ctx context.Context, u *user.User) (*user.User, error)
-	Update(ctx context.Context, u *user.User) error
+	Get(ctx context.Context, id string) (*user.Model, error)
+	List(ctx context.Context) ([]*user.Model, error)
+	Create(ctx context.Context, u *user.Model) (*user.Model, error)
+	Update(ctx context.Context, u *user.Model) error
 	Delete(ctx context.Context, id string) error
 }
 
@@ -26,7 +26,7 @@ func NewUser(userRepo user.Repository, userService user.Service) User {
 	}
 }
 
-func (a *userApp) Get(ctx context.Context, id string) (*user.User, error) {
+func (a *userApp) Get(ctx context.Context, id string) (*user.Model, error) {
 	u, err := a.userRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -34,15 +34,15 @@ func (a *userApp) Get(ctx context.Context, id string) (*user.User, error) {
 	return u, nil
 }
 
-func (a *userApp) List(ctx context.Context) ([]*user.User, error) {
+func (a *userApp) List(ctx context.Context) ([]*user.Model, error) {
 	return a.userRepo.List(ctx)
 }
 
-func (a *userApp) Create(ctx context.Context, u *user.User) (*user.User, error) {
+func (a *userApp) Create(ctx context.Context, u *user.Model) (*user.Model, error) {
 	return a.userRepo.Create(ctx, u)
 }
 
-func (a *userApp) Update(ctx context.Context, u *user.User) error {
+func (a *userApp) Update(ctx context.Context, u *user.Model) error {
 	_, err := a.userRepo.Get(ctx, u.ID.String())
 	if err != nil {
 		return err

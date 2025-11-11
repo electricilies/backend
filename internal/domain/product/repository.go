@@ -13,5 +13,5 @@ type Repository interface {
 	GetUploadImageURL(ctx context.Context) (*UploadImageURLModel, error)
 	GetDeleteImageURL(ctx context.Context, id int) (string, error)
 	MoveImage(ctx context.Context, key string) error
-	ListProducts(ctx context.Context, queryParams QueryParams) (*Pagination, error)
+	ListProducts(ctx context.Context, queryParams *QueryParams) (*Pagination, error)
 }

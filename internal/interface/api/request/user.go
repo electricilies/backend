@@ -12,8 +12,8 @@ type CreateUser struct {
 	ID string `json:"id" binding:"required"`
 }
 
-func (r *CreateUser) ToDomain() *user.User {
-	return &user.User{
+func (r *CreateUser) ToDomain() *user.Model {
+	return &user.Model{
 		ID: uuid.MustParse(r.ID),
 	}
 }
@@ -27,8 +27,8 @@ type UpdateUser struct {
 	Address     string     `json:"address,omitempty"`
 }
 
-func (r UpdateUser) ToDomain() *user.User {
-	return &user.User{
+func (r UpdateUser) ToDomain() *user.Model {
+	return &user.Model{
 		FirstName:   r.FirstName,
 		LastName:    r.LastName,
 		Email:       r.Email,

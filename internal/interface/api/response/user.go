@@ -18,7 +18,7 @@ type User struct {
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
-func UserFromDomain(u *user.User) *User {
+func UserFromDomain(u *user.Model) *User {
 	return &User{
 		ID:          u.ID.String(),
 		FirstName:   u.FirstName,
@@ -32,7 +32,7 @@ func UserFromDomain(u *user.User) *User {
 	}
 }
 
-func UsersFromDomain(users []*user.User) []*User {
+func UsersFromDomain(users []*user.Model) []*User {
 	responses := make([]*User, len(users))
 	for i, u := range users {
 		responses[i] = UserFromDomain(u)
