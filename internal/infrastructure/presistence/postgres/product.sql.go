@@ -66,7 +66,7 @@ RETURNING
 `
 
 type CreateProductImagesParams struct {
-	Urls              []string
+	URLs              []string
 	Orders            []int32
 	ProductVariantIDs []int32
 	ProductID         pgtype.Int4
@@ -74,7 +74,7 @@ type CreateProductImagesParams struct {
 
 func (q *Queries) CreateProductImages(ctx context.Context, arg CreateProductImagesParams) ([]ProductImage, error) {
 	rows, err := q.db.Query(ctx, createProductImages,
-		arg.Urls,
+		arg.URLs,
 		arg.Orders,
 		arg.ProductVariantIDs,
 		arg.ProductID,
@@ -121,7 +121,7 @@ RETURNING
 `
 
 type CreateProductVariantsParams struct {
-	Skus       []string
+	SKUs       []string
 	Prices     []pgtype.Numeric
 	Quantities []int32
 	ProductID  int32
@@ -129,7 +129,7 @@ type CreateProductVariantsParams struct {
 
 func (q *Queries) CreateProductVariants(ctx context.Context, arg CreateProductVariantsParams) ([]ProductVariant, error) {
 	rows, err := q.db.Query(ctx, createProductVariants,
-		arg.Skus,
+		arg.SKUs,
 		arg.Prices,
 		arg.Quantities,
 		arg.ProductID,
@@ -162,62 +162,6 @@ func (q *Queries) CreateProductVariants(ctx context.Context, arg CreateProductVa
 	return items, nil
 }
 
-const deleteLinkedProductAttributeValues = `-- name: DeleteLinkedProductAttributeValues :execrows
-WITH deleted_links AS (
-  SELECT
-    UNNEST($1::integer[]) AS product_id,
-    UNNEST($2::integer[]) AS attribute_value_id
-)
-DELETE FROM
-  products_attribute_values
-USING
-  deleted_links
-WHERE
-  products_attribute_values.product_id = deleted_links.product_id
-  AND products_attribute_values.attribute_value_id = deleted_links.attribute_value_id
-`
-
-type DeleteLinkedProductAttributeValuesParams struct {
-	ProductID         []int32
-	AttributeValueIDs []int32
-}
-
-func (q *Queries) DeleteLinkedProductAttributeValues(ctx context.Context, arg DeleteLinkedProductAttributeValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteLinkedProductAttributeValues, arg.ProductID, arg.AttributeValueIDs)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
-const deleteLinkedProductVariantsOptionValues = `-- name: DeleteLinkedProductVariantsOptionValues :execrows
-WITH deleted_links AS (
-  SELECT
-    UNNEST($1::integer[]) AS product_variant_id,
-    UNNEST($2::integer[]) AS option_value_id
-)
-DELETE FROM
-  option_values_product_variants
-USING
-  deleted_links
-WHERE
-  option_values_product_variants.product_variant_id = deleted_links.product_variant_id
-  AND option_values_product_variants.option_value_id = deleted_links.option_value_id
-`
-
-type DeleteLinkedProductVariantsOptionValuesParams struct {
-	ProductVariantIDs []int32
-	OptionValueIDs    []int32
-}
-
-func (q *Queries) DeleteLinkedProductVariantsOptionValues(ctx context.Context, arg DeleteLinkedProductVariantsOptionValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteLinkedProductVariantsOptionValues, arg.ProductVariantIDs, arg.OptionValueIDs)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
 const deleteProductImages = `-- name: DeleteProductImages :execrows
 DELETE FROM
   product_images
@@ -226,11 +170,11 @@ WHERE
 `
 
 type DeleteProductImagesParams struct {
-	Ids []int32
+	IDs []int32
 }
 
 func (q *Queries) DeleteProductImages(ctx context.Context, arg DeleteProductImagesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteProductImages, arg.Ids)
+	result, err := q.db.Exec(ctx, deleteProductImages, arg.IDs)
 	if err != nil {
 		return 0, err
 	}
@@ -248,11 +192,11 @@ WHERE
 `
 
 type DeleteProductVariantsParams struct {
-	Ids []int32
+	IDs []int32
 }
 
 func (q *Queries) DeleteProductVariants(ctx context.Context, arg DeleteProductVariantsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteProductVariants, arg.Ids)
+	result, err := q.db.Exec(ctx, deleteProductVariants, arg.IDs)
 	if err != nil {
 		return 0, err
 	}
@@ -270,11 +214,11 @@ WHERE
 `
 
 type DeleteProductsParams struct {
-	Ids []int32
+	IDs []int32
 }
 
 func (q *Queries) DeleteProducts(ctx context.Context, arg DeleteProductsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteProducts, arg.Ids)
+	result, err := q.db.Exec(ctx, deleteProducts, arg.IDs)
 	if err != nil {
 		return 0, err
 	}
@@ -389,13 +333,13 @@ ORDER BY
 `
 
 type ListProductImagesParams struct {
-	Ids               []int32
+	IDs               []int32
 	ProductVariantIDs []int32
 	ProductIDs        []int32
 }
 
 func (q *Queries) ListProductImages(ctx context.Context, arg ListProductImagesParams) ([]ProductImage, error) {
-	rows, err := q.db.Query(ctx, listProductImages, arg.Ids, arg.ProductVariantIDs, arg.ProductIDs)
+	rows, err := q.db.Query(ctx, listProductImages, arg.IDs, arg.ProductVariantIDs, arg.ProductIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -445,13 +389,13 @@ ORDER BY
 `
 
 type ListProductVariantsParams struct {
-	Ids                []int32
+	IDs                []int32
 	ProductIDs         []int32
 	IncludeDeletedOnly pgtype.Bool
 }
 
 func (q *Queries) ListProductVariants(ctx context.Context, arg ListProductVariantsParams) (ProductVariant, error) {
-	row := q.db.QueryRow(ctx, listProductVariants, arg.Ids, arg.ProductIDs, arg.IncludeDeletedOnly)
+	row := q.db.QueryRow(ctx, listProductVariants, arg.IDs, arg.ProductIDs, arg.IncludeDeletedOnly)
 	var i ProductVariant
 	err := row.Scan(
 		&i.ID,
@@ -541,7 +485,7 @@ LIMIT COALESCE($11::integer, 20)
 
 type ListProductsParams struct {
 	Search             pgtype.Text
-	Ids                []int32
+	IDs                []int32
 	MinPrice           pgtype.Numeric
 	MaxPrice           pgtype.Numeric
 	Rating             pgtype.Float4
@@ -563,7 +507,7 @@ type ListProductsRow struct {
 func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]ListProductsRow, error) {
 	rows, err := q.db.Query(ctx, listProducts,
 		arg.Search,
-		arg.Ids,
+		arg.IDs,
 		arg.MinPrice,
 		arg.MaxPrice,
 		arg.Rating,
@@ -671,8 +615,8 @@ WHERE
 `
 
 type UpdateProductVariantsParams struct {
-	Ids            []int32
-	Skus           []string
+	IDs            []int32
+	SKUs           []string
 	Prices         []pgtype.Numeric
 	Quantities     []int32
 	PurchaseCounts []int32
@@ -680,8 +624,8 @@ type UpdateProductVariantsParams struct {
 
 func (q *Queries) UpdateProductVariants(ctx context.Context, arg UpdateProductVariantsParams) (int64, error) {
 	result, err := q.db.Exec(ctx, updateProductVariants,
-		arg.Ids,
-		arg.Skus,
+		arg.IDs,
+		arg.SKUs,
 		arg.Prices,
 		arg.Quantities,
 		arg.PurchaseCounts,

@@ -23,9 +23,13 @@ sql:
               import: github.com/google/uuid
               type: "UUID"
         rename:
+          ids: IDs
           url: URL
+          urls: URLs
           sku: SKU
+          skus: SKUs
           image_url: ImageURL
+          image_urls: ImageURLs
           user_id: userID
           product_ids: ProductIDs
           product_variant_ids: ProductVariantIDs

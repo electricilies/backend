@@ -246,31 +246,3 @@ DELETE FROM
   product_images
 WHERE
   id = ANY (@ids::integer[]);
-
--- name: DeleteLinkedProductAttributeValues :execrows
-WITH deleted_links AS (
-  SELECT
-    UNNEST(@product_id::integer[]) AS product_id,
-    UNNEST(@attribute_value_ids::integer[]) AS attribute_value_id
-)
-DELETE FROM
-  products_attribute_values
-USING
-  deleted_links
-WHERE
-  products_attribute_values.product_id = deleted_links.product_id
-  AND products_attribute_values.attribute_value_id = deleted_links.attribute_value_id;
-
--- name: DeleteLinkedProductVariantsOptionValues :execrows
-WITH deleted_links AS (
-  SELECT
-    UNNEST(@product_variant_ids::integer[]) AS product_variant_id,
-    UNNEST(@option_value_ids::integer[]) AS option_value_id
-)
-DELETE FROM
-  option_values_product_variants
-USING
-  deleted_links
-WHERE
-  option_values_product_variants.product_variant_id = deleted_links.product_variant_id
-  AND option_values_product_variants.option_value_id = deleted_links.option_value_id;

@@ -72,11 +72,11 @@ WHERE
 `
 
 type DeleteCartItemByIDsParams struct {
-	Ids []uuid.UUID
+	IDs []uuid.UUID
 }
 
 func (q *Queries) DeleteCartItemByIDs(ctx context.Context, arg DeleteCartItemByIDsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteCartItemByIDs, arg.Ids)
+	result, err := q.db.Exec(ctx, deleteCartItemByIDs, arg.IDs)
 	if err != nil {
 		return 0, err
 	}

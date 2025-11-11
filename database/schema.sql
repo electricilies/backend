@@ -98,7 +98,7 @@ CREATE TABLE options (
 CREATE TABLE option_values (
   id SERIAL PRIMARY KEY,
   value TEXT NOT NULL,
-  option_id INTEGER NOT NULL REFERENCES options (id) ON UPDATE CASCADE
+  option_id INTEGER NOT NULL REFERENCES options (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- option_values_product_variants

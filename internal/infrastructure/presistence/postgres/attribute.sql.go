@@ -86,11 +86,11 @@ WHERE
 `
 
 type DeleteAttributeValuesParams struct {
-	Ids []int32
+	IDs []int32
 }
 
 func (q *Queries) DeleteAttributeValues(ctx context.Context, arg DeleteAttributeValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteAttributeValues, arg.Ids)
+	result, err := q.db.Exec(ctx, deleteAttributeValues, arg.IDs)
 	if err != nil {
 		return 0, err
 	}
@@ -107,11 +107,11 @@ WHERE
 `
 
 type DeleteAttributesParams struct {
-	Ids []int32
+	IDs []int32
 }
 
 func (q *Queries) DeleteAttributes(ctx context.Context, arg DeleteAttributesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteAttributes, arg.Ids)
+	result, err := q.db.Exec(ctx, deleteAttributes, arg.IDs)
 	if err != nil {
 		return 0, err
 	}
@@ -162,12 +162,12 @@ ORDER BY
 `
 
 type ListAttributeValuesParams struct {
-	Ids          []int32
+	IDs          []int32
 	AttributeIDs []int32
 }
 
 func (q *Queries) ListAttributeValues(ctx context.Context, arg ListAttributeValuesParams) ([]AttributeValue, error) {
-	rows, err := q.db.Query(ctx, listAttributeValues, arg.Ids, arg.AttributeIDs)
+	rows, err := q.db.Query(ctx, listAttributeValues, arg.IDs, arg.AttributeIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +216,7 @@ LIMIT COALESCE($5::integer, 20)
 `
 
 type ListAttributesParams struct {
-	Ids                []int32
+	IDs                []int32
 	Search             pgtype.Text
 	IncludeDeletedOnly pgtype.Bool
 	Offset             pgtype.Int4
@@ -234,7 +234,7 @@ type ListAttributesRow struct {
 
 func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) ([]ListAttributesRow, error) {
 	rows, err := q.db.Query(ctx, listAttributes,
-		arg.Ids,
+		arg.IDs,
 		arg.Search,
 		arg.IncludeDeletedOnly,
 		arg.Offset,
@@ -306,12 +306,12 @@ WHERE
 `
 
 type UpdateAttributeValuesParams struct {
-	Ids    []int32
+	IDs    []int32
 	Values []string
 }
 
 func (q *Queries) UpdateAttributeValues(ctx context.Context, arg UpdateAttributeValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateAttributeValues, arg.Ids, arg.Values)
+	result, err := q.db.Exec(ctx, updateAttributeValues, arg.IDs, arg.Values)
 	if err != nil {
 		return 0, err
 	}

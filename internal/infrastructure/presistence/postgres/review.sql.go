@@ -72,11 +72,11 @@ WHERE
 `
 
 type DeleteReviewsParams struct {
-	Ids []int32
+	IDs []int32
 }
 
 func (q *Queries) DeleteReviews(ctx context.Context, arg DeleteReviewsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteReviews, arg.Ids)
+	result, err := q.db.Exec(ctx, deleteReviews, arg.IDs)
 	if err != nil {
 		return 0, err
 	}
@@ -111,7 +111,7 @@ LIMIT COALESCE($5::integer, 10)
 `
 
 type GetReviewsParams struct {
-	Ids                []int32
+	IDs                []int32
 	ProductIDs         []int32
 	IncludeDeletedOnly pgtype.Bool
 	Offset             pgtype.Int4
@@ -134,7 +134,7 @@ type GetReviewsRow struct {
 
 func (q *Queries) GetReviews(ctx context.Context, arg GetReviewsParams) ([]GetReviewsRow, error) {
 	rows, err := q.db.Query(ctx, getReviews,
-		arg.Ids,
+		arg.IDs,
 		arg.ProductIDs,
 		arg.IncludeDeletedOnly,
 		arg.Offset,

@@ -83,11 +83,11 @@ WHERE
 `
 
 type DeleteOptionValuesParams struct {
-	Ids []int32
+	IDs []int32
 }
 
 func (q *Queries) DeleteOptionValues(ctx context.Context, arg DeleteOptionValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteOptionValues, arg.Ids)
+	result, err := q.db.Exec(ctx, deleteOptionValues, arg.IDs)
 	if err != nil {
 		return 0, err
 	}
@@ -105,11 +105,11 @@ WHERE
 `
 
 type DeleteOptionsParams struct {
-	Ids []int32
+	IDs []int32
 }
 
 func (q *Queries) DeleteOptions(ctx context.Context, arg DeleteOptionsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteOptions, arg.Ids)
+	result, err := q.db.Exec(ctx, deleteOptions, arg.IDs)
 	if err != nil {
 		return 0, err
 	}
@@ -171,13 +171,13 @@ ORDER BY
 `
 
 type ListOptionsParams struct {
-	Ids                []int32
+	IDs                []int32
 	ProductID          pgtype.Int4
 	IncludeDeletedOnly pgtype.Bool
 }
 
 func (q *Queries) ListOptions(ctx context.Context, arg ListOptionsParams) ([]Option, error) {
-	rows, err := q.db.Query(ctx, listOptions, arg.Ids, arg.ProductID, arg.IncludeDeletedOnly)
+	rows, err := q.db.Query(ctx, listOptions, arg.IDs, arg.ProductID, arg.IncludeDeletedOnly)
 	if err != nil {
 		return nil, err
 	}
@@ -217,12 +217,12 @@ WHERE
 `
 
 type UpdateOptionValuesParams struct {
-	Ids    []int32
+	IDs    []int32
 	Values []string
 }
 
 func (q *Queries) UpdateOptionValues(ctx context.Context, arg UpdateOptionValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateOptionValues, arg.Ids, arg.Values)
+	result, err := q.db.Exec(ctx, updateOptionValues, arg.IDs, arg.Values)
 	if err != nil {
 		return 0, err
 	}
@@ -246,12 +246,12 @@ WHERE
 `
 
 type UpdateOptionsParams struct {
-	Ids   []int32
+	IDs   []int32
 	Names []string
 }
 
 func (q *Queries) UpdateOptions(ctx context.Context, arg UpdateOptionsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateOptions, arg.Ids, arg.Names)
+	result, err := q.db.Exec(ctx, updateOptions, arg.IDs, arg.Names)
 	if err != nil {
 		return 0, err
 	}
