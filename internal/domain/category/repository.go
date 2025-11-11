@@ -5,5 +5,5 @@ import (
 )
 
 type Repository interface {
-	ListCategories(ctx context.Context, queryParams *QueryParams) (*Pagination, error)
+	ListCategories(ctx context.Context, queryParams *QueryParams) (*PaginationModel, error)
 }

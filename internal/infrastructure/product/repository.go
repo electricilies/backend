@@ -103,7 +103,7 @@ func (r *repositoryImpl) MoveImage(ctx context.Context, key string) error {
 }
 
 // TODO: implement
-func (r *repositoryImpl) ListProducts(ctx context.Context, queryParams *product.QueryParams) (*product.Pagination, error) {
-	result := &product.Pagination{}
+func (r *repositoryImpl) ListProducts(ctx context.Context, queryParams *product.QueryParams) (*product.PaginationModel, error) {
+	result := &product.PaginationModel{}
 	return result, nil
 }
