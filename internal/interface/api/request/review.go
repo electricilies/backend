@@ -13,4 +13,3 @@ type UpdateReview struct {
 	Content  string `json:"content,omitempty"`
 	ImageURL string `json:"imageUrl,omitempty"`
 }
-
