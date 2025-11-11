@@ -2,11 +2,12 @@ package product
 
 import (
 	"backend/internal/domain/product"
-	"backend/internal/infrastructure/presistence/postgres"
 )
 
-func ToGetProductImageByIDParams(id int) *postgres.GetProductImageByIDParams {
-	return &postgres.GetProductImageByIDParams{
+func ToGetProductImageByIDParams(id int) any {
+	return &struct {
+		ID int32 `json:"id"`
+	}{
 		ID: int32(id),
 	}
 }
