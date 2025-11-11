@@ -2,6 +2,12 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
+
+	"backend/internal/application"
+	"backend/internal/domain/category"
+	"backend/internal/interface/api/request"
+	"backend/internal/interface/api/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,9 +19,15 @@ type Category interface {
 	Delete(ctx *gin.Context)
 }
 
-type categoryHandler struct{}
+type categoryHandler struct {
+	app application.Category
+}
 
-func NewCategory() Category { return &categoryHandler{} }
+func NewCategory(app application.Category) Category {
+	return &categoryHandler{
+		app: app,
+	}
+}
 
 // ListCategories godoc
 //
@@ -30,7 +42,17 @@ func NewCategory() Category { return &categoryHandler{} }
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/categories [get]
 func (h *categoryHandler) List(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
+	offset, _ := strconv.Atoi(ctx.Query("offset"))
+	limit, _ := strconv.Atoi(ctx.Query("limit"))
+
+	pagination, err := h.app.ListCategories(ctx, &category.QueryParams{
+		PaginationParams: *request.PaginationToDomain(limit, offset),
+	})
+	if err != nil {
+		response.ErrorFromDomain(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, response.DataPaginationFromDomain(pagination.Categories, pagination.Metadata))
 }
 
 // CreateCategory godoc

@@ -3,6 +3,7 @@ package product
 import (
 	"time"
 
+	"backend/internal/domain/category"
 	"backend/internal/domain/pagination"
 )
 
@@ -52,7 +53,7 @@ type Model struct {
 	TrendingScore   int64
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
-	Category        Category
+	Category        *category.Model
 	AttributeValues *[]AttributeValue
 	Variants        *[]VariantModel
 }
@@ -68,14 +69,6 @@ type Attribute struct {
 type AttributeValue struct {
 	ID    string
 	Value string
-}
-
-// TODO: move to category package
-type Category struct {
-	ID          int
-	Name        string
-	Description string
-	CreatedAt   time.Time
 }
 
 type Pagination struct {

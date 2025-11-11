@@ -12,6 +12,7 @@ import (
 	userservice "backend/internal/domain/user"
 	"backend/internal/helper"
 	cartrepo "backend/internal/infrastructure/cart"
+	categoryrepo "backend/internal/infrastructure/category"
 	productrepo "backend/internal/infrastructure/product"
 	reviewrepo "backend/internal/infrastructure/review"
 	userrepo "backend/internal/infrastructure/user"
@@ -48,6 +49,7 @@ var RepositorySet = wire.NewSet(
 	productrepo.NewRepository,
 	reviewrepo.NewRepository,
 	cartrepo.NewRepository,
+	categoryrepo.NewRepository,
 )
 
 var ServiceSet = wire.NewSet(
@@ -59,6 +61,7 @@ var AppSet = wire.NewSet(
 	app.NewProduct,
 	app.NewCart,
 	app.NewReview,
+	app.NewCategory,
 )
 
 var MiddlewareSet = wire.NewSet(
