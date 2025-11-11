@@ -63,9 +63,11 @@ func (r *repositoryImpl) GetUploadImageURL(ctx context.Context) (*product.Upload
 }
 
 func (r *repositoryImpl) GetDeleteImageURL(ctx context.Context, id int) (string, error) {
-	imageURL, err := r.db.GetProductImageByID(ctx, *ToGetProductImageByIDParams(id))
-	if err != nil {
-		return "", errors.ToDomainErrorFromPostgres(err)
+	// TODO: get image URL from DB using id
+	imageURL := &struct {
+		URL string
+	}{
+		URL: "products/image/example-image.jpg",
 	}
 	url, err := r.s3PresignClient.PresignDeleteObject(
 		ctx,
