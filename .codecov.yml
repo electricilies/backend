@@ -7,3 +7,9 @@ coverage:
         informational: true
     patch:
       informational: true
+ignore:
+  - test/*
+  - docs/*
+  - internal/**/*_test.go
+  - internal/**/*_mock.go
+  - internal/di/wire.go
