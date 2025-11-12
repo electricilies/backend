@@ -3,16 +3,16 @@ package response
 import "backend/internal/domain/cart"
 
 type CartItem struct {
-	ID       int     `json:"id" binding:"required"`
-	Product  Product `json:"product" binding:"required"`
-	Quantity int     `json:"quantity" binding:"required"`
+	ID             int            `json:"id" binding:"required"`
+	ProductVariant ProductVariant `json:"productVariant" binding:"required"`
+	Quantity       int            `json:"quantity" binding:"required"`
 }
 
 func CartItemFromDomain(i *cart.ItemModel) *CartItem {
 	return &CartItem{
-		ID:       i.ID,
-		Product:  *ProductFromDomain(i.Product),
-		Quantity: i.Quantity,
+		ID:             i.ID,
+		ProductVariant: *ProductVariantFromDomain(i.ProductVariant),
+		Quantity:       i.Quantity,
 	}
 }
 

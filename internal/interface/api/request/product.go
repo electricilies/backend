@@ -35,6 +35,7 @@ type CreateProductImage struct {
 	URL              string `json:"url" binding:"required"`
 	Order            int    `json:"order,omitempty"`
 	ProductVariantID int    `json:"productVariantId,omitempty"`
+	ProductID        int    `json:"productId,omitempty"`
 }
 
 type CreateProductOption struct {

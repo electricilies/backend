@@ -24,6 +24,7 @@ type Product struct {
 	ViewsCount      int               `json:"viewsCount" binding:"required"`
 	TotalPurchase   int               `json:"totalPurchase" binding:"required"`
 	TrendingScore   int64             `json:"trendingScore" binding:"required"`
+	Images          []ProductImage    `json:"images" binding:"omitnil"`
 	CreatedAt       time.Time         `json:"createdAt" binding:"required"`
 	UpdatedAt       time.Time         `json:"updatedAt" binding:"required"`
 	Category        Category          `json:"category" binding:"required"`
@@ -32,7 +33,6 @@ type Product struct {
 }
 
 // TODO: implement
-// TODO: move to response?
 func ProductFromDomain(p *product.Model) *Product {
 	return &Product{}
 }
@@ -47,6 +47,7 @@ type ProductImage struct {
 	Order            int       `json:"order" binding:"required"`
 	CreatedAt        time.Time `json:"createdAt" binding:"required"`
 	ProductVariantID *int      `json:"productVariantId" binding:"omitnil"`
+	ProductID        *int      `json:"productId" binding:"omitnil"`
 }
 
 type ProductVariantImage struct {
@@ -68,6 +69,11 @@ type ProductVariant struct {
 	Images        []ProductVariantImage       `json:"images" binding:"omitnil"`
 }
 
+// TODO: Implement
+func ProductVariantFromDomain(v *product.VariantModel) *ProductVariant {
+	return &ProductVariant{}
+}
+
 type ProductImageDeleteURL struct {
 	URL string `json:"url" binding:"required"`
 }
@@ -77,7 +83,6 @@ type ProductUploadURLImage struct {
 	Key string `json:"key" binding:"required"`
 }
 
-// TODO: move to response?
 func ProductUploadURLImageFromDomain(
 	u *product.UploadImageURLModel,
 ) *ProductUploadURLImage {

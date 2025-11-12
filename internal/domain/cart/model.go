@@ -11,9 +11,9 @@ type Model struct {
 }
 
 type ItemModel struct {
-	ID       int
-	Product  *product.Model
-	Quantity int
+	ID             int
+	ProductVariant *product.VariantModel
+	Quantity       int
 }
 
 type ItemsPaginationModel struct {

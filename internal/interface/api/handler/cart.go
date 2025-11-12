@@ -92,10 +92,10 @@ func (h *cartHandler) UpdateItem(ctx *gin.Context) {
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
-//	@Param			item_id	path		int		true	"Cart Item ID"
-//	@Success		204		{string}	string	"no content"
-//	@Failure		404		{object}	response.NotFoundError
-//	@Failure		500		{object}	response.InternalServerError
+//	@Param			item_id	path	int	true	"Cart Item ID"
+//	@Success		204
+//	@Failure		404	{object}	response.NotFoundError
+//	@Failure		500	{object}	response.InternalServerError
 //	@Router			/carts/item [delete]
 func (h *cartHandler) RemoveItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)

@@ -488,10 +488,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "no content",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "No Content"
                     },
                     "404": {
                         "description": "Not Found",
@@ -1045,6 +1042,64 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/response.Product"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BadRequestError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ConflictError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/images": {
+            "post": {
+                "description": "Create new images for products",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Create product images",
+                "parameters": [
+                    {
+                        "description": "Product images request",
+                        "name": "productImages",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/request.CreateProductImage"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.ProductImage"
+                            }
                         }
                     },
                     "400": {
@@ -2481,6 +2536,9 @@ const docTemplate = `{
                 "order": {
                     "type": "integer"
                 },
+                "productId": {
+                    "type": "integer"
+                },
                 "productVariantId": {
                     "type": "integer"
                 },
@@ -2824,15 +2882,15 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "id",
-                "product",
+                "productVariant",
                 "quantity"
             ],
             "properties": {
                 "id": {
                     "type": "integer"
                 },
-                "product": {
-                    "$ref": "#/definitions/response.Product"
+                "productVariant": {
+                    "$ref": "#/definitions/response.ProductVariant"
                 },
                 "quantity": {
                     "type": "integer"
@@ -3061,6 +3119,12 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ProductImage"
+                    }
+                },
                 "name": {
                     "type": "string"
                 },
@@ -3081,6 +3145,35 @@ const docTemplate = `{
                 },
                 "viewsCount": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.ProductImage": {
+            "type": "object",
+            "required": [
+                "createdAt",
+                "id",
+                "order",
+                "url"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "productId": {
+                    "type": "integer"
+                },
+                "productVariantId": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
                 }
             }
         },

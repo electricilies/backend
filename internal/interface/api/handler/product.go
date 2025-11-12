@@ -22,8 +22,9 @@ type Product interface {
 	CreateProductVariant(ctx *gin.Context)
 	UpdateProductVariant(ctx *gin.Context)
 	UpdateProductOption(ctx *gin.Context)
-	GetUploadImageURL(ctx *gin.Context)
 	GetDeleteImageURL(ctx *gin.Context)
+	GetUploadImageURL(ctx *gin.Context)
+	CreateProductImages(ctx *gin.Context)
 }
 
 type productHandler struct {
@@ -261,5 +262,22 @@ func (h *productHandler) UpdateProductVariant(ctx *gin.Context) {
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/products/options/{option_id} [put]
 func (h *productHandler) UpdateProductOption(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+// CreateProductImages godoc
+//
+//	@Summary		Create product images
+//	@Description	Create new images for products
+//	@Tags			Product
+//	@Accept			json
+//	@Produce		json
+//	@Param			productImages	body		[]request.CreateProductImage	true	"Product images request"
+//	@Success		201				{array}		response.ProductImage
+//	@Failure		400				{object}	response.BadRequestError
+//	@Failure		409				{object}	response.ConflictError
+//	@Failure		500				{object}	response.InternalServerError
+//	@Router			/products/images [post]
+func (h *productHandler) CreateProductImages(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
