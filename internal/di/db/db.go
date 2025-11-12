@@ -16,11 +16,11 @@ import (
 func NewConnection(cfg *config.Config) *pgxpool.Pool {
 	conn, err := pgxpool.New(context.Background(), fmt.Sprintf(
 		"postgres://%s:%s@%s:%d/%s",
-		cfg.DbUsername,
-		cfg.DbPassword,
-		cfg.DbHost,
-		cfg.DbPort,
-		cfg.DbName,
+		cfg.DBUsername,
+		cfg.DBPassword,
+		cfg.DBHost,
+		cfg.DBPort,
+		cfg.DBName,
 	))
 	if err != nil {
 		log.Printf("Cannot connect to Db: %v", err)

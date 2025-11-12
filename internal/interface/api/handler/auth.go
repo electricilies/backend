@@ -25,7 +25,7 @@ func NewAuth(cfg *config.Config) Auth {
 
 func (h *authHandler) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		basePath := h.cfg.KcBasePath
+		basePath := h.cfg.KCBasePath
 		redirectURL := basePath + strings.TrimPrefix(c.Request.URL.String(), "/auth")
 		c.Redirect(http.StatusTemporaryRedirect, redirectURL)
 	}

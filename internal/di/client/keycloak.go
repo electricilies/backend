@@ -10,9 +10,9 @@ import (
 )
 
 func NewKeycloak(cfg *config.Config) *gocloak.GoCloak {
-	client := gocloak.NewClient(cfg.KcBasePath)
+	client := gocloak.NewClient(cfg.KCBasePath)
 	ctx := context.Background()
-	token, err := client.LoginClient(ctx, cfg.KcClientId, cfg.KcClientSecret, cfg.KcRealm)
+	token, err := client.LoginClient(ctx, cfg.KCClientId, cfg.KCClientSecret, cfg.KCRealm)
 	if err != nil || token == nil {
 		log.Printf("error when connecting to keycloak:%s", err)
 		return nil

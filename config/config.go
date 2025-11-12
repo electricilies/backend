@@ -7,19 +7,19 @@ import (
 )
 
 const (
-	DbUsername          = "DB_USERNAME"
-	DbPassword          = "DB_PASSWORD"
-	DbHost              = "DB_HOST"
-	DbPort              = "DB_PORT"
-	DbName              = "DB_DATABASE"
+	DBUsername          = "DB_USERNAME"
+	DBPassword          = "DB_PASSWORD"
+	DBHost              = "DB_HOST"
+	DBPort              = "DB_PORT"
+	DBName              = "DB_DATABASE"
 	EnvApp              = "ENV_APP"
 	LogStdout           = "LOG_ENABLE_STDOUT"
 	LogFile             = "LOG_ENABLE_FILE"
-	KcClientId          = "KC_CLIENT_ID"
-	KcClientSecret      = "KC_CLIENT_SECRET"
-	KcRealm             = "KC_REALM"
-	KcBasePath          = "KC_BASE_PATH"
-	KcHttpManagmentPath = "KC_HTTP_MANAGEMENT_PATH"
+	KCClientId          = "KC_CLIENT_ID"
+	KCClientSecret      = "KC_CLIENT_SECRET"
+	KCRealm             = "KC_REALM"
+	KCBasePath          = "KC_BASE_PATH"
+	KCHttpManagmentPath = "KC_HTTP_MANAGEMENT_PATH"
 	RedisAddr           = "REDIS_ADDRESS"
 	S3AccessKey         = "S3_ACCESS_KEY"
 	S3SecretKey         = "S3_SECRET_KEY"
@@ -32,19 +32,19 @@ const (
 )
 
 type Config struct {
-	DbUsername          string
-	DbPassword          string
-	DbHost              string
-	DbPort              int
-	DbName              string
+	DBUsername          string
+	DBPassword          string
+	DBHost              string
+	DBPort              int
+	DBName              string
 	EnvApp              string
 	EnableStdout        bool
 	EnableFile          bool
-	KcClientId          string
-	KcClientSecret      string
-	KcRealm             string
-	KcBasePath          string
-	KcHttpManagmentPath string
+	KCClientId          string
+	KCClientSecret      string
+	KCRealm             string
+	KCBasePath          string
+	KCHttpManagmentPath string
 	RedisAddr           string
 	S3AccessKey         string
 	S3SecretKey         string
@@ -59,7 +59,7 @@ type Config struct {
 func New() *Config {
 	viper.AutomaticEnv()
 
-	viper.SetDefault(DbPort, 5432)
+	viper.SetDefault(DBPort, 5432)
 	viper.SetDefault(LogStdout, true)
 	viper.SetDefault(LogFile, false)
 
@@ -69,19 +69,19 @@ func New() *Config {
 	}
 
 	return &Config{
-		DbUsername:          viper.GetString(DbUsername),
-		DbPassword:          viper.GetString(DbPassword),
-		DbHost:              viper.GetString(DbHost),
-		DbPort:              viper.GetInt(DbPort),
-		DbName:              viper.GetString(DbName),
+		DBUsername:          viper.GetString(DBUsername),
+		DBPassword:          viper.GetString(DBPassword),
+		DBHost:              viper.GetString(DBHost),
+		DBPort:              viper.GetInt(DBPort),
+		DBName:              viper.GetString(DBName),
 		EnvApp:              viper.GetString(EnvApp),
 		EnableStdout:        viper.GetBool(LogStdout),
 		EnableFile:          viper.GetBool(LogFile),
-		KcClientId:          viper.GetString(KcClientId),
-		KcClientSecret:      viper.GetString(KcClientSecret),
-		KcRealm:             viper.GetString(KcRealm),
-		KcBasePath:          viper.GetString(KcBasePath),
-		KcHttpManagmentPath: viper.GetString(KcHttpManagmentPath),
+		KCClientId:          viper.GetString(KCClientId),
+		KCClientSecret:      viper.GetString(KCClientSecret),
+		KCRealm:             viper.GetString(KCRealm),
+		KCBasePath:          viper.GetString(KCBasePath),
+		KCHttpManagmentPath: viper.GetString(KCHttpManagmentPath),
 		RedisAddr:           viper.GetString(RedisAddr),
 		S3AccessKey:         viper.GetString(S3AccessKey),
 		S3SecretKey:         viper.GetString(S3SecretKey),

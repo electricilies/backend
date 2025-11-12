@@ -57,7 +57,7 @@ func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.Model, error
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
-	u, err := r.keycloakClient.GetUserByID(ctx, token, r.cfg.KcRealm, id)
+	u, err := r.keycloakClient.GetUserByID(ctx, token, r.cfg.KCRealm, id)
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
@@ -89,7 +89,7 @@ func (r *repositoryImpl) List(ctx context.Context) ([]*user.Model, error) {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
 	enabled := false
-	users, err := r.keycloakClient.GetUsers(ctx, token, r.cfg.KcRealm, gocloak.GetUsersParams{
+	users, err := r.keycloakClient.GetUsers(ctx, token, r.cfg.KCRealm, gocloak.GetUsersParams{
 		Enabled: &enabled,
 	})
 	if err != nil {
@@ -117,7 +117,7 @@ func (r *repositoryImpl) Create(ctx context.Context, u *user.Model) (*user.Model
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
-	user, _ := (r.keycloakClient.GetUserByID(ctx, token, r.cfg.KcRealm, createdUser.String()))
+	user, _ := (r.keycloakClient.GetUserByID(ctx, token, r.cfg.KCRealm, createdUser.String()))
 	r.redisClient.Del(ctx, constant.UserListCacheKey)
 
 	return ToDomain(user), nil
@@ -128,7 +128,7 @@ func (r *repositoryImpl) Update(ctx context.Context, u *user.Model) error {
 	if err != nil {
 		return errors.ToDomainErrorFromGoCloak(err)
 	}
-	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.UpdateUser(ctx, token, r.cfg.KcRealm, ToUpdateUserParams(u)))
+	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.UpdateUser(ctx, token, r.cfg.KCRealm, ToUpdateUserParams(u)))
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func (r *repositoryImpl) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return errors.ToDomainErrorFromGoCloak(err)
 	}
-	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.DeleteUser(ctx, token, r.cfg.KcRealm, id))
+	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.DeleteUser(ctx, token, r.cfg.KCRealm, id))
 	if err != nil {
 		return err
 	}

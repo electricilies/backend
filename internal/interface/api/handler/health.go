@@ -50,7 +50,7 @@ func (h *healthCheck) Readiness(ctx *gin.Context) {
 	dbStatus, dbErr := IsDbReady(c, h.dbConn)
 	redisStatus, redisErr := IsRedisReady(c, h.redisClient)
 	s3Status, s3Err := IsS3Ready(c, h.s3Client, h.cfg.S3Bucket)
-	keycloakStatus, keycloakErr := IsKeycloakReady(c, h.keycloakClient, h.cfg.KcHttpManagmentPath)
+	keycloakStatus, keycloakErr := IsKeycloakReady(c, h.keycloakClient, h.cfg.KCHttpManagmentPath)
 
 	backendStatus := dbStatus && redisStatus && s3Status && keycloakStatus
 
