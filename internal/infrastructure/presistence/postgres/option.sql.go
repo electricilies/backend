@@ -148,6 +148,90 @@ func (q *Queries) GetOption(ctx context.Context, arg GetOptionParams) (Option, e
 	return i, err
 }
 
+const listOptionValues = `-- name: ListOptionValues :many
+SELECT
+  id, value, option_id
+FROM
+  option_values
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE option_values.id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::integer[] IS NULL THEN TRUE
+    ELSE option_values.option_id = ANY ($2::integer[])
+  END
+ORDER BY
+  option_values.id
+`
+
+type ListOptionValuesParams struct {
+	IDs       []int32
+	OptionIds []int32
+}
+
+func (q *Queries) ListOptionValues(ctx context.Context, arg ListOptionValuesParams) ([]OptionValue, error) {
+	rows, err := q.db.Query(ctx, listOptionValues, arg.IDs, arg.OptionIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []OptionValue
+	for rows.Next() {
+		var i OptionValue
+		if err := rows.Scan(&i.ID, &i.Value, &i.OptionID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOptionValuesProductVariants = `-- name: ListOptionValuesProductVariants :many
+SELECT
+  product_variant_id, option_value_id
+FROM
+  option_values_product_variants
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE option_values_product_variants.option_value_id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::integer[] IS NULL THEN TRUE
+    ELSE option_values_product_variants.product_variant_id = ANY ($2::integer[])
+  END
+`
+
+type ListOptionValuesProductVariantsParams struct {
+	OptionValueIDs    []int32
+	ProductVariantIDs []int32
+}
+
+func (q *Queries) ListOptionValuesProductVariants(ctx context.Context, arg ListOptionValuesProductVariantsParams) ([]OptionValuesProductVariant, error) {
+	rows, err := q.db.Query(ctx, listOptionValuesProductVariants, arg.OptionValueIDs, arg.ProductVariantIDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []OptionValuesProductVariant
+	for rows.Next() {
+		var i OptionValuesProductVariant
+		if err := rows.Scan(&i.ProductVariantID, &i.OptionValueID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listOptions = `-- name: ListOptions :many
 SELECT
   id, name, product_id, deleted_at

@@ -46,6 +46,7 @@ WHERE
     ELSE FALSE
   END
 ORDER BY
+  CASE WHEN sqlc.narg('search')::text IS NOT NULL THEN pdb.score(id) END DESC,
   id ASC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
@@ -57,6 +58,21 @@ FROM
   attributes
 WHERE
   id = @id;
+
+-- name: ListProductsAttributeValues :many
+SELECT
+  *
+FROM
+  products_attribute_values
+WHERE
+  CASE
+    WHEN sqlc.narg('product_variant_ids')::integer[] IS NULL THEN TRUE
+    ELSE product_variant_id = ANY (sqlc.narg('product_variant_ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.narg('attribute_value_ids')::integer[] IS NULL THEN TRUE
+    ELSE attribute_value_id = ANY (sqlc.narg('attribute_value_ids')::integer[])
+  END;
 
 -- name: ListAttributeValues :many
 SELECT

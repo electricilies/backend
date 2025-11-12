@@ -366,7 +366,7 @@ func (q *Queries) ListProductImages(ctx context.Context, arg ListProductImagesPa
 	return items, nil
 }
 
-const listProductVariants = `-- name: ListProductVariants :one
+const listProductVariants = `-- name: ListProductVariants :many
 SELECT
   id, sku, price, quantity, purchase_count, product_id, created_at, updated_at, deleted_at
 FROM
@@ -396,21 +396,34 @@ type ListProductVariantsParams struct {
 	Deleted    string
 }
 
-func (q *Queries) ListProductVariants(ctx context.Context, arg ListProductVariantsParams) (ProductVariant, error) {
-	row := q.db.QueryRow(ctx, listProductVariants, arg.IDs, arg.ProductIDs, arg.Deleted)
-	var i ProductVariant
-	err := row.Scan(
-		&i.ID,
-		&i.SKU,
-		&i.Price,
-		&i.Quantity,
-		&i.PurchaseCount,
-		&i.ProductID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
+func (q *Queries) ListProductVariants(ctx context.Context, arg ListProductVariantsParams) ([]ProductVariant, error) {
+	rows, err := q.db.Query(ctx, listProductVariants, arg.IDs, arg.ProductIDs, arg.Deleted)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ProductVariant
+	for rows.Next() {
+		var i ProductVariant
+		if err := rows.Scan(
+			&i.ID,
+			&i.SKU,
+			&i.Price,
+			&i.Quantity,
+			&i.PurchaseCount,
+			&i.ProductID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listProducts = `-- name: ListProducts :many

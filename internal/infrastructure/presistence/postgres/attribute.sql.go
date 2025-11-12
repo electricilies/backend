@@ -211,6 +211,7 @@ WHERE
     ELSE FALSE
   END
 ORDER BY
+  CASE WHEN $2::text IS NOT NULL THEN pdb.score(id) END DESC,
   id ASC
 OFFSET COALESCE($4::integer, 0)
 LIMIT COALESCE($5::integer, 20)
@@ -256,6 +257,47 @@ func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) 
 			&i.CurrentCount,
 			&i.TotalCount,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listProductsAttributeValues = `-- name: ListProductsAttributeValues :many
+SELECT
+  product_id, attribute_value_id
+FROM
+  products_attribute_values
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE product_variant_id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::integer[] IS NULL THEN TRUE
+    ELSE attribute_value_id = ANY ($2::integer[])
+  END
+`
+
+type ListProductsAttributeValuesParams struct {
+	ProductVariantIDs []int32
+	AttributeValueIDs []int32
+}
+
+func (q *Queries) ListProductsAttributeValues(ctx context.Context, arg ListProductsAttributeValuesParams) ([]ProductsAttributeValue, error) {
+	rows, err := q.db.Query(ctx, listProductsAttributeValues, arg.ProductVariantIDs, arg.AttributeValueIDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ProductsAttributeValue
+	for rows.Next() {
+		var i ProductsAttributeValue
+		if err := rows.Scan(&i.ProductID, &i.AttributeValueID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

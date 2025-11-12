@@ -145,7 +145,7 @@ WHERE
     ELSE FALSE
   END;
 
--- name: ListProductVariants :one
+-- name: ListProductVariants :many
 SELECT
   *
 FROM

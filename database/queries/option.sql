@@ -56,6 +56,38 @@ WHERE
     ELSE FALSE
   END;
 
+-- name: ListOptionValuesProductVariants :many
+SELECT
+  *
+FROM
+  option_values_product_variants
+WHERE
+  CASE
+    WHEN sqlc.narg('option_value_ids')::integer[] IS NULL THEN TRUE
+    ELSE option_values_product_variants.option_value_id = ANY (sqlc.narg('option_value_ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.narg('product_variant_ids')::integer[] IS NULL THEN TRUE
+    ELSE option_values_product_variants.product_variant_id = ANY (sqlc.narg('product_variant_ids')::integer[])
+  END;
+
+-- name: ListOptionValues :many
+SELECT
+  *
+FROM
+  option_values
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE option_values.id = ANY (sqlc.narg('ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.narg('option_ids')::integer[] IS NULL THEN TRUE
+    ELSE option_values.option_id = ANY (sqlc.narg('option_ids')::integer[])
+  END
+ORDER BY
+  option_values.id;
+
 -- name: UpdateOptions :many
 WITH updated_options AS (
   SELECT
