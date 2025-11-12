@@ -57,6 +57,31 @@ FROM
 WHERE
   id = @id;
 
+-- name: ListOrderItems :many
+SELECT
+  *
+FROM
+  order_items
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.narg('order_ids')::integer[] IS NULL THEN TRUE
+    ELSE order_id = ANY (sqlc.narg('order_ids')::integer[])
+  END
+ORDER BY
+  id;
+
+-- name: GetOrderItem :one
+SELECT
+  *
+FROM
+  order_items
+WHERE
+  id = @id;
+
 -- name: ListOrderStatuses :many
 SELECT
   *

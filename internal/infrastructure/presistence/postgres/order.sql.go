@@ -109,6 +109,32 @@ func (q *Queries) GetOrder(ctx context.Context, arg GetOrderParams) (Order, erro
 	return i, err
 }
 
+const getOrderItem = `-- name: GetOrderItem :one
+SELECT
+  id, quantity, order_id, price_at_order, product_variant_id
+FROM
+  order_items
+WHERE
+  id = $1
+`
+
+type GetOrderItemParams struct {
+	ID int32
+}
+
+func (q *Queries) GetOrderItem(ctx context.Context, arg GetOrderItemParams) (OrderItem, error) {
+	row := q.db.QueryRow(ctx, getOrderItem, arg.ID)
+	var i OrderItem
+	err := row.Scan(
+		&i.ID,
+		&i.Quantity,
+		&i.OrderID,
+		&i.PriceAtOrder,
+		&i.ProductVariantID,
+	)
+	return i, err
+}
+
 const getOrderStatus = `-- name: GetOrderStatus :one
 SELECT
   id, name
@@ -135,6 +161,55 @@ func (q *Queries) GetOrderStatus(ctx context.Context, arg GetOrderStatusParams) 
 	var i OrderStatus
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
+}
+
+const listOrderItems = `-- name: ListOrderItems :many
+SELECT
+  id, quantity, order_id, price_at_order, product_variant_id
+FROM
+  order_items
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::integer[] IS NULL THEN TRUE
+    ELSE order_id = ANY ($2::integer[])
+  END
+ORDER BY
+  id
+`
+
+type ListOrderItemsParams struct {
+	IDs      []int32
+	OrderIds []int32
+}
+
+func (q *Queries) ListOrderItems(ctx context.Context, arg ListOrderItemsParams) ([]OrderItem, error) {
+	rows, err := q.db.Query(ctx, listOrderItems, arg.IDs, arg.OrderIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []OrderItem
+	for rows.Next() {
+		var i OrderItem
+		if err := rows.Scan(
+			&i.ID,
+			&i.Quantity,
+			&i.OrderID,
+			&i.PriceAtOrder,
+			&i.ProductVariantID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listOrderStatuses = `-- name: ListOrderStatuses :many
