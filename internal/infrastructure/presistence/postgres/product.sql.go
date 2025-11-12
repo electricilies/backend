@@ -563,9 +563,10 @@ SET
   views_count = COALESCE($3::integer, views_count),
   total_purchase = COALESCE($4::integer, purchase_count),
   trending_score = COALESCE($5::float, trending_score), -- TODO: Do we ever update this manually?
+  category_id = COALESCE($6::integer, category_id),
   updated_at = NOW()
 WHERE
-  id = $6
+  id = $7
   AND deleted_at IS NULL
 RETURNING
   id, name, description, price, views_count, total_purchase, rating, trending_score, category_id, created_at, updated_at, deleted_at
@@ -577,6 +578,7 @@ type UpdateProductParams struct {
 	ViewsCount    pgtype.Int4
 	TotalPurchase pgtype.Int4
 	TrendingScore pgtype.Float8
+	CategoryID    pgtype.Int4
 	ID            int32
 }
 
@@ -587,6 +589,7 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		arg.ViewsCount,
 		arg.TotalPurchase,
 		arg.TrendingScore,
+		arg.CategoryID,
 		arg.ID,
 	)
 	var i Product

@@ -198,6 +198,7 @@ SET
   views_count = COALESCE(sqlc.narg('views_count')::integer, views_count),
   total_purchase = COALESCE(sqlc.narg('total_purchase')::integer, purchase_count),
   trending_score = COALESCE(sqlc.narg('trending_score')::float, trending_score), -- TODO: Do we ever update this manually?
+  category_id = COALESCE(sqlc.narg('category_id')::integer, category_id),
   updated_at = NOW()
 WHERE
   id = @id
