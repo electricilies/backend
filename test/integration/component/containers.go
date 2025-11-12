@@ -38,6 +38,7 @@ type MinIOConfig struct {
 	Image    string
 	User     string
 	Password string
+	Bucket   string
 }
 
 type RedisConfig struct {
@@ -46,15 +47,15 @@ type RedisConfig struct {
 }
 
 type ContainersConfig struct {
-	db       DBConfig
-	keycloak KeycloakConfig
-	minio    MinIOConfig
-	redis    RedisConfig
+	DB       DBConfig
+	Keycloak KeycloakConfig
+	MinIO    MinIOConfig
+	Redis    RedisConfig
 }
 
 func NewContainersConfig() *ContainersConfig {
 	return &ContainersConfig{
-		db: DBConfig{
+		DB: DBConfig{
 			Enabled:  false,
 			Image:    DBImage,
 			User:     "electricilies",
@@ -69,7 +70,7 @@ func NewContainersConfig() *ContainersConfig {
 				filepath.Join("..", "testdata", "paradedb-index.sql"),
 			},
 		},
-		keycloak: KeycloakConfig{
+		Keycloak: KeycloakConfig{
 			Enabled:       false,
 			Image:         KeycloakImage,
 			AdminUsername: "electricilies",
@@ -77,13 +78,14 @@ func NewContainersConfig() *ContainersConfig {
 			ContextPath:   "/auth",
 			RealmFilePath: filepath.Join("..", "testdata", "electricilies-realm-export.json"),
 		},
-		minio: MinIOConfig{
+		MinIO: MinIOConfig{
 			Enabled:  false,
 			Image:    MinIOImage,
 			User:     "electricilies",
 			Password: "electricilies",
+			Bucket:   "electricilies",
 		},
-		redis: RedisConfig{
+		Redis: RedisConfig{
 			Enabled: false,
 			Image:   RedisImage,
 		},
@@ -91,78 +93,114 @@ func NewContainersConfig() *ContainersConfig {
 }
 
 type Containers struct {
-	Postgres *postgres.PostgresContainer
+	DB       *postgres.PostgresContainer
 	Keycloak *keycloak.KeycloakContainer
 	MinIO    *minio.MinioContainer
 	Redis    *redis.RedisContainer
+}
+
+func setupPostgres(ctx context.Context, cfg DBConfig) (*postgres.PostgresContainer, error) {
+	if !cfg.Enabled {
+		return nil, nil
+	}
+
+	postgresContainer, err := postgres.Run(
+		ctx,
+		cfg.Image,
+		postgres.WithDatabase(cfg.Database),
+		postgres.WithUsername(cfg.User),
+		postgres.WithPassword(cfg.Password),
+		postgres.WithOrderedInitScripts(cfg.InitScriptsPaths...),
+		postgres.BasicWaitStrategies(),
+	)
+	if err != nil {
+		log.Printf("failed to start postgres container: %v", err)
+		return nil, err
+	}
+	return postgresContainer, nil
+}
+
+func setupKeycloak(ctx context.Context, cfg KeycloakConfig) (*keycloak.KeycloakContainer, error) {
+	if !cfg.Enabled {
+		return nil, nil
+	}
+
+	keycloakContainer, err := keycloak.Run(
+		ctx,
+		cfg.Image,
+		keycloak.WithAdminUsername(cfg.AdminUsername),
+		keycloak.WithAdminPassword(cfg.AdminPassword),
+		keycloak.WithContextPath(cfg.ContextPath),
+		keycloak.WithRealmImportFile(cfg.RealmFilePath),
+	)
+	if err != nil {
+		log.Printf("failed to start keycloak container: %v", err)
+		return nil, err
+	}
+	return keycloakContainer, nil
+}
+
+func setupMinio(ctx context.Context, cfg MinIOConfig) (*minio.MinioContainer, error) {
+	if !cfg.Enabled {
+		return nil, nil
+	}
+
+	minioContainer, err := minio.Run(
+		ctx,
+		cfg.Image,
+		minio.WithUsername(cfg.User),
+		minio.WithPassword(cfg.Password),
+	)
+	if err != nil {
+		log.Printf("failed to start minio container: %v", err)
+		return nil, err
+	}
+	return minioContainer, nil
+}
+
+func setupRedis(ctx context.Context, cfg RedisConfig) (*redis.RedisContainer, error) {
+	if !cfg.Enabled {
+		return nil, nil
+	}
+
+	redisContainer, err := redis.Run(
+		ctx,
+		cfg.Image,
+	)
+	if err != nil {
+		log.Printf("failed to start redis container: %v", err)
+		return nil, err
+	}
+	return redisContainer, nil
 }
 
 func NewContainers(ctx context.Context, cfg *ContainersConfig) (*Containers, error) {
 	if cfg == nil {
 		cfg = NewContainersConfig()
 	}
-	var postgresContainer *postgres.PostgresContainer
-	var keycloakContainer *keycloak.KeycloakContainer
-	var minioContainer *minio.MinioContainer
-	var redisContainer *redis.RedisContainer
-	var err error
 
-	if cfg.db.Enabled {
-		postgresContainer, err = postgres.Run(
-			ctx,
-			cfg.db.Image,
-			postgres.WithDatabase(cfg.db.Database),
-			postgres.WithUsername(cfg.db.User),
-			postgres.WithPassword(cfg.db.Password),
-			postgres.WithOrderedInitScripts(cfg.db.InitScriptsPaths...),
-			postgres.BasicWaitStrategies(),
-		)
-		if err != nil {
-			log.Printf("failed to start postgres container: %v", err)
-			return nil, err
-		}
+	postgresContainer, err := setupPostgres(ctx, cfg.DB)
+	if err != nil {
+		return nil, err
 	}
 
-	if cfg.keycloak.Enabled {
-		keycloakContainer, err = keycloak.Run(
-			ctx,
-			cfg.keycloak.Image,
-			keycloak.WithAdminUsername(cfg.keycloak.AdminUsername),
-			keycloak.WithAdminPassword(cfg.keycloak.AdminPassword),
-			keycloak.WithContextPath(cfg.keycloak.ContextPath),
-			keycloak.WithRealmImportFile(cfg.keycloak.RealmFilePath),
-		)
-		if err != nil {
-			log.Printf("failed to start keycloak container: %v", err)
-			return nil, err
-		}
+	keycloakContainer, err := setupKeycloak(ctx, cfg.Keycloak)
+	if err != nil {
+		return nil, err
 	}
 
-	if cfg.minio.Enabled {
-		minioContainer, err = minio.Run(
-			ctx,
-			cfg.minio.Image,
-			minio.WithUsername(cfg.minio.User),
-			minio.WithPassword(cfg.minio.Password),
-		)
-		if err != nil {
-			log.Printf("failed to start minio container: %v", err)
-			return nil, err
-		}
+	minioContainer, err := setupMinio(ctx, cfg.MinIO)
+	if err != nil {
+		return nil, err
 	}
 
-	if cfg.redis.Enabled {
-		redisContainer, err = redis.Run(
-			ctx,
-			cfg.redis.Image,
-		)
-		if err != nil {
-			log.Printf("failed to start redis container: %v", err)
-			return nil, err
-		}
+	redisContainer, err := setupRedis(ctx, cfg.Redis)
+	if err != nil {
+		return nil, err
 	}
+
 	containers := &Containers{
-		Postgres: postgresContainer,
+		DB:       postgresContainer,
 		Keycloak: keycloakContainer,
 		MinIO:    minioContainer,
 		Redis:    redisContainer,
@@ -172,7 +210,7 @@ func NewContainers(ctx context.Context, cfg *ContainersConfig) (*Containers, err
 
 func (c *Containers) Cleanup(t testing.TB) {
 	for _, container := range []testcontainers.Container{
-		c.Postgres,
+		c.DB,
 		c.Keycloak,
 		c.MinIO,
 		c.Redis,
