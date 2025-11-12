@@ -54,10 +54,11 @@ func (h *attributeHandler) Get(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			offset		query		int	false	"Offset for pagination"
-//	@Param			limit		query		int	false	"Limit for pagination"
-//	@Param			product_id	query		int	false	"Product ID"
-//
+//	@Param			offset		query		int		false						"Offset for pagination"
+//	@Param			limit		query		int		false						"Limit for pagination"
+//	@Param			product_id	query		int		false						"Product ID"
+//	@Param			search		query		string	false						"Search term"
+//	@Param			deleted		string		false	"Filter by deletion status"	Enums(exclude, only, all)
 //	@Success		200			{object}	response.DataPagination{data=[]response.Attribute}
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/attributes [get]

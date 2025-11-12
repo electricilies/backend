@@ -2,14 +2,6 @@ package attribute
 
 import "backend/internal/domain/param"
 
-type Deleted string
-
-const (
-	Exclude Deleted = "exclude"
-	Only    Deleted = "only"
-	All     Deleted = "all"
-)
-
 type Model struct {
 	ID              string
 	Code            string
@@ -26,7 +18,7 @@ type QueryParams struct {
 	PaginationParams *param.Pagination
 	ProductID        int
 	Search           string
-	Deleted          *Deleted
+	Deleted          *param.Deleted
 }
 
 type PaginationModel struct {

@@ -46,6 +46,12 @@ const docTemplate = `{
                         "description": "Product ID",
                         "name": "product_id",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
                     }
                 ],
                 "responses": {
