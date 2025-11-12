@@ -4,6 +4,34 @@
 # '_'.file = { path = ".env", required = false }
 # _.nix = true
 
+DB_USERNAME = "electricilies"
+DB_PASSWORD = "electricilies"
+DB_DATABASE = "electricilies"
+DB_PORT = 5432                # optional
+DB_HOST = "localhost"
+PORT = 8080                   # optional
+TIMEZONE = "Asia/Ho_Chi_Minh" # optional
+
+# Keycloak
+KC_CLIENT_ID = "backend"
+KC_CLIENT_SECRET = "electricilies"
+KC_REALM = "electricilies"
+KC_BASE_PATH = "http://localhost:8081"
+KC_HTTP_MANAGEMENT_PATH = "http://localhost:8082"
+
+# S3 / S3 Compatible (MinIO)
+S3_ACCESS_KEY = "electricilies"
+S3_SECRET_KEY = "electricilies"
+S3_REGION_NAME = "us-east-1"
+S3_ENDPOINT = "http://localhost:9000"
+S3_BUCKET = "electricilies"
+
+# Public, mostly used in Swagger
+PUBLIC_KEYCLOAK_URL = ""
+
+# Redis / Redis Compatible
+REDIS_ADDRESS = "localhost:6379"
+
 [tools]
 air = "latest"
 atlas = "0.37.0"
@@ -14,5 +42,6 @@ go = "1.25.3"
 golangci-lint = "2.5.0"
 just = "latest"
 mc = "latest"
+mockery = "3.5.5"
 swag = "1.16.6"
 terraform = "1.13.4"

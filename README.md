@@ -26,35 +26,7 @@
 
 ### Environment variables
 
-```dotenv
-# Backend env var
-DB_USERNAME=electricilies
-DB_PASSWORD=electricilies
-DB_DATABASE=electricilies
-DB_PORT=5432 # optional
-DB_HOST=localhost
-PORT=8080                 # optional
-TIMEZONE=Asia/Ho_Chi_Minh # optional
-
-# Keycloak
-KC_CLIENT_ID=backend
-KC_CLIENT_SECRET=electricilies
-KC_REALM=electricilies
-KC_BASE_PATH=http://localhost:8081
-KC_HTTP_MANAGEMENT_PATH=http://localhost:8082
-
-# S3 / S3 Compatible (MinIO)
-S3_ACCESS_KEY=electricilies
-S3_SECRET_KEY=electricilies
-S3_REGION_NAME=us-east-1
-S3_ENDPOINT=http://localhost:9000
-S3_BUCKET=electricilies
-
-PUBLIC_KEYCLOAK_URL= # use in swagger
-
-# Redis / Redis Compatible
-REDIS_ADDRESS=localhost:6379
-```
+Read at [mise.toml](./mise.toml)
 
 > [!NOTE]
 >
