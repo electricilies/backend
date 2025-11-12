@@ -17,19 +17,23 @@ coverage:
       informational: true
 component_management:
   individual_components:
-    - name: business-logic
+    - component_id: business-logic
+      name: Business Logic
       paths:
         - internal/domain/
         - internal/infrastructure/
         - internal/di/
-    - name: domain
+    - component_id: Domain
+      name: domain
       paths:
         - internal/domain/
-    - name: infrastructure
+    - component_id: infrastructure
+      name: Infrastructure
       paths:
         - internal/infrastructure/
         - internal/di/
-    - name: application
+    - component_id: application
+      name: Application
       paths:
         - internal/application/
         - internal/interface/
