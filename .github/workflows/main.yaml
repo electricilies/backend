@@ -153,17 +153,17 @@ jobs:
         with:
           experimental: true
 
-      # TODO: Uncomment this out when using testcontainer
+      - name: Cache Docker images.
+        uses: ScribeMD/docker-cache@0.5.0
+        with:
+          key: docker-${{ runner.os }}-${{ hashFiles('integrationtest/images.go') }}
 
-      # - name: Cache Docker images.
-      #   uses: ScribeMD/docker-cache@0.5.0
-      #   with:
-      #     key: docker-${{ runner.os }}-${{ hashFiles('integrationtest/images.go') }}
-
-      - name: Test
-        id: test
-        run: just test --tags=integration -coverprofile=coverage.txt
+      - name: Unit tests
+        run: just test-unit -coverprofile=unit.txt
         continue-on-error: true
+
+      - name: Integration tests
+        run: just test-integration -coverprofile=integration.txt
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5
@@ -174,6 +174,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           env_vars: OS,ARCH
           slug: ${{ github.repository }}
+          files: ./unit.txt,./integration.txt
 
   sonar:
     name: SonarQube

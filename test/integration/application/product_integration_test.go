@@ -4,6 +4,8 @@ package application_test
 
 import (
 	"context"
+	"log"
+	"strings"
 	"testing"
 
 	"backend/config"
@@ -34,6 +36,8 @@ func (s *ProductTestSuite) newConfig(
 	ctx context.Context,
 	containersConfig *component.ContainersConfig,
 ) *config.Config {
+	s.T().Helper()
+
 	dbConnStr, err := s.containers.DB.ConnectionString(ctx, "sslmode=disable")
 	s.Require().NoError(err, "failed to get db connection string")
 
@@ -47,9 +51,9 @@ func (s *ProductTestSuite) newConfig(
 		S3AccessKey:  containersConfig.MinIO.User,
 		S3SecretKey:  containersConfig.MinIO.Password,
 		S3RegionName: "us-east-1",
-		S3Endpoint:   s3ConnStr,
+		S3Endpoint:   "http://" + s3ConnStr,
 		S3Bucket:     containersConfig.MinIO.Bucket,
-		RedisAddr:    redisConnStr,
+		RedisAddr:    strings.TrimPrefix(redisConnStr, "redis://"),
 	}
 }
 
@@ -87,9 +91,9 @@ func (s *ProductTestSuite) TearDownSuite() {
 }
 
 func (s *ProductTestSuite) TestGetProductImageUploadURL() {
+	s.T().Parallel()
 	ctx := s.T().Context()
 
-	// Get MinIO connection string for regex validation
 	minioConnStr, err := s.containers.MinIO.ConnectionString(ctx)
 	s.Require().NoError(err, "failed to get MinIO connection string")
 	s.Require().NotEmpty(minioConnStr, "MinIO connection string should not be empty")
@@ -112,16 +116,19 @@ func (s *ProductTestSuite) TestGetProductImageUploadURL() {
 				s.Error(err)
 				return
 			}
+			log.Println("Generated upload URL:", result.URL)
 
 			s.NoError(err)
 			s.NotNil(result)
 			s.NotEmpty(result.URL, "URL should not be empty")
 			s.NotEmpty(result.Key, "Key should not be empty")
 			s.Contains(result.URL, minioConnStr, "URL should contain MinIO connection string")
+			s.Contains(result.URL, result.Key, "URL should contain the object key")
 		})
 	}
 }
 
 func TestProductTestSuite(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(ProductTestSuite))
 }

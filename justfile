@@ -26,9 +26,16 @@ run: build
 debug:
   dlv debug --headless --listen=:4444 {{main-go}}
 
-[doc("Run test")]
-test *args="":
+[doc("Run unit test")]
+test-unit *args="":
   go test ./... {{args}}
+
+[doc("Run integration test")]
+test-integration *args="":
+  go test -tags=integration ./test/integration/... {{args}}
+
+[doc("Run test (unit, integration)")]
+test: test-unit test-integration
 
 check-static-type:
   go vet ./cmd/main.go

@@ -62,12 +62,12 @@ func NewContainersConfig() *ContainersConfig {
 			Password: "electricilies",
 			Database: "electricilies",
 			InitScriptsPaths: []string{
-				filepath.Join("..", "testdata", "init.sql"),
-				filepath.Join("..", "testdata", "schema.sql"),
-				filepath.Join("..", "testdata", "trigger.sql"),
-				filepath.Join("..", "testdata", "seed.sql"),
-				filepath.Join("..", "testdata", "seed-fake.sql"),
-				filepath.Join("..", "testdata", "paradedb-index.sql"),
+				filepath.Join("..", "testdata", "00-init.sql"),
+				filepath.Join("..", "testdata", "20-schema.sql"),
+				filepath.Join("..", "testdata", "21-trigger.sql"),
+				filepath.Join("..", "testdata", "30-seed.sql"),
+				filepath.Join("..", "testdata", "31-seed-fake.sql"),
+				filepath.Join("..", "testdata", "40-paradedb-index.sql"),
 			},
 		},
 		Keycloak: KeycloakConfig{
@@ -110,7 +110,7 @@ func setupPostgres(ctx context.Context, cfg DBConfig) (*postgres.PostgresContain
 		postgres.WithDatabase(cfg.Database),
 		postgres.WithUsername(cfg.User),
 		postgres.WithPassword(cfg.Password),
-		postgres.WithOrderedInitScripts(cfg.InitScriptsPaths...),
+		postgres.WithInitScripts(cfg.InitScriptsPaths...),
 		postgres.BasicWaitStrategies(),
 	)
 	if err != nil {
