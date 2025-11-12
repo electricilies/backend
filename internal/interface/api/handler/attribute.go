@@ -53,15 +53,15 @@ func (h *attributeHandler) Get(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			offset		query		int	true	"Offset for pagination"
-//	@Param			limit		query		int	true	"Limit for pagination"
+//	@Param			offset		query		int	false	"Offset for pagination"
+//	@Param			limit		query		int	false	"Limit for pagination"
 //	@Param			product_id	query		int	false	"Product ID"
 //
 //	@Success		200			{object}	response.DataPagination{data=[]response.Attribute}
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/attributes [get]
 func (h *attributeHandler) List(ctx *gin.Context) {
-	offset, _ := strconv.Atoi(ctx.Query("offset"))
+	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check, now it not required
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 	productID, err := strconv.Atoi(ctx.Query("product_id"))
 	if err != nil {

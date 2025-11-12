@@ -60,14 +60,14 @@ func (h *productHandler) Get(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			offset	query		int	true	"Offset for pagination"
-//	@Param			limit	query		int	true	"Limit for pagination"
+//	@Param			offset	query		int	false	"Offset for pagination"
+//	@Param			limit	query		int	false	"Limit for pagination"
 //
 //	@Success		200		{object}	response.DataPagination{data=[]response.Product}
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/products [get]
 func (h *productHandler) List(ctx *gin.Context) {
-	limit, _ := strconv.Atoi(ctx.Query("limit"))
+	limit, _ := strconv.Atoi(ctx.Query("limit"))   // TODO: check all pagination because now it not required
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check if the json is checked of need to check in here
 	pParams := &pagination.Params{
 		Limit:  limit,

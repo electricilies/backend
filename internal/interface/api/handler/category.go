@@ -36,13 +36,13 @@ func NewCategory(app application.Category) Category {
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Param			offset	query		int	true	"Offset for pagination"
-//	@Param			limit	query		int	true	"Limit for pagination"
+//	@Param			offset	query		int	false	"Offset for pagination"
+//	@Param			limit	query		int	false	"Limit for pagination"
 //	@Success		200		{object}	response.DataPagination{data=[]response.Category}
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/categories [get]
 func (h *categoryHandler) List(ctx *gin.Context) {
-	offset, _ := strconv.Atoi(ctx.Query("offset"))
+	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: now it not required
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 
 	pagination, err := h.app.ListCategories(ctx, &category.QueryParams{
