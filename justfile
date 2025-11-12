@@ -32,7 +32,7 @@ test-unit *args="":
 
 [doc("Run integration test")]
 test-integration *args="":
-  go test -tags=integration ./test/integration/... {{args}}
+  go test -tags=integration ./test/integration/... -coverpkg=./internal/... {{args}}
 
 [doc("Run test (unit, integration)")]
 test: test-unit test-integration
