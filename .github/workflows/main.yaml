@@ -176,7 +176,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           env_vars: OS,ARCH
           slug: ${{ github.repository }}
-          files: ./unit.txt${{ matrix.os == 'linux' && './integration.txt' || '' }}
+          files: ./unit.txt${{ matrix.os == 'linux' && ',./integration.txt' || '' }}
   sonar:
     name: SonarQube
     runs-on: ubuntu-latest
