@@ -12,6 +12,7 @@ const (
 	DBHost              = "DB_HOST"
 	DBPort              = "DB_PORT"
 	DBName              = "DB_DATABASE"
+	DBURL               = "DB_URL"
 	EnvApp              = "ENV_APP"
 	LogStdout           = "LOG_ENABLE_STDOUT"
 	LogFile             = "LOG_ENABLE_FILE"
@@ -37,6 +38,7 @@ type Config struct {
 	DBHost              string
 	DBPort              int
 	DBName              string
+	DBURL               string
 	EnvApp              string
 	EnableStdout        bool
 	EnableFile          bool
@@ -74,6 +76,7 @@ func New() *Config {
 		DBHost:              viper.GetString(DBHost),
 		DBPort:              viper.GetInt(DBPort),
 		DBName:              viper.GetString(DBName),
+		DBURL:               viper.GetString(DBURL),
 		EnvApp:              viper.GetString(EnvApp),
 		EnableStdout:        viper.GetBool(LogStdout),
 		EnableFile:          viper.GetBool(LogFile),
