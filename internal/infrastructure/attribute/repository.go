@@ -12,6 +12,6 @@ func NewRepository() attribute.Repository {
 	return Repository{}
 }
 
-func (r Repository) List(ctx context.Context, QueryParams *attribute.QueryParams) (*attribute.PaginationModel, error) {
+func (r Repository) List(ctx context.Context, queryParams *attribute.QueryParams) (*attribute.PaginationModel, error) {
 	return &attribute.PaginationModel{}, nil
 }
