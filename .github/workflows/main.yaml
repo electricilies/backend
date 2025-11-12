@@ -182,6 +182,7 @@ jobs:
           files: ./unit.txt${{ matrix.os == 'linux' && ',./integration.txt' || '' }}
 
       - name: Fail test if tests failed
+        shell: bash
         run: |
           fail=false
           if [ "${{ steps.unit-tests.outcome }}" = "failure" ]; then
