@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/olimorris/codecompanion.nvim/refs/heads/main/lua/codecompanion/workspace-schema.json",
+  "name": "Electricilies Backend",
+  "version": "0.0.0",
+  "system_prompt": "You are expert in golang backend development, postgres database",
+  "groups": [
+    {
+      "name": "Swaggo Ask",
+      "system_prompt": "",
+      "description": "",
+      "data": ["swaggo-doc"]
+    }
+  ],
+  "data": {
+    "swaggo-doc": {
+      "type": "url",
+      "path": "https://raw.githubusercontent.com/swaggo/swag/refs/heads/master/README.md",
+      "description": "This is documentation for swaggo"
+    }
+  }
+}
