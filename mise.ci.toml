@@ -18,3 +18,4 @@ golangci-lint = "2.5.0"
 just = "latest"
 uv = "0.9.3"
 swag = { version = "1.16.6", os = ["linux", "darwin"] }
+mockery = "3.5.5"
