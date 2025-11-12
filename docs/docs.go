@@ -52,6 +52,17 @@ const docTemplate = `{
                         "description": "Search term",
                         "name": "search",
                         "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "exclude",
+                            "only",
+                            "all"
+                        ],
+                        "type": "string",
+                        "description": "Filter by deletion status",
+                        "name": "deleted",
+                        "in": "query"
                     }
                 ],
                 "responses": {

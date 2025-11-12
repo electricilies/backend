@@ -156,7 +156,7 @@ jobs:
       - name: Cache Docker images.
         uses: ScribeMD/docker-cache@0.5.0
         with:
-          key: docker-${{ runner.os }}-${{ hashFiles('test/integration/component/containersimages.go') }}
+          key: testcontainers-${{ runner.os }}-${{ hashFiles('**/containersimages.go') }}
 
       - name: Unit tests
         run: just test-unit -coverprofile=unit.txt
