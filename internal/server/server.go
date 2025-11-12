@@ -1,10 +1,8 @@
 package server
 
 import (
-	"net/http"
-	"strings"
-
 	"backend/config"
+	"backend/internal/interface/api/handler"
 	"backend/internal/interface/api/router"
 
 	"github.com/gin-gonic/gin"
@@ -13,17 +11,17 @@ import (
 )
 
 type Server struct {
-	engine *gin.Engine
-	cfg    *config.Config
+	engine      *gin.Engine
+	cfg         *config.Config
+	authHandler handler.Auth
 }
 
-func New(e *gin.Engine, r router.Router, cfg *config.Config) *Server {
+func New(e *gin.Engine, r router.Router, cfg *config.Config, authHandler handler.Auth) *Server {
 	r.RegisterRoutes(e)
 	auth := e.Group("/auth")
 	{
-		handler := authHandler(cfg)
-		auth.GET("/*path", handler)
-		auth.POST("/*path", handler)
+		auth.GET("/*path", authHandler.Handler())
+		auth.POST("/*path", authHandler.Handler())
 	}
 	e.GET(
 		"/swagger/*any",
@@ -34,19 +32,12 @@ func New(e *gin.Engine, r router.Router, cfg *config.Config) *Server {
 		),
 	)
 	return &Server{
-		engine: e,
-		cfg:    cfg,
+		engine:      e,
+		cfg:         cfg,
+		authHandler: authHandler,
 	}
 }
 
 func (s *Server) Run() error {
 	return s.engine.Run()
-}
-
-func authHandler(cfg *config.Config) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		basePath := cfg.KcBasePath
-		redirectURL := basePath + strings.TrimPrefix(c.Request.URL.String(), "/auth")
-		c.Redirect(http.StatusTemporaryRedirect, redirectURL)
-	}
 }

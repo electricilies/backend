@@ -69,7 +69,8 @@ func InitializeServer() *server.Server {
 	handlerReview := handler.NewReview(applicationReview)
 	cart := handler.NewCart()
 	routerRouter := router.New(handlerUser, healthCheck, metric, logging, auth, handlerCategory, handlerProduct, handlerAttribute, payment, order, returnRequest, refund, handlerReview, cart)
-	serverServer := server.New(engine, routerRouter, configConfig)
+	handlerAuth := handler.NewAuth(configConfig)
+	serverServer := server.New(engine, routerRouter, configConfig, handlerAuth)
 	return serverServer
 }
 
@@ -91,7 +92,7 @@ var AppSet = wire.NewSet(application.NewUser, application.NewProduct, applicatio
 
 var MiddlewareSet = wire.NewSet(middleware.NewMetric, middleware.NewLogging, middleware.NewJWTVerify)
 
-var HandlerSet = wire.NewSet(handler.NewUser, handler.NewHealthCheck, handler.NewCategory, handler.NewProduct, handler.NewAttribute, handler.NewPayment, handler.NewOrder, handler.NewReturn, handler.NewRefund, handler.NewReview, handler.NewCart)
+var HandlerSet = wire.NewSet(handler.NewUser, handler.NewHealthCheck, handler.NewCategory, handler.NewProduct, handler.NewAttribute, handler.NewPayment, handler.NewOrder, handler.NewReturn, handler.NewRefund, handler.NewReview, handler.NewCart, handler.NewAuth)
 
 var RouterSet = wire.NewSet(router.New)
 

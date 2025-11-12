@@ -85,6 +85,7 @@ var HandlerSet = wire.NewSet(
 	handler.NewRefund,
 	handler.NewReview,
 	handler.NewCart,
+	handler.NewAuth,
 )
 
 var RouterSet = wire.NewSet(
