@@ -1,6 +1,6 @@
 package response
 
-import "backend/internal/domain/params"
+import "backend/internal/domain/param"
 
 type Pagination struct {
 	TotalItems   int `json:"totalItems" binding:"required"`
@@ -8,7 +8,7 @@ type Pagination struct {
 	ItemsPerPage int `json:"itemsPerPage" binding:"required"`
 }
 
-func PaginationFromDomain(p *params.Metadata) *Pagination {
+func PaginationFromDomain(p *param.Metadata) *Pagination {
 	return &Pagination{
 		TotalItems:   p.TotalRecords,
 		CurrentPage:  p.CurrentPage,
@@ -21,7 +21,7 @@ type DataPagination struct {
 	Meta *Pagination `json:"pagination" binding:"required"`
 }
 
-func DataPaginationFromDomain(data interface{}, p *params.Metadata) *DataPagination {
+func DataPaginationFromDomain(data interface{}, p *param.Metadata) *DataPagination {
 	return &DataPagination{
 		Data: data,
 		Meta: PaginationFromDomain(p),

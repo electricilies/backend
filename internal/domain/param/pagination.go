@@ -1,6 +1,6 @@
 package param
 
-type Params struct {
+type Pagination struct {
 	Limit  int
 	Offset int
 }

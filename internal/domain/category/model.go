@@ -3,7 +3,7 @@ package category
 import (
 	"time"
 
-	"backend/internal/domain/params"
+	"backend/internal/domain/param"
 )
 
 type Model struct {
@@ -15,10 +15,10 @@ type Model struct {
 }
 
 type PaginationModel struct {
-	Metadata   *params.Metadata
+	Metadata   *param.Metadata
 	Categories *[]Model
 }
 
 type QueryParams struct {
-	PaginationParams params.Params
+	PaginationParams param.Params
 }

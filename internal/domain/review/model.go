@@ -3,7 +3,7 @@ package review
 import (
 	"time"
 
-	"backend/internal/domain/params"
+	"backend/internal/domain/param"
 	"backend/internal/domain/user"
 )
 
@@ -18,10 +18,10 @@ type Review struct {
 }
 
 type QueryParams struct {
-	PaginationParams params.Params
+	PaginationParams param.Params
 }
 
 type Pagination struct {
-	Metadata *params.Metadata
+	Metadata *param.Metadata
 	Reviews  *[]Review
 }

@@ -1,7 +1,7 @@
 package cart
 
 import (
-	"backend/internal/domain/params"
+	"backend/internal/domain/param"
 	"backend/internal/domain/product"
 )
 
@@ -17,6 +17,6 @@ type ItemModel struct {
 }
 
 type ItemsPaginationModel struct {
-	Metadata *params.Metadata
+	Metadata *param.Metadata
 	Items    *[]ItemModel
 }

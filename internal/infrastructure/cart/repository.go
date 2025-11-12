@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"backend/internal/domain/cart"
-	"backend/internal/domain/params"
+	"backend/internal/domain/param"
 )
 
 type repository struct{}
@@ -13,6 +13,6 @@ func NewRepository() cart.Repository {
 	return &repository{}
 }
 
-func (r *repository) GetCartByUser(ctx context.Context, userID string, paginationParams *params.Params) (*cart.Model, error) {
+func (r *repository) GetCartByUser(ctx context.Context, userID string, paginationParams *param.Params) (*cart.Model, error) {
 	return &cart.Model{}, nil
 }

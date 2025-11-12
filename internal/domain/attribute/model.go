@@ -1,6 +1,6 @@
 package attribute
 
-import "backend/internal/domain/params"
+import "backend/internal/domain/param"
 
 type Deleted string
 
@@ -23,7 +23,7 @@ type ValueModel struct {
 }
 
 type QueryParams struct {
-	PaginationParams *params.Params
+	PaginationParams *param.Params
 	ProductID        int
 	Search           string
 	Deleted          *Deleted
@@ -31,5 +31,5 @@ type QueryParams struct {
 
 type PaginationModel struct {
 	Attributes *[]Model
-	Metadata   *params.Metadata
+	Metadata   *param.Metadata
 }
