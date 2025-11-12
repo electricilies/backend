@@ -57,8 +57,12 @@ gen-swag *args="":
 gen-sqlc *args="":
   sqlc generate {{args}}
 
+[doc("Generate mockery mocks")]
+gen-mockery:
+  mockery
+
 [doc("Run gen all")]
-gen: gen-wire gen-swag gen-sqlc
+gen: gen-wire gen-swag gen-sqlc gen-mockery
 
 format-gofumpt *args="":
   gofumpt -w . {{args}}

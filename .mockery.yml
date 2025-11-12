@@ -1,0 +1,6 @@
+all: True
+template: testify
+packages:
+  backend/internal/domain:
+    config:
+      recursive: True

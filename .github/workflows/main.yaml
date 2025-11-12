@@ -69,6 +69,7 @@ jobs:
           go mod tidy
           just gen-wire
           just gen-swag -ot go
+          just gen-mockery
         continue-on-error: true
 
       - name: Check lint
