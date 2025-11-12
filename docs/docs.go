@@ -3045,8 +3045,8 @@ const docTemplate = `{
                 "createdAt",
                 "id",
                 "items",
-                "orderStatusId",
                 "payment",
+                "status",
                 "updatedAt",
                 "userId"
             ],
@@ -3063,11 +3063,11 @@ const docTemplate = `{
                         "$ref": "#/definitions/response.OrderItem"
                     }
                 },
-                "orderStatusId": {
-                    "type": "integer"
-                },
                 "payment": {
                     "$ref": "#/definitions/response.Payment"
+                },
+                "status": {
+                    "type": "string"
                 },
                 "updatedAt": {
                     "type": "string"
