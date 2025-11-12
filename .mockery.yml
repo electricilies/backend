@@ -1,5 +1,5 @@
 template: testify
-filename: "{{ .InterfaceName | lower }}_mocks.go"
+filename: "{{ .InterfaceName | lower }}_mock.go"
 packages:
   backend/internal/domain:
     config:
