@@ -113,7 +113,7 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 			products.POST("/variants", r.productHandler.CreateProductVariant)
 			products.PUT("/variants/:variant_id", r.productHandler.UpdateProductVariant)
 			products.PUT("/options/:option_id", r.productHandler.UpdateProductOption)
-			products.POST("/:product_id/images", r.productHandler.CreateProductImages)
+			products.PUT("/:product_id/images/bulk", r.productHandler.CreateProductImages)
 		}
 
 		attributes := api.Group("/attributes")
@@ -123,6 +123,7 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 			attributes.GET("/:attribute_id", r.attributeHandler.Get)
 			attributes.PUT("/:attribute_id", r.attributeHandler.Update)
 			attributes.DELETE("/:id", r.attributeHandler.Delete)
+			attributes.PUT("/:attribute_id/values/bulk", r.attributeHandler.UpdateAttributeValues)
 		}
 
 		// payments := api.Group("/payment")

@@ -278,6 +278,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/attributes/{attribute_id}/values/bulk": {
+            "put": {
+                "description": "Update attribute values for a given attribute",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attribute"
+                ],
+                "summary": "Update attribute values",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Attribute ID",
+                        "name": "attribute_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update attribute values request",
+                        "name": "values",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/request.UpdateAttributeValue"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BadRequestError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.NotFoundError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ConflictError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/carts": {
             "get": {
                 "description": "GetCartByUser cart for the current user",
@@ -394,10 +459,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "no content",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -2664,6 +2726,21 @@ const docTemplate = `{
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "request.UpdateAttributeValue": {
+            "type": "object",
+            "required": [
+                "newValue",
+                "targetId"
+            ],
+            "properties": {
+                "newValue": {
+                    "type": "string"
+                },
+                "targetId": {
+                    "type": "integer"
                 }
             }
         },

@@ -18,6 +18,7 @@ type Attribute interface {
 	Create(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
+	UpdateAttributeValues(ctx *gin.Context)
 }
 
 type attributeHandler struct {
@@ -127,5 +128,24 @@ func (h *attributeHandler) Update(ctx *gin.Context) {
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/attributes/{attribute_id} [delete]
 func (h *attributeHandler) Delete(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+// UpdateAttributeValues godoc
+//
+//	@Summary		Update attribute values
+//	@Description	Update attribute values for a given attribute
+//	@Tags			Attribute
+//	@Accept			json
+//	@Produce		json
+//	@Param			attribute_id	path	string							true	"Attribute ID"
+//	@Param			values			body	[]request.UpdateAttributeValue	true	"Update attribute values request"
+//	@Success		204
+//	@Failure		400	{object}	response.BadRequestError
+//	@Failure		404	{object}	response.NotFoundError
+//	@Failure		409	{object}	response.ConflictError
+//	@Failure		500	{object}	response.InternalServerError
+//	@Router			/attributes/{attribute_id}/values/bulk [put]
+func (h *attributeHandler) UpdateAttributeValues(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
