@@ -113,6 +113,7 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 			products.POST("/variants", r.productHandler.CreateProductVariant)
 			products.PUT("/variants/:variant_id", r.productHandler.UpdateProductVariant)
 			products.PUT("/options/:option_id", r.productHandler.UpdateProductOption)
+			products.POST("/:product_id/images", r.productHandler.CreateProductImages)
 		}
 
 		attributes := api.Group("/attributes")

@@ -272,12 +272,13 @@ func (h *productHandler) UpdateProductOption(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
+//	@Params			product_id   path        int                     true    "Product ID"
 //	@Param			productImages	body		[]request.CreateProductImage	true	"Product images request"
 //	@Success		201				{array}		response.ProductImage
 //	@Failure		400				{object}	response.BadRequestError
 //	@Failure		409				{object}	response.ConflictError
 //	@Failure		500				{object}	response.InternalServerError
-//	@Router			/products/images [post]
+//	@Router			/products/{product_id}/images [post]
 func (h *productHandler) CreateProductImages(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

@@ -1059,64 +1059,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/images": {
-            "post": {
-                "description": "Create new images for products",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "Create product images",
-                "parameters": [
-                    {
-                        "description": "Product images request",
-                        "name": "productImages",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/request.CreateProductImage"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.ProductImage"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.BadRequestError"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/response.ConflictError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/products/images/delete-url": {
             "get": {
                 "security": [
@@ -1566,6 +1508,64 @@ const docTemplate = `{
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/response.NotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{product_id}/images": {
+            "post": {
+                "description": "Create new images for products",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Create product images",
+                "parameters": [
+                    {
+                        "description": "Product images request",
+                        "name": "productImages",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/request.CreateProductImage"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.ProductImage"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BadRequestError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ConflictError"
                         }
                     },
                     "500": {
@@ -2430,17 +2430,13 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "code",
-                "name",
-                "value"
+                "name"
             ],
             "properties": {
                 "code": {
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "value": {
                     "type": "string"
                 }
             }
