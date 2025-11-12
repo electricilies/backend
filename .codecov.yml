@@ -5,7 +5,7 @@ coverage:
         target: 30%
         threshold: 10%
         informational: true
-      bussiness-logic:
+      business-logic:
         target: 60%
         threshold: 5%
         informational: true
@@ -17,6 +17,11 @@ coverage:
       informational: true
 component_management:
   individual_components:
+    - name: business-logic
+      paths:
+        - internal/domain/
+        - internal/infrastructure/
+        - internal/di/
     - name: domain
       paths:
         - internal/domain/
