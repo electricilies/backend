@@ -97,7 +97,6 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 			categories.GET("", r.categoryHandler.List)
 			categories.POST("", r.categoryHandler.Create)
 			categories.PUT("/:category_id", r.categoryHandler.Update)
-			categories.DELETE("/:category_id", r.categoryHandler.Delete)
 		}
 
 		products := api.Group("/products")

@@ -90,19 +90,3 @@ func (h *categoryHandler) Create(ctx *gin.Context) {
 func (h *categoryHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
-
-// DeleteCategory godoc
-//
-//	@Summary		Delete a category
-//	@Description	Delete category by ID
-//	@Tags			Category
-//	@Accept			json
-//	@Produce		json
-//	@Param			category_id	path		int		true	"Category ID"
-//	@Success		204			{string}	string	"no content"
-//	@Failure		404			{object}	response.NotFoundError
-//	@Failure		500			{object}	response.InternalServerError
-//	@Router			/categories/{category_id} [delete]
-func (h *categoryHandler) Delete(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
-}
