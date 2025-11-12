@@ -5,9 +5,8 @@
 package cart
 
 import (
-	"context"
-
 	"backend/internal/domain/param"
+	"context"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -17,8 +16,7 @@ import (
 func NewMockRepository(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *MockRepository {
+}) *MockRepository {
 	mock := &MockRepository{}
 	mock.Mock.Test(t)
 
@@ -41,8 +39,8 @@ func (_m *MockRepository) EXPECT() *MockRepository_Expecter {
 }
 
 // GetCartByUser provides a mock function for the type MockRepository
-func (_mock *MockRepository) GetCartByUser(ctx context.Context, userID string, pagination1 *param.Pagination) (*Model, error) {
-	ret := _mock.Called(ctx, userID, pagination1)
+func (_mock *MockRepository) GetCartByUser(ctx context.Context, userID string, pagination *param.Pagination) (*Model, error) {
+	ret := _mock.Called(ctx, userID, pagination)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetCartByUser")
@@ -51,17 +49,17 @@ func (_mock *MockRepository) GetCartByUser(ctx context.Context, userID string, p
 	var r0 *Model
 	var r1 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, string, *param.Pagination) (*Model, error)); ok {
-		return returnFunc(ctx, userID, pagination1)
+		return returnFunc(ctx, userID, pagination)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, string, *param.Pagination) *Model); ok {
-		r0 = returnFunc(ctx, userID, pagination1)
+		r0 = returnFunc(ctx, userID, pagination)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Model)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string, *param.Pagination) error); ok {
-		r1 = returnFunc(ctx, userID, pagination1)
+		r1 = returnFunc(ctx, userID, pagination)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -76,12 +74,12 @@ type MockRepository_GetCartByUser_Call struct {
 // GetCartByUser is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userID string
-//   - pagination1 *pagination.Params
-func (_e *MockRepository_Expecter) GetCartByUser(ctx interface{}, userID interface{}, pagination1 interface{}) *MockRepository_GetCartByUser_Call {
-	return &MockRepository_GetCartByUser_Call{Call: _e.mock.On("GetCartByUser", ctx, userID, pagination1)}
+//   - pagination *param.Pagination
+func (_e *MockRepository_Expecter) GetCartByUser(ctx interface{}, userID interface{}, pagination interface{}) *MockRepository_GetCartByUser_Call {
+	return &MockRepository_GetCartByUser_Call{Call: _e.mock.On("GetCartByUser", ctx, userID, pagination)}
 }
 
-func (_c *MockRepository_GetCartByUser_Call) Run(run func(ctx context.Context, userID string, pagination1 *param.Pagination)) *MockRepository_GetCartByUser_Call {
+func (_c *MockRepository_GetCartByUser_Call) Run(run func(ctx context.Context, userID string, pagination *param.Pagination)) *MockRepository_GetCartByUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -109,7 +107,7 @@ func (_c *MockRepository_GetCartByUser_Call) Return(model *Model, err error) *Mo
 	return _c
 }
 
-func (_c *MockRepository_GetCartByUser_Call) RunAndReturn(run func(ctx context.Context, userID string, pagination1 *param.Pagination) (*Model, error)) *MockRepository_GetCartByUser_Call {
+func (_c *MockRepository_GetCartByUser_Call) RunAndReturn(run func(ctx context.Context, userID string, pagination *param.Pagination) (*Model, error)) *MockRepository_GetCartByUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
