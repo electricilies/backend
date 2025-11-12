@@ -12,16 +12,27 @@ import (
 	"backend/internal/application"
 	"backend/internal/di/client"
 	"backend/internal/di/db"
-	"backend/internal/infrastructure/product"
+	domainproduct "backend/internal/domain/product"
+	"backend/internal/infrastructure/presistence/postgres"
+	infraproduct "backend/internal/infrastructure/product"
 	"backend/test/integration/component"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/suite"
 )
 
 type ProductTestSuite struct {
 	suite.Suite
-	containers *component.Containers
-	app        application.Product
+	containers      *component.Containers
+	app             application.Product
+	productRepo     domainproduct.Repository
+	queries         *postgres.Queries
+	s3Client        *s3.Client
+	s3PresignClient *s3.PresignClient
+	redisClient     *redis.Client
+	config          *config.Config
 }
 
 func (s *ProductTestSuite) newContainersConfig() *component.ContainersConfig {
@@ -65,25 +76,25 @@ func (s *ProductTestSuite) SetupSuite() {
 	s.containers, err = component.NewContainers(ctx, containersConfig)
 	s.Require().NoError(err, "failed to start containers")
 
-	config := s.newConfig(ctx, containersConfig)
+	s.config = s.newConfig(ctx, containersConfig)
 
-	dbPool := db.NewConnection(config)
-	queries := db.New(dbPool)
-	s3Client := client.NewS3(config)
-	s3PresignClient := client.NewS3Presign(s3Client)
-	redisClient := client.NewRedis(config)
+	dbPool := db.NewConnection(s.config)
+	s.queries = db.New(dbPool)
+	s.s3Client = client.NewS3(s.config)
+	s.s3PresignClient = client.NewS3Presign(s.s3Client)
+	s.redisClient = client.NewRedis(s.config)
 
-	err = component.CreateBucket(ctx, s3Client, config.S3Bucket)
+	err = component.CreateBucket(ctx, s.s3Client, s.config.S3Bucket)
 	s.Require().NoError(err, "failed to create s3 bucket")
 
-	productRepo := product.NewRepository(
-		queries,
-		s3Client,
-		s3PresignClient,
-		redisClient,
-		config,
+	s.productRepo = infraproduct.NewRepository(
+		s.queries,
+		s.s3Client,
+		s.s3PresignClient,
+		s.redisClient,
+		s.config,
 	)
-	s.app = application.NewProduct(productRepo)
+	s.app = application.NewProduct(s.productRepo)
 }
 
 func (s *ProductTestSuite) TearDownSuite() {
@@ -124,6 +135,44 @@ func (s *ProductTestSuite) TestGetProductImageUploadURL() {
 			s.NotEmpty(result.Key, "Key should not be empty")
 			s.Contains(result.URL, minioConnStr, "URL should contain MinIO connection string")
 			s.Contains(result.URL, result.Key, "URL should contain the object key")
+		})
+	}
+}
+
+func (s *ProductTestSuite) TestGetProductImageDeleteURL() {
+	s.T().Parallel()
+	ctx := s.T().Context()
+
+	_, err := s.s3Client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: &s.config.S3Bucket,
+		Key:    aws.String("test-empty-object"),
+		Body:   strings.NewReader(""),
+	})
+	s.Require().NoError(err, "failed to upload empty object")
+
+	tests := []struct {
+		name        string
+		imageID     int
+		expectError bool
+	}{
+		{
+			name:        "should successfully generate delete URL for valid image ID",
+			imageID:     1,
+			expectError: false,
+		},
+	}
+
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			result, err := s.app.GetDeleteImageURL(ctx, tt.imageID)
+
+			if tt.expectError {
+				s.Error(err)
+				return
+			}
+
+			s.NoError(err)
+			s.NotEmpty(result, "Delete URL should not be empty")
 		})
 	}
 }
