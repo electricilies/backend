@@ -2966,16 +2966,23 @@ const docTemplate = `{
             "required": [
                 "createdAt",
                 "id",
-                "name"
+                "name",
+                "updatedAt"
             ],
             "properties": {
                 "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }
