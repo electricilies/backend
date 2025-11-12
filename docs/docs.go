@@ -3166,6 +3166,7 @@ const docTemplate = `{
                 "id",
                 "name",
                 "price",
+                "productOptions",
                 "totalPurchase",
                 "trendingScore",
                 "updatedAt",
@@ -3201,6 +3202,12 @@ const docTemplate = `{
                 },
                 "price": {
                     "type": "integer"
+                },
+                "productOptions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ProductOption"
+                    }
                 },
                 "totalPurchase": {
                     "type": "integer"
