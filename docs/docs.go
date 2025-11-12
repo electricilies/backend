@@ -2965,15 +2965,11 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "createdAt",
-                "description",
                 "id",
                 "name"
             ],
             "properties": {
                 "createdAt": {
-                    "type": "string"
-                },
-                "description": {
                     "type": "string"
                 },
                 "id": {

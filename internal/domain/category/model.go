@@ -7,10 +7,9 @@ import (
 )
 
 type Model struct {
-	ID          int
-	Name        string
-	Description string
-	CreatedAt   time.Time
+	ID        int
+	Name      string
+	CreatedAt time.Time
 }
 
 type PaginationModel struct {
