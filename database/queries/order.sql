@@ -24,6 +24,31 @@ INSERT INTO order_items (
 RETURNING
   *;
 
+-- name: ListOrders :many
+SELECT
+  *,
+  COUNT(*) OVER() AS current_count,
+  COUNT(*) AS total_count
+FROM
+  orders
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.narg('user_ids')::uuid[] IS NULL THEN TRUE
+    ELSE user_id = ANY (sqlc.narg('user_ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.narg('status_ids')::integer[] IS NULL THEN TRUE
+    ELSE status_id = ANY (sqlc.narg('status_ids')::integer[])
+  END
+ORDER BY
+  id ASC
+OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
+LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
+
 -- name: GetOrder :one
 SELECT
   *
@@ -31,3 +56,31 @@ FROM
   orders
 WHERE
   id = @id;
+
+-- name: ListOrderStatuses :many
+SELECT
+  *
+FROM
+  order_statuses
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::integer[])
+  END
+ORDER BY
+  id ASC;
+
+-- name: GetOrderStatus :one
+SELECT
+  *
+FROM
+  order_statuses
+WHERE
+  CASE
+    WHEN sqlc.narg('id')::integer IS NULL THEN TRUE
+    ELSE id = sqlc.narg('id')::integer
+  END
+  AND CASE
+    WHEN sqlc.narg('name')::text IS NULL THEN TRUE
+    ELSE name = sqlc.narg('name')::text
+  END;

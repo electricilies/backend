@@ -100,9 +100,10 @@ WHERE
     ELSE product_id = ANY ($2::integer[])
   END
   AND CASE
-    WHEN $3::boolean IS TRUE THEN deleted_at IS NOT NULL
-    WHEN $3::boolean IS FALSE THEN deleted_at IS NULL
-    ELSE TRUE
+    WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NULL
+    WHEN $3::text = 'all' THEN TRUE
+    ELSE FALSE
   END
 ORDER BY
   created_at DESC
@@ -111,11 +112,11 @@ LIMIT COALESCE($5::integer, 10)
 `
 
 type ListReviewsParams struct {
-	IDs                []int32
-	ProductIDs         []int32
-	IncludeDeletedOnly pgtype.Bool
-	Offset             pgtype.Int4
-	Limit              pgtype.Int4
+	IDs        []int32
+	ProductIDs []int32
+	Deleted    string
+	Offset     pgtype.Int4
+	Limit      pgtype.Int4
 }
 
 type ListReviewsRow struct {
@@ -136,7 +137,7 @@ func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]Lis
 	rows, err := q.db.Query(ctx, listReviews,
 		arg.IDs,
 		arg.ProductIDs,
-		arg.IncludeDeletedOnly,
+		arg.Deleted,
 		arg.Offset,
 		arg.Limit,
 	)
@@ -168,4 +169,47 @@ func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]Lis
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateReview = `-- name: UpdateReview :one
+UPDATE reviews
+SET
+  rating = COALESCE($1::integer, rating),
+  content = COALESCE($2::text, content),
+  image_url = COALESCE($3::text, image_url),
+  updated_at = NOW()
+WHERE
+  id = $4::integer
+  AND deleted_at IS NULL
+RETURNING
+  id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, product_id
+`
+
+type UpdateReviewParams struct {
+	Rating   pgtype.Int4
+	Content  pgtype.Text
+	ImageURL pgtype.Text
+	ID       int32
+}
+
+func (q *Queries) UpdateReview(ctx context.Context, arg UpdateReviewParams) (Review, error) {
+	row := q.db.QueryRow(ctx, updateReview,
+		arg.Rating,
+		arg.Content,
+		arg.ImageURL,
+		arg.ID,
+	)
+	var i Review
+	err := row.Scan(
+		&i.ID,
+		&i.Rating,
+		&i.Content,
+		&i.ImageURL,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.userID,
+		&i.ProductID,
+	)
+	return i, err
 }

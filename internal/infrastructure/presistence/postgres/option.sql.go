@@ -124,19 +124,20 @@ FROM
 WHERE
   id = $1::integer
   AND CASE
-    WHEN $2::bool THEN deleted_at IS NOT NULL
-    WHEN $2::bool = FALSE THEN deleted_at IS NULL
-    ELSE TRUE
+    WHEN $2::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN $2::text = 'only' THEN deleted_at IS NULL
+    WHEN $2::text = 'all' THEN TRUE
+    ELSE FALSE
   END
 `
 
 type GetOptionParams struct {
-	ID                 int32
-	IncludeDeletedOnly pgtype.Bool
+	ID      int32
+	Deleted string
 }
 
 func (q *Queries) GetOption(ctx context.Context, arg GetOptionParams) (Option, error) {
-	row := q.db.QueryRow(ctx, getOption, arg.ID, arg.IncludeDeletedOnly)
+	row := q.db.QueryRow(ctx, getOption, arg.ID, arg.Deleted)
 	var i Option
 	err := row.Scan(
 		&i.ID,
@@ -162,22 +163,23 @@ WHERE
     ELSE options.product_id = $2::integer
   END
   AND CASE
-    WHEN $3::bool THEN deleted_at IS NOT NULL
-    WHEN $3::bool = FALSE THEN deleted_at IS NULL
-    ELSE TRUE
+    WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NULL
+    WHEN $3::text = 'all' THEN TRUE
+    ELSE FALSE
   END
 ORDER BY
   options.id
 `
 
 type ListOptionsParams struct {
-	IDs                []int32
-	ProductID          pgtype.Int4
-	IncludeDeletedOnly pgtype.Bool
+	IDs       []int32
+	ProductID pgtype.Int4
+	Deleted   string
 }
 
 func (q *Queries) ListOptions(ctx context.Context, arg ListOptionsParams) ([]Option, error) {
-	rows, err := q.db.Query(ctx, listOptions, arg.IDs, arg.ProductID, arg.IncludeDeletedOnly)
+	rows, err := q.db.Query(ctx, listOptions, arg.IDs, arg.ProductID, arg.Deleted)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +203,7 @@ func (q *Queries) ListOptions(ctx context.Context, arg ListOptionsParams) ([]Opt
 	return items, nil
 }
 
-const updateOptionValues = `-- name: UpdateOptionValues :execrows
+const updateOptionValues = `-- name: UpdateOptionValues :many
 WITH updated_option_values AS (
   SELECT
     UNNEST($1::integer[]) AS id,
@@ -209,11 +211,13 @@ WITH updated_option_values AS (
 )
 UPDATE option_values
 SET
-  value = updated_option_values.value
+  value = COALESCE(updated_option_values.value, option_values.value)
 FROM
   updated_option_values
 WHERE
   option_values.id = updated_option_values.id
+RETURNING
+  option_values.id, option_values.value, option_values.option_id
 `
 
 type UpdateOptionValuesParams struct {
@@ -221,15 +225,27 @@ type UpdateOptionValuesParams struct {
 	Values []string
 }
 
-func (q *Queries) UpdateOptionValues(ctx context.Context, arg UpdateOptionValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateOptionValues, arg.IDs, arg.Values)
+func (q *Queries) UpdateOptionValues(ctx context.Context, arg UpdateOptionValuesParams) ([]OptionValue, error) {
+	rows, err := q.db.Query(ctx, updateOptionValues, arg.IDs, arg.Values)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return result.RowsAffected(), nil
+	defer rows.Close()
+	var items []OptionValue
+	for rows.Next() {
+		var i OptionValue
+		if err := rows.Scan(&i.ID, &i.Value, &i.OptionID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-const updateOptions = `-- name: UpdateOptions :execrows
+const updateOptions = `-- name: UpdateOptions :many
 WITH updated_options AS (
   SELECT
     UNNEST($1::integer[]) AS id,
@@ -237,12 +253,14 @@ WITH updated_options AS (
 )
 UPDATE options
 SET
-  name = updated_options.name
+  name = COALESCE(updated_options.name, options.name)
 FROM
   updated_options
 WHERE
   options.id = updated_options.id
   AND options.deleted_at IS NULL
+RETURNING
+  options.id, options.name, options.product_id, options.deleted_at
 `
 
 type UpdateOptionsParams struct {
@@ -250,10 +268,27 @@ type UpdateOptionsParams struct {
 	Names []string
 }
 
-func (q *Queries) UpdateOptions(ctx context.Context, arg UpdateOptionsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateOptions, arg.IDs, arg.Names)
+func (q *Queries) UpdateOptions(ctx context.Context, arg UpdateOptionsParams) ([]Option, error) {
+	rows, err := q.db.Query(ctx, updateOptions, arg.IDs, arg.Names)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return result.RowsAffected(), nil
+	defer rows.Close()
+	var items []Option
+	for rows.Next() {
+		var i Option
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.ProductID,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

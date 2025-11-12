@@ -34,9 +34,10 @@ WHERE
     ELSE options.product_id = sqlc.narg('product_id')::integer
   END
   AND CASE
-    WHEN sqlc.narg('include_deleted_only')::bool THEN deleted_at IS NOT NULL
-    WHEN sqlc.narg('include_deleted_only')::bool = FALSE THEN deleted_at IS NULL
-    ELSE TRUE
+    WHEN @deleted::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN @deleted::text = 'only' THEN deleted_at IS NULL
+    WHEN @deleted::text = 'all' THEN TRUE
+    ELSE FALSE
   END
 ORDER BY
   options.id;
@@ -49,12 +50,13 @@ FROM
 WHERE
   id = @id::integer
   AND CASE
-    WHEN sqlc.narg('include_deleted_only')::bool THEN deleted_at IS NOT NULL
-    WHEN sqlc.narg('include_deleted_only')::bool = FALSE THEN deleted_at IS NULL
-    ELSE TRUE
+    WHEN @deleted::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN @deleted::text = 'only' THEN deleted_at IS NULL
+    WHEN @deleted::text = 'all' THEN TRUE
+    ELSE FALSE
   END;
 
--- name: UpdateOptions :execrows
+-- name: UpdateOptions :many
 WITH updated_options AS (
   SELECT
     UNNEST(@ids::integer[]) AS id,
@@ -62,14 +64,16 @@ WITH updated_options AS (
 )
 UPDATE options
 SET
-  name = updated_options.name
+  name = COALESCE(updated_options.name, options.name)
 FROM
   updated_options
 WHERE
   options.id = updated_options.id
-  AND options.deleted_at IS NULL;
+  AND options.deleted_at IS NULL
+RETURNING
+  options.*;
 
--- name: UpdateOptionValues :execrows
+-- name: UpdateOptionValues :many
 WITH updated_option_values AS (
   SELECT
     UNNEST(@ids::integer[]) AS id,
@@ -77,11 +81,13 @@ WITH updated_option_values AS (
 )
 UPDATE option_values
 SET
-  value = updated_option_values.value
+  value = COALESCE(updated_option_values.value, option_values.value)
 FROM
   updated_option_values
 WHERE
-  option_values.id = updated_option_values.id;
+  option_values.id = updated_option_values.id
+RETURNING
+  option_values.*;
 
 -- name: DeleteOptions :execrows
 UPDATE

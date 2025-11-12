@@ -40,9 +40,10 @@ WHERE
       OR name ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
   END
   AND CASE
-    WHEN sqlc.narg('include_deleted_only')::boolean IS TRUE THEN deleted_at IS NOT NULL
-    WHEN sqlc.narg('include_deleted_only')::boolean IS FALSE THEN deleted_at IS NULL
-    ELSE TRUE
+    WHEN @deleted::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN @deleted::text = 'only' THEN deleted_at IS NULL
+    WHEN @deleted::text = 'all' THEN TRUE
+    ELSE FALSE
   END
 ORDER BY
   id ASC
@@ -74,16 +75,18 @@ WHERE
 ORDER BY
   id ASC;
 
--- name: UpdateAttribute :execrows
+-- name: UpdateAttribute :one
 UPDATE
   attributes
 SET
-  code = @code,
-  name = @name
+  code = COALESCE(sqlc.narg('code')::varchar(100), code),
+  name = COALESCE(sqlc.narg('name')::text, name)
 WHERE
-  id = @id;
+  id = @id
+RETURNING
+  *;
 
--- name: UpdateAttributeValues :execrows
+-- name: UpdateAttributeValues :many
 WITH updated_attribute_values AS (
   SELECT
     UNNEST(@ids::integer[]) AS id,
@@ -92,11 +95,13 @@ WITH updated_attribute_values AS (
 UPDATE
   attribute_values
 SET
-  value = updated_attribute_values.value
+  value = COALESCE(updated_attribute_values.value, attribute_values.value)
 FROM
   updated_attribute_values
 WHERE
-  attribute_values.id = updated_attribute_values.id;
+  attribute_values.id = updated_attribute_values.id
+RETURNING
+  attribute_values.*;
 
 -- name: DeleteAttributes :execrows
 UPDATE

@@ -67,36 +67,34 @@ func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) (C
 	return i, err
 }
 
-const getPaymentByOrderID = `-- name: GetPaymentByOrderID :one
+const getPayment = `-- name: GetPayment :one
 SELECT
-  payments.id, payments.amount, payments.updated_at, payments.status_id, payments.provider_id, payments.order_id,
-  payment_statuses.id, payment_statuses.name,
-  payment_providers.id, payment_providers.name
+  payments.id, payments.amount, payments.updated_at, payments.status_id, payments.provider_id, payments.order_id
 FROM
   payments
-INNER JOIN orders
-  ON payments.id = orders.payment_id
-INNER JOIN payment_statuses
-  ON payments.status_id = payment_statuses.id
-INNER JOIN payment_providers
-  ON payments.provider_id = payment_providers.id
 WHERE
-  orders.id = $1
+  CASE
+    WHEN $1::integer IS NULL THEN TRUE
+    ELSE payments.id = $1::integer
+  END
+  AND CASE
+    WHEN $2::integer IS NULL THEN TRUE
+    ELSE payments.order_id = $2::integer
+  END
 `
 
-type GetPaymentByOrderIDParams struct {
-	OrderID int32
+type GetPaymentParams struct {
+	ID      pgtype.Int4
+	OrderID pgtype.Int4
 }
 
-type GetPaymentByOrderIDRow struct {
-	Payment         Payment
-	PaymentStatus   PaymentStatus
-	PaymentProvider PaymentProvider
+type GetPaymentRow struct {
+	Payment Payment
 }
 
-func (q *Queries) GetPaymentByOrderID(ctx context.Context, arg GetPaymentByOrderIDParams) (GetPaymentByOrderIDRow, error) {
-	row := q.db.QueryRow(ctx, getPaymentByOrderID, arg.OrderID)
-	var i GetPaymentByOrderIDRow
+func (q *Queries) GetPayment(ctx context.Context, arg GetPaymentParams) (GetPaymentRow, error) {
+	row := q.db.QueryRow(ctx, getPayment, arg.ID, arg.OrderID)
+	var i GetPaymentRow
 	err := row.Scan(
 		&i.Payment.ID,
 		&i.Payment.Amount,
@@ -104,56 +102,203 @@ func (q *Queries) GetPaymentByOrderID(ctx context.Context, arg GetPaymentByOrder
 		&i.Payment.StatusID,
 		&i.Payment.ProviderID,
 		&i.Payment.OrderID,
-		&i.PaymentStatus.ID,
-		&i.PaymentStatus.Name,
-		&i.PaymentProvider.ID,
-		&i.PaymentProvider.Name,
 	)
 	return i, err
 }
 
-const getPayments = `-- name: GetPayments :many
+const getPaymentProvider = `-- name: GetPaymentProvider :one
 SELECT
-  payments.id, payments.amount, payments.updated_at, payments.status_id, payments.provider_id, payments.order_id,
-  payment_statuses.id, payment_statuses.name,
-  payment_providers.id, payment_providers.name,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  id, name
 FROM
-  payments
-INNER JOIN payment_statuses
-  ON payments.status_id = payment_statuses.id
-INNER JOIN payment_providers
-  ON payments.provider_id = payment_providers.id
-ORDER BY
-  payments.id DESC
-OFFSET COALESCE($1::integer, 0)
-LIMIT COALESCE($2::integer, 20)
+  payment_providers
+WHERE
+  CASE
+    WHEN $1::integer IS NULL THEN TRUE
+    ELSE id = $1::integer
+  END
+  AND CASE
+    WHEN $2::text IS NULL THEN TRUE
+    ELSE name = $2::text
+  END
 `
 
-type GetPaymentsParams struct {
-	Offset pgtype.Int4
-	Limit  pgtype.Int4
+type GetPaymentProviderParams struct {
+	ID   pgtype.Int4
+	Name pgtype.Text
 }
 
-type GetPaymentsRow struct {
-	Payment         Payment
-	PaymentStatus   PaymentStatus
-	PaymentProvider PaymentProvider
-	CurrentCount    int64
-	TotalCount      int64
+func (q *Queries) GetPaymentProvider(ctx context.Context, arg GetPaymentProviderParams) (PaymentProvider, error) {
+	row := q.db.QueryRow(ctx, getPaymentProvider, arg.ID, arg.Name)
+	var i PaymentProvider
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
 }
 
-// NOTE: Filter by between dates? statuses?
-func (q *Queries) GetPayments(ctx context.Context, arg GetPaymentsParams) ([]GetPaymentsRow, error) {
-	rows, err := q.db.Query(ctx, getPayments, arg.Offset, arg.Limit)
+const getPaymentStatus = `-- name: GetPaymentStatus :one
+SELECT
+  id, name
+FROM
+  payment_statuses
+WHERE
+  CASE
+    WHEN $1::integer IS NULL THEN TRUE
+    ELSE id = $1::integer
+  END
+  AND CASE
+    WHEN $2::text IS NULL THEN TRUE
+    ELSE name = $2::text
+  END
+`
+
+type GetPaymentStatusParams struct {
+	ID   pgtype.Int4
+	Name pgtype.Text
+}
+
+func (q *Queries) GetPaymentStatus(ctx context.Context, arg GetPaymentStatusParams) (PaymentStatus, error) {
+	row := q.db.QueryRow(ctx, getPaymentStatus, arg.ID, arg.Name)
+	var i PaymentStatus
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const listPaymentProviders = `-- name: ListPaymentProviders :many
+SELECT
+  id, name
+FROM
+  payment_providers
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::integer[])
+  END
+ORDER BY
+  id
+`
+
+type ListPaymentProvidersParams struct {
+	IDs []int32
+}
+
+func (q *Queries) ListPaymentProviders(ctx context.Context, arg ListPaymentProvidersParams) ([]PaymentProvider, error) {
+	rows, err := q.db.Query(ctx, listPaymentProviders, arg.IDs)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetPaymentsRow
+	var items []PaymentProvider
 	for rows.Next() {
-		var i GetPaymentsRow
+		var i PaymentProvider
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPaymentStatuses = `-- name: ListPaymentStatuses :many
+SELECT
+  id, name
+FROM
+  payment_statuses
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::integer[])
+  END
+ORDER BY
+  id
+`
+
+type ListPaymentStatusesParams struct {
+	IDs []int32
+}
+
+func (q *Queries) ListPaymentStatuses(ctx context.Context, arg ListPaymentStatusesParams) ([]PaymentStatus, error) {
+	rows, err := q.db.Query(ctx, listPaymentStatuses, arg.IDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []PaymentStatus
+	for rows.Next() {
+		var i PaymentStatus
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPayments = `-- name: ListPayments :many
+SELECT
+  payments.id, payments.amount, payments.updated_at, payments.status_id, payments.provider_id, payments.order_id,
+  COUNT(*) OVER() AS current_count,
+  COUNT(*) AS total_count
+FROM
+  payments
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE payments.id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::integer[] IS NULL THEN TRUE
+    ELSE payments.status_id = ANY ($2::integer[])
+  END
+  AND CASE
+    WHEN $3::integer[] IS NULL THEN TRUE
+    ELSE payments.provider_id = ANY ($3::integer[])
+  END
+  AND CASE
+    WHEN $4::integer[] IS NULL THEN TRUE
+    ELSE payments.order_id = ANY ($4::integer[])
+  END
+ORDER BY
+  id DESC
+OFFSET COALESCE($5::integer, 0)
+LIMIT COALESCE($6::integer, 20)
+`
+
+type ListPaymentsParams struct {
+	IDs         []int32
+	StatusIds   []int32
+	ProviderIds []int32
+	OrderIds    []int32
+	Offset      pgtype.Int4
+	Limit       pgtype.Int4
+}
+
+type ListPaymentsRow struct {
+	Payment      Payment
+	CurrentCount int64
+	TotalCount   int64
+}
+
+func (q *Queries) ListPayments(ctx context.Context, arg ListPaymentsParams) ([]ListPaymentsRow, error) {
+	rows, err := q.db.Query(ctx, listPayments,
+		arg.IDs,
+		arg.StatusIds,
+		arg.ProviderIds,
+		arg.OrderIds,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListPaymentsRow
+	for rows.Next() {
+		var i ListPaymentsRow
 		if err := rows.Scan(
 			&i.Payment.ID,
 			&i.Payment.Amount,
@@ -161,10 +306,6 @@ func (q *Queries) GetPayments(ctx context.Context, arg GetPaymentsParams) ([]Get
 			&i.Payment.StatusID,
 			&i.Payment.ProviderID,
 			&i.Payment.OrderID,
-			&i.PaymentStatus.ID,
-			&i.PaymentStatus.Name,
-			&i.PaymentProvider.ID,
-			&i.PaymentProvider.Name,
 			&i.CurrentCount,
 			&i.TotalCount,
 		); err != nil {
@@ -178,24 +319,43 @@ func (q *Queries) GetPayments(ctx context.Context, arg GetPaymentsParams) ([]Get
 	return items, nil
 }
 
-const updatePaymentStatus = `-- name: UpdatePaymentStatus :execrows
+const updatePayment = `-- name: UpdatePayment :one
 UPDATE payments
 SET
-  status_id = $1,
-  updated_at = NOW()
+  amount = COALESCE($1::decimal(12, 0), amount),
+  provider_id = COALESCE($2::integer, provider_id),
+  status_id = COALESCE($3::integer, status_id),
+  updated_at = COALESCE($4::timestamp, NOW())
 WHERE
-  id = $2::integer
+  id = $5::integer
+RETURNING
+  id, amount, updated_at, status_id, provider_id, order_id
 `
 
-type UpdatePaymentStatusParams struct {
-	StatusID int32
-	ID       int32
+type UpdatePaymentParams struct {
+	Amount     pgtype.Numeric
+	ProviderID pgtype.Int4
+	StatusID   pgtype.Int4
+	UpdatedAt  pgtype.Timestamp
+	ID         int32
 }
 
-func (q *Queries) UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updatePaymentStatus, arg.StatusID, arg.ID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) UpdatePayment(ctx context.Context, arg UpdatePaymentParams) (Payment, error) {
+	row := q.db.QueryRow(ctx, updatePayment,
+		arg.Amount,
+		arg.ProviderID,
+		arg.StatusID,
+		arg.UpdatedAt,
+		arg.ID,
+	)
+	var i Payment
+	err := row.Scan(
+		&i.ID,
+		&i.Amount,
+		&i.UpdatedAt,
+		&i.StatusID,
+		&i.ProviderID,
+		&i.OrderID,
+	)
+	return i, err
 }

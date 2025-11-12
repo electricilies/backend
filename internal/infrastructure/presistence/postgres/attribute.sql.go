@@ -205,9 +205,10 @@ WHERE
       OR name ||| ($2::text)::pdb.fuzzy(2)
   END
   AND CASE
-    WHEN $3::boolean IS TRUE THEN deleted_at IS NOT NULL
-    WHEN $3::boolean IS FALSE THEN deleted_at IS NULL
-    ELSE TRUE
+    WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NULL
+    WHEN $3::text = 'all' THEN TRUE
+    ELSE FALSE
   END
 ORDER BY
   id ASC
@@ -216,11 +217,11 @@ LIMIT COALESCE($5::integer, 20)
 `
 
 type ListAttributesParams struct {
-	IDs                []int32
-	Search             pgtype.Text
-	IncludeDeletedOnly pgtype.Bool
-	Offset             pgtype.Int4
-	Limit              pgtype.Int4
+	IDs     []int32
+	Search  pgtype.Text
+	Deleted string
+	Offset  pgtype.Int4
+	Limit   pgtype.Int4
 }
 
 type ListAttributesRow struct {
@@ -236,7 +237,7 @@ func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) 
 	rows, err := q.db.Query(ctx, listAttributes,
 		arg.IDs,
 		arg.Search,
-		arg.IncludeDeletedOnly,
+		arg.Deleted,
 		arg.Offset,
 		arg.Limit,
 	)
@@ -265,31 +266,37 @@ func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) 
 	return items, nil
 }
 
-const updateAttribute = `-- name: UpdateAttribute :execrows
+const updateAttribute = `-- name: UpdateAttribute :one
 UPDATE
   attributes
 SET
-  code = $1,
-  name = $2
+  code = COALESCE($1::varchar(100), code),
+  name = COALESCE($2::text, name)
 WHERE
   id = $3
+RETURNING
+  id, code, name, deleted_at
 `
 
 type UpdateAttributeParams struct {
-	Code string
-	Name string
+	Code pgtype.Text
+	Name pgtype.Text
 	ID   int32
 }
 
-func (q *Queries) UpdateAttribute(ctx context.Context, arg UpdateAttributeParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateAttribute, arg.Code, arg.Name, arg.ID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) UpdateAttribute(ctx context.Context, arg UpdateAttributeParams) (Attribute, error) {
+	row := q.db.QueryRow(ctx, updateAttribute, arg.Code, arg.Name, arg.ID)
+	var i Attribute
+	err := row.Scan(
+		&i.ID,
+		&i.Code,
+		&i.Name,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
-const updateAttributeValues = `-- name: UpdateAttributeValues :execrows
+const updateAttributeValues = `-- name: UpdateAttributeValues :many
 WITH updated_attribute_values AS (
   SELECT
     UNNEST($1::integer[]) AS id,
@@ -298,11 +305,13 @@ WITH updated_attribute_values AS (
 UPDATE
   attribute_values
 SET
-  value = updated_attribute_values.value
+  value = COALESCE(updated_attribute_values.value, attribute_values.value)
 FROM
   updated_attribute_values
 WHERE
   attribute_values.id = updated_attribute_values.id
+RETURNING
+  attribute_values.id, attribute_values.attribute_id, attribute_values.value
 `
 
 type UpdateAttributeValuesParams struct {
@@ -310,10 +319,22 @@ type UpdateAttributeValuesParams struct {
 	Values []string
 }
 
-func (q *Queries) UpdateAttributeValues(ctx context.Context, arg UpdateAttributeValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateAttributeValues, arg.IDs, arg.Values)
+func (q *Queries) UpdateAttributeValues(ctx context.Context, arg UpdateAttributeValuesParams) ([]AttributeValue, error) {
+	rows, err := q.db.Query(ctx, updateAttributeValues, arg.IDs, arg.Values)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return result.RowsAffected(), nil
+	defer rows.Close()
+	var items []AttributeValue
+	for rows.Next() {
+		var i AttributeValue
+		if err := rows.Scan(&i.ID, &i.AttributeID, &i.Value); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

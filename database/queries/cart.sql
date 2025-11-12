@@ -48,12 +48,14 @@ WHERE
 ORDER BY
   id ASC;
 
--- name: UpdateCartItemByID :execrows
+-- name: UpdateCartItem :one
 UPDATE cart_items
 SET
-  quantity = @quantity
+  quantity = COALESCE(sqlc.narg('quantity')::integer, quantity)
 WHERE
-  id = @id;
+  id = @id
+RETURNING
+  *;
 
 -- name: DeleteCartItemByIDs :execrows
 DELETE FROM cart_items

@@ -167,23 +167,29 @@ func (q *Queries) GetCartItems(ctx context.Context, arg GetCartItemsParams) ([]C
 	return items, nil
 }
 
-const updateCartItemByID = `-- name: UpdateCartItemByID :execrows
+const updateCartItem = `-- name: UpdateCartItem :one
 UPDATE cart_items
 SET
-  quantity = $1
+  quantity = COALESCE($1::integer, quantity)
 WHERE
   id = $2
+RETURNING
+  id, quantity, cart_id, product_variant_id
 `
 
-type UpdateCartItemByIDParams struct {
-	Quantity int32
+type UpdateCartItemParams struct {
+	Quantity pgtype.Int4
 	ID       uuid.UUID
 }
 
-func (q *Queries) UpdateCartItemByID(ctx context.Context, arg UpdateCartItemByIDParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateCartItemByID, arg.Quantity, arg.ID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) UpdateCartItem(ctx context.Context, arg UpdateCartItemParams) (CartItem, error) {
+	row := q.db.QueryRow(ctx, updateCartItem, arg.Quantity, arg.ID)
+	var i CartItem
+	err := row.Scan(
+		&i.ID,
+		&i.Quantity,
+		&i.CartID,
+		&i.ProductVariantID,
+	)
+	return i, err
 }

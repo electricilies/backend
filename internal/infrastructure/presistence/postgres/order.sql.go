@@ -108,3 +108,147 @@ func (q *Queries) GetOrder(ctx context.Context, arg GetOrderParams) (Order, erro
 	)
 	return i, err
 }
+
+const getOrderStatus = `-- name: GetOrderStatus :one
+SELECT
+  id, name
+FROM
+  order_statuses
+WHERE
+  CASE
+    WHEN $1::integer IS NULL THEN TRUE
+    ELSE id = $1::integer
+  END
+  AND CASE
+    WHEN $2::text IS NULL THEN TRUE
+    ELSE name = $2::text
+  END
+`
+
+type GetOrderStatusParams struct {
+	ID   pgtype.Int4
+	Name pgtype.Text
+}
+
+func (q *Queries) GetOrderStatus(ctx context.Context, arg GetOrderStatusParams) (OrderStatus, error) {
+	row := q.db.QueryRow(ctx, getOrderStatus, arg.ID, arg.Name)
+	var i OrderStatus
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const listOrderStatuses = `-- name: ListOrderStatuses :many
+SELECT
+  id, name
+FROM
+  order_statuses
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::integer[])
+  END
+ORDER BY
+  id ASC
+`
+
+type ListOrderStatusesParams struct {
+	IDs []int32
+}
+
+func (q *Queries) ListOrderStatuses(ctx context.Context, arg ListOrderStatusesParams) ([]OrderStatus, error) {
+	rows, err := q.db.Query(ctx, listOrderStatuses, arg.IDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []OrderStatus
+	for rows.Next() {
+		var i OrderStatus
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOrders = `-- name: ListOrders :many
+SELECT
+  id, created_at, updated_at, user_id, status_id,
+  COUNT(*) OVER() AS current_count,
+  COUNT(*) AS total_count
+FROM
+  orders
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    ELSE user_id = ANY ($2::uuid[])
+  END
+  AND CASE
+    WHEN $3::integer[] IS NULL THEN TRUE
+    ELSE status_id = ANY ($3::integer[])
+  END
+ORDER BY
+  id ASC
+OFFSET COALESCE($4::integer, 0)
+LIMIT COALESCE($5::integer, 20)
+`
+
+type ListOrdersParams struct {
+	IDs       []int32
+	UserIds   []uuid.UUID
+	StatusIds []int32
+	Offset    pgtype.Int4
+	Limit     pgtype.Int4
+}
+
+type ListOrdersRow struct {
+	ID           int32
+	CreatedAt    pgtype.Timestamp
+	UpdatedAt    pgtype.Timestamp
+	userID       uuid.UUID
+	StatusID     int32
+	CurrentCount int64
+	TotalCount   int64
+}
+
+func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]ListOrdersRow, error) {
+	rows, err := q.db.Query(ctx, listOrders,
+		arg.IDs,
+		arg.UserIds,
+		arg.StatusIds,
+		arg.Offset,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListOrdersRow
+	for rows.Next() {
+		var i ListOrdersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.userID,
+			&i.StatusID,
+			&i.CurrentCount,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

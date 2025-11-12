@@ -107,25 +107,26 @@ WHERE
     ELSE products.category_id = ANY (sqlc.narg('category_ids')::integer[])
   END
   AND CASE
-    WHEN sqlc.narg('include_deleted_only')::bool THEN products.deleted_at IS NOT NULL
-    WHEN sqlc.narg('include_deleted_only')::bool = FALSE THEN products.deleted_at IS NULL
-    ELSE TRUE
+    WHEN @deleted::text = 'exclude' THEN products.deleted_at IS NOT NULL
+    WHEN @deleted::text = 'only' THEN products.deleted_at IS NULL
+    WHEN @deleted::text = 'all' THEN TRUE
+    ELSE FALSE
   END
 ORDER BY
   CASE WHEN
     sqlc.narg('search') IS NOT NULL THEN pdb.score(products.id) + category_scores
   END DESC,
   CASE WHEN
-    sqlc.narg('sort_rating_asc')::bool = TRUE THEN products.rating
+    sqlc.narg('sort_rating')::text = 'asc' THEN products.rating
   END ASC,
   CASE WHEN
-    sqlc.narg('sort_rating_asc')::bool = FALSE THEN products.rating
+    sqlc.narg('sort_rating')::text = 'desc' THEN products.rating
   END DESC,
   CASE WHEN
-   sqlc.narg('sort_price_asc')::bool = TRUE THEN products.price
+   sqlc.narg('sort_price')::text = 'asc' THEN products.price
   END ASC,
   CASE WHEN
-   sqlc.narg('sort_price_asc')::bool = FALSE THEN products.price
+   sqlc.narg('sort_price')::text = 'desc' THEN products.price
   END DESC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
@@ -138,9 +139,10 @@ FROM
 WHERE
   products.id = @id
   AND CASE
-    WHEN sqlc.narg('include_deleted_only')::bool THEN deleted_at IS NOT NULL
-    WHEN sqlc.narg('include_deleted_only')::bool = FALSE THEN deleted_at IS NULL
-    ELSE TRUE
+    WHEN @deleted::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN @deleted::text = 'only' THEN deleted_at IS NULL
+    WHEN @deleted::text = 'all' THEN TRUE
+    ELSE FALSE
   END;
 
 -- name: ListProductVariants :one
@@ -158,9 +160,10 @@ WHERE
     ELSE product_id = ANY (sqlc.narg('product_ids')::integer[])
   END
   AND CASE
-    WHEN sqlc.narg('include_deleted_only')::bool THEN deleted_at IS NOT NULL
-    WHEN sqlc.narg('include_deleted_only')::bool = FALSE THEN deleted_at IS NULL
-    ELSE TRUE
+    WHEN @deleted::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN @deleted::text = 'only' THEN deleted_at IS NULL
+    WHEN @deleted::text = 'all' THEN TRUE
+    ELSE FALSE
   END
 ORDER BY
   id;
@@ -186,7 +189,7 @@ WHERE
 ORDER BY
   id ASC;
 
--- name: UpdateProduct :execrows
+-- name: UpdateProduct :one
 UPDATE
   products
 SET
@@ -198,9 +201,11 @@ SET
   updated_at = NOW()
 WHERE
   id = @id
-  AND deleted_at IS NULL;
+  AND deleted_at IS NULL
+RETURNING
+  *;
 
--- name: UpdateProductVariants :execrows
+-- name: UpdateProductVariants :many
 WITH updated_variants AS (
   SELECT
     UNNEST(@ids::integer[]) AS id,
@@ -221,7 +226,9 @@ FROM
   updated_variants
 WHERE
   product_variants.id = updated_variants.id
-  AND product_variants.deleted_at IS NULL;
+  AND product_variants.deleted_at IS NULL
+RETURNING
+  product_variants.*;
 
 -- name: DeleteProducts :execrows
 UPDATE

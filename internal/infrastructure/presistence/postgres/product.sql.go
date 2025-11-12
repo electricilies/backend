@@ -233,19 +233,20 @@ FROM
 WHERE
   products.id = $1
   AND CASE
-    WHEN $2::bool THEN deleted_at IS NOT NULL
-    WHEN $2::bool = FALSE THEN deleted_at IS NULL
-    ELSE TRUE
+    WHEN $2::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN $2::text = 'only' THEN deleted_at IS NULL
+    WHEN $2::text = 'all' THEN TRUE
+    ELSE FALSE
   END
 `
 
 type GetProductParams struct {
-	ID                 int32
-	IncludeDeletedOnly pgtype.Bool
+	ID      int32
+	Deleted string
 }
 
 func (q *Queries) GetProduct(ctx context.Context, arg GetProductParams) (Product, error) {
-	row := q.db.QueryRow(ctx, getProduct, arg.ID, arg.IncludeDeletedOnly)
+	row := q.db.QueryRow(ctx, getProduct, arg.ID, arg.Deleted)
 	var i Product
 	err := row.Scan(
 		&i.ID,
@@ -380,22 +381,23 @@ WHERE
     ELSE product_id = ANY ($2::integer[])
   END
   AND CASE
-    WHEN $3::bool THEN deleted_at IS NOT NULL
-    WHEN $3::bool = FALSE THEN deleted_at IS NULL
-    ELSE TRUE
+    WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NULL
+    WHEN $3::text = 'all' THEN TRUE
+    ELSE FALSE
   END
 ORDER BY
   id
 `
 
 type ListProductVariantsParams struct {
-	IDs                []int32
-	ProductIDs         []int32
-	IncludeDeletedOnly pgtype.Bool
+	IDs        []int32
+	ProductIDs []int32
+	Deleted    string
 }
 
 func (q *Queries) ListProductVariants(ctx context.Context, arg ListProductVariantsParams) (ProductVariant, error) {
-	row := q.db.QueryRow(ctx, listProductVariants, arg.IDs, arg.ProductIDs, arg.IncludeDeletedOnly)
+	row := q.db.QueryRow(ctx, listProductVariants, arg.IDs, arg.ProductIDs, arg.Deleted)
 	var i ProductVariant
 	err := row.Scan(
 		&i.ID,
@@ -459,42 +461,43 @@ WHERE
     ELSE products.category_id = ANY ($6::integer[])
   END
   AND CASE
-    WHEN $7::bool THEN products.deleted_at IS NOT NULL
-    WHEN $7::bool = FALSE THEN products.deleted_at IS NULL
-    ELSE TRUE
+    WHEN $7::text = 'exclude' THEN products.deleted_at IS NOT NULL
+    WHEN $7::text = 'only' THEN products.deleted_at IS NULL
+    WHEN $7::text = 'all' THEN TRUE
+    ELSE FALSE
   END
 ORDER BY
   CASE WHEN
     $1 IS NOT NULL THEN pdb.score(products.id) + category_scores
   END DESC,
   CASE WHEN
-    $8::bool = TRUE THEN products.rating
+    $8::text = 'asc' THEN products.rating
   END ASC,
   CASE WHEN
-    $8::bool = FALSE THEN products.rating
+    $8::text = 'desc' THEN products.rating
   END DESC,
   CASE WHEN
-   $9::bool = TRUE THEN products.price
+   $9::text = 'asc' THEN products.price
   END ASC,
   CASE WHEN
-   $9::bool = FALSE THEN products.price
+   $9::text = 'desc' THEN products.price
   END DESC
 OFFSET COALESCE($10::integer, 0)
 LIMIT COALESCE($11::integer, 20)
 `
 
 type ListProductsParams struct {
-	Search             pgtype.Text
-	IDs                []int32
-	MinPrice           pgtype.Numeric
-	MaxPrice           pgtype.Numeric
-	Rating             pgtype.Float4
-	CategoryIDs        []int32
-	IncludeDeletedOnly pgtype.Bool
-	SortRatingAsc      pgtype.Bool
-	SortPriceAsc       pgtype.Bool
-	Offset             pgtype.Int4
-	Limit              pgtype.Int4
+	Search      pgtype.Text
+	IDs         []int32
+	MinPrice    pgtype.Numeric
+	MaxPrice    pgtype.Numeric
+	Rating      pgtype.Float4
+	CategoryIDs []int32
+	Deleted     string
+	SortRating  pgtype.Text
+	SortPrice   pgtype.Text
+	Offset      pgtype.Int4
+	Limit       pgtype.Int4
 }
 
 type ListProductsRow struct {
@@ -512,9 +515,9 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]L
 		arg.MaxPrice,
 		arg.Rating,
 		arg.CategoryIDs,
-		arg.IncludeDeletedOnly,
-		arg.SortRatingAsc,
-		arg.SortPriceAsc,
+		arg.Deleted,
+		arg.SortRating,
+		arg.SortPrice,
 		arg.Offset,
 		arg.Limit,
 	)
@@ -551,7 +554,7 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]L
 	return items, nil
 }
 
-const updateProduct = `-- name: UpdateProduct :execrows
+const updateProduct = `-- name: UpdateProduct :one
 UPDATE
   products
 SET
@@ -564,6 +567,8 @@ SET
 WHERE
   id = $6
   AND deleted_at IS NULL
+RETURNING
+  id, name, description, price, views_count, total_purchase, rating, trending_score, category_id, created_at, updated_at, deleted_at
 `
 
 type UpdateProductParams struct {
@@ -575,8 +580,8 @@ type UpdateProductParams struct {
 	ID            int32
 }
 
-func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateProduct,
+func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
+	row := q.db.QueryRow(ctx, updateProduct,
 		arg.Name,
 		arg.Description,
 		arg.ViewsCount,
@@ -584,13 +589,25 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (i
 		arg.TrendingScore,
 		arg.ID,
 	)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Price,
+		&i.ViewsCount,
+		&i.TotalPurchase,
+		&i.Rating,
+		&i.TrendingScore,
+		&i.CategoryID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
-const updateProductVariants = `-- name: UpdateProductVariants :execrows
+const updateProductVariants = `-- name: UpdateProductVariants :many
 WITH updated_variants AS (
   SELECT
     UNNEST($1::integer[]) AS id,
@@ -612,6 +629,8 @@ FROM
 WHERE
   product_variants.id = updated_variants.id
   AND product_variants.deleted_at IS NULL
+RETURNING
+  product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at
 `
 
 type UpdateProductVariantsParams struct {
@@ -622,8 +641,8 @@ type UpdateProductVariantsParams struct {
 	PurchaseCounts []int32
 }
 
-func (q *Queries) UpdateProductVariants(ctx context.Context, arg UpdateProductVariantsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateProductVariants,
+func (q *Queries) UpdateProductVariants(ctx context.Context, arg UpdateProductVariantsParams) ([]ProductVariant, error) {
+	rows, err := q.db.Query(ctx, updateProductVariants,
 		arg.IDs,
 		arg.SKUs,
 		arg.Prices,
@@ -631,7 +650,29 @@ func (q *Queries) UpdateProductVariants(ctx context.Context, arg UpdateProductVa
 		arg.PurchaseCounts,
 	)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return result.RowsAffected(), nil
+	defer rows.Close()
+	var items []ProductVariant
+	for rows.Next() {
+		var i ProductVariant
+		if err := rows.Scan(
+			&i.ID,
+			&i.SKU,
+			&i.Price,
+			&i.Quantity,
+			&i.PurchaseCount,
+			&i.ProductID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
