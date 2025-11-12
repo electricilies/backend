@@ -38,8 +38,8 @@ func (_m *MockRepository) EXPECT() *MockRepository_Expecter {
 }
 
 // List provides a mock function for the type MockRepository
-func (_mock *MockRepository) List(ctx context.Context, QueryParams *QueryParams) (*PaginationModel, error) {
-	ret := _mock.Called(ctx, QueryParams)
+func (_mock *MockRepository) List(ctx context.Context, queryParams *QueryParams) (*PaginationModel, error) {
+	ret := _mock.Called(ctx, queryParams)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -48,17 +48,17 @@ func (_mock *MockRepository) List(ctx context.Context, QueryParams *QueryParams)
 	var r0 *PaginationModel
 	var r1 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *QueryParams) (*PaginationModel, error)); ok {
-		return returnFunc(ctx, QueryParams)
+		return returnFunc(ctx, queryParams)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *QueryParams) *PaginationModel); ok {
-		r0 = returnFunc(ctx, QueryParams)
+		r0 = returnFunc(ctx, queryParams)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*PaginationModel)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, *QueryParams) error); ok {
-		r1 = returnFunc(ctx, QueryParams)
+		r1 = returnFunc(ctx, queryParams)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -72,12 +72,12 @@ type MockRepository_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - QueryParams *QueryParams
-func (_e *MockRepository_Expecter) List(ctx interface{}, QueryParams interface{}) *MockRepository_List_Call {
-	return &MockRepository_List_Call{Call: _e.mock.On("List", ctx, QueryParams)}
+//   - queryParams *QueryParams
+func (_e *MockRepository_Expecter) List(ctx interface{}, queryParams interface{}) *MockRepository_List_Call {
+	return &MockRepository_List_Call{Call: _e.mock.On("List", ctx, queryParams)}
 }
 
-func (_c *MockRepository_List_Call) Run(run func(ctx context.Context, QueryParams *QueryParams)) *MockRepository_List_Call {
+func (_c *MockRepository_List_Call) Run(run func(ctx context.Context, queryParams *QueryParams)) *MockRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -100,7 +100,7 @@ func (_c *MockRepository_List_Call) Return(paginationModel *PaginationModel, err
 	return _c
 }
 
-func (_c *MockRepository_List_Call) RunAndReturn(run func(ctx context.Context, QueryParams *QueryParams) (*PaginationModel, error)) *MockRepository_List_Call {
+func (_c *MockRepository_List_Call) RunAndReturn(run func(ctx context.Context, queryParams *QueryParams) (*PaginationModel, error)) *MockRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
