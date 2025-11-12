@@ -13,6 +13,7 @@ type CreateProduct struct {
 type UpdateProduct struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
+	CategoryIds int    `json:"categoryIds,omitempty"`
 }
 
 type AddAttributeValues struct {
@@ -45,4 +46,8 @@ type CreateProductOption struct {
 
 type UpdateProductOption struct {
 	Value string `json:"value" binding:"required"`
+}
+
+type UpdateProductCategory struct {
+	CategoryIDs []int `json:"categoryIds" binding:"required"`
 }

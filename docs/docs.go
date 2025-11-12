@@ -2781,6 +2781,9 @@ const docTemplate = `{
         "request.UpdateProduct": {
             "type": "object",
             "properties": {
+                "categoryIds": {
+                    "type": "integer"
+                },
                 "description": {
                     "type": "string"
                 },
