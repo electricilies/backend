@@ -3,7 +3,7 @@ package response
 import "backend/internal/domain/cart"
 
 type CartItem struct {
-	ID             int            `json:"id" binding:"required"`
+	ID             string         `json:"id" binding:"required"`
 	ProductVariant ProductVariant `json:"productVariant" binding:"required"`
 	Quantity       int            `json:"quantity" binding:"required"`
 }

@@ -2878,7 +2878,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "productVariant": {
                     "$ref": "#/definitions/response.ProductVariant"

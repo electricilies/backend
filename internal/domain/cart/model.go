@@ -11,7 +11,7 @@ type Model struct {
 }
 
 type ItemModel struct {
-	ID             int
+	ID             string
 	ProductVariant *product.VariantModel
 	Quantity       int
 }
