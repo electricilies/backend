@@ -164,11 +164,13 @@ jobs:
         continue-on-error: true
 
       - name: Integration tests
+        id: unit-tests
         if: ${{ matrix.os == 'linux' }}
         run: just test-integration -coverprofile=integration.txt
         continue-on-error: true
 
       - name: Upload results to Codecov
+        id: integration-tests
         uses: codecov/codecov-action@v5
         env:
           OS: ${{ matrix.os }}
@@ -178,6 +180,23 @@ jobs:
           env_vars: OS,ARCH
           slug: ${{ github.repository }}
           files: ./unit.txt${{ matrix.os == 'linux' && ',./integration.txt' || '' }}
+
+      - name: Fail test if tests failed
+        run: |
+          fail=false
+          if [ "${{ steps.unit-tests.outcome }}" = "failure" ]; then
+            echo "Unit tests failed" >&2
+            fail=true
+          fi
+          if [ "${{ matrix.os }}" = "linux" ] && [ "${{ steps.integration-tests.outcome }}" = "failure" ]; then
+            echo "Integration tests failed" >&2
+            fail=true
+          fi
+          if [ "$fail" = true ]; then
+            exit 1
+          fi
+          echo "All tests passed"
+
   sonar:
     name: SonarQube
     runs-on: ubuntu-latest
