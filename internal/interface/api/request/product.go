@@ -47,7 +47,3 @@ type CreateProductOption struct {
 type UpdateProductOption struct {
 	Value string `json:"value" binding:"required"`
 }
-
-type UpdateProductCategory struct {
-	CategoryIDs []int `json:"categoryIds" binding:"required"`
-}
