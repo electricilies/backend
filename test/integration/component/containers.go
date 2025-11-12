@@ -61,12 +61,12 @@ func NewContainersConfig() *ContainersConfig {
 			Password: "electricilies",
 			Database: "electricilies",
 			InitScriptsPaths: []string{
-				filepath.Join("testdata", "init.sql"),
-				filepath.Join("testdata", "schema.sql"),
-				filepath.Join("testdata", "trigger.sql"),
-				filepath.Join("testdata", "seed.sql"),
-				filepath.Join("testdata", "seed-fake.sql"),
-				filepath.Join("testdata", "paradedb-index.sql"),
+				filepath.Join("..", "testdata", "init.sql"),
+				filepath.Join("..", "testdata", "schema.sql"),
+				filepath.Join("..", "testdata", "trigger.sql"),
+				filepath.Join("..", "testdata", "seed.sql"),
+				filepath.Join("..", "testdata", "seed-fake.sql"),
+				filepath.Join("..", "testdata", "paradedb-index.sql"),
 			},
 		},
 		keycloak: KeycloakConfig{
@@ -75,7 +75,7 @@ func NewContainersConfig() *ContainersConfig {
 			AdminUsername: "electricilies",
 			AdminPassword: "electricilies",
 			ContextPath:   "/auth",
-			RealmFilePath: filepath.Join("testdata", "electricilies-realm-export.json"),
+			RealmFilePath: filepath.Join("..", "testdata", "electricilies-realm-export.json"),
 		},
 		minio: MinIOConfig{
 			Enabled:  false,
