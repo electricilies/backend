@@ -62,8 +62,10 @@ func (r *repositoryImpl) GetUploadImageURL(ctx context.Context) (*product.Upload
 	return model.ToDomain(), nil
 }
 
+// FIXME: param id? what id? product id? variant id?
 func (r *repositoryImpl) GetDeleteImageURL(ctx context.Context, id int) (string, error) {
 	// TODO: get image URL from DB using id
+	// TODO: from Kev, how about the tiki data? it's not from our S3 bucket
 	imageURL := &struct {
 		URL string
 	}{

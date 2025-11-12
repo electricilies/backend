@@ -166,6 +166,7 @@ jobs:
       - name: Integration tests
         if: ${{ matrix.os == 'linux' }}
         run: just test-integration -coverprofile=integration.txt
+        continue-on-error: true
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5

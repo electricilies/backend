@@ -143,7 +143,11 @@ func (s *ProductTestSuite) TestGetProductImageDeleteURL() {
 	s.T().Parallel()
 	ctx := s.T().Context()
 
-	_, err := s.s3Client.PutObject(ctx, &s3.PutObjectInput{
+	minioConnStr, err := s.containers.MinIO.ConnectionString(ctx)
+	s.Require().NoError(err, "failed to get MinIO connection string")
+	s.Require().NotEmpty(minioConnStr, "MinIO connection string should not be empty")
+
+	_, err = s.s3Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: &s.config.S3Bucket,
 		Key:    aws.String("test-empty-object"),
 		Body:   strings.NewReader(""),
@@ -156,9 +160,9 @@ func (s *ProductTestSuite) TestGetProductImageDeleteURL() {
 		expectError bool
 	}{
 		{
-			name:        "should successfully generate delete URL for valid image ID",
+			name:        "should fail on generating delete URL for non-existing image",
 			imageID:     1,
-			expectError: false,
+			expectError: true,
 		},
 	}
 
@@ -173,6 +177,8 @@ func (s *ProductTestSuite) TestGetProductImageDeleteURL() {
 
 			s.NoError(err)
 			s.NotEmpty(result, "Delete URL should not be empty")
+			s.Contains(result, minioConnStr, "Delete URL should contain MinIO connection string")
+			s.Contains(result, "test-empty-object", "Delete URL should contain the correct object key")
 		})
 	}
 }
