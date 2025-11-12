@@ -15,10 +15,10 @@ type Model struct {
 }
 
 type PaginationModel struct {
-	Metadata   *param.Metadata
+	Metadata   *param.PaginationMetadata
 	Categories *[]Model
 }
 
 type QueryParams struct {
-	PaginationParams param.Params
+	PaginationParams param.Pagination
 }

@@ -69,7 +69,7 @@ func (h *productHandler) Get(ctx *gin.Context) {
 func (h *productHandler) List(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.Query("limit"))   // TODO: check all pagination because now it not required
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check if the json is checked of need to check in here
-	pParams := &param.Params{
+	pParams := &param.Pagination{
 		Limit:  limit,
 		Offset: offset,
 	}

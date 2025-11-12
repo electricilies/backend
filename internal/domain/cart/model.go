@@ -17,6 +17,6 @@ type ItemModel struct {
 }
 
 type ItemsPaginationModel struct {
-	Metadata *param.Metadata
+	Metadata *param.PaginationMetadata
 	Items    *[]ItemModel
 }

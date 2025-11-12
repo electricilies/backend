@@ -13,6 +13,6 @@ func NewRepository() cart.Repository {
 	return &repository{}
 }
 
-func (r *repository) GetCartByUser(ctx context.Context, userID string, paginationParams *param.Params) (*cart.Model, error) {
+func (r *repository) GetCartByUser(ctx context.Context, userID string, paginationParams *param.Pagination) (*cart.Model, error) {
 	return &cart.Model{}, nil
 }

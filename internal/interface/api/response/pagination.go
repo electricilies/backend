@@ -8,7 +8,7 @@ type Pagination struct {
 	ItemsPerPage int `json:"itemsPerPage" binding:"required"`
 }
 
-func PaginationFromDomain(p *param.Metadata) *Pagination {
+func PaginationFromDomain(p *param.PaginationMetadata) *Pagination {
 	return &Pagination{
 		TotalItems:   p.TotalRecords,
 		CurrentPage:  p.CurrentPage,
@@ -21,7 +21,7 @@ type DataPagination struct {
 	Meta *Pagination `json:"pagination" binding:"required"`
 }
 
-func DataPaginationFromDomain(data interface{}, p *param.Metadata) *DataPagination {
+func DataPaginationFromDomain(data interface{}, p *param.PaginationMetadata) *DataPagination {
 	return &DataPagination{
 		Data: data,
 		Meta: PaginationFromDomain(p),

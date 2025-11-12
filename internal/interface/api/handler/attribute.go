@@ -70,7 +70,7 @@ func (h *attributeHandler) List(ctx *gin.Context) {
 	}
 	pagination, err := h.app.ListAttributes(ctx, &attribute.QueryParams{
 		PaginationParams: request.PaginationToDomain(limit, offset),
-		ProductID:        &productID,
+		ProductID:        productID,
 	})
 	if err != nil {
 		response.ErrorFromDomain(ctx, err)

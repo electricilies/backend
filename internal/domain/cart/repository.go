@@ -7,5 +7,5 @@ import (
 )
 
 type Repository interface {
-	GetCartByUser(ctx context.Context, userID string, pagination *param.Params) (*Model, error)
+	GetCartByUser(ctx context.Context, userID string, pagination *param.Pagination) (*Model, error)
 }

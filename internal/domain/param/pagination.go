@@ -5,7 +5,7 @@ type Pagination struct {
 	Offset int
 }
 
-type Metadata struct {
+type PaginationMetadata struct {
 	TotalRecords int
 	CurrentPage  int
 	ItemsPerPage int

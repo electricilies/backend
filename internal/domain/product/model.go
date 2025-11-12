@@ -62,11 +62,11 @@ type Model struct {
 }
 
 type PaginationModel struct {
-	Metadata *param.Metadata
+	Metadata *param.PaginationMetadata
 	Products *[]Model
 }
 
 // TODO: Add param later
 type QueryParams struct {
-	PaginationParams *param.Params
+	PaginationParams *param.Pagination
 }

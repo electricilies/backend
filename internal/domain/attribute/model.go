@@ -23,7 +23,7 @@ type ValueModel struct {
 }
 
 type QueryParams struct {
-	PaginationParams *param.Params
+	PaginationParams *param.Pagination
 	ProductID        int
 	Search           string
 	Deleted          *Deleted
@@ -31,5 +31,5 @@ type QueryParams struct {
 
 type PaginationModel struct {
 	Attributes *[]Model
-	Metadata   *param.Metadata
+	Metadata   *param.PaginationMetadata
 }

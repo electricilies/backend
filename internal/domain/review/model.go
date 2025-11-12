@@ -18,10 +18,10 @@ type Review struct {
 }
 
 type QueryParams struct {
-	PaginationParams param.Params
+	PaginationParams param.Pagination
 }
 
 type Pagination struct {
-	Metadata *param.Metadata
+	Metadata *param.PaginationMetadata
 	Reviews  *[]Review
 }
