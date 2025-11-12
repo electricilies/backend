@@ -9,7 +9,7 @@ import (
 
 type Review struct {
 	ID        int
-	Rate      int
+	Rating    int
 	Content   string
 	ImageURL  string
 	User      *user.Model

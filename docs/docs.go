@@ -2662,7 +2662,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "productId",
-                "rate",
+                "rating",
                 "userId"
             ],
             "properties": {
@@ -2675,7 +2675,7 @@ const docTemplate = `{
                 "productId": {
                     "type": "integer"
                 },
-                "rate": {
+                "rating": {
                     "type": "integer",
                     "maximum": 5,
                     "minimum": 1
@@ -3462,7 +3462,7 @@ const docTemplate = `{
             "required": [
                 "createdAt",
                 "id",
-                "rate",
+                "rating",
                 "updatedAt",
                 "user"
             ],
@@ -3479,7 +3479,7 @@ const docTemplate = `{
                 "imageUrl": {
                     "type": "string"
                 },
-                "rate": {
+                "rating": {
                     "type": "integer"
                 },
                 "updatedAt": {

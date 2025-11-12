@@ -8,7 +8,7 @@ import (
 
 type Review struct {
 	ID        int       `json:"id" binding:"required"`
-	Rate      int       `json:"rate" binding:"required"`
+	Rating    int       `json:"rating" binding:"required"`
 	Content   string    `json:"content" binding:"omitnil"`
 	ImageURL  string    `json:"imageUrl" binding:"omitnil"`
 	User      *User     `json:"user" binding:"required"`
@@ -19,7 +19,7 @@ type Review struct {
 func ReviewFromDomain(r *review.Review) *Review {
 	return &Review{
 		ID:        r.ID,
-		Rate:      r.Rate,
+		Rating:    r.Rating,
 		Content:   r.Content,
 		ImageURL:  r.ImageURL,
 		User:      UserFromDomain(r.User),
