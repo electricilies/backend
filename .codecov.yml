@@ -8,8 +8,8 @@ coverage:
     patch:
       informational: true
 ignore:
-  - test/*
-  - docs/*
+  - test/
+  - docs/
   - internal/**/*_test.go
   - internal/**/*_mock.go
-  - internal/di/wire.go
+  - "**/wire.go"
