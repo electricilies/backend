@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"backend/config"
@@ -14,14 +13,7 @@ import (
 )
 
 func NewConnection(cfg *config.Config) *pgxpool.Pool {
-	conn, err := pgxpool.New(context.Background(), fmt.Sprintf(
-		"postgres://%s:%s@%s:%d/%s",
-		cfg.DBUsername,
-		cfg.DBPassword,
-		cfg.DBHost,
-		cfg.DBPort,
-		cfg.DBName,
-	))
+	conn, err := pgxpool.New(context.Background(), cfg.DBURL)
 	if err != nil {
 		log.Printf("Cannot connect to Db: %v", err)
 		return nil
