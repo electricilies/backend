@@ -3162,6 +3162,7 @@ const docTemplate = `{
                 "description",
                 "id",
                 "name",
+                "price",
                 "totalPurchase",
                 "trendingScore",
                 "updatedAt",
@@ -3194,6 +3195,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "price": {
+                    "type": "integer"
                 },
                 "totalPurchase": {
                     "type": "integer"
