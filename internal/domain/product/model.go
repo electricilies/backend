@@ -5,7 +5,7 @@ import (
 
 	"backend/internal/domain/attribute"
 	"backend/internal/domain/category"
-	"backend/internal/domain/pagination"
+	"backend/internal/domain/params"
 )
 
 type UploadImageURLModel struct {
@@ -62,11 +62,11 @@ type Model struct {
 }
 
 type PaginationModel struct {
-	Metadata *pagination.Metadata
+	Metadata *params.Metadata
 	Products *[]Model
 }
 
 // TODO: Add params later
 type QueryParams struct {
-	PaginationParams *pagination.Params
+	PaginationParams *params.Params
 }

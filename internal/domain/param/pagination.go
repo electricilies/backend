@@ -1,4 +1,4 @@
-package pagination
+package param
 
 type Params struct {
 	Limit  int

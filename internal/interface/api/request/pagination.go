@@ -1,9 +1,9 @@
 package request
 
-import "backend/internal/domain/pagination"
+import "backend/internal/domain/params"
 
-func PaginationToDomain(limit int, offset int) *pagination.Params {
-	return &pagination.Params{
+func PaginationToDomain(limit int, offset int) *params.Params {
+	return &params.Params{
 		Limit:  limit,
 		Offset: offset,
 	}

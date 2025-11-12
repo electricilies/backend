@@ -1,6 +1,14 @@
 package attribute
 
-import "backend/internal/domain/pagination"
+import "backend/internal/domain/params"
+
+type Deleted string
+
+const (
+	Exclude Deleted = "exclude"
+	Only    Deleted = "only"
+	All     Deleted = "all"
+)
 
 type Model struct {
 	ID              string
@@ -15,11 +23,13 @@ type ValueModel struct {
 }
 
 type QueryParams struct {
-	PaginationParams *pagination.Params
-	ProductID        *int
+	PaginationParams *params.Params
+	ProductID        int
+	Search           string
+	Deleted          *Deleted
 }
 
 type PaginationModel struct {
 	Attributes *[]Model
-	Metadata   *pagination.Metadata
+	Metadata   *params.Metadata
 }
