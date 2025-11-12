@@ -52,6 +52,8 @@ type Model struct {
 	ViewsCount      int
 	TotalPurchase   int
 	TrendingScore   int64
+	Rating          float64
+	Price           int64
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	Category        *category.Model
