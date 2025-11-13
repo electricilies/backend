@@ -78,11 +78,13 @@ func (s *ProductTestSuite) SetupSuite() {
 
 	s.config = s.newConfig(ctx, containersConfig)
 
-	dbPool := db.NewConnection(s.config)
+	dbPool := db.NewConnection(ctx, s.config)
+	s.Require().NotNil(dbPool, "db pool should not be nil")
 	s.queries = db.New(dbPool)
-	s.s3Client = client.NewS3(s.config)
+	s.s3Client = client.NewS3(ctx, s.config)
+	s.Require().NotNil(s.s3Client, "s3 client should not be nil")
 	s.s3PresignClient = client.NewS3Presign(s.s3Client)
-	s.redisClient = client.NewRedis(s.config)
+	s.redisClient = client.NewRedis(ctx, s.config)
 
 	err = component.CreateBucket(ctx, s.s3Client, s.config.S3Bucket)
 	s.Require().NoError(err, "failed to create s3 bucket")
