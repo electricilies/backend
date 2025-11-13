@@ -7,7 +7,7 @@ import (
 )
 
 type User interface {
-	Get(ctx context.Context, queryParams *user.QueryParams) (*user.Model, error)
+	Get(ctx context.Context, id string) (*user.Model, error)
 	List(ctx context.Context) ([]*user.Model, error)
 	Create(ctx context.Context, u *user.Model) (*user.Model, error)
 	Update(ctx context.Context, u *user.Model, queryParams *user.QueryParams) error
@@ -28,9 +28,9 @@ func NewUser(userRepo user.Repository, userService user.Service) User {
 
 func (a *userApp) Get(
 	ctx context.Context,
-	queryParams *user.QueryParams,
+	id string,
 ) (*user.Model, error) {
-	return a.userRepo.Get(ctx, queryParams)
+	return a.userRepo.Get(ctx, id)
 }
 
 func (a *userApp) List(ctx context.Context) ([]*user.Model, error) {

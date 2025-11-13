@@ -45,7 +45,7 @@ func NewUser(app application.User) User {
 //	@Security		OAuth2Password
 func (h *userHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("user_id")
-	u, err := h.app.Get(ctx, request.UserQueryParamsToDomain(id))
+	u, err := h.app.Get(ctx, id)
 	if err != nil {
 		response.ErrorFromDomain(ctx, err)
 		return
