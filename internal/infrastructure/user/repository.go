@@ -40,12 +40,13 @@ func NewRepository(query *postgres.Queries, s3Client *s3.Client, redisClient *re
 	}
 }
 
-func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.Model, error) {
-	cacheKey := constant.UserCachePrefix + id
+func (r *repositoryImpl) Get(ctx context.Context, queryParams *user.QueryParams) (*user.Model, error) {
+	idString := queryParams.UserID.String()
+	cacheKey := constant.UserCachePrefix + idString
 	cached, err := r.redisClient.Get(ctx, cacheKey).Result()
 	switch {
 	case err != nil && err != redis.Nil:
-		r.logger.Error(constant.ErrRedisGetUserMsg, *logger.CreateRedisGetField(id, cacheKey, err)...)
+		r.logger.Error(constant.ErrRedisGetUserMsg, *logger.CreateRedisGetField(idString, cacheKey, err)...)
 	default:
 		var cachedUser user.Model
 		if err := json.Unmarshal([]byte(cached), &cachedUser); err == nil {
@@ -57,7 +58,7 @@ func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.Model, error
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
-	u, err := r.keycloakClient.GetUserByID(ctx, token, r.cfg.KCRealm, id)
+	u, err := r.keycloakClient.GetUserByID(ctx, token, r.cfg.KCRealm, idString)
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
@@ -123,12 +124,16 @@ func (r *repositoryImpl) Create(ctx context.Context, u *user.Model) (*user.Model
 	return ToDomain(user), nil
 }
 
-func (r *repositoryImpl) Update(ctx context.Context, u *user.Model) error {
+func (r *repositoryImpl) Update(
+	ctx context.Context,
+	u *user.Model,
+	queryParams *user.QueryParams,
+) error {
 	token, err := r.tokenManager.GetClientToken(ctx)
 	if err != nil {
 		return errors.ToDomainErrorFromGoCloak(err)
 	}
-	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.UpdateUser(ctx, token, r.cfg.KCRealm, *ToUpdateUserParams(u)))
+	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.UpdateUser(ctx, token, r.cfg.KCRealm, *ToUpdateUserParams(u, queryParams.UserID)))
 	if err != nil {
 		return err
 	}

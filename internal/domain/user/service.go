@@ -24,5 +24,5 @@ func NewService(userRepo Repository, transactor transactor.Transactor) Service {
 }
 
 func (s service) DoSomething(ctx context.Context) (*Model, error) {
-	return s.userRepo.Get(ctx, "")
+	return &Model{}, nil
 }

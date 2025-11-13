@@ -38,3 +38,10 @@ func (r UpdateUser) ToDomain() *user.Model {
 		Address:     &r.Address,
 	}
 }
+
+func UserQueryParamsToDomain(idString string) *user.QueryParams {
+	id := uuid.MustParse(idString)
+	return &user.QueryParams{
+		UserID: &id,
+	}
+}

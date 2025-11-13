@@ -45,7 +45,7 @@ func NewUser(app application.User) User {
 //	@Security		OAuth2Password
 func (h *userHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("user_id")
-	u, err := h.app.Get(ctx, id)
+	u, err := h.app.Get(ctx, request.UserQueryParamsToDomain(id))
 	if err != nil {
 		response.ErrorFromDomain(ctx, err)
 		return
@@ -121,16 +121,17 @@ func (h *userHandler) Create(ctx *gin.Context) {
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/users/{user_id} [put]
 func (h *userHandler) Update(ctx *gin.Context) {
-
-	var req request.UpdateUser
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	id := ctx.Query("user_id")
+	var body request.UpdateUser
+	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	u := req.ToDomain()
-
-	if err := h.app.Update(ctx, u); err != nil {
+	if err := h.app.Update(
+		ctx,
+		body.ToDomain(),
+		request.UserQueryParamsToDomain(id),
+	); err != nil {
 		response.ErrorFromDomain(ctx, err)
 		return
 	}

@@ -34,12 +34,14 @@ func ToCreateUserParams(u *user.Model) postgres.CreateUserParams {
 	}
 }
 
-func ToUpdateUserParams(u *user.Model) *gocloak.User {
+func ToUpdateUserParams(u *user.Model, id *uuid.UUID) *gocloak.User {
 	attributes := make(map[string][]string)
 	attributes["email"] = []string{*u.Email}
 	attributes["phone_numer"] = []string{*u.PhoneNumber}
 	attributes["address"] = []string{*u.Address}
+	idString := id.String()
 	return &gocloak.User{
+		ID:         &idString,
 		FirstName:  u.FirstName,
 		LastName:   u.LastName,
 		Attributes: &attributes,

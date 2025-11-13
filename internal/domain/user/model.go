@@ -17,3 +17,7 @@ type Model struct {
 	PhoneNumber *string
 	CreatedAt   *time.Time
 }
+
+type QueryParams struct {
+	UserID *uuid.UUID
+}
