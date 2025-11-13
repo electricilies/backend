@@ -130,7 +130,7 @@ func (h *userHandler) Update(ctx *gin.Context) {
 	if err := h.app.Update(
 		ctx,
 		body.ToDomain(),
-		id,
+		request.UserQueryParamsToDomain(id),
 	); err != nil {
 		response.ErrorFromDomain(ctx, err)
 		return

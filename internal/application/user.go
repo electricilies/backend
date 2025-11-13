@@ -10,7 +10,7 @@ type User interface {
 	Get(ctx context.Context, id string) (*user.Model, error)
 	List(ctx context.Context) ([]*user.Model, error)
 	Create(ctx context.Context, u *user.Model) (*user.Model, error)
-	Update(ctx context.Context, u *user.Model, id string) error
+	Update(ctx context.Context, u *user.Model, queryParams *user.QueryParams) error
 	Delete(ctx context.Context, id string) error
 }
 
@@ -44,9 +44,9 @@ func (a *userApp) Create(ctx context.Context, u *user.Model) (*user.Model, error
 func (a *userApp) Update(
 	ctx context.Context,
 	u *user.Model,
-	id string,
+	queryParams *user.QueryParams,
 ) error {
-	return a.userRepo.Update(ctx, u, id)
+	return a.userRepo.Update(ctx, u, queryParams)
 }
 
 func (a *userApp) Delete(ctx context.Context, id string) error {
