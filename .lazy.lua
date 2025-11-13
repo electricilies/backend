@@ -215,15 +215,23 @@ return {
   {
     "kristijanhusak/vim-dadbod-ui",
     opts = function()
-      env.DBUI_URL = string.format(
-        "postgres://%s:%s@%s:%s/%s?sslmode=disable",
-        db_username,
-        db_password,
-        db_host,
-        db_port,
-        db_database
-      )
-      env.DBUI_NAME = "electricilies-local"
+      vim.g.dbs = {
+        {
+          name = "db-local",
+          url = string.format(
+            "postgres://%s:%s@%s:%s/%s?sslmode=disable",
+            db_username,
+            db_password,
+            db_host,
+            db_port,
+            db_database
+          ),
+        },
+        {
+          name = "redis-local",
+          url = "redis:0",
+        },
+      }
     end,
     optional = true,
   },
