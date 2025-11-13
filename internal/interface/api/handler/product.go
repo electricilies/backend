@@ -60,14 +60,14 @@ func (h *productHandler) Get(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			offset			query		int			false	"Offset for pagination"
-//	@Param			limit			query		int			false	"Limit for pagination"		Format(email)
-//	@Param			deleted			query		string		false	"Filter by deleted status"	Enums(exclude, only, all)
-//	@Param			sort_price		query		string		false	"Sort by price"				Enums(asc, desc)
-//	@Param			sort_rating		query		string		false	"Sort by rating"			Enums(asc, desc)
-//	@Param			category_ids	query		[]string	false	"Filter by category ID"		CollectionFormat(csv)
-//	@Param			min_price		query		int			false	"Minimum price filter"
-//	@Param			max_price		query		int			false	"Maximum price filter"
+//	@Param			offset			query		int		false	"Offset for pagination"
+//	@Param			limit			query		int		false	"Limit for pagination"		Format(email)
+//	@Param			deleted			query		string	false	"Filter by deleted status"	Enums(exclude, only, all)
+//	@Param			sort_price		query		string	false	"Sort by price"				Enums(asc, desc)
+//	@Param			sort_rating		query		string	false	"Sort by rating"			Enums(asc, desc)
+//	@Param			category_ids	query		[]int	false	"Filter by category ID"		CollectionFormat(csv)
+//	@Param			min_price		query		int		false	"Minimum price filter"
+//	@Param			max_price		query		int		false	"Maximum price filter"
 //	@Success		200				{object}	response.DataPagination{data=[]response.Product}
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/products [get]

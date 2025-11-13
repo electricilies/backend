@@ -1049,7 +1049,7 @@ const docTemplate = `{
                     {
                         "type": "array",
                         "items": {
-                            "type": "string"
+                            "type": "integer"
                         },
                         "collectionFormat": "csv",
                         "description": "Filter by category ID",
