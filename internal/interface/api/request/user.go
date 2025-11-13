@@ -13,8 +13,9 @@ type CreateUser struct {
 }
 
 func (r *CreateUser) ToDomain() *user.Model {
+	id := uuid.MustParse(r.ID)
 	return &user.Model{
-		ID: uuid.MustParse(r.ID),
+		ID: &id,
 	}
 }
 
@@ -29,11 +30,11 @@ type UpdateUser struct {
 
 func (r UpdateUser) ToDomain() *user.Model {
 	return &user.Model{
-		FirstName:   r.FirstName,
-		LastName:    r.LastName,
-		Email:       r.Email,
+		FirstName:   &r.FirstName,
+		LastName:    &r.LastName,
+		Email:       &r.Email,
 		DateOfBirth: r.DateOfBirth,
-		PhoneNumber: r.PhoneNumber,
-		Address:     r.Address,
+		PhoneNumber: &r.PhoneNumber,
+		Address:     &r.Address,
 	}
 }

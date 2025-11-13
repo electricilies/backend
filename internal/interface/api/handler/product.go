@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"backend/internal/application"
-	"backend/internal/domain/param"
 	"backend/internal/domain/product"
+	"backend/internal/interface/api/request"
 	"backend/internal/interface/api/response"
 
 	"github.com/gin-gonic/gin"
@@ -74,10 +74,7 @@ func (h *productHandler) Get(ctx *gin.Context) {
 func (h *productHandler) List(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.Query("limit"))   // TODO: check all pagination because now it not required
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check if the json is checked of need to check in here
-	pParams := &param.Pagination{
-		Limit:  limit,
-		Offset: offset,
-	}
+	pParams := request.PaginationToDomain(limit, offset)
 	pagination, error := h.app.ListProducts(ctx, &product.QueryParams{
 		PaginationParams: pParams,
 	})

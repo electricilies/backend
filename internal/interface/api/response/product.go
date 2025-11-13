@@ -90,7 +90,7 @@ func ProductUploadURLImageFromDomain(
 	u *product.UploadImageURLModel,
 ) *ProductUploadURLImage {
 	return &ProductUploadURLImage{
-		URL: u.URL,
-		Key: u.Key,
+		URL: *u.URL,
+		Key: *u.Key,
 	}
 }

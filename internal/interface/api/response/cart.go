@@ -10,9 +10,9 @@ type CartItem struct {
 
 func CartItemFromDomain(i *cart.ItemModel) *CartItem {
 	return &CartItem{
-		ID:             i.ID,
+		ID:             *i.ID,
 		ProductVariant: *ProductVariantFromDomain(i.ProductVariant),
-		Quantity:       i.Quantity,
+		Quantity:       *i.Quantity,
 	}
 }
 
@@ -28,7 +28,7 @@ func CartFromDomain(c *cart.Model) *Cart {
 	}
 
 	return &Cart{
-		ID:    c.ID,
+		ID:    *c.ID,
 		Items: cartItemsPagination,
 	}
 }

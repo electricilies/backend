@@ -16,10 +16,10 @@ type Category struct {
 
 func CategoryFromDomain(c *category.Model) *Category {
 	return &Category{
-		ID:        c.ID,
-		Name:      c.Name,
-		CreatedAt: c.CreatedAt,
+		ID:        *c.ID,
+		Name:      *c.Name,
+		CreatedAt: *c.CreatedAt,
 		DeletedAt: c.DeletedAt,
-		UpdatedAt: c.UpdatedAt,
+		UpdatedAt: *c.UpdatedAt,
 	}
 }

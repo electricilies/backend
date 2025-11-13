@@ -7,13 +7,13 @@ import (
 )
 
 type Model struct {
-	ID          uuid.UUID
-	UserName    string
-	FirstName   string
-	LastName    string
-	Email       string
-	Address     string
+	ID          *uuid.UUID
+	UserName    *string
+	FirstName   *string
+	LastName    *string
+	Email       *string
+	Address     *string
 	DateOfBirth *time.Time
-	PhoneNumber string
+	PhoneNumber *string
 	CreatedAt   *time.Time
 }

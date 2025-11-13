@@ -8,17 +8,17 @@ import (
 )
 
 type Review struct {
-	ID        int
-	Rating    int
-	Content   string
-	ImageURL  string
+	ID        *int
+	Rating    *int
+	Content   *string
+	ImageURL  *string
 	User      *user.Model
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
 }
 
 type QueryParams struct {
-	PaginationParams param.Pagination
+	PaginationParams *param.Pagination
 }
 
 type Pagination struct {

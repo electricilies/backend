@@ -54,9 +54,7 @@ func (h *reviewHandler) Get(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			product_ids	query		[]int	false	"Product IDs"				collectionFormat(csv)
-//
 //	@Param			deleted		query		string	false	"Include deleted reviews"	Enums(include, only, exclude)
-//
 //	@Param			offset		query		int		false	"Offset for pagination"
 //	@Param			limit		query		int		false	"Limit for pagination"
 //	@Success		200			{object}	response.DataPagination{data=[]response.Review}
@@ -66,7 +64,7 @@ func (h *reviewHandler) ListReviewsByProducts(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check, now it not required
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 	productID, _ := strconv.Atoi(ctx.Query("product_id"))
-	pagination, err := h.app.ListReviewsByProductID(ctx, productID, &review.QueryParams{PaginationParams: *request.PaginationToDomain(offset, limit)})
+	pagination, err := h.app.ListReviewsByProductID(ctx, productID, &review.QueryParams{PaginationParams: request.PaginationToDomain(offset, limit)})
 	if err != nil {
 		response.ErrorFromDomain(ctx, err)
 		return

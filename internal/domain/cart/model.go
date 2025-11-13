@@ -6,14 +6,14 @@ import (
 )
 
 type Model struct {
-	ID    int
+	ID    *int
 	Items *[]ItemsPaginationModel
 }
 
 type ItemModel struct {
-	ID             string
+	ID             *string
 	ProductVariant *product.VariantModel
-	Quantity       int
+	Quantity       *int
 }
 
 type ItemsPaginationModel struct {

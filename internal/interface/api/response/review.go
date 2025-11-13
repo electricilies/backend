@@ -18,12 +18,12 @@ type Review struct {
 
 func ReviewFromDomain(r *review.Review) *Review {
 	return &Review{
-		ID:        r.ID,
-		Rating:    r.Rating,
-		Content:   r.Content,
-		ImageURL:  r.ImageURL,
+		ID:        *r.ID,
+		Rating:    *r.Rating,
+		Content:   *r.Content,
+		ImageURL:  *r.ImageURL,
 		User:      UserFromDomain(r.User),
-		CreatedAt: r.CreatedAt,
-		UpdatedAt: r.UpdatedAt,
+		CreatedAt: *r.CreatedAt,
+		UpdatedAt: *r.UpdatedAt,
 	}
 }

@@ -10,9 +10,9 @@ type Pagination struct {
 
 func PaginationFromDomain(p *param.PaginationMetadata) *Pagination {
 	return &Pagination{
-		TotalItems:   p.TotalRecords,
-		CurrentPage:  p.CurrentPage,
-		ItemsPerPage: p.ItemsPerPage,
+		TotalItems:   *p.TotalRecords,
+		CurrentPage:  *p.CurrentPage,
+		ItemsPerPage: *p.ItemsPerPage,
 	}
 }
 

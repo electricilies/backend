@@ -128,7 +128,7 @@ func (r *repositoryImpl) Update(ctx context.Context, u *user.Model) error {
 	if err != nil {
 		return errors.ToDomainErrorFromGoCloak(err)
 	}
-	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.UpdateUser(ctx, token, r.cfg.KCRealm, ToUpdateUserParams(u)))
+	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.UpdateUser(ctx, token, r.cfg.KCRealm, *ToUpdateUserParams(u)))
 	if err != nil {
 		return err
 	}

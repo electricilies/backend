@@ -21,13 +21,13 @@ type User struct {
 func UserFromDomain(u *user.Model) *User {
 	return &User{
 		ID:          u.ID.String(),
-		FirstName:   u.FirstName,
-		LastName:    u.LastName,
-		Username:    u.UserName,
-		Email:       u.Email,
+		FirstName:   *u.FirstName,
+		LastName:    *u.LastName,
+		Username:    *u.UserName,
+		Email:       *u.Email,
 		DateOfBirth: *u.DateOfBirth,
-		Address:     u.Address,
-		PhoneNumber: u.PhoneNumber,
+		Address:     *u.Address,
+		PhoneNumber: *u.PhoneNumber,
 		CreatedAt:   *u.CreatedAt,
 	}
 }

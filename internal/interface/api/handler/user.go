@@ -8,7 +8,6 @@ import (
 	"backend/internal/interface/api/response"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type User interface {
@@ -122,7 +121,6 @@ func (h *userHandler) Create(ctx *gin.Context) {
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/users/{user_id} [put]
 func (h *userHandler) Update(ctx *gin.Context) {
-	id := ctx.Param("user_id")
 
 	var req request.UpdateUser
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -131,7 +129,6 @@ func (h *userHandler) Update(ctx *gin.Context) {
 	}
 
 	u := req.ToDomain()
-	u.ID = uuid.MustParse(id)
 
 	if err := h.app.Update(ctx, u); err != nil {
 		response.ErrorFromDomain(ctx, err)

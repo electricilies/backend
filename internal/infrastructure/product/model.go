@@ -13,8 +13,8 @@ func ToGetProductImageByIDParams(id int) any {
 }
 
 type UploadURLImage struct {
-	URL string
-	Key string
+	URL *string
+	Key *string
 }
 
 func (p *UploadURLImage) ToDomain() *product.UploadImageURLModel {

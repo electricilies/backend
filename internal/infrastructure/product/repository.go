@@ -55,9 +55,11 @@ func (r *repositoryImpl) GetUploadImageURL(ctx context.Context) (*product.Upload
 	if err != nil {
 		return nil, errors.ToDomainErrorFromS3(err)
 	}
+
+	key = strings.Replace(key, "temp/", "", 1)
 	model := &UploadURLImage{
-		URL: url.URL,
-		Key: strings.Replace(key, "temp/", "", 1),
+		URL: &url.URL,
+		Key: &key,
 	}
 	return model.ToDomain(), nil
 }
