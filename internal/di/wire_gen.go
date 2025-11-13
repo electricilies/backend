@@ -25,19 +25,20 @@ import (
 	"backend/internal/interface/api/router"
 	"backend/internal/server"
 	"backend/pkg/logger"
+	"context"
 	"github.com/google/wire"
 )
 
 // Injectors from wire.go:
 
-func InitializeServer() *server.Server {
+func InitializeServer(ctx context.Context) *server.Server {
 	engine := ginengine.New()
 	configConfig := config.New()
-	pool := db.NewConnection(configConfig)
+	pool := db.NewConnection(ctx, configConfig)
 	queries := db.New(pool)
-	s3Client := client.NewS3(configConfig)
-	redisClient := client.NewRedis(configConfig)
-	goCloak := client.NewKeycloak(configConfig)
+	s3Client := client.NewS3(ctx, configConfig)
+	redisClient := client.NewRedis(ctx, configConfig)
+	goCloak := client.NewKeycloak(ctx, configConfig)
 	tokenManager := helper.NewTokenManager(goCloak, configConfig)
 	loggerConfig := logger.NewConfig(configConfig)
 	zapLogger := logger.New(loggerConfig)

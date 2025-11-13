@@ -12,8 +12,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewConnection(cfg *config.Config) *pgxpool.Pool {
-	conn, err := pgxpool.New(context.Background(), cfg.DBURL)
+func NewConnection(ctx context.Context, cfg *config.Config) *pgxpool.Pool {
+	conn, err := pgxpool.New(ctx, cfg.DBURL)
 	if err != nil {
 		log.Printf("Cannot connect to Db: %v", err)
 		return nil

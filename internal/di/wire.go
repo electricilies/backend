@@ -4,6 +4,8 @@
 package di
 
 import (
+	"context"
+
 	"backend/config"
 	app "backend/internal/application"
 	"backend/internal/di/client"
@@ -99,7 +101,7 @@ var ClientSet = wire.NewSet(
 	client.NewS3Presign,
 )
 
-func InitializeServer() *server.Server {
+func InitializeServer(ctx context.Context) *server.Server {
 	wire.Build(ConfigSet, LoggerSet, DbSet, EngineSet, RepositorySet, ServiceSet, AppSet, MiddlewareSet, HandlerSet, RouterSet, ClientSet, helper.NewTokenManager, server.New)
 	return nil
 }

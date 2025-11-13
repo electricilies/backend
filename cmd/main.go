@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"io"
 	"log"
 
@@ -21,7 +22,8 @@ import (
 //	@authorizationUrl						/auth/realms/electricilies/protocol/openid-connect/auth
 
 func main() {
-	s := di.InitializeServer()
+	ctx := context.Background()
+	s := di.InitializeServer(ctx)
 	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = io.Discard
 	err := s.Run()
