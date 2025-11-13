@@ -20,5 +20,5 @@ type PaginationModel struct {
 }
 
 type QueryParams struct {
-	PaginationParams param.Pagination
+	PaginationParams *param.Pagination
 }

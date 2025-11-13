@@ -45,7 +45,7 @@ func (h *categoryHandler) List(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 
 	pagination, err := h.app.ListCategories(ctx, &category.QueryParams{
-		PaginationParams: *request.PaginationToDomain(limit, offset),
+		PaginationParams: request.PaginationToDomain(limit, offset),
 	})
 	if err != nil {
 		response.ErrorFromDomain(ctx, err)
