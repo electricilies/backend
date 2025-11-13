@@ -6,12 +6,12 @@ import (
 	"backend/internal/domain/review"
 )
 
-type Repository struct{}
+type repositoryImpl struct{}
 
 func NewRepository() review.Repository {
-	return &Repository{}
+	return &repositoryImpl{}
 }
 
-func (r *Repository) ListReviewsByProductID(ctx context.Context, productID int, queryParams *review.QueryParams) (*review.Pagination, error) {
+func (r *repositoryImpl) ListReviewsByProductID(ctx context.Context, productID int, queryParams *review.QueryParams) (*review.Pagination, error) {
 	return &review.Pagination{}, nil
 }

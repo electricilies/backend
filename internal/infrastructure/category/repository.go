@@ -6,12 +6,12 @@ import (
 	"backend/internal/domain/category"
 )
 
-type Repository struct{}
+type repositoryImpl struct{}
 
 func NewRepository() category.Repository {
-	return &Repository{}
+	return &repositoryImpl{}
 }
 
-func (r *Repository) ListCategories(ctx context.Context, queryParams *category.QueryParams) (*category.PaginationModel, error) {
+func (r *repositoryImpl) ListCategories(ctx context.Context, queryParams *category.QueryParams) (*category.PaginationModel, error) {
 	return &category.PaginationModel{}, nil
 }

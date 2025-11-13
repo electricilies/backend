@@ -6,12 +6,12 @@ import (
 	"backend/internal/domain/cart"
 )
 
-type repository struct{}
+type repositoryImpl struct{}
 
 func NewRepository() cart.Repository {
-	return &repository{}
+	return &repositoryImpl{}
 }
 
-func (r *repository) GetCartByUser(ctx context.Context, userID string, queryParams *cart.QueryParams) (*cart.Model, error) {
+func (r *repositoryImpl) GetCartByUser(ctx context.Context, userID string, queryParams *cart.QueryParams) (*cart.Model, error) {
 	return &cart.Model{}, nil
 }

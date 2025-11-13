@@ -6,12 +6,12 @@ import (
 	"backend/internal/domain/attribute"
 )
 
-type Repository struct{}
+type repositoryImpl struct{}
 
 func NewRepository() attribute.Repository {
-	return Repository{}
+	return &repositoryImpl{}
 }
 
-func (r Repository) List(ctx context.Context, queryParams *attribute.QueryParams) (*attribute.PaginationModel, error) {
+func (r *repositoryImpl) List(ctx context.Context, queryParams *attribute.QueryParams) (*attribute.PaginationModel, error) {
 	return &attribute.PaginationModel{}, nil
 }
