@@ -14,6 +14,7 @@ import (
 type Review interface {
 	Get(ctx *gin.Context)
 	ListReviewsByProducts(ctx *gin.Context)
+
 	Create(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
@@ -55,7 +56,7 @@ func (h *reviewHandler) Get(ctx *gin.Context) {
 //	@Param			product_ids	query		[]int	false	"Product IDs"				collectionFormat(csv)
 //	@Param			deleted		query		string	false	"Include deleted reviews"	Enums(include, only, exclude)
 //	@Param			offset		query		int		false	"Offset for pagination"
-//	@Param			limit		query		int		false	"Limit for pagination"
+//	@Param			limit		query		int		false	"Limit for pagination"	default(10)
 //	@Success		200			{object}	response.DataPagination{data=[]response.Review}
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/reviews [get]

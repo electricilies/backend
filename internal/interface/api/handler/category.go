@@ -35,7 +35,7 @@ func NewCategory(app application.Category) Category {
 //	@Accept			json
 //	@Produce		json
 //	@Param			offset	query		int	false	"Offset for pagination"
-//	@Param			limit	query		int	false	"Limit for pagination"
+//	@Param			limit	query		int	false	"Limit for pagination"	default(20)
 //	@Success		200		{object}	response.DataPagination{data=[]response.Category}
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/categories [get]

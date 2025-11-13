@@ -54,7 +54,7 @@ func (h *attributeHandler) Get(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			offset		query		int		false	"Offset for pagination"
-//	@Param			limit		query		int		false	"Limit for pagination"
+//	@Param			limit		query		int		false	"Limit for pagination"	default(20)
 //	@Param			product_id	query		int		false	"Product ID"
 //	@Param			search		query		string	false	"Search term"
 //	@Param			deleted		query		string	false	"Filter by deletion status"	Enums(exclude, only, all)

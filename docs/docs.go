@@ -37,6 +37,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "default": 20,
                         "description": "Limit for pagination",
                         "name": "limit",
                         "in": "query"
@@ -376,6 +377,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 20,
                         "description": "Limit",
                         "name": "limit",
                         "in": "query"
@@ -604,6 +606,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "default": 20,
                         "description": "Limit for pagination",
                         "name": "limit",
                         "in": "query"
@@ -1010,7 +1013,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "format": "email",
+                        "default": 20,
                         "description": "Limit for pagination",
                         "name": "limit",
                         "in": "query"
@@ -1978,6 +1981,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "default": 10,
                         "description": "Limit for pagination",
                         "name": "limit",
                         "in": "query"

@@ -31,7 +31,7 @@ func NewCart() Cart { return &cartHandler{} }
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
-//	@Param			limit	query		int		false	"Limit"
+//	@Param			limit	query		int		false	"Limit"	default(20)
 //	@Param			offset	query		int		false	"Offset"
 //	@Param			user_id	path		string	true	"User ID"
 //	@Success		200		{object}	response.Cart{items=response.DataPagination{data=[]response.CartItem}}

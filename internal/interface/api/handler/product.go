@@ -60,7 +60,7 @@ func (h *productHandler) Get(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			offset			query		int		false	"Offset for pagination"
-//	@Param			limit			query		int		false	"Limit for pagination"		Format(email)
+//	@Param			limit			query		int		false	"Limit for pagination"		default(20)
 //	@Param			deleted			query		string	false	"Filter by deleted status"	Enums(exclude, only, all)
 //	@Param			sort_price		query		string	false	"Sort by price"				Enums(asc, desc)
 //	@Param			sort_rating		query		string	false	"Sort by rating"			Enums(asc, desc)
