@@ -1960,6 +1960,17 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "include",
+                            "only",
+                            "exclude"
+                        ],
+                        "type": "string",
+                        "description": "Include deleted reviews",
+                        "name": "deleted",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "Offset for pagination",
                         "name": "offset",

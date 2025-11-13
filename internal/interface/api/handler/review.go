@@ -53,7 +53,10 @@ func (h *reviewHandler) Get(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_ids	query		[]int	false	"Product IDs"	collectionFormat(csv)
+//	@Param			product_ids	query		[]int	false	"Product IDs"				collectionFormat(csv)
+//
+//	@Param			deleted		query		string	false	"Include deleted reviews"	Enums(include, only, exclude)
+//
 //	@Param			offset		query		int		false	"Offset for pagination"
 //	@Param			limit		query		int		false	"Limit for pagination"
 //	@Success		200			{object}	response.DataPagination{data=[]response.Review}
