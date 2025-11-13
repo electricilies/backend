@@ -1010,8 +1010,62 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "format": "email",
                         "description": "Limit for pagination",
                         "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "exclude",
+                            "only",
+                            "all"
+                        ],
+                        "type": "string",
+                        "description": "Filter by deleted status",
+                        "name": "deleted",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "description": "Sort by price",
+                        "name": "sort_price",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "description": "Sort by rating",
+                        "name": "sort_rating",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Filter by category ID",
+                        "name": "category_ids",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Minimum price filter",
+                        "name": "min_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum price filter",
+                        "name": "max_price",
                         "in": "query"
                     }
                 ],

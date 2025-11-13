@@ -7,3 +7,15 @@ const (
 	Only    Deleted = "only"
 	All     Deleted = "all"
 )
+
+type Sort string
+
+const (
+	Ascending  Sort = "asc"
+	Descending Sort = "desc"
+)
+
+type (
+	SortRating Sort
+	SortPrice  Sort
+)

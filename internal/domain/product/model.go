@@ -69,4 +69,11 @@ type PaginationModel struct {
 // TODO: Add param later
 type QueryParams struct {
 	PaginationParams *param.Pagination
+	Search           string
+	MinPrice         int64
+	MaxPrice         int64
+	CategoryIDs      []int
+	Deleted          *param.Deleted
+	SortPrice        *param.SortPrice
+	SortRating       *param.SortRating
 }
