@@ -24,4 +24,5 @@ type QueryParams struct {
 type Pagination struct {
 	Metadata *param.PaginationMetadata
 	Reviews  *[]Review
+	Deleted  *param.Deleted
 }

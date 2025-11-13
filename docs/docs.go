@@ -1950,9 +1950,13 @@ const docTemplate = `{
                 "summary": "List all reviews",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "product_id",
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Product IDs",
+                        "name": "product_ids",
                         "in": "query"
                     },
                     {

@@ -14,7 +14,7 @@ import (
 
 type Review interface {
 	Get(ctx *gin.Context)
-	ListReviewsByProduct(ctx *gin.Context)
+	ListReviewsByProducts(ctx *gin.Context)
 	Create(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
@@ -53,13 +53,13 @@ func (h *reviewHandler) Get(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id	query		int	false	"Product ID"
-//	@Param			offset		query		int	false	"Offset for pagination"
-//	@Param			limit		query		int	false	"Limit for pagination"
+//	@Param			product_ids	query		[]int	false	"Product IDs"	collectionFormat(csv)
+//	@Param			offset		query		int		false	"Offset for pagination"
+//	@Param			limit		query		int		false	"Limit for pagination"
 //	@Success		200			{object}	response.DataPagination{data=[]response.Review}
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/reviews [get]
-func (h *reviewHandler) ListReviewsByProduct(ctx *gin.Context) {
+func (h *reviewHandler) ListReviewsByProducts(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check, now it not required
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 	productID, _ := strconv.Atoi(ctx.Query("product_id"))
