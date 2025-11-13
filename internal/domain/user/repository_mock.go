@@ -293,16 +293,16 @@ func (_c *MockRepository_List_Call) RunAndReturn(run func(ctx context.Context) (
 }
 
 // Update provides a mock function for the type MockRepository
-func (_mock *MockRepository) Update(ctx context.Context, user *Model) error {
-	ret := _mock.Called(ctx, user)
+func (_mock *MockRepository) Update(ctx context.Context, user *Model, queryParams *QueryParams) error {
+	ret := _mock.Called(ctx, user, queryParams)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *Model) error); ok {
-		r0 = returnFunc(ctx, user)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *Model, *QueryParams) error); ok {
+		r0 = returnFunc(ctx, user, queryParams)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -317,11 +317,12 @@ type MockRepository_Update_Call struct {
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
 //   - user *Model
-func (_e *MockRepository_Expecter) Update(ctx interface{}, user interface{}) *MockRepository_Update_Call {
-	return &MockRepository_Update_Call{Call: _e.mock.On("Update", ctx, user)}
+//   - queryParams *QueryParams
+func (_e *MockRepository_Expecter) Update(ctx interface{}, user interface{}, queryParams interface{}) *MockRepository_Update_Call {
+	return &MockRepository_Update_Call{Call: _e.mock.On("Update", ctx, user, queryParams)}
 }
 
-func (_c *MockRepository_Update_Call) Run(run func(ctx context.Context, user *Model)) *MockRepository_Update_Call {
+func (_c *MockRepository_Update_Call) Run(run func(ctx context.Context, user *Model, queryParams *QueryParams)) *MockRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -331,9 +332,14 @@ func (_c *MockRepository_Update_Call) Run(run func(ctx context.Context, user *Mo
 		if args[1] != nil {
 			arg1 = args[1].(*Model)
 		}
+		var arg2 *QueryParams
+		if args[2] != nil {
+			arg2 = args[2].(*QueryParams)
+		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
@@ -344,7 +350,7 @@ func (_c *MockRepository_Update_Call) Return(err error) *MockRepository_Update_C
 	return _c
 }
 
-func (_c *MockRepository_Update_Call) RunAndReturn(run func(ctx context.Context, user *Model) error) *MockRepository_Update_Call {
+func (_c *MockRepository_Update_Call) RunAndReturn(run func(ctx context.Context, user *Model, queryParams *QueryParams) error) *MockRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }
