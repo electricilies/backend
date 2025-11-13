@@ -9,7 +9,7 @@ RETURNING
   *;
 
 -- TODO: Get category by name (paradedb)
--- name: GetCategories :many
+-- name: ListCategories :many
 SELECT
   *,
   COUNT(*) OVER() AS current_count,

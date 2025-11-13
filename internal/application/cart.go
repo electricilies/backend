@@ -4,11 +4,10 @@ import (
 	"context"
 
 	"backend/internal/domain/cart"
-	"backend/internal/domain/param"
 )
 
 type Cart interface {
-	GetCartByUser(ctx context.Context, userID string, paginationParams *param.Pagination) (*cart.Model, error)
+	GetCartByUser(ctx context.Context, userID string, queryParams *cart.QueryParams) (*cart.Model, error)
 }
 
 type cartApp struct {
@@ -21,6 +20,6 @@ func NewCart(cartRepo cart.Repository) Cart {
 	}
 }
 
-func (a *cartApp) GetCartByUser(ctx context.Context, userID string, paginationParams *param.Pagination) (*cart.Model, error) {
-	return a.cartRepo.GetCartByUser(ctx, userID, paginationParams)
+func (a *cartApp) GetCartByUser(ctx context.Context, userID string, queryParams *cart.QueryParams) (*cart.Model, error) {
+	return a.cartRepo.GetCartByUser(ctx, userID, queryParams)
 }

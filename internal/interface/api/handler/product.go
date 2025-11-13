@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"backend/internal/application"
-	"backend/internal/domain/product"
 	"backend/internal/interface/api/request"
 	"backend/internal/interface/api/response"
 
@@ -74,10 +73,30 @@ func (h *productHandler) Get(ctx *gin.Context) {
 func (h *productHandler) List(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.Query("limit"))   // TODO: check all pagination because now it not required
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check if the json is checked of need to check in here
-	pParams := request.PaginationToDomain(limit, offset)
-	pagination, error := h.app.ListProducts(ctx, &product.QueryParams{
-		PaginationParams: pParams,
-	})
+	pagination, error := h.app.ListProducts(ctx, request.ProductQueryParamsToDomain(&request.ProductQueryParams{
+		Limit:      limit,
+		Offset:     offset,
+		Search:     ctx.Query("search"),
+		Deleted:    ctx.Query("deleted"),
+		SortPrice:  ctx.Query("sort_price"),
+		SortRating: ctx.Query("sort_rating"),
+		MinPrice: func() int64 {
+			v, _ := strconv.ParseInt(ctx.Query("min_price"), 10, 64)
+			return v
+		}(),
+		MaxPrice: func() int64 {
+			v, _ := strconv.ParseInt(ctx.Query("max_price"), 10, 64)
+			return v
+		}(),
+		CategoryIDs: func() []int {
+			ids := []int{}
+			for _, idStr := range ctx.QueryArray("category_ids") {
+				id, _ := strconv.Atoi(idStr)
+				ids = append(ids, id)
+			}
+			return ids
+		}(),
+	}))
 	if error != nil {
 		response.ErrorFromDomain(ctx, error)
 		return

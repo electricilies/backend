@@ -20,3 +20,7 @@ type ItemsPaginationModel struct {
 	Metadata *param.PaginationMetadata
 	Items    *[]ItemModel
 }
+
+type QueryParams struct {
+	Pagination *param.Pagination
+}

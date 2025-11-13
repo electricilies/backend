@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"backend/internal/application"
-	"backend/internal/domain/attribute"
 	"backend/internal/interface/api/request"
 	"backend/internal/interface/api/response"
 
@@ -64,15 +63,18 @@ func (h *attributeHandler) Get(ctx *gin.Context) {
 //	@Router			/attributes [get]
 func (h *attributeHandler) List(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check, now it not required
-	limit, _ := strconv.Atoi(ctx.Query("limit"))
+	limit, _ := strconv.Atoi(ctx.Query("limit"))   // TODO: add more query later
 	productID, err := strconv.Atoi(ctx.Query("product_id"))
 	if err != nil {
 		productID = 0
 	}
-	pagination, err := h.app.ListAttributes(ctx, &attribute.QueryParams{
-		PaginationParams: request.PaginationToDomain(limit, offset),
-		ProductID:        &productID,
-	})
+	pagination, err := h.app.ListAttributes(ctx, request.AttributeQueryParamsToDomain(
+		&request.AttributeQueryParams{
+			Limit:     limit,
+			Offset:    offset,
+			ProductID: productID,
+		},
+	))
 	if err != nil {
 		response.ErrorFromDomain(ctx, err)
 		return

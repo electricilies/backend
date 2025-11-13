@@ -1,5 +1,7 @@
 package request
 
+import "backend/internal/domain/product"
+
 type CreateProduct struct {
 	Name              string                 `json:"name" binding:"required"`
 	Description       string                 `json:"description,omitempty"`
@@ -46,4 +48,29 @@ type CreateProductOption struct {
 
 type UpdateProductOption struct {
 	Value string `json:"value" binding:"required"`
+}
+
+type ProductQueryParams struct {
+	Limit       int
+	Offset      int
+	CategoryIDs []int
+	MinPrice    int64
+	MaxPrice    int64
+	SortPrice   string
+	SortRating  string
+	Search      string
+	Deleted     string
+}
+
+func ProductQueryParamsToDomain(productQueryParams *ProductQueryParams) *product.QueryParams {
+	return &product.QueryParams{
+		PaginationParams: PaginationParamsToDomain(productQueryParams.Limit, productQueryParams.Offset),
+		Search:           &productQueryParams.Search,
+		MinPrice:         &productQueryParams.MinPrice,
+		MaxPrice:         &productQueryParams.MaxPrice,
+		CategoryIDs:      &productQueryParams.CategoryIDs,
+		Deleted:          DeletedParamToDomain(productQueryParams.Deleted),
+		SortPrice:        SortPriceParamToDomain(productQueryParams.SortPrice),
+		SortRating:       SortRatingParamToDomain(productQueryParams.SortRating),
+	}
 }

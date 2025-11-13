@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"backend/internal/application"
-	"backend/internal/domain/review"
 	"backend/internal/interface/api/request"
 	"backend/internal/interface/api/response"
 
@@ -64,7 +63,15 @@ func (h *reviewHandler) ListReviewsByProducts(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check, now it not required
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 	productID, _ := strconv.Atoi(ctx.Query("product_id"))
-	pagination, err := h.app.ListReviewsByProductID(ctx, productID, &review.QueryParams{PaginationParams: request.PaginationToDomain(offset, limit)})
+	pagination, err := h.app.ListReviewsByProductID(
+		ctx,
+		productID,
+		request.ReviewQueryParamsToDomain(&request.ReviewQueryParams{
+			Limit:   limit,
+			Offset:  offset,
+			Deleted: ctx.Query("deleted"),
+		}),
+	)
 	if err != nil {
 		response.ErrorFromDomain(ctx, err)
 		return

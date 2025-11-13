@@ -43,7 +43,14 @@ func (h *cartHandler) GetCartByUser(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset"))
 	id := ctx.Param("user_id")
 
-	cart, err := h.app.GetCartByUser(ctx, id, request.PaginationToDomain(limit, offset))
+	cart, err := h.app.GetCartByUser(
+		ctx,
+		id,
+		request.CartQueryParamsToDomain(&request.CartQueryParams{
+			Limit:  limit,
+			Offset: offset,
+		}),
+	)
 	if err != nil {
 		response.ErrorFromDomain(ctx, err)
 		return

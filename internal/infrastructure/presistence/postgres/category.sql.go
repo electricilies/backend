@@ -61,65 +61,6 @@ func (q *Queries) DeleteCategory(ctx context.Context, arg DeleteCategoryParams) 
 	return result.RowsAffected(), nil
 }
 
-const getCategories = `-- name: GetCategories :many
-SELECT
-  id, name, created_at, updated_at, deleted_at,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
-FROM
-  categories
-WHERE
-  deleted_at IS NULL
-ORDER BY
-  id DESC
-OFFSET COALESCE($1::integer, 0)
-LIMIT COALESCE($2::integer, 20)
-`
-
-type GetCategoriesParams struct {
-	Offset pgtype.Int4
-	Limit  pgtype.Int4
-}
-
-type GetCategoriesRow struct {
-	ID           int32
-	Name         string
-	CreatedAt    pgtype.Timestamp
-	UpdatedAt    pgtype.Timestamp
-	DeletedAt    pgtype.Timestamp
-	CurrentCount int64
-	TotalCount   int64
-}
-
-// TODO: Get category by name (paradedb)
-func (q *Queries) GetCategories(ctx context.Context, arg GetCategoriesParams) ([]GetCategoriesRow, error) {
-	rows, err := q.db.Query(ctx, getCategories, arg.Offset, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetCategoriesRow
-	for rows.Next() {
-		var i GetCategoriesRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.DeletedAt,
-			&i.CurrentCount,
-			&i.TotalCount,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getSuggestedCategories = `-- name: GetSuggestedCategories :many
 SELECT
   id, name, created_at, updated_at, deleted_at
@@ -153,6 +94,65 @@ func (q *Queries) GetSuggestedCategories(ctx context.Context, arg GetSuggestedCa
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listCategories = `-- name: ListCategories :many
+SELECT
+  id, name, created_at, updated_at, deleted_at,
+  COUNT(*) OVER() AS current_count,
+  COUNT(*) AS total_count
+FROM
+  categories
+WHERE
+  deleted_at IS NULL
+ORDER BY
+  id DESC
+OFFSET COALESCE($1::integer, 0)
+LIMIT COALESCE($2::integer, 20)
+`
+
+type ListCategoriesParams struct {
+	Offset pgtype.Int4
+	Limit  pgtype.Int4
+}
+
+type ListCategoriesRow struct {
+	ID           int32
+	Name         string
+	CreatedAt    pgtype.Timestamp
+	UpdatedAt    pgtype.Timestamp
+	DeletedAt    pgtype.Timestamp
+	CurrentCount int64
+	TotalCount   int64
+}
+
+// TODO: Get category by name (paradedb)
+func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) ([]ListCategoriesRow, error) {
+	rows, err := q.db.Query(ctx, listCategories, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListCategoriesRow
+	for rows.Next() {
+		var i ListCategoriesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.CurrentCount,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}

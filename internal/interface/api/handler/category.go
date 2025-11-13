@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"backend/internal/application"
-	"backend/internal/domain/category"
 	"backend/internal/interface/api/request"
 	"backend/internal/interface/api/response"
 
@@ -44,9 +43,10 @@ func (h *categoryHandler) List(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: now it not required
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 
-	pagination, err := h.app.ListCategories(ctx, &category.QueryParams{
-		PaginationParams: request.PaginationToDomain(limit, offset),
-	})
+	pagination, err := h.app.ListCategories(
+		ctx,
+		request.CategoryQueryParamsToDomain(&request.CategoryQueryParams{Limit: limit, Offset: offset}),
+	)
 	if err != nil {
 		response.ErrorFromDomain(ctx, err)
 		return
