@@ -25,7 +25,7 @@ func DeletedParamToDomain(deleted string) *param.Deleted {
 	}
 }
 
-func SortParamToDomain(sort string) *param.Sort {
+func sortParamToDomain(sort string) *param.Sort {
 	switch sort {
 	case "asc":
 		asc := param.Ascending
@@ -39,7 +39,7 @@ func SortParamToDomain(sort string) *param.Sort {
 }
 
 func SortPriceParamToDomain(sort string) *param.SortPrice {
-	s := SortParamToDomain(sort)
+	s := sortParamToDomain(sort)
 	if s != nil {
 		return (*param.SortPrice)(s)
 	}
@@ -51,7 +51,7 @@ func SortPriceParamToDomain(sort string) *param.SortPrice {
 }
 
 func SortRatingParamToDomain(sort string) *param.SortRating {
-	s := SortParamToDomain(sort)
+	s := sortParamToDomain(sort)
 	if s != nil {
 		return (*param.SortRating)(s)
 	}
