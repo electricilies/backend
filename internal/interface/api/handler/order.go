@@ -67,8 +67,8 @@ func (h *orderHandler) Create(ctx *gin.Context) {
 
 // UpdateOrderStatus godoc
 //
-//	@Summary		Update order status
-//	@Description	Update the status of an order
+//	@Summary		Update order
+//	@Description	Update  order
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
@@ -79,7 +79,7 @@ func (h *orderHandler) Create(ctx *gin.Context) {
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		409			{object}	response.ConflictError
 //	@Failure		500			{object}	response.InternalServerError
-//	@Router			/orders/{order_id}/status [put]
+//	@Router			/orders/{order_id} [put]
 func (h *orderHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
