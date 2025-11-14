@@ -31,5 +31,5 @@ func (a *productApp) GetDeleteImageURL(ctx context.Context, id int) (string, err
 }
 
 func (a *productApp) ListProducts(ctx context.Context, queryParams *product.QueryParams) (*product.PaginationModel, error) {
-	return a.productRepo.ListProducts(ctx, queryParams)
+	return a.productRepo.List(ctx, queryParams)
 }

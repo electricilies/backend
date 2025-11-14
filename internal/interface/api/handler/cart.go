@@ -12,7 +12,7 @@ import (
 )
 
 type Cart interface {
-	GetCartByUser(ctx *gin.Context)
+	Get(ctx *gin.Context)
 	CreateItem(ctx *gin.Context)
 	UpdateItem(ctx *gin.Context)
 	RemoveItem(ctx *gin.Context)
@@ -26,22 +26,21 @@ func NewCart() Cart { return &cartHandler{} }
 
 // GetCart godoc
 //
-//	@Summary		GetCartByUser cart
-//	@Description	GetCartByUser cart for the current user
+//	@Summary		Get cart
+//	@Description	Get cart by user ID
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
-//	@Param			limit	query		int		false	"Limit"	default(20)
-//	@Param			offset	query		int		false	"Offset"
-//	@Param			user_id	path		string	true	"User ID"
+//	@Param			limit	query		int	false	"Limit"	default(20)
+//	@Param			offset	query		int	false	"Offset"
 //	@Success		200		{object}	response.Cart{items=response.DataPagination{data=[]response.CartItem}}
 //	@Failure		404		{object}	response.NotFoundError
 //	@Failure		500		{object}	response.InternalServerError
-//	@Router			/carts [get]
-func (h *cartHandler) GetCartByUser(ctx *gin.Context) {
+//	@Router			/carts/{cart_id} [get]
+func (h *cartHandler) Get(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 	offset, _ := strconv.Atoi(ctx.Query("offset"))
-	id := ctx.Param("user_id")
+	id := ctx.Param("id")
 
 	cart, err := h.app.GetCartByUser(
 		ctx,
@@ -69,7 +68,7 @@ func (h *cartHandler) GetCartByUser(ctx *gin.Context) {
 //	@Success		201		{object}	response.CartItem
 //	@Failure		400		{object}	response.BadRequestError
 //	@Failure		500		{object}	response.InternalServerError
-//	@Router			/carts/item  [post]
+//	@Router			/carts/{cart_id}/item  [post]
 func (h *cartHandler) CreateItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -87,7 +86,8 @@ func (h *cartHandler) CreateItem(ctx *gin.Context) {
 //	@Failure		400				{object}	response.BadRequestError
 //	@Failure		404				{object}	response.NotFoundError
 //	@Failure		500				{object}	response.InternalServerError
-//	@Router			/carts/item [patch]
+//
+// /	@Router			/carts/{cart_id}/item [patch]
 func (h *cartHandler) UpdateItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -103,7 +103,8 @@ func (h *cartHandler) UpdateItem(ctx *gin.Context) {
 //	@Success		204
 //	@Failure		404	{object}	response.NotFoundError
 //	@Failure		500	{object}	response.InternalServerError
-//	@Router			/carts/item [delete]
+//
+// /	@Router			/carts/{cart_id}/item [delete]
 func (h *cartHandler) RemoveItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

@@ -12,6 +12,10 @@ func NewRepository() category.Repository {
 	return &repositoryImpl{}
 }
 
-func (r *repositoryImpl) ListCategories(ctx context.Context, queryParams *category.QueryParams) (*category.PaginationModel, error) {
+func (r *repositoryImpl) List(ctx context.Context, queryParams *category.QueryParams) (*category.PaginationModel, error) {
 	return &category.PaginationModel{}, nil
 }
+
+func (r *repositoryImpl) Create(ctx context.Context, category *category.Model) (*category.Model, error)
+
+func (r *repositoryImpl) Update(ctx context.Context, category *category.Model, id int) (*category.Model, error)

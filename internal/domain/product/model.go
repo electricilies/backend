@@ -13,6 +13,12 @@ type UploadImageURLModel struct {
 	Key *string
 }
 
+type OptionModel struct {
+	ID     *int
+	Name   *string
+	Values *[]VariantOptionValueModel
+}
+
 type VariantOptionValueModel struct {
 	ID    *int
 	Value *string

@@ -21,5 +21,5 @@ func NewCategory(categoryRepo category.Repository) Category {
 }
 
 func (a *categoryApp) ListCategories(ctx context.Context, queryParams *category.QueryParams) (*category.PaginationModel, error) {
-	return a.categoryRepo.ListCategories(ctx, queryParams)
+	return a.categoryRepo.List(ctx, queryParams)
 }

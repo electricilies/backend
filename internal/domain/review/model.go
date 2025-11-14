@@ -7,7 +7,7 @@ import (
 	"backend/internal/domain/user"
 )
 
-type Review struct {
+type Model struct {
 	ID        *int
 	Rating    *int
 	Content   *string
@@ -24,5 +24,5 @@ type QueryParams struct {
 
 type Pagination struct {
 	Metadata *param.PaginationMetadata
-	Reviews  *[]Review
+	Reviews  *[]Model
 }

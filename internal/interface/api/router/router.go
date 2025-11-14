@@ -87,10 +87,10 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 		}
 		cart := api.Group("/carts")
 		{
-			cart.GET("", r.cartHandler.GetCartByUser)
-			cart.POST("/item", r.cartHandler.CreateItem)
-			cart.PATCH("/item", r.cartHandler.UpdateItem)
-			cart.DELETE("/item", r.cartHandler.RemoveItem)
+			cart.GET("/:cart_id", r.cartHandler.Get)
+			cart.POST("/:cart_id/item", r.cartHandler.CreateItem)
+			cart.PATCH("/:cart_id/item", r.cartHandler.UpdateItem)
+			cart.DELETE("/:cart_id/item", r.cartHandler.RemoveItem)
 		}
 		categories := api.Group("/categories")
 		{
@@ -112,7 +112,7 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 			products.POST("/:product_id/variants", r.productHandler.CreateProductVariant)
 			products.PATCH("/variants/:variant_id", r.productHandler.UpdateProductVariant)
 			products.PATCH("/:product_id/options/:option_id", r.productHandler.UpdateProductOption)
-			products.PATCH("/:product_id/images/bulk", r.productHandler.CreateProductImages)
+			products.POST("/:product_id/images/bulk", r.productHandler.CreateProductImages)
 		}
 
 		attributes := api.Group("/attributes")

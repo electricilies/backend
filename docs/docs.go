@@ -367,9 +367,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/carts": {
+        "/carts/{cart_id}": {
             "get": {
-                "description": "GetCartByUser cart for the current user",
+                "description": "Get cart by user ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -379,7 +379,7 @@ const docTemplate = `{
                 "tags": [
                     "Cart"
                 ],
-                "summary": "GetCartByUser cart",
+                "summary": "Get cart",
                 "parameters": [
                     {
                         "type": "integer",
@@ -393,13 +393,6 @@ const docTemplate = `{
                         "description": "Offset",
                         "name": "offset",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -451,7 +444,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/carts/item": {
+        "/carts/{cart_id}/item": {
             "post": {
                 "description": "Add a product item to the cart",
                 "consumes": [
@@ -486,102 +479,6 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.BadRequestError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.InternalServerError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Remove an item from the cart",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Cart"
-                ],
-                "summary": "Remove cart item",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Cart Item ID",
-                        "name": "item_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.NotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.InternalServerError"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "description": "Update quantity of a cart item",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Cart"
-                ],
-                "summary": "Update cart item",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Cart Item ID",
-                        "name": "cart_item_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Update cart item request",
-                        "name": "item",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.UpdateCartItem"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.CartItem"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.BadRequestError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.NotFoundError"
                         }
                     },
                     "500": {

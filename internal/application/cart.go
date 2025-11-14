@@ -7,7 +7,7 @@ import (
 )
 
 type Cart interface {
-	GetCartByUser(ctx context.Context, userID string, queryParams *cart.QueryParams) (*cart.Model, error)
+	Get(ctx context.Context, id int, queryParams *cart.QueryParams) (*cart.Model, error)
 }
 
 type cartApp struct {
@@ -20,6 +20,6 @@ func NewCart(cartRepo cart.Repository) Cart {
 	}
 }
 
-func (a *cartApp) GetCartByUser(ctx context.Context, userID string, queryParams *cart.QueryParams) (*cart.Model, error) {
-	return a.cartRepo.GetCartByUser(ctx, userID, queryParams)
+func (a *cartApp) Get(ctx context.Context, id int, queryParams *cart.QueryParams) (*cart.Model, error) {
+	return a.cartRepo.Get(ctx, id, queryParams)
 }

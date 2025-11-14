@@ -17,7 +17,7 @@ type Review struct {
 	UpdatedAt time.Time `json:"updatedAt" binding:"required"`
 }
 
-func ReviewFromDomain(r *review.Review) *Review {
+func ReviewFromDomain(r *review.Model) *Review {
 	return &Review{
 		ID:        *r.ID,
 		Rating:    *r.Rating,

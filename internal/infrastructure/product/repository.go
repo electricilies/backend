@@ -107,7 +107,16 @@ func (r *repositoryImpl) MoveImage(ctx context.Context, key string) error {
 }
 
 // TODO: implement
-func (r *repositoryImpl) ListProducts(ctx context.Context, queryParams *product.QueryParams) (*product.PaginationModel, error) {
+func (r *repositoryImpl) List(ctx context.Context, queryParams *product.QueryParams) (*product.PaginationModel, error) {
 	result := &product.PaginationModel{}
 	return result, nil
 }
+
+func (r *repositoryImpl) Create(ctx context.Context, product *product.Model) (*product.Model, error)
+func (r *repositoryImpl) Update(ctx context.Context, product *product.Model, id int) (*product.Model, error)
+func (r *repositoryImpl) Delete(ctx context.Context, id int) error
+func (r *repositoryImpl) AddOption(ctx context.Context, option *product.OptionModel, id int) (*product.OptionModel, error)
+func (r *repositoryImpl) UpdateOption(ctx context.Context, option *product.OptionModel, optionId int) (*product.OptionModel, error)
+func (r *repositoryImpl) AddVariant(ctx context.Context, variant *product.VariantModel, id int) (*product.VariantModel, error)
+func (r *repositoryImpl) UpdateVariant(ctx context.Context, variant *product.VariantModel, variantId int) (*product.VariantModel, error)
+func (r *repositoryImpl) AddImages(ctx context.Context, images []*product.ImageModel, id int) error

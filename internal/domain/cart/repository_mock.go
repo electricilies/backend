@@ -37,6 +37,74 @@ func (_m *MockRepository) EXPECT() *MockRepository_Expecter {
 	return &MockRepository_Expecter{mock: &_m.Mock}
 }
 
+// AddItem provides a mock function for the type MockRepository
+func (_mock *MockRepository) AddItem(ctx context.Context, cartItem *ItemModel) (*ItemModel, error) {
+	ret := _mock.Called(ctx, cartItem)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddItem")
+	}
+
+	var r0 *ItemModel
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *ItemModel) (*ItemModel, error)); ok {
+		return returnFunc(ctx, cartItem)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *ItemModel) *ItemModel); ok {
+		r0 = returnFunc(ctx, cartItem)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ItemModel)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *ItemModel) error); ok {
+		r1 = returnFunc(ctx, cartItem)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_AddItem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddItem'
+type MockRepository_AddItem_Call struct {
+	*mock.Call
+}
+
+// AddItem is a helper method to define mock.On call
+//   - ctx context.Context
+//   - cartItem *ItemModel
+func (_e *MockRepository_Expecter) AddItem(ctx interface{}, cartItem interface{}) *MockRepository_AddItem_Call {
+	return &MockRepository_AddItem_Call{Call: _e.mock.On("AddItem", ctx, cartItem)}
+}
+
+func (_c *MockRepository_AddItem_Call) Run(run func(ctx context.Context, cartItem *ItemModel)) *MockRepository_AddItem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *ItemModel
+		if args[1] != nil {
+			arg1 = args[1].(*ItemModel)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_AddItem_Call) Return(itemModel *ItemModel, err error) *MockRepository_AddItem_Call {
+	_c.Call.Return(itemModel, err)
+	return _c
+}
+
+func (_c *MockRepository_AddItem_Call) RunAndReturn(run func(ctx context.Context, cartItem *ItemModel) (*ItemModel, error)) *MockRepository_AddItem_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetCartByUser provides a mock function for the type MockRepository
 func (_mock *MockRepository) GetCartByUser(ctx context.Context, userID string, queryParams *QueryParams) (*Model, error) {
 	ret := _mock.Called(ctx, userID, queryParams)
@@ -107,6 +175,137 @@ func (_c *MockRepository_GetCartByUser_Call) Return(model *Model, err error) *Mo
 }
 
 func (_c *MockRepository_GetCartByUser_Call) RunAndReturn(run func(ctx context.Context, userID string, queryParams *QueryParams) (*Model, error)) *MockRepository_GetCartByUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RemoveItem provides a mock function for the type MockRepository
+func (_mock *MockRepository) RemoveItem(ctx context.Context, id string) error {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoveItem")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockRepository_RemoveItem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveItem'
+type MockRepository_RemoveItem_Call struct {
+	*mock.Call
+}
+
+// RemoveItem is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+func (_e *MockRepository_Expecter) RemoveItem(ctx interface{}, id interface{}) *MockRepository_RemoveItem_Call {
+	return &MockRepository_RemoveItem_Call{Call: _e.mock.On("RemoveItem", ctx, id)}
+}
+
+func (_c *MockRepository_RemoveItem_Call) Run(run func(ctx context.Context, id string)) *MockRepository_RemoveItem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_RemoveItem_Call) Return(err error) *MockRepository_RemoveItem_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockRepository_RemoveItem_Call) RunAndReturn(run func(ctx context.Context, id string) error) *MockRepository_RemoveItem_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateItem provides a mock function for the type MockRepository
+func (_mock *MockRepository) UpdateItem(ctx context.Context, cartItem *ItemModel, id string) (*ItemModel, error) {
+	ret := _mock.Called(ctx, cartItem, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateItem")
+	}
+
+	var r0 *ItemModel
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *ItemModel, string) (*ItemModel, error)); ok {
+		return returnFunc(ctx, cartItem, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *ItemModel, string) *ItemModel); ok {
+		r0 = returnFunc(ctx, cartItem, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ItemModel)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *ItemModel, string) error); ok {
+		r1 = returnFunc(ctx, cartItem, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_UpdateItem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateItem'
+type MockRepository_UpdateItem_Call struct {
+	*mock.Call
+}
+
+// UpdateItem is a helper method to define mock.On call
+//   - ctx context.Context
+//   - cartItem *ItemModel
+//   - id string
+func (_e *MockRepository_Expecter) UpdateItem(ctx interface{}, cartItem interface{}, id interface{}) *MockRepository_UpdateItem_Call {
+	return &MockRepository_UpdateItem_Call{Call: _e.mock.On("UpdateItem", ctx, cartItem, id)}
+}
+
+func (_c *MockRepository_UpdateItem_Call) Run(run func(ctx context.Context, cartItem *ItemModel, id string)) *MockRepository_UpdateItem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *ItemModel
+		if args[1] != nil {
+			arg1 = args[1].(*ItemModel)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_UpdateItem_Call) Return(itemModel *ItemModel, err error) *MockRepository_UpdateItem_Call {
+	_c.Call.Return(itemModel, err)
+	return _c
+}
+
+func (_c *MockRepository_UpdateItem_Call) RunAndReturn(run func(ctx context.Context, cartItem *ItemModel, id string) (*ItemModel, error)) *MockRepository_UpdateItem_Call {
 	_c.Call.Return(run)
 	return _c
 }
