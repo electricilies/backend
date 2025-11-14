@@ -1613,7 +1613,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/{product_id}/images": {
+        "/products/{product_id}/images/bulk": {
             "post": {
                 "description": "Create new images for products",
                 "consumes": [

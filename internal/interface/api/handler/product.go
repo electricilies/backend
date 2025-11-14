@@ -299,7 +299,7 @@ func (h *productHandler) UpdateProductOption(ctx *gin.Context) {
 //	@Failure		400				{object}	response.BadRequestError
 //	@Failure		409				{object}	response.ConflictError
 //	@Failure		500				{object}	response.InternalServerError
-//	@Router			/products/{product_id}/images [post]
+//	@Router			/products/{product_id}/images/bulk [post]
 func (h *productHandler) CreateProductImages(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
