@@ -4,14 +4,14 @@ INSERT INTO reviews (
   content,
   image_url,
   user_id,
-  product_id
+  order_item_id
 )
 VALUES (
   @rating,
   @content,
   @image_url,
   @user_id,
-  @product_id
+  @order_item_id
 )
 RETURNING
   *;
@@ -29,8 +29,8 @@ WHERE
     ELSE id = ANY (sqlc.narg('ids')::integer[])
   END
   AND CASE
-    WHEN sqlc.narg('product_ids')::integer[] IS NULL THEN TRUE
-    ELSE product_id = ANY (sqlc.narg('product_ids')::integer[])
+    WHEN sqlc.narg('order_item_ids')::integer[] IS NULL THEN TRUE
+    ELSE order_item_id = ANY (sqlc.narg('order_item_ids')::integer[])
   END
   AND CASE
     WHEN @deleted::text = 'exclude' THEN deleted_at IS NOT NULL

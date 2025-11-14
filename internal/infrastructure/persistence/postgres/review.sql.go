@@ -18,7 +18,7 @@ INSERT INTO reviews (
   content,
   image_url,
   user_id,
-  product_id
+  order_item_id
 )
 VALUES (
   $1,
@@ -28,15 +28,15 @@ VALUES (
   $5
 )
 RETURNING
-  id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, product_id
+  id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, order_item_id
 `
 
 type CreateReviewParams struct {
-	Rating    int16
-	Content   pgtype.Text
-	ImageURL  string
-	userID    uuid.UUID
-	ProductID int32
+	Rating      int16
+	Content     pgtype.Text
+	ImageURL    string
+	userID      uuid.UUID
+	OrderItemID int32
 }
 
 func (q *Queries) CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error) {
@@ -45,7 +45,7 @@ func (q *Queries) CreateReview(ctx context.Context, arg CreateReviewParams) (Rev
 		arg.Content,
 		arg.ImageURL,
 		arg.userID,
-		arg.ProductID,
+		arg.OrderItemID,
 	)
 	var i Review
 	err := row.Scan(
@@ -57,7 +57,7 @@ func (q *Queries) CreateReview(ctx context.Context, arg CreateReviewParams) (Rev
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.userID,
-		&i.ProductID,
+		&i.OrderItemID,
 	)
 	return i, err
 }
@@ -85,7 +85,7 @@ func (q *Queries) DeleteReviews(ctx context.Context, arg DeleteReviewsParams) (i
 
 const listReviews = `-- name: ListReviews :many
 SELECT
-  id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, product_id,
+  id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, order_item_id,
   COUNT(*) OVER() AS current_count,
   COUNT(*) AS total_count
 FROM
@@ -97,7 +97,7 @@ WHERE
   END
   AND CASE
     WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE product_id = ANY ($2::integer[])
+    ELSE order_item_id = ANY ($2::integer[])
   END
   AND CASE
     WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
@@ -112,11 +112,11 @@ LIMIT COALESCE($5::integer, 10)
 `
 
 type ListReviewsParams struct {
-	IDs        []int32
-	ProductIDs []int32
-	Deleted    string
-	Offset     pgtype.Int4
-	Limit      pgtype.Int4
+	IDs          []int32
+	OrderItemIds []int32
+	Deleted      string
+	Offset       pgtype.Int4
+	Limit        pgtype.Int4
 }
 
 type ListReviewsRow struct {
@@ -128,7 +128,7 @@ type ListReviewsRow struct {
 	UpdatedAt    pgtype.Timestamp
 	DeletedAt    pgtype.Timestamp
 	userID       uuid.UUID
-	ProductID    int32
+	OrderItemID  int32
 	CurrentCount int64
 	TotalCount   int64
 }
@@ -136,7 +136,7 @@ type ListReviewsRow struct {
 func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]ListReviewsRow, error) {
 	rows, err := q.db.Query(ctx, listReviews,
 		arg.IDs,
-		arg.ProductIDs,
+		arg.OrderItemIds,
 		arg.Deleted,
 		arg.Offset,
 		arg.Limit,
@@ -157,7 +157,7 @@ func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]Lis
 			&i.UpdatedAt,
 			&i.DeletedAt,
 			&i.userID,
-			&i.ProductID,
+			&i.OrderItemID,
 			&i.CurrentCount,
 			&i.TotalCount,
 		); err != nil {
@@ -182,7 +182,7 @@ WHERE
   id = $5::integer
   AND deleted_at IS NULL
 RETURNING
-  id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, product_id
+  id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, order_item_id
 `
 
 type UpdateReviewParams struct {
@@ -211,7 +211,7 @@ func (q *Queries) UpdateReview(ctx context.Context, arg UpdateReviewParams) (Rev
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.userID,
-		&i.ProductID,
+		&i.OrderItemID,
 	)
 	return i, err
 }

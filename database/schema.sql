@@ -83,7 +83,7 @@ CREATE TABLE reviews (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP,
   user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-  product_id INTEGER NOT NULL REFERENCES products (id) ON UPDATE CASCADE
+  order_item_id INTEGER NOT NULL REFERENCES order_items (id) ON UPDATE CASCADE
 );
 
 -- options

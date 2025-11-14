@@ -173,15 +173,15 @@ type ReturnRequestStatus struct {
 }
 
 type Review struct {
-	ID        int32
-	Rating    int16
-	Content   pgtype.Text
-	ImageURL  string
-	CreatedAt pgtype.Timestamp
-	UpdatedAt pgtype.Timestamp
-	DeletedAt pgtype.Timestamp
-	userID    uuid.UUID
-	ProductID int32
+	ID          int32
+	Rating      int16
+	Content     pgtype.Text
+	ImageURL    string
+	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
+	DeletedAt   pgtype.Timestamp
+	userID      uuid.UUID
+	OrderItemID int32
 }
 
 type User struct {
