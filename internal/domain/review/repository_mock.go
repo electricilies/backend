@@ -37,12 +37,12 @@ func (_m *MockRepository) EXPECT() *MockRepository_Expecter {
 	return &MockRepository_Expecter{mock: &_m.Mock}
 }
 
-// ListReviewsByProductID provides a mock function for the type MockRepository
-func (_mock *MockRepository) ListReviewsByProductID(ctx context.Context, productID int, queryParams *QueryParams) (*Pagination, error) {
+// ListReviews provides a mock function for the type MockRepository
+func (_mock *MockRepository) ListReviews(ctx context.Context, productID int, queryParams *QueryParams) (*Pagination, error) {
 	ret := _mock.Called(ctx, productID, queryParams)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ListReviewsByProductID")
+		panic("no return value specified for ListReviews")
 	}
 
 	var r0 *Pagination
@@ -65,20 +65,20 @@ func (_mock *MockRepository) ListReviewsByProductID(ctx context.Context, product
 	return r0, r1
 }
 
-// MockRepository_ListReviewsByProductID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListReviewsByProductID'
-type MockRepository_ListReviewsByProductID_Call struct {
+// MockRepository_ListReviews_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListReviews'
+type MockRepository_ListReviews_Call struct {
 	*mock.Call
 }
 
-// ListReviewsByProductID is a helper method to define mock.On call
+// ListReviews is a helper method to define mock.On call
 //   - ctx context.Context
 //   - productID int
 //   - queryParams *QueryParams
-func (_e *MockRepository_Expecter) ListReviewsByProductID(ctx interface{}, productID interface{}, queryParams interface{}) *MockRepository_ListReviewsByProductID_Call {
-	return &MockRepository_ListReviewsByProductID_Call{Call: _e.mock.On("ListReviewsByProductID", ctx, productID, queryParams)}
+func (_e *MockRepository_Expecter) ListReviews(ctx interface{}, productID interface{}, queryParams interface{}) *MockRepository_ListReviews_Call {
+	return &MockRepository_ListReviews_Call{Call: _e.mock.On("ListReviews", ctx, productID, queryParams)}
 }
 
-func (_c *MockRepository_ListReviewsByProductID_Call) Run(run func(ctx context.Context, productID int, queryParams *QueryParams)) *MockRepository_ListReviewsByProductID_Call {
+func (_c *MockRepository_ListReviews_Call) Run(run func(ctx context.Context, productID int, queryParams *QueryParams)) *MockRepository_ListReviews_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -101,12 +101,12 @@ func (_c *MockRepository_ListReviewsByProductID_Call) Run(run func(ctx context.C
 	return _c
 }
 
-func (_c *MockRepository_ListReviewsByProductID_Call) Return(pagination *Pagination, err error) *MockRepository_ListReviewsByProductID_Call {
+func (_c *MockRepository_ListReviews_Call) Return(pagination *Pagination, err error) *MockRepository_ListReviews_Call {
 	_c.Call.Return(pagination, err)
 	return _c
 }
 
-func (_c *MockRepository_ListReviewsByProductID_Call) RunAndReturn(run func(ctx context.Context, productID int, queryParams *QueryParams) (*Pagination, error)) *MockRepository_ListReviewsByProductID_Call {
+func (_c *MockRepository_ListReviews_Call) RunAndReturn(run func(ctx context.Context, productID int, queryParams *QueryParams) (*Pagination, error)) *MockRepository_ListReviews_Call {
 	_c.Call.Return(run)
 	return _c
 }
