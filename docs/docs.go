@@ -2709,7 +2709,7 @@ const docTemplate = `{
         "request.CreateReview": {
             "type": "object",
             "required": [
-                "productId",
+                "orderItemId",
                 "rating",
                 "userId"
             ],
@@ -2720,7 +2720,7 @@ const docTemplate = `{
                 "imageUrl": {
                     "type": "string"
                 },
-                "productId": {
+                "orderItemId": {
                     "type": "integer"
                 },
                 "rating": {
@@ -3514,6 +3514,7 @@ const docTemplate = `{
             "required": [
                 "createdAt",
                 "id",
+                "orderItem",
                 "rating",
                 "updatedAt",
                 "user"
@@ -3530,6 +3531,9 @@ const docTemplate = `{
                 },
                 "imageUrl": {
                     "type": "string"
+                },
+                "orderItem": {
+                    "$ref": "#/definitions/response.OrderItem"
                 },
                 "rating": {
                     "type": "integer"
