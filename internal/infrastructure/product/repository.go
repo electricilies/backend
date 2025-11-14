@@ -9,7 +9,7 @@ import (
 	"backend/config"
 	"backend/internal/domain/product"
 	"backend/internal/infrastructure/errors"
-	"backend/internal/infrastructure/presistence/postgres"
+	"backend/internal/infrastructure/persistence/postgres"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
