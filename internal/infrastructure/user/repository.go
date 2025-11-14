@@ -9,7 +9,7 @@ import (
 	"backend/internal/domain/user"
 	"backend/internal/helper"
 	"backend/internal/infrastructure/errors"
-	"backend/internal/infrastructure/persistence/postgres"
+	"backend/internal/infrastructure/presistence/postgres"
 	"backend/pkg/logger"
 
 	"github.com/Nerzal/gocloak/v13"

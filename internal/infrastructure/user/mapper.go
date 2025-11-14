@@ -3,7 +3,7 @@ package user
 import (
 	"backend/internal/constant"
 	"backend/internal/domain/user"
-	"backend/internal/infrastructure/persistence/postgres"
+	"backend/internal/infrastructure/presistence/postgres"
 	"time"
 
 	"github.com/Nerzal/gocloak/v13"
