@@ -13,7 +13,7 @@ import (
 
 type Cart interface {
 	GetCartByUser(ctx *gin.Context)
-	AddItem(ctx *gin.Context)
+	CreateItem(ctx *gin.Context)
 	UpdateItem(ctx *gin.Context)
 	RemoveItem(ctx *gin.Context)
 }
@@ -70,7 +70,7 @@ func (h *cartHandler) GetCartByUser(ctx *gin.Context) {
 //	@Failure		400		{object}	response.BadRequestError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/carts/item  [post]
-func (h *cartHandler) AddItem(ctx *gin.Context) {
+func (h *cartHandler) CreateItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
