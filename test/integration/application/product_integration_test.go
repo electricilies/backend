@@ -13,7 +13,7 @@ import (
 	"backend/internal/client"
 	"backend/internal/di/db"
 	domainproduct "backend/internal/domain/product"
-	"backend/internal/infrastructure/presistence/postgres"
+	"backend/internal/infrastructure/persistence/postgres"
 	infraproduct "backend/internal/infrastructure/product"
 	"backend/test/integration/component"
 
