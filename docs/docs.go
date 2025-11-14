@@ -2648,6 +2648,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/request.CreateProductImage"
                     }
                 },
+                "productOption": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.CreateProductOption"
+                    }
+                },
                 "productVariants": {
                     "type": "array",
                     "items": {
@@ -2708,7 +2714,7 @@ const docTemplate = `{
                 "productOptionValues": {
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "type": "string"
                     }
                 },
                 "quantity": {

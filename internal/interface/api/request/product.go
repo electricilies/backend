@@ -7,6 +7,7 @@ type CreateProduct struct {
 	Description       string                 `json:"description,omitempty"`
 	CategoryIDs       []int                  `json:"categoryIds,omitempty"`
 	AttributeValueIDs []int                  `json:"attributeValueIds,omitempty"`
+	ProductOption     []CreateProductOption  `json:"productOption,omitempty"`
 	Category          int                    `json:"category" binding:"required"`
 	ProductVariants   []CreateProductVariant `json:"productVariants" binding:"required"`
 	ProductImages     []CreateProductImage   `json:"productImages" binding:"required"`
@@ -23,10 +24,10 @@ type AddAttributeValues struct {
 }
 
 type CreateProductVariant struct {
-	SKU                 string `json:"sku" binding:"required"`
-	Price               int64  `json:"price" binding:"required"`
-	Quantity            int    `json:"quantity" binding:"required"`
-	ProductOptionValues []int  `json:"productOptionValues,omitempty"`
+	SKU                 string   `json:"sku" binding:"required"`
+	Price               int64    `json:"price" binding:"required"`
+	Quantity            int      `json:"quantity" binding:"required"`
+	ProductOptionValues []string `json:"productOptionValues,omitempty"`
 }
 
 type UpdateProductVariant struct {
