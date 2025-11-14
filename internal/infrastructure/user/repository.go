@@ -28,9 +28,9 @@ type repositoryImpl struct {
 	logger         *zap.Logger
 }
 
-func NewRepository(query *postgres.Queries, s3Client *s3.Client, redisClient *redis.Client, keycloakClient *gocloak.GoCloak, tokenManager helper.TokenManager, cfg *config.Config, logger *zap.Logger) user.Repository {
+func NewRepository(queries *postgres.Queries, s3Client *s3.Client, redisClient *redis.Client, keycloakClient *gocloak.GoCloak, tokenManager helper.TokenManager, cfg *config.Config, logger *zap.Logger) user.Repository {
 	return &repositoryImpl{
-		db:             query,
+		db:             queries,
 		s3Client:       s3Client,
 		redisClient:    redisClient,
 		keycloakClient: keycloakClient,
