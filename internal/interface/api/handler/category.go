@@ -80,12 +80,12 @@ func (h *categoryHandler) Create(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			category_id	path		int						true	"Category ID"
 //	@Param			category	body		request.UpdateCategory	true	"Update category request"
-//	@Success		204			{string}	string					"no content"
+//	@Success		200			{object}	response.Category
 //	@Failure		400			{object}	response.BadRequestError
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		409			{object}	response.ConflictError
 //	@Failure		500			{object}	response.InternalServerError
-//	@Router			/categories/{category_id} [put]
+//	@Router			/categories/{category_id} [patch]
 func (h *categoryHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

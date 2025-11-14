@@ -133,12 +133,12 @@ func (h *productHandler) Create(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			product_id	path		int						true	"Product ID"
 //	@Param			product		body		request.UpdateProduct	true	"Update product request"
-//	@Success		204			{string}	string					"no content"
+//	@Success		200			{object}	response.Product
 //	@Failure		400			{object}	response.BadRequestError
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		409			{object}	response.ConflictError
 //	@Failure		500			{object}	response.InternalServerError
-//	@Router			/products/{product_id} [put]
+//	@Router			/products/{product_id} [patch]
 func (h *productHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -259,12 +259,12 @@ func (h *productHandler) CreateProductVariant(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			variant_id		path		int								true	"Product Variant ID"
 //	@Param			productVariant	body		request.UpdateProductVariant	true	"Update product variant request"
-//	@Success		204				{string}	string							"no content"
+//	@Success		200				{object}	response.ProductVariant
 //	@Failure		400				{object}	response.BadRequestError
 //	@Failure		404				{object}	response.NotFoundError
 //	@Failure		409				{object}	response.ConflictError
 //	@Failure		500				{object}	response.InternalServerError
-//	@Router			/products/variants/{variant_id} [put]
+//	@Router			/products/variants/{variant_id} [patch]
 func (h *productHandler) UpdateProductVariant(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -279,12 +279,12 @@ func (h *productHandler) UpdateProductVariant(ctx *gin.Context) {
 //	@Param			product_id		path		int							true	"Product ID"
 //	@Param			option_id		path		int							true	"Product Option ID"
 //	@Param			productOption	body		request.UpdateProductOption	true	"Update product option request"
-//	@Success		204				{string}	string						"no content"
+//	@Success		200				{object}	response.ProductOption
 //	@Failure		400				{object}	response.BadRequestError
 //	@Failure		404				{object}	response.NotFoundError
 //	@Failure		409				{object}	response.ConflictError
 //	@Failure		500				{object}	response.InternalServerError
-//	@Router			/products/options/{option_id} [put]
+//	@Router			/products/options/{option_id} [patch]
 func (h *productHandler) UpdateProductOption(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

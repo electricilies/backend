@@ -114,12 +114,12 @@ func (h *userHandler) Create(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			user_id	path		string				true	"User ID"
 //	@Param			user	body		request.UpdateUser	true	"User request"
-//	@Success		204		{string}	string				"no content"
+//	@Success		204		{object}	response.User
 //	@Failure		400		{object}	response.BadRequestError
 //	@Failure		404		{object}	response.NotFoundError
 //	@Failure		409		{object}	response.ConflictError
 //	@Failure		500		{object}	response.InternalServerError
-//	@Router			/users/{user_id} [put]
+//	@Router			/users/{user_id} [patch]
 func (h *userHandler) Update(ctx *gin.Context) {
 	id := ctx.Query("user_id")
 	var body request.UpdateUser

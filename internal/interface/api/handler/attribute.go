@@ -108,12 +108,12 @@ func (h *attributeHandler) Create(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			attribute_id	path		string					true	"Attribute ID"
 //	@Param			attribute		body		request.UpdateAttribute	true	"Update attribute request"
-//	@Success		204				{string}	string					"no content"
+//	@Success		200				{object}	response.Attribute
 //	@Failure		400				{object}	response.BadRequestError
 //	@Failure		404				{object}	response.NotFoundError
 //	@Failure		409				{object}	response.ConflictError
 //	@Failure		500				{object}	response.InternalServerError
-//	@Router			/attributes/{attribute_id} [put]
+//	@Router			/attributes/{attribute_id} [patch]
 func (h *attributeHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -141,14 +141,14 @@ func (h *attributeHandler) Delete(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute_id	path	string							true	"Attribute ID"
-//	@Param			values			body	[]request.UpdateAttributeValue	true	"Update attribute values request"
-//	@Success		204
-//	@Failure		400	{object}	response.BadRequestError
-//	@Failure		404	{object}	response.NotFoundError
-//	@Failure		409	{object}	response.ConflictError
-//	@Failure		500	{object}	response.InternalServerError
-//	@Router			/attributes/{attribute_id}/values/bulk [put]
+//	@Param			attribute_id	path		string							true	"Attribute ID"
+//	@Param			values			body		[]request.UpdateAttributeValue	true	"Update attribute values request"
+//	@Success		200				{array}		response.Attribute
+//	@Failure		400				{object}	response.BadRequestError
+//	@Failure		404				{object}	response.NotFoundError
+//	@Failure		409				{object}	response.ConflictError
+//	@Failure		500				{object}	response.InternalServerError
+//	@Router			/attributes/{attribute_id}/values/bulk [patch]
 func (h *attributeHandler) UpdateAttributeValues(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

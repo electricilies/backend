@@ -106,12 +106,12 @@ func (h *reviewHandler) Create(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			review_id	path		int						true	"Review ID"
 //	@Param			review		body		request.UpdateReview	true	"Update review request"
-//	@Success		204			{string}	string					"no content"
+//	@Success		204			{object}	response.Review
 //	@Failure		400			{object}	response.BadRequestError
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		409			{object}	response.ConflictError
 //	@Failure		500			{object}	response.InternalServerError
-//	@Router			/reviews/{review_id} [put]
+//	@Router			/reviews/{review_id} [patch]
 func (h *reviewHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

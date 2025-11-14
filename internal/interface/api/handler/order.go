@@ -74,12 +74,12 @@ func (h *orderHandler) Create(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			order_id	path		int							true	"Order ID"
 //	@Param			status		body		request.UpdateOrderStatus	true	"Update order status request"
-//	@Success		204			{string}	string						"no content"
+//	@Success		200			{object}	response.Order
 //	@Failure		400			{object}	response.BadRequestError
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		409			{object}	response.ConflictError
 //	@Failure		500			{object}	response.InternalServerError
-//	@Router			/orders/{order_id} [put]
+//	@Router			/orders/{order_id} [patch]
 func (h *orderHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

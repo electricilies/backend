@@ -73,12 +73,12 @@ func (h *returnRequestHandler) Create(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			return_request_id	path		int									true	"Return Request ID"
 //	@Param			status				body		request.UpdateReturnRequestStatus	true	"Update return status request"
-//	@Success		204					{string}	string								"no content"
+//	@Success		200					{object}	response.ReturnRequest
 //	@Failure		400					{object}	response.BadRequestError
 //	@Failure		404					{object}	response.NotFoundError
 //	@Failure		409					{object}	response.ConflictError
 //	@Failure		500					{object}	response.InternalServerError
-//	@Router			/return-requests/{return_request_id}/status [put]
+//	@Router			/return-requests/{return_request_id}/status [patch]
 func (h *returnRequestHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
