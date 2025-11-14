@@ -65,7 +65,7 @@ func InitializeServer(ctx context.Context) *server.Server {
 	order := handler.NewOrder()
 	returnRequest := handler.NewReturn()
 	refund := handler.NewRefund()
-	reviewRepository := review.NewRepository()
+	reviewRepository := review.NewRepository(queries)
 	applicationReview := application.NewReview(reviewRepository)
 	handlerReview := handler.NewReview(applicationReview)
 	cart := handler.NewCart()
