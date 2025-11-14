@@ -40,7 +40,7 @@ UPDATE
   categories
 SET
   name = @name,
-  updated_at = NOW()
+  updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 WHERE
   deleted_at IS NULL
   AND id = @id

@@ -199,7 +199,7 @@ SET
   total_purchase = COALESCE(sqlc.narg('total_purchase')::integer, purchase_count),
   trending_score = COALESCE(sqlc.narg('trending_score')::float, trending_score), -- TODO: Do we ever update this manually?
   category_id = COALESCE(sqlc.narg('category_id')::integer, category_id),
-  updated_at = NOW()
+  updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 WHERE
   id = @id
   AND deleted_at IS NULL
@@ -222,7 +222,7 @@ SET
   price = COALESCE(updated_variants.price, product_variants.price),
   quantity = COALESCE(updated_variants.quantity, product_variants.quantity),
   purchase_count = COALESCE(updated_variants.purchase_count, product_variants.purchase_count),
-  updated_at = NOW()
+  updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 FROM
   updated_variants
 WHERE

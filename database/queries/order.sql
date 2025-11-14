@@ -109,3 +109,14 @@ WHERE
     WHEN sqlc.narg('name')::text IS NULL THEN TRUE
     ELSE name = sqlc.narg('name')::text
   END;
+
+-- name: UpdateOrder :one
+UPDATE orders
+SET
+  user_id = COALESCE(@user_id, user_id),
+  status_id = COALESCE(@status_id, status_id),
+  updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
+WHERE
+  id = @id
+RETURNING
+  *;

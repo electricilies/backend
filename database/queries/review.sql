@@ -49,7 +49,7 @@ SET
   rating = COALESCE(sqlc.narg('rating')::integer, rating),
   content = COALESCE(sqlc.narg('content')::text, content),
   image_url = COALESCE(sqlc.narg('image_url')::text, image_url),
-  updated_at = NOW()
+  updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 WHERE
   id = @id::integer
   AND deleted_at IS NULL
