@@ -166,6 +166,7 @@ func (h *productHandler) Delete(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
+//	@Param			product_id		path		int							true	"Product ID"
 //	@Param			productOption	body		request.CreateProductOption	true	"Product option request"
 //
 //	@Success		201				{object}	response.ProductOption
@@ -238,6 +239,7 @@ func (h *productHandler) GetDeleteImageURL(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
+//	@Param			product_id		path		int								true	"Product ID"``
 //	@Param			productVariant	body		request.CreateProductVariant	true	"Product variant request"
 //	@Success		201				{object}	response.ProductVariant
 //	@Failure		400				{object}	response.BadRequestError
@@ -274,6 +276,7 @@ func (h *productHandler) UpdateProductVariant(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
+//	@Param			product_id		path		int							true	"Product ID"
 //	@Param			option_id		path		int							true	"Product Option ID"
 //	@Param			productOption	body		request.UpdateProductOption	true	"Update product option request"
 //	@Success		204				{string}	string						"no content"

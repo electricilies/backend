@@ -1245,6 +1245,13 @@ const docTemplate = `{
                 "summary": "Create a new product option",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Product option request",
                         "name": "productOption",
                         "in": "body",
@@ -1296,6 +1303,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update a product option",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Product Option ID",
@@ -1361,6 +1375,13 @@ const docTemplate = `{
                 ],
                 "summary": "Create a new product variant",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "Product variant request",
                         "name": "productVariant",

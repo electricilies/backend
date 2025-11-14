@@ -106,12 +106,12 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 			products.GET("/:product_id", r.productHandler.Get)
 			products.PUT("/:product_id", r.productHandler.Update)
 			products.DELETE("/:product_id", r.productHandler.Delete)
-			products.POST("/options", r.productHandler.CreateProductOption)
+			products.POST("/:product_id/options", r.productHandler.CreateProductOption)
 			products.GET("/images/upload-url", r.productHandler.GetUploadImageURL)
 			products.GET("/images/delete-url/:image_id", r.productHandler.GetDeleteImageURL)
-			products.POST("/variants", r.productHandler.CreateProductVariant)
+			products.POST("/:product_id/variants", r.productHandler.CreateProductVariant)
 			products.PUT("/variants/:variant_id", r.productHandler.UpdateProductVariant)
-			products.PUT("/options/:option_id", r.productHandler.UpdateProductOption)
+			products.PUT("/:product_id/options/:option_id", r.productHandler.UpdateProductOption)
 			products.PUT("/:product_id/images/bulk", r.productHandler.CreateProductImages)
 		}
 
