@@ -68,7 +68,7 @@ func extractRolesFromClaims(claims jwt.MapClaims) []string {
 	var roles []string
 	if rawRoles, ok := claims["roles"]; ok {
 		switch v := rawRoles.(type) {
-		case []any:
+		case []interface{}:
 			for _, r := range v {
 				if s, ok := r.(string); ok {
 					roles = append(roles, s)
