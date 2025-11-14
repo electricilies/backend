@@ -169,21 +169,22 @@ UPDATE
   categories
 SET
   name = $1,
-  updated_at = NOW()
+  updated_at = COALESCE($2::timestamp, NOW())
 WHERE
   deleted_at IS NULL
-  AND id = $2
+  AND id = $3
 RETURNING
   id, name, created_at, updated_at, deleted_at
 `
 
 type UpdateCategoryParams struct {
-	Name string
-	ID   int32
+	Name      string
+	UpdatedAt pgtype.Timestamp
+	ID        int32
 }
 
 func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error) {
-	row := q.db.QueryRow(ctx, updateCategory, arg.Name, arg.ID)
+	row := q.db.QueryRow(ctx, updateCategory, arg.Name, arg.UpdatedAt, arg.ID)
 	var i Category
 	err := row.Scan(
 		&i.ID,

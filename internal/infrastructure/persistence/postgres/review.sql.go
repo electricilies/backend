@@ -177,19 +177,20 @@ SET
   rating = COALESCE($1::integer, rating),
   content = COALESCE($2::text, content),
   image_url = COALESCE($3::text, image_url),
-  updated_at = NOW()
+  updated_at = COALESCE($4::timestamp, NOW())
 WHERE
-  id = $4::integer
+  id = $5::integer
   AND deleted_at IS NULL
 RETURNING
   id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, product_id
 `
 
 type UpdateReviewParams struct {
-	Rating   pgtype.Int4
-	Content  pgtype.Text
-	ImageURL pgtype.Text
-	ID       int32
+	Rating    pgtype.Int4
+	Content   pgtype.Text
+	ImageURL  pgtype.Text
+	UpdatedAt pgtype.Timestamp
+	ID        int32
 }
 
 func (q *Queries) UpdateReview(ctx context.Context, arg UpdateReviewParams) (Review, error) {
@@ -197,6 +198,7 @@ func (q *Queries) UpdateReview(ctx context.Context, arg UpdateReviewParams) (Rev
 		arg.Rating,
 		arg.Content,
 		arg.ImageURL,
+		arg.UpdatedAt,
 		arg.ID,
 	)
 	var i Review

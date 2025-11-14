@@ -327,3 +327,40 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]ListO
 	}
 	return items, nil
 }
+
+const updateOrder = `-- name: UpdateOrder :one
+UPDATE orders
+SET
+  user_id = COALESCE($1, user_id),
+  status_id = COALESCE($2, status_id),
+  updated_at = COALESCE($3::timestamp, NOW())
+WHERE
+  id = $4
+RETURNING
+  id, created_at, updated_at, user_id, status_id
+`
+
+type UpdateOrderParams struct {
+	userID    uuid.UUID
+	StatusID  int32
+	UpdatedAt pgtype.Timestamp
+	ID        int32
+}
+
+func (q *Queries) UpdateOrder(ctx context.Context, arg UpdateOrderParams) (Order, error) {
+	row := q.db.QueryRow(ctx, updateOrder,
+		arg.userID,
+		arg.StatusID,
+		arg.UpdatedAt,
+		arg.ID,
+	)
+	var i Order
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.userID,
+		&i.StatusID,
+	)
+	return i, err
+}

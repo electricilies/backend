@@ -577,9 +577,9 @@ SET
   total_purchase = COALESCE($4::integer, purchase_count),
   trending_score = COALESCE($5::float, trending_score), -- TODO: Do we ever update this manually?
   category_id = COALESCE($6::integer, category_id),
-  updated_at = NOW()
+  updated_at = COALESCE($7::timestamp, NOW())
 WHERE
-  id = $7
+  id = $8
   AND deleted_at IS NULL
 RETURNING
   id, name, description, price, views_count, total_purchase, rating, trending_score, category_id, created_at, updated_at, deleted_at
@@ -592,6 +592,7 @@ type UpdateProductParams struct {
 	TotalPurchase pgtype.Int4
 	TrendingScore pgtype.Float8
 	CategoryID    pgtype.Int4
+	UpdatedAt     pgtype.Timestamp
 	ID            int32
 }
 
@@ -603,6 +604,7 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		arg.TotalPurchase,
 		arg.TrendingScore,
 		arg.CategoryID,
+		arg.UpdatedAt,
 		arg.ID,
 	)
 	var i Product
@@ -626,11 +628,11 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 const updateProductVariants = `-- name: UpdateProductVariants :many
 WITH updated_variants AS (
   SELECT
-    UNNEST($1::integer[]) AS id,
-    UNNEST($2::text[]) AS sku,
-    UNNEST($3::decimal[]) AS price,
-    UNNEST($4::integer[]) AS quantity,
-    UNNEST($5::integer[]) AS purchase_count
+    UNNEST($2::integer[]) AS id,
+    UNNEST($3::text[]) AS sku,
+    UNNEST($4::decimal[]) AS price,
+    UNNEST($5::integer[]) AS quantity,
+    UNNEST($6::integer[]) AS purchase_count
 )
 UPDATE
   product_variants
@@ -639,7 +641,7 @@ SET
   price = COALESCE(updated_variants.price, product_variants.price),
   quantity = COALESCE(updated_variants.quantity, product_variants.quantity),
   purchase_count = COALESCE(updated_variants.purchase_count, product_variants.purchase_count),
-  updated_at = NOW()
+  updated_at = COALESCE($1::timestamp, NOW())
 FROM
   updated_variants
 WHERE
@@ -650,6 +652,7 @@ RETURNING
 `
 
 type UpdateProductVariantsParams struct {
+	UpdatedAt      pgtype.Timestamp
 	IDs            []int32
 	SKUs           []string
 	Prices         []pgtype.Numeric
@@ -659,6 +662,7 @@ type UpdateProductVariantsParams struct {
 
 func (q *Queries) UpdateProductVariants(ctx context.Context, arg UpdateProductVariantsParams) ([]ProductVariant, error) {
 	rows, err := q.db.Query(ctx, updateProductVariants,
+		arg.UpdatedAt,
 		arg.IDs,
 		arg.SKUs,
 		arg.Prices,
