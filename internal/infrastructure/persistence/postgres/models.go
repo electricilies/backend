@@ -63,6 +63,7 @@ type OptionValuesProductVariant struct {
 
 type Order struct {
 	ID        int32
+	Address   string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 	userID    uuid.UUID

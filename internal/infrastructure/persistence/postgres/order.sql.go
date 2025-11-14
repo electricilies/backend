@@ -21,7 +21,7 @@ INSERT INTO orders (
   $2
 )
 RETURNING
-  id, created_at, updated_at, user_id, status_id
+  id, address, created_at, updated_at, user_id, status_id
 `
 
 type CreateOrderParams struct {
@@ -34,6 +34,7 @@ func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) (Order
 	var i Order
 	err := row.Scan(
 		&i.ID,
+		&i.Address,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.userID,
@@ -85,7 +86,7 @@ func (q *Queries) CreateOrderItem(ctx context.Context, arg CreateOrderItemParams
 
 const getOrder = `-- name: GetOrder :one
 SELECT
-  id, created_at, updated_at, user_id, status_id
+  id, address, created_at, updated_at, user_id, status_id
 FROM
   orders
 WHERE
@@ -101,6 +102,7 @@ func (q *Queries) GetOrder(ctx context.Context, arg GetOrderParams) (Order, erro
 	var i Order
 	err := row.Scan(
 		&i.ID,
+		&i.Address,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.userID,
@@ -252,7 +254,7 @@ func (q *Queries) ListOrderStatuses(ctx context.Context, arg ListOrderStatusesPa
 
 const listOrders = `-- name: ListOrders :many
 SELECT
-  id, created_at, updated_at, user_id, status_id,
+  id, address, created_at, updated_at, user_id, status_id,
   COUNT(*) OVER() AS current_count,
   COUNT(*) AS total_count
 FROM
@@ -286,6 +288,7 @@ type ListOrdersParams struct {
 
 type ListOrdersRow struct {
 	ID           int32
+	Address      string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
 	userID       uuid.UUID
@@ -311,6 +314,7 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]ListO
 		var i ListOrdersRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.Address,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.userID,
@@ -337,7 +341,7 @@ SET
 WHERE
   id = $4
 RETURNING
-  id, created_at, updated_at, user_id, status_id
+  id, address, created_at, updated_at, user_id, status_id
 `
 
 type UpdateOrderParams struct {
@@ -357,6 +361,7 @@ func (q *Queries) UpdateOrder(ctx context.Context, arg UpdateOrderParams) (Order
 	var i Order
 	err := row.Scan(
 		&i.ID,
+		&i.Address,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.userID,

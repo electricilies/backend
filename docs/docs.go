@@ -2565,10 +2565,14 @@ const docTemplate = `{
         "request.CreateOrder": {
             "type": "object",
             "required": [
+                "address",
                 "items",
                 "userId"
             ],
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "items": {
                     "type": "array",
                     "items": {
@@ -3093,6 +3097,7 @@ const docTemplate = `{
         "response.Order": {
             "type": "object",
             "required": [
+                "address",
                 "createdAt",
                 "id",
                 "items",
@@ -3102,6 +3107,9 @@ const docTemplate = `{
                 "userId"
             ],
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },

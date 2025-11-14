@@ -7,6 +7,7 @@ type OrderStatus string
 type Order struct {
 	ID        int         `json:"id" binding:"required"`
 	UserID    string      `json:"userId" binding:"required"`
+	Address   string      `json:"address" binding:"required"`
 	Status    OrderStatus `json:"status" binding:"required"`
 	Payment   Payment     `json:"payment" binding:"required"`
 	CreatedAt time.Time   `json:"createdAt" binding:"required"`

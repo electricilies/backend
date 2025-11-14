@@ -3,8 +3,9 @@ package request
 type OrderStatus string
 
 type CreateOrder struct {
-	UserID string      `json:"userId" binding:"required"`
-	Items  []OrderItem `json:"items" binding:"required"`
+	UserID  string      `json:"userId" binding:"required"`
+	Address string      `json:"address" binding:"required"`
+	Items   []OrderItem `json:"items" binding:"required"`
 }
 
 type OrderItem struct {
