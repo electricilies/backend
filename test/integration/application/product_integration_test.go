@@ -10,7 +10,7 @@ import (
 
 	"backend/config"
 	"backend/internal/application"
-	"backend/internal/di/client"
+	"backend/internal/client"
 	"backend/internal/di/db"
 	domainproduct "backend/internal/domain/product"
 	"backend/internal/infrastructure/presistence/postgres"

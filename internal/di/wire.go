@@ -8,7 +8,7 @@ import (
 
 	"backend/config"
 	app "backend/internal/application"
-	"backend/internal/di/client"
+	"backend/internal/client"
 	"backend/internal/di/db"
 	"backend/internal/di/ginengine"
 	userservice "backend/internal/domain/user"

@@ -9,7 +9,7 @@ package di
 import (
 	"backend/config"
 	"backend/internal/application"
-	"backend/internal/di/client"
+	"backend/internal/client"
 	"backend/internal/di/db"
 	"backend/internal/di/ginengine"
 	user2 "backend/internal/domain/user"

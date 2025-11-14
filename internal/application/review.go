@@ -21,5 +21,5 @@ func NewReview(reviewRepo review.Repository) Review {
 }
 
 func (a *reviewApp) ListReviewsByProductID(ctx context.Context, productID int, queryParams *review.QueryParams) (*review.Pagination, error) {
-	return a.reviewRepo.ListReviewsByProductID(ctx, productID, queryParams)
+	return a.reviewRepo.ListReviews(ctx, productID, queryParams)
 }
