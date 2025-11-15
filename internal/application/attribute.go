@@ -10,16 +10,24 @@ type Attribute interface {
 	ListAttributes(ctx context.Context, queryParams *attribute.QueryParams) (*attribute.PaginationModel, error)
 }
 
-type attributeApp struct {
+type AttributeApp struct {
 	attributeRepo attribute.Repository
 }
 
 func NewAttribute(attributeRepo attribute.Repository) Attribute {
-	return &attributeApp{
+	return &AttributeApp{
 		attributeRepo: attributeRepo,
 	}
 }
 
-func (a *attributeApp) ListAttributes(ctx context.Context, queryParams *attribute.QueryParams) (*attribute.PaginationModel, error) {
+func ProvideAttribute(
+	attributeRepo attribute.Repository,
+) *AttributeApp {
+	return &AttributeApp{
+		attributeRepo: attributeRepo,
+	}
+}
+
+func (a *AttributeApp) ListAttributes(ctx context.Context, queryParams *attribute.QueryParams) (*attribute.PaginationModel, error) {
 	return a.attributeRepo.List(ctx, queryParams)
 }

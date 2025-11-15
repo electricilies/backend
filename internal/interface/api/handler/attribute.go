@@ -20,12 +20,20 @@ type Attribute interface {
 	UpdateAttributeValues(ctx *gin.Context)
 }
 
-type attributeHandler struct {
+type AttributeHandler struct {
 	app application.Attribute
 }
 
 func NewAttribute(app application.Attribute) Attribute {
-	return &attributeHandler{
+	return &AttributeHandler{
+		app: app,
+	}
+}
+
+func ProvideAttribute(
+	app application.Attribute,
+) *AttributeHandler {
+	return &AttributeHandler{
 		app: app,
 	}
 }
@@ -42,7 +50,7 @@ func NewAttribute(app application.Attribute) Attribute {
 //	@Failure		404				{object}	response.NotFoundError
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/attributes/{attribute_id} [get]
-func (h *attributeHandler) Get(ctx *gin.Context) {
+func (h *AttributeHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -61,7 +69,7 @@ func (h *attributeHandler) Get(ctx *gin.Context) {
 //	@Success		200			{object}	response.DataPagination{data=[]response.Attribute}
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/attributes [get]
-func (h *attributeHandler) List(ctx *gin.Context) {
+func (h *AttributeHandler) List(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check, now it not required
 	limit, _ := strconv.Atoi(ctx.Query("limit"))   // TODO: add more query later
 	productID, err := strconv.Atoi(ctx.Query("product_id"))
@@ -95,7 +103,7 @@ func (h *attributeHandler) List(ctx *gin.Context) {
 //	@Failure		409			{object}	response.ConflictError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/attributes [post]
-func (h *attributeHandler) Create(ctx *gin.Context) {
+func (h *AttributeHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -114,7 +122,7 @@ func (h *attributeHandler) Create(ctx *gin.Context) {
 //	@Failure		409				{object}	response.ConflictError
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/attributes/{attribute_id} [patch]
-func (h *attributeHandler) Update(ctx *gin.Context) {
+func (h *AttributeHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -130,7 +138,7 @@ func (h *attributeHandler) Update(ctx *gin.Context) {
 //	@Failure		404				{object}	response.NotFoundError
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/attributes/{attribute_id} [delete]
-func (h *attributeHandler) Delete(ctx *gin.Context) {
+func (h *AttributeHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -149,6 +157,6 @@ func (h *attributeHandler) Delete(ctx *gin.Context) {
 //	@Failure		409				{object}	response.ConflictError
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/attributes/{attribute_id}/values/bulk [patch]
-func (h *attributeHandler) UpdateAttributeValues(ctx *gin.Context) {
+func (h *AttributeHandler) UpdateAttributeValues(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

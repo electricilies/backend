@@ -6,28 +6,32 @@ import (
 	"backend/internal/domain/attribute"
 )
 
-type repositoryImpl struct{}
+type RepositoryImpl struct{}
 
 func NewRepository() attribute.Repository {
-	return &repositoryImpl{}
+	return &RepositoryImpl{}
 }
 
-func (r *repositoryImpl) List(ctx context.Context, queryParams *attribute.QueryParams) (*attribute.PaginationModel, error) {
+func ProvideRepository() *RepositoryImpl {
+	return &RepositoryImpl{}
+}
+
+func (r *RepositoryImpl) List(ctx context.Context, queryParams *attribute.QueryParams) (*attribute.PaginationModel, error) {
 	return &attribute.PaginationModel{}, nil
 }
 
-func (r *repositoryImpl) Create(ctx context.Context, model *attribute.Model) (*attribute.Model, error) {
+func (r *RepositoryImpl) Create(ctx context.Context, model *attribute.Model) (*attribute.Model, error) {
 	return model, nil
 }
 
-func (r *repositoryImpl) Update(ctx context.Context, model *attribute.Model, id int) (*attribute.Model, error) {
+func (r *RepositoryImpl) Update(ctx context.Context, model *attribute.Model, id int) (*attribute.Model, error) {
 	return model, nil
 }
 
-func (r *repositoryImpl) Delete(ctx context.Context, id int) error {
+func (r *RepositoryImpl) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *repositoryImpl) UpdateValues(ctx context.Context, id int, values *[]attribute.ValueModel) (*[]attribute.ValueModel, error) {
+func (r *RepositoryImpl) UpdateValues(ctx context.Context, id int, values *[]attribute.ValueModel) (*[]attribute.ValueModel, error) {
 	return values, nil
 }

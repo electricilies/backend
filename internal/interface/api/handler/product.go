@@ -26,12 +26,20 @@ type Product interface {
 	CreateProductImages(ctx *gin.Context)
 }
 
-type productHandler struct {
+type ProductHandler struct {
 	app application.Product
 }
 
 func NewProduct(app application.Product) Product {
-	return &productHandler{
+	return &ProductHandler{
+		app: app,
+	}
+}
+
+func ProvideProduct(
+	app application.Product,
+) *ProductHandler {
+	return &ProductHandler{
 		app: app,
 	}
 }
@@ -48,7 +56,7 @@ func NewProduct(app application.Product) Product {
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/products/{product_id} [get]
-func (h *productHandler) Get(ctx *gin.Context) {
+func (h *ProductHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -70,7 +78,7 @@ func (h *productHandler) Get(ctx *gin.Context) {
 //	@Success		200				{object}	response.DataPagination{data=[]response.Product}
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/products [get]
-func (h *productHandler) List(ctx *gin.Context) {
+func (h *ProductHandler) List(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.Query("limit"))   // TODO: check all pagination because now it not required
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check if the json is checked of need to check in here
 	pagination, error := h.app.ListProducts(ctx, request.ProductQueryParamsToDomain(&request.ProductQueryParams{
@@ -120,7 +128,7 @@ func (h *productHandler) List(ctx *gin.Context) {
 //	@Failure		409		{object}	response.ConflictError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/products [post]
-func (h *productHandler) Create(ctx *gin.Context) {
+func (h *ProductHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -139,7 +147,7 @@ func (h *productHandler) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	response.ConflictError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/products/{product_id} [patch]
-func (h *productHandler) Update(ctx *gin.Context) {
+func (h *ProductHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -155,7 +163,7 @@ func (h *productHandler) Update(ctx *gin.Context) {
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/products/{product_id} [delete]
-func (h *productHandler) Delete(ctx *gin.Context) {
+func (h *ProductHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -175,7 +183,7 @@ func (h *productHandler) Delete(ctx *gin.Context) {
 //	@Failure		409				{object}	response.ConflictError
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/products/options [post]
-func (h *productHandler) CreateProductOption(ctx *gin.Context) {
+func (h *ProductHandler) CreateProductOption(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -191,7 +199,7 @@ func (h *productHandler) CreateProductOption(ctx *gin.Context) {
 //
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
-func (h *productHandler) GetUploadImageURL(ctx *gin.Context) {
+func (h *ProductHandler) GetUploadImageURL(ctx *gin.Context) {
 	res, err := h.app.GetUploadImageURL(ctx)
 	if err != nil {
 		response.ErrorFromDomain(ctx, err)
@@ -218,7 +226,7 @@ func (h *productHandler) GetUploadImageURL(ctx *gin.Context) {
 //
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
-func (h *productHandler) GetDeleteImageURL(ctx *gin.Context) {
+func (h *ProductHandler) GetDeleteImageURL(ctx *gin.Context) {
 	q := ctx.Query("image_id")
 	id, _ := strconv.Atoi(q)
 	url, err := h.app.GetDeleteImageURL(ctx, id)
@@ -246,7 +254,7 @@ func (h *productHandler) GetDeleteImageURL(ctx *gin.Context) {
 //	@Failure		409				{object}	response.ConflictError
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/products/variants [post]
-func (h *productHandler) CreateProductVariant(ctx *gin.Context) {
+func (h *ProductHandler) CreateProductVariant(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -265,7 +273,7 @@ func (h *productHandler) CreateProductVariant(ctx *gin.Context) {
 //	@Failure		409				{object}	response.ConflictError
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/products/variants/{variant_id} [patch]
-func (h *productHandler) UpdateProductVariant(ctx *gin.Context) {
+func (h *ProductHandler) UpdateProductVariant(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -285,7 +293,7 @@ func (h *productHandler) UpdateProductVariant(ctx *gin.Context) {
 //	@Failure		409				{object}	response.ConflictError
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/products/options/{option_id} [patch]
-func (h *productHandler) UpdateProductOption(ctx *gin.Context) {
+func (h *ProductHandler) UpdateProductOption(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -303,6 +311,6 @@ func (h *productHandler) UpdateProductOption(ctx *gin.Context) {
 //	@Failure		409				{object}	response.ConflictError
 //	@Failure		500				{object}	response.InternalServerError
 //	@Router			/products/{product_id}/images/bulk [post]
-func (h *productHandler) CreateProductImages(ctx *gin.Context) {
+func (h *ProductHandler) CreateProductImages(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

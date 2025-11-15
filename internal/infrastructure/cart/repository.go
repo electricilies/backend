@@ -6,24 +6,28 @@ import (
 	"backend/internal/domain/cart"
 )
 
-type repositoryImpl struct{}
+type RepositoryImpl struct{}
 
 func NewRepository() cart.Repository {
-	return &repositoryImpl{}
+	return &RepositoryImpl{}
 }
 
-func (r *repositoryImpl) Get(ctx context.Context, id int, queryParams *cart.QueryParams) (*cart.Model, error) {
+func ProvideRepository() *RepositoryImpl {
+	return &RepositoryImpl{}
+}
+
+func (r *RepositoryImpl) Get(ctx context.Context, id int, queryParams *cart.QueryParams) (*cart.Model, error) {
 	return &cart.Model{}, nil
 }
 
-func (r *repositoryImpl) AddItem(ctx context.Context, cartItemModel *cart.ItemModel) (*cart.ItemModel, error) {
+func (r *RepositoryImpl) AddItem(ctx context.Context, cartItemModel *cart.ItemModel) (*cart.ItemModel, error) {
 	return &cart.ItemModel{}, nil
 }
 
-func (r *repositoryImpl) UpdateItem(ctx context.Context, cartItemModel *cart.ItemModel, id string) (*cart.ItemModel, error) {
+func (r *RepositoryImpl) UpdateItem(ctx context.Context, cartItemModel *cart.ItemModel, id string) (*cart.ItemModel, error) {
 	return &cart.ItemModel{}, nil
 }
 
-func (r *repositoryImpl) RemoveItem(ctx context.Context, id string) error {
+func (r *RepositoryImpl) RemoveItem(ctx context.Context, id string) error {
 	return nil
 }

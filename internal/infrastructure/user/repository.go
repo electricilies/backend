@@ -19,7 +19,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type repositoryImpl struct {
+type RepositoryImpl struct {
 	db             *postgres.Queries
 	s3Client       *s3.Client
 	redisClient    *redis.Client
@@ -29,8 +29,16 @@ type repositoryImpl struct {
 	logger         *zap.Logger
 }
 
-func NewRepository(db *postgres.Queries, s3Client *s3.Client, redisClient *redis.Client, keycloakClient *gocloak.GoCloak, tokenManager helper.TokenManager, cfg *config.Config, logger *zap.Logger) user.Repository {
-	return &repositoryImpl{
+func NewRepository(
+	db *postgres.Queries,
+	s3Client *s3.Client,
+	redisClient *redis.Client,
+	keycloakClient *gocloak.GoCloak,
+	tokenManager helper.TokenManager,
+	cfg *config.Config,
+	logger *zap.Logger,
+) user.Repository {
+	return &RepositoryImpl{
 		db:             db,
 		s3Client:       s3Client,
 		redisClient:    redisClient,
@@ -41,7 +49,27 @@ func NewRepository(db *postgres.Queries, s3Client *s3.Client, redisClient *redis
 	}
 }
 
-func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.Model, error) {
+func ProvideRepository(
+	db *postgres.Queries,
+	s3Client *s3.Client,
+	redisClient *redis.Client,
+	keycloakClient *gocloak.GoCloak,
+	tokenManager helper.TokenManager,
+	cfg *config.Config,
+	logger *zap.Logger,
+) *RepositoryImpl {
+	return &RepositoryImpl{
+		db:             db,
+		s3Client:       s3Client,
+		redisClient:    redisClient,
+		keycloakClient: keycloakClient,
+		tokenManager:   tokenManager,
+		cfg:            cfg,
+		logger:         logger,
+	}
+}
+
+func (r *RepositoryImpl) Get(ctx context.Context, id string) (*user.Model, error) {
 	cacheKey := constant.UserCachePrefix + id
 	cached, err := r.redisClient.Get(ctx, cacheKey).Result()
 	switch {
@@ -72,7 +100,7 @@ func (r *repositoryImpl) Get(ctx context.Context, id string) (*user.Model, error
 	return domainUser, nil
 }
 
-func (r *repositoryImpl) List(ctx context.Context) ([]*user.Model, error) {
+func (r *RepositoryImpl) List(ctx context.Context) ([]*user.Model, error) {
 	cached, err := r.redisClient.Get(ctx, constant.UserListCacheKey).Result()
 	switch {
 	case err != nil && err != redis.Nil:
@@ -109,7 +137,7 @@ func (r *repositoryImpl) List(ctx context.Context) ([]*user.Model, error) {
 	return result, nil
 }
 
-func (r *repositoryImpl) Create(ctx context.Context, u *user.Model) (*user.Model, error) {
+func (r *RepositoryImpl) Create(ctx context.Context, u *user.Model) (*user.Model, error) {
 	createdUser, err := r.db.CreateUser(ctx, ToCreateUserParams(u))
 	if err != nil {
 		return nil, errors.ToDomainErrorFromPostgres(err)
@@ -124,7 +152,7 @@ func (r *repositoryImpl) Create(ctx context.Context, u *user.Model) (*user.Model
 	return ToDomain(user), nil
 }
 
-func (r *repositoryImpl) Update(
+func (r *RepositoryImpl) Update(
 	ctx context.Context,
 	model *user.Model,
 	queryParams *user.QueryParams,
@@ -144,7 +172,7 @@ func (r *repositoryImpl) Update(
 	return nil
 }
 
-func (r *repositoryImpl) Delete(ctx context.Context, id string) error {
+func (r *RepositoryImpl) Delete(ctx context.Context, id string) error {
 	token, err := r.tokenManager.GetClientToken(ctx)
 	if err != nil {
 		return errors.ToDomainErrorFromGoCloak(err)
@@ -161,6 +189,6 @@ func (r *repositoryImpl) Delete(ctx context.Context, id string) error {
 }
 
 // TODO: implement
-func (r *repositoryImpl) GetCart(ctx context.Context, id string) (*cart.Model, error) {
+func (r *RepositoryImpl) GetCart(ctx context.Context, id string) (*cart.Model, error) {
 	return nil, nil
 }

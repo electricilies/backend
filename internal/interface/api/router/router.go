@@ -12,7 +12,7 @@ type Router interface {
 	RegisterRoutes(e *gin.Engine)
 }
 
-type router struct {
+type RouterImpl struct {
 	userHandler      handler.User
 	categoryHandler  handler.Category
 	productHandler   handler.Product
@@ -46,7 +46,7 @@ func New(
 	reviewHandler handler.Review,
 	cartHandler handler.Cart,
 ) Router {
-	return &router{
+	return &RouterImpl{
 		userHandler:       userHandler,
 		healthHandler:     healthCheckHandler,
 		metricMiddleware:  metricMiddleware,
@@ -64,7 +64,41 @@ func New(
 	}
 }
 
-func (r *router) RegisterRoutes(e *gin.Engine) {
+func Provide(
+	userHandler handler.User,
+	healthCheckHandler handler.HealthCheck,
+	metricMiddleware middleware.Metric,
+	loggingMiddleware middleware.Logging,
+	authMiddleware middleware.Auth,
+	categoryHandler handler.Category,
+	productHandler handler.Product,
+	attributeHandler handler.Attribute,
+	paymentHandler handler.Payment,
+	orderHandler handler.Order,
+	returnHandler handler.ReturnRequest,
+	refundHandler handler.Refund,
+	reviewHandler handler.Review,
+	cartHandler handler.Cart,
+) *RouterImpl {
+	return &RouterImpl{
+		userHandler:       userHandler,
+		healthHandler:     healthCheckHandler,
+		metricMiddleware:  metricMiddleware,
+		loggingMiddleware: loggingMiddleware,
+		authMiddleware:    authMiddleware,
+		categoryHandler:   categoryHandler,
+		productHandler:    productHandler,
+		attributeHandler:  attributeHandler,
+		paymentHandler:    paymentHandler,
+		orderHandler:      orderHandler,
+		returnHandler:     returnHandler,
+		refundHandler:     refundHandler,
+		reviewHandler:     reviewHandler,
+		cartHandler:       cartHandler,
+	}
+}
+
+func (r *RouterImpl) RegisterRoutes(e *gin.Engine) {
 	e.Use(r.metricMiddleware.Handler())
 	e.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	health := e.Group("/health")

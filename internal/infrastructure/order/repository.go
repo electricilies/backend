@@ -6,24 +6,28 @@ import (
 	"backend/internal/domain/order"
 )
 
-type repositoryImpl struct{}
+type RepositoryImpl struct{}
 
 func NewRepository() order.Repository {
-	return &repositoryImpl{}
+	return &RepositoryImpl{}
 }
 
-func (r *repositoryImpl) List(ctx context.Context) (*[]order.Model, error) {
+func ProvideRepository() *RepositoryImpl {
+	return &RepositoryImpl{}
+}
+
+func (r *RepositoryImpl) List(ctx context.Context) (*[]order.Model, error) {
 	return &[]order.Model{}, nil
 }
 
-func (r *repositoryImpl) Create(ctx context.Context, orderModel *order.Model) (*order.Model, error) {
+func (r *RepositoryImpl) Create(ctx context.Context, orderModel *order.Model) (*order.Model, error) {
 	return orderModel, nil
 }
 
-func (r *repositoryImpl) Update(ctx context.Context, orderModel *order.Model, id int) (*order.Model, error) {
+func (r *RepositoryImpl) Update(ctx context.Context, orderModel *order.Model, id int) (*order.Model, error) {
 	return orderModel, nil
 }
 
-func (r *repositoryImpl) Delete(ctx context.Context, id int) error {
+func (r *RepositoryImpl) Delete(ctx context.Context, id int) error {
 	return nil
 }

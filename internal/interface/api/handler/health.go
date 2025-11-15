@@ -20,34 +20,49 @@ type HealthCheck interface {
 	Readiness(ctx *gin.Context)
 }
 
-type healthCheck struct {
+type HealthCheckHandler struct {
 	keycloakClient *gocloak.GoCloak
 	redisClient    *redis.Client
 	s3Client       *s3.Client
-	dbConn         *pgxpool.Pool
+	dbPool         *pgxpool.Pool
 	cfg            *config.Config
 }
 
 func NewHealthCheck(keycloakClient *gocloak.GoCloak,
 	redisClient *redis.Client,
 	s3Client *s3.Client,
-	db *pgxpool.Pool,
+	dbPool *pgxpool.Pool,
 	cfg *config.Config,
 ) HealthCheck {
-	return &healthCheck{
+	return &HealthCheckHandler{
 		keycloakClient: keycloakClient,
 		redisClient:    redisClient,
 		s3Client:       s3Client,
-		dbConn:         db,
+		dbPool:         dbPool,
 		cfg:            cfg,
 	}
 }
 
-func (h *healthCheck) Readiness(ctx *gin.Context) {
+func ProvideHealthCheck(keycloakClient *gocloak.GoCloak,
+	redisClient *redis.Client,
+	s3Client *s3.Client,
+	dbPool *pgxpool.Pool,
+	cfg *config.Config,
+) *HealthCheckHandler {
+	return &HealthCheckHandler{
+		keycloakClient: keycloakClient,
+		redisClient:    redisClient,
+		s3Client:       s3Client,
+		dbPool:         dbPool,
+		cfg:            cfg,
+	}
+}
+
+func (h *HealthCheckHandler) Readiness(ctx *gin.Context) {
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	dbStatus, dbErr := IsDbReady(c, h.dbConn)
+	dbStatus, dbErr := IsDbReady(c, h.dbPool)
 	redisStatus, redisErr := IsRedisReady(c, h.redisClient)
 	s3Status, s3Err := IsS3Ready(c, h.s3Client, h.cfg.S3Bucket)
 	keycloakStatus, keycloakErr := IsKeycloakReady(c, h.keycloakClient, h.cfg.KCHttpManagmentPath)
@@ -83,7 +98,7 @@ func (h *healthCheck) Readiness(ctx *gin.Context) {
 	}
 }
 
-func (h *healthCheck) Liveness(ctx *gin.Context) {
+func (h *HealthCheckHandler) Liveness(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, time.Now())
 }
 

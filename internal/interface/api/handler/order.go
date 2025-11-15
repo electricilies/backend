@@ -14,9 +14,13 @@ type Order interface {
 	Delete(ctx *gin.Context)
 }
 
-type orderHandler struct{}
+type OrderHandler struct{}
 
-func NewOrder() Order { return &orderHandler{} }
+func ProvideOrder() *OrderHandler {
+	return &OrderHandler{}
+}
+
+func NewOrder() Order { return &OrderHandler{} }
 
 // GetOrder godoc
 //
@@ -30,7 +34,7 @@ func NewOrder() Order { return &orderHandler{} }
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/orders/{order_id} [get]
-func (h *orderHandler) Get(ctx *gin.Context) {
+func (h *OrderHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -44,7 +48,7 @@ func (h *orderHandler) Get(ctx *gin.Context) {
 //	@Success		200	{array}		response.Order
 //	@Failure		500	{object}	response.InternalServerError
 //	@Router			/orders [get]
-func (h *orderHandler) List(ctx *gin.Context) {
+func (h *OrderHandler) List(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -61,7 +65,7 @@ func (h *orderHandler) List(ctx *gin.Context) {
 //	@Failure		409		{object}	response.ConflictError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/orders [post]
-func (h *orderHandler) Create(ctx *gin.Context) {
+func (h *OrderHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -80,7 +84,7 @@ func (h *orderHandler) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	response.ConflictError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/orders/{order_id} [patch]
-func (h *orderHandler) Update(ctx *gin.Context) {
+func (h *OrderHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -96,6 +100,6 @@ func (h *orderHandler) Update(ctx *gin.Context) {
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/orders/{order_id} [delete]
-func (h *orderHandler) Delete(ctx *gin.Context) {
+func (h *OrderHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

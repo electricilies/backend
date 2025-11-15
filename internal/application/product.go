@@ -12,24 +12,32 @@ type Product interface {
 	ListProducts(ctx context.Context, queryParams *product.QueryParams) (*product.PaginationModel, error)
 }
 
-type productApp struct {
+type ProductApp struct {
 	productRepo product.Repository
 }
 
 func NewProduct(productRepo product.Repository) Product {
-	return &productApp{
+	return &ProductApp{
 		productRepo: productRepo,
 	}
 }
 
-func (a *productApp) GetUploadImageURL(ctx context.Context) (*product.UploadImageURLModel, error) {
+func ProvideProduct(
+	productRepo product.Repository,
+) *ProductApp {
+	return &ProductApp{
+		productRepo: productRepo,
+	}
+}
+
+func (a *ProductApp) GetUploadImageURL(ctx context.Context) (*product.UploadImageURLModel, error) {
 	return a.productRepo.GetUploadImageURL(ctx)
 }
 
-func (a *productApp) GetDeleteImageURL(ctx context.Context, id int) (string, error) {
+func (a *ProductApp) GetDeleteImageURL(ctx context.Context, id int) (string, error) {
 	return a.productRepo.GetDeleteImageURL(ctx, id)
 }
 
-func (a *productApp) ListProducts(ctx context.Context, queryParams *product.QueryParams) (*product.PaginationModel, error) {
+func (a *ProductApp) ListProducts(ctx context.Context, queryParams *product.QueryParams) (*product.PaginationModel, error) {
 	return a.productRepo.List(ctx, queryParams)
 }

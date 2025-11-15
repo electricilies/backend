@@ -10,16 +10,24 @@ type Category interface {
 	ListCategories(ctx context.Context, queryParams *category.QueryParams) (*category.PaginationModel, error)
 }
 
-type categoryApp struct {
+type CategoryApp struct {
 	categoryRepo category.Repository
 }
 
 func NewCategory(categoryRepo category.Repository) Category {
-	return &categoryApp{
+	return &CategoryApp{
 		categoryRepo: categoryRepo,
 	}
 }
 
-func (a *categoryApp) ListCategories(ctx context.Context, queryParams *category.QueryParams) (*category.PaginationModel, error) {
+func ProvideCategory(
+	categoryRepo category.Repository,
+) *CategoryApp {
+	return &CategoryApp{
+		categoryRepo: categoryRepo,
+	}
+}
+
+func (a *CategoryApp) ListCategories(ctx context.Context, queryParams *category.QueryParams) (*category.PaginationModel, error) {
 	return a.categoryRepo.List(ctx, queryParams)
 }

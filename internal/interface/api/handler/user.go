@@ -20,12 +20,20 @@ type User interface {
 	GetReturnRequests(ctx *gin.Context)
 }
 
-type userHandler struct {
+type UserHandler struct {
 	app application.User
 }
 
 func NewUser(app application.User) User {
-	return &userHandler{app: app}
+	return &UserHandler{app: app}
+}
+
+func ProvideUser(
+	app application.User,
+) *UserHandler {
+	return &UserHandler{
+		app: app,
+	}
 }
 
 // GetUser godoc
@@ -44,7 +52,7 @@ func NewUser(app application.User) User {
 //
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
-func (h *userHandler) Get(ctx *gin.Context) {
+func (h *UserHandler) Get(ctx *gin.Context) {
 	id := ctx.Param("user_id")
 	u, err := h.app.Get(ctx, id)
 	if err != nil {
@@ -67,7 +75,7 @@ func (h *userHandler) Get(ctx *gin.Context) {
 //
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
-func (h *userHandler) List(ctx *gin.Context) {
+func (h *UserHandler) List(ctx *gin.Context) {
 	users, err := h.app.List(ctx)
 	if err != nil {
 		response.ErrorFromDomain(ctx, err)
@@ -89,7 +97,7 @@ func (h *userHandler) List(ctx *gin.Context) {
 //	@Failure		409		{object}	response.ConflictError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/users [post]
-func (h *userHandler) Create(ctx *gin.Context) {
+func (h *UserHandler) Create(ctx *gin.Context) {
 	var req request.CreateUser
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.SendBadRequestError(ctx, err.Error())
@@ -121,7 +129,7 @@ func (h *userHandler) Create(ctx *gin.Context) {
 //	@Failure		409		{object}	response.ConflictError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/users/{user_id} [patch]
-func (h *userHandler) Update(ctx *gin.Context) {
+func (h *UserHandler) Update(ctx *gin.Context) {
 	id := ctx.Query("user_id")
 	var body request.UpdateUser
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -152,7 +160,7 @@ func (h *userHandler) Update(ctx *gin.Context) {
 //	@Failure		404		{object}	response.NotFoundError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/users/{user_id} [delete]
-func (h *userHandler) Delete(ctx *gin.Context) {
+func (h *UserHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("user_id")
 	if err := h.app.Delete(ctx, id); err != nil {
 		response.ErrorFromDomain(ctx, err)
@@ -173,7 +181,7 @@ func (h *userHandler) Delete(ctx *gin.Context) {
 //	@Failure		400		{object}	response.BadRequestError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/users/{user_id}/returns [get]
-func (h *userHandler) GetReturnRequests(ctx *gin.Context) {
+func (h *UserHandler) GetReturnRequests(ctx *gin.Context) {
 	// TODO: implement getting return requests for a user
 	ctx.Status(http.StatusNoContent)
 }
@@ -190,6 +198,6 @@ func (h *userHandler) GetReturnRequests(ctx *gin.Context) {
 //	@Failure		400		{object}	response.BadRequestError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/users/{user_id}/cart [get]
-func (h *userHandler) GetCart(ctx *gin.Context) {
+func (h *UserHandler) GetCart(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

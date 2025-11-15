@@ -11,9 +11,13 @@ type Refund interface {
 	List(ctx *gin.Context)
 }
 
-type refundHandler struct{}
+type RefundHandler struct{}
 
-func NewRefund() Refund { return &refundHandler{} }
+func ProvideRefund() *RefundHandler {
+	return &RefundHandler{}
+}
+
+func NewRefund() Refund { return &RefundHandler{} }
 
 // GetRefund godoc
 //
@@ -27,7 +31,7 @@ func NewRefund() Refund { return &refundHandler{} }
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/refunds/{refund} [get]
-func (h *refundHandler) Get(ctx *gin.Context) {
+func (h *RefundHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -41,6 +45,6 @@ func (h *refundHandler) Get(ctx *gin.Context) {
 //	@Success		200	{array}		response.Refund
 //	@Failure		500	{object}	response.InternalServerError
 //	@Router			/refunds [get]
-func (h *refundHandler) List(ctx *gin.Context) {
+func (h *RefundHandler) List(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

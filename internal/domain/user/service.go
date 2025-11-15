@@ -11,18 +11,25 @@ type Service interface {
 	DoSomething(ctx context.Context) (*Model, error)
 }
 
-type service struct {
+type ServiceImpl struct {
 	transactor transactor.Transactor
 	userRepo   Repository
 }
 
-func NewService(userRepo Repository, transactor transactor.Transactor) Service {
-	return &service{
+func ProvideService(userRepo Repository, transactor transactor.Transactor) *ServiceImpl {
+	return &ServiceImpl{
 		userRepo:   userRepo,
 		transactor: transactor,
 	}
 }
 
-func (s service) DoSomething(ctx context.Context) (*Model, error) {
+func NewService(userRepo Repository, transactor transactor.Transactor) Service {
+	return &ServiceImpl{
+		userRepo:   userRepo,
+		transactor: transactor,
+	}
+}
+
+func (s ServiceImpl) DoSomething(ctx context.Context) (*Model, error) {
 	return &Model{}, nil
 }

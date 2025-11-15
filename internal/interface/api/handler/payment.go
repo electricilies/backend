@@ -13,9 +13,13 @@ type Payment interface {
 	Update(ctx *gin.Context)
 }
 
-type paymentHandler struct{}
+type PaymentHandler struct{}
 
-func NewPayment() Payment { return &paymentHandler{} }
+func NewPayment() Payment { return &PaymentHandler{} }
+
+func ProvidePayment() *PaymentHandler {
+	return &PaymentHandler{}
+}
 
 // CreatePayment godoc
 //
@@ -29,7 +33,7 @@ func NewPayment() Payment { return &paymentHandler{} }
 //	@Failure		400		{object}	response.BadRequestError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/payments [post]
-func (h *paymentHandler) Create(ctx *gin.Context) {
+func (h *PaymentHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -45,7 +49,7 @@ func (h *paymentHandler) Create(ctx *gin.Context) {
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/payments/{payment_id} [get]
-func (h *paymentHandler) Get(ctx *gin.Context) {
+func (h *PaymentHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -59,7 +63,7 @@ func (h *paymentHandler) Get(ctx *gin.Context) {
 //	@Success		200	{array}		response.Payment
 //	@Failure		500	{object}	response.InternalServerError
 //	@Router			/payments [get]
-func (h *paymentHandler) List(ctx *gin.Context) {
+func (h *PaymentHandler) List(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -77,6 +81,6 @@ func (h *paymentHandler) List(ctx *gin.Context) {
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/payments/{payment_id} [put]
-func (h *paymentHandler) Update(ctx *gin.Context) {
+func (h *PaymentHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

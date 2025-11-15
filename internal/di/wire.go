@@ -9,14 +9,21 @@ import (
 	"backend/config"
 	app "backend/internal/application"
 	"backend/internal/client"
-	userservice "backend/internal/domain/user"
+
 	"backend/internal/helper"
-	attributerepo "backend/internal/infrastructure/attribute"
-	cartrepo "backend/internal/infrastructure/cart"
-	categoryrepo "backend/internal/infrastructure/category"
-	productrepo "backend/internal/infrastructure/product"
-	reviewrepo "backend/internal/infrastructure/review"
-	userrepo "backend/internal/infrastructure/user"
+	domainattribute "backend/internal/domain/attribute"
+	domaincart "backend/internal/domain/cart"
+	domaincategory "backend/internal/domain/category"
+	domainproduct "backend/internal/domain/product"
+	domainreview "backend/internal/domain/review"
+	domainuser "backend/internal/domain/user"
+	infrasattribute "backend/internal/infrastructure/attribute"
+	infrascart "backend/internal/infrastructure/cart"
+	infrascategory "backend/internal/infrastructure/category"
+	infrasproduct "backend/internal/infrastructure/product"
+	infrasreview "backend/internal/infrastructure/review"
+	infrasuser "backend/internal/infrastructure/user"
+
 	handler "backend/internal/interface/api/handler"
 	middleware "backend/internal/interface/api/middleware"
 	"backend/internal/interface/api/router"
@@ -46,50 +53,172 @@ var EngineSet = wire.NewSet(
 )
 
 var RepositorySet = wire.NewSet(
-	userrepo.NewRepository,
-	productrepo.NewRepository,
-	attributerepo.NewRepository,
-	reviewrepo.NewRepository,
-	cartrepo.NewRepository,
-	categoryrepo.NewRepository,
+	infrasuser.ProvideRepository,
+	wire.Bind(
+		new(domainuser.Repository),
+		new(*infrasuser.RepositoryImpl),
+	),
+	infrascategory.ProvideRepository,
+	wire.Bind(
+		new(domaincategory.Repository),
+		new(*infrascategory.RepositoryImpl),
+	),
+	infrasproduct.ProvideRepository,
+	wire.Bind(
+		new(domainproduct.Repository),
+		new(*infrasproduct.RepositoryImpl),
+	),
+	infrasreview.ProvideRepository,
+	wire.Bind(
+		new(domainreview.Repository),
+		new(*infrasreview.RepositoryImpl),
+	),
+	infrascart.ProvideRepository,
+	wire.Bind(
+		new(domaincart.Repository),
+		new(*infrascart.RepositoryImpl),
+	),
+	infrasattribute.ProvideRepository,
+	wire.Bind(
+		new(domainattribute.Repository),
+		new(*infrasattribute.RepositoryImpl),
+	),
 )
 
 var ServiceSet = wire.NewSet(
-	userservice.NewService,
+	domainuser.ProvideService,
+	wire.Bind(
+		new(domainuser.Service),
+		new(*domainuser.ServiceImpl),
+	),
 )
 
 var AppSet = wire.NewSet(
-	app.NewUser,
-	app.NewProduct,
-	app.NewCart,
-	app.NewReview,
-	app.NewCategory,
-	app.NewAttribute,
+	app.ProvideAttribute,
+	wire.Bind(
+		new(app.Attribute),
+		new(*app.AttributeApp),
+	),
+	app.ProvideCategory,
+	wire.Bind(
+		new(app.Category),
+		new(*app.CategoryApp),
+		),
+	app.ProvideProduct,
+	wire.Bind(
+		new(app.Product),
+		new(*app.ProductApp),
+	),
+
+	app.ProvideUser,
+	wire.Bind(
+		new(app.User),
+		new(*app.UserApp),
+	),
+	app.ProvideReview,
+	wire.Bind(
+		new(app.Review),
+		new(*app.ReviewApp),
+	),
+	app.ProvideCart,
+	wire.Bind(
+		new(app.Cart),
+		new(*app.CartApp),
+	),
 )
 
 var MiddlewareSet = wire.NewSet(
-	middleware.NewMetric,
-	middleware.NewLogging,
-	middleware.NewJWTVerify,
+	middleware.ProvideAuth,
+	wire.Bind(
+		new(middleware.Auth),
+		new(*middleware.AuthMiddleware),
+	),
+	middleware.ProvideLogging,
+	wire.Bind(
+		new(middleware.Logging),
+		new(*middleware.LoggingMiddleware),
+		),
+	middleware.ProvideMetric,
+	wire.Bind(
+		new(middleware.Metric),
+		new(*middleware.MetricMiddleware),
+	),
+	middleware.ProvideRole,
+	wire.Bind(
+		new(middleware.Role),
+		new(*middleware.RoleMiddleware),
+	),
 )
 
 var HandlerSet = wire.NewSet(
-	handler.NewUser,
-	handler.NewHealthCheck,
-	handler.NewCategory,
-	handler.NewProduct,
-	handler.NewAttribute,
-	handler.NewPayment,
-	handler.NewOrder,
-	handler.NewReturn,
-	handler.NewRefund,
-	handler.NewReview,
-	handler.NewCart,
-	handler.NewAuth,
-)
+	handler.ProvideAttribute,
+	wire.Bind(
+		new(handler.Attribute),
+		new(*handler.AttributeHandler),
+	),
+	handler.ProvideAuth,
+	wire.Bind(
+		new(handler.Auth),
+		new(*handler.AuthHandler),
+	),
+	handler.ProvideCategory,
+	wire.Bind(
+		new(handler.Category),
+		new(*handler.CategoryHandler),
+	),
+	handler.ProvideHealthCheck,
+	wire.Bind(
+		new(handler.HealthCheck),
+		new(*handler.HealthCheckHandler),
+	),
+	handler.ProvideOrder,
+	wire.Bind(
+		new(handler.Order),
+		new(*handler.OrderHandler),
+	),
 
+	handler.ProvidePayment,
+	wire.Bind(
+		new(handler.Payment),
+		new(*handler.PaymentHandler),
+	),
+	handler.ProvideProduct,
+	wire.Bind(
+		new(handler.Product),
+		new(*handler.ProductHandler),
+	),
+	handler.ProvideUser,
+	wire.Bind(
+		new(handler.User),
+		new(*handler.UserHandler),
+	),
+	handler.ProvideReview,
+	wire.Bind(
+		new(handler.Review),
+		new(*handler.ReviewHandler),
+	),
+	handler.ProvideCart,
+	wire.Bind(
+		new(handler.Cart),
+		new(*handler.CartHandler),
+	),
+	handler.ProvideReturnRequest,
+	wire.Bind(
+		new(handler.ReturnRequest),
+		new(*handler.ReturnRequestHandler),
+	),
+	handler.ProvideRefund,
+	wire.Bind(
+		new(handler.Refund),
+		new(*handler.RefundHandler),
+	),
+)
 var RouterSet = wire.NewSet(
-	router.New,
+	router.Provide,
+	wire.Bind(
+		new(router.Router),
+		new(*router.RouterImpl),
+	),
 )
 
 var ClientSet = wire.NewSet(

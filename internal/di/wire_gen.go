@@ -10,6 +10,11 @@ import (
 	"backend/config"
 	"backend/internal/application"
 	"backend/internal/client"
+	attribute2 "backend/internal/domain/attribute"
+	cart2 "backend/internal/domain/cart"
+	category2 "backend/internal/domain/category"
+	product2 "backend/internal/domain/product"
+	review2 "backend/internal/domain/review"
 	user2 "backend/internal/domain/user"
 	"backend/internal/helper"
 	"backend/internal/infrastructure/attribute"
@@ -40,36 +45,38 @@ func InitializeServer(ctx context.Context) *server.Server {
 	tokenManager := helper.NewTokenManager(goCloak, configConfig)
 	loggerConfig := logger.NewConfig(configConfig)
 	zapLogger := logger.New(loggerConfig)
-	repository := user.NewRepository(queries, s3Client, redisClient, goCloak, tokenManager, configConfig, zapLogger)
+	repositoryImpl := user.ProvideRepository(queries, s3Client, redisClient, goCloak, tokenManager, configConfig, zapLogger)
 	transactor := client.NewDBTransactor(pool)
-	service := user2.NewService(repository, transactor)
-	applicationUser := application.NewUser(repository, service)
-	handlerUser := handler.NewUser(applicationUser)
-	healthCheck := handler.NewHealthCheck(goCloak, redisClient, s3Client, pool, configConfig)
-	metric := middleware.NewMetric()
-	logging := middleware.NewLogging(zapLogger)
-	auth := middleware.NewJWTVerify(goCloak, configConfig)
-	categoryRepository := category.NewRepository()
-	applicationCategory := application.NewCategory(categoryRepository)
-	handlerCategory := handler.NewCategory(applicationCategory)
+	serviceImpl := user2.ProvideService(repositoryImpl, transactor)
+	userApp := application.ProvideUser(repositoryImpl, serviceImpl)
+	userHandler := handler.ProvideUser(userApp)
+	healthCheckHandler := handler.ProvideHealthCheck(goCloak, redisClient, s3Client, pool, configConfig)
+	metricMiddleware := middleware.ProvideMetric()
+	loggingMiddleware := middleware.ProvideLogging(zapLogger)
+	authMiddleware := middleware.ProvideAuth(goCloak, configConfig)
+	categoryRepositoryImpl := category.ProvideRepository()
+	categoryApp := application.ProvideCategory(categoryRepositoryImpl)
+	categoryHandler := handler.ProvideCategory(categoryApp)
 	presignClient := client.NewS3Presign(s3Client)
-	productRepository := product.NewRepository(queries, s3Client, presignClient, redisClient, configConfig)
-	applicationProduct := application.NewProduct(productRepository)
-	handlerProduct := handler.NewProduct(applicationProduct)
-	attributeRepository := attribute.NewRepository()
-	applicationAttribute := application.NewAttribute(attributeRepository)
-	handlerAttribute := handler.NewAttribute(applicationAttribute)
-	payment := handler.NewPayment()
-	order := handler.NewOrder()
-	returnRequest := handler.NewReturn()
-	refund := handler.NewRefund()
-	reviewRepository := review.NewRepository(queries)
-	applicationReview := application.NewReview(reviewRepository)
-	handlerReview := handler.NewReview(applicationReview)
-	cart := handler.NewCart()
-	routerRouter := router.New(handlerUser, healthCheck, metric, logging, auth, handlerCategory, handlerProduct, handlerAttribute, payment, order, returnRequest, refund, handlerReview, cart)
-	handlerAuth := handler.NewAuth(configConfig)
-	serverServer := server.New(engine, routerRouter, configConfig, handlerAuth)
+	productRepositoryImpl := product.ProvideRepository(queries, s3Client, presignClient, redisClient, configConfig)
+	productApp := application.ProvideProduct(productRepositoryImpl)
+	productHandler := handler.ProvideProduct(productApp)
+	attributeRepositoryImpl := attribute.ProvideRepository()
+	attributeApp := application.ProvideAttribute(attributeRepositoryImpl)
+	attributeHandler := handler.ProvideAttribute(attributeApp)
+	paymentHandler := handler.ProvidePayment()
+	orderHandler := handler.ProvideOrder()
+	returnRequestHandler := handler.ProvideReturnRequest()
+	refundHandler := handler.ProvideRefund()
+	reviewRepositoryImpl := review.ProvideRepository(queries)
+	reviewApp := application.ProvideReview(reviewRepositoryImpl)
+	reviewHandler := handler.ProvideReview(reviewApp)
+	cartRepositoryImpl := cart.ProvideRepository()
+	cartApp := application.ProvideCart(cartRepositoryImpl)
+	cartHandler := handler.ProvideCart(cartApp)
+	routerImpl := router.Provide(userHandler, healthCheckHandler, metricMiddleware, loggingMiddleware, authMiddleware, categoryHandler, productHandler, attributeHandler, paymentHandler, orderHandler, returnRequestHandler, refundHandler, reviewHandler, cartHandler)
+	authHandler := handler.ProvideAuth(configConfig)
+	serverServer := server.New(engine, routerImpl, configConfig, authHandler)
 	return serverServer
 }
 
@@ -83,16 +90,112 @@ var DbSet = wire.NewSet(client.NewDBConnection, client.NewDBQueries, client.NewD
 
 var EngineSet = wire.NewSet(client.NewGin)
 
-var RepositorySet = wire.NewSet(user.NewRepository, product.NewRepository, attribute.NewRepository, review.NewRepository, cart.NewRepository, category.NewRepository)
+var RepositorySet = wire.NewSet(user.ProvideRepository, wire.Bind(
+	new(user2.Repository),
+	new(*user.RepositoryImpl),
+), category.ProvideRepository, wire.Bind(
+	new(category2.Repository),
+	new(*category.RepositoryImpl),
+), product.ProvideRepository, wire.Bind(
+	new(product2.Repository),
+	new(*product.RepositoryImpl),
+), review.ProvideRepository, wire.Bind(
+	new(review2.Repository),
+	new(*review.RepositoryImpl),
+), cart.ProvideRepository, wire.Bind(
+	new(cart2.Repository),
+	new(*cart.RepositoryImpl),
+), attribute.ProvideRepository, wire.Bind(
+	new(attribute2.Repository),
+	new(*attribute.RepositoryImpl),
+),
+)
 
-var ServiceSet = wire.NewSet(user2.NewService)
+var ServiceSet = wire.NewSet(user2.ProvideService, wire.Bind(
+	new(user2.Service),
+	new(*user2.ServiceImpl),
+),
+)
 
-var AppSet = wire.NewSet(application.NewUser, application.NewProduct, application.NewCart, application.NewReview, application.NewCategory, application.NewAttribute)
+var AppSet = wire.NewSet(application.ProvideAttribute, wire.Bind(
+	new(application.Attribute),
+	new(*application.AttributeApp),
+), application.ProvideCategory, wire.Bind(
+	new(application.Category),
+	new(*application.CategoryApp),
+), application.ProvideProduct, wire.Bind(
+	new(application.Product),
+	new(*application.ProductApp),
+), application.ProvideUser, wire.Bind(
+	new(application.User),
+	new(*application.UserApp),
+), application.ProvideReview, wire.Bind(
+	new(application.Review),
+	new(*application.ReviewApp),
+), application.ProvideCart, wire.Bind(
+	new(application.Cart),
+	new(*application.CartApp),
+),
+)
 
-var MiddlewareSet = wire.NewSet(middleware.NewMetric, middleware.NewLogging, middleware.NewJWTVerify)
+var MiddlewareSet = wire.NewSet(middleware.ProvideAuth, wire.Bind(
+	new(middleware.Auth),
+	new(*middleware.AuthMiddleware),
+), middleware.ProvideLogging, wire.Bind(
+	new(middleware.Logging),
+	new(*middleware.LoggingMiddleware),
+), middleware.ProvideMetric, wire.Bind(
+	new(middleware.Metric),
+	new(*middleware.MetricMiddleware),
+), middleware.ProvideRole, wire.Bind(
+	new(middleware.Role),
+	new(*middleware.RoleMiddleware),
+),
+)
 
-var HandlerSet = wire.NewSet(handler.NewUser, handler.NewHealthCheck, handler.NewCategory, handler.NewProduct, handler.NewAttribute, handler.NewPayment, handler.NewOrder, handler.NewReturn, handler.NewRefund, handler.NewReview, handler.NewCart, handler.NewAuth)
+var HandlerSet = wire.NewSet(handler.ProvideAttribute, wire.Bind(
+	new(handler.Attribute),
+	new(*handler.AttributeHandler),
+), handler.ProvideAuth, wire.Bind(
+	new(handler.Auth),
+	new(*handler.AuthHandler),
+), handler.ProvideCategory, wire.Bind(
+	new(handler.Category),
+	new(*handler.CategoryHandler),
+), handler.ProvideHealthCheck, wire.Bind(
+	new(handler.HealthCheck),
+	new(*handler.HealthCheckHandler),
+), handler.ProvideOrder, wire.Bind(
+	new(handler.Order),
+	new(*handler.OrderHandler),
+), handler.ProvidePayment, wire.Bind(
+	new(handler.Payment),
+	new(*handler.PaymentHandler),
+), handler.ProvideProduct, wire.Bind(
+	new(handler.Product),
+	new(*handler.ProductHandler),
+), handler.ProvideUser, wire.Bind(
+	new(handler.User),
+	new(*handler.UserHandler),
+), handler.ProvideReview, wire.Bind(
+	new(handler.Review),
+	new(*handler.ReviewHandler),
+), handler.ProvideCart, wire.Bind(
+	new(handler.Cart),
+	new(*handler.CartHandler),
+), handler.ProvideReturnRequest, wire.Bind(
+	new(handler.ReturnRequest),
+	new(*handler.ReturnRequestHandler),
+), handler.ProvideRefund, wire.Bind(
+	new(handler.Refund),
+	new(*handler.RefundHandler),
+),
+)
 
-var RouterSet = wire.NewSet(router.New)
+var RouterSet = wire.NewSet(router.Provide, wire.Bind(
+	new(router.Router),
+	new(*router.RouterImpl),
+),
+)
 
 var ClientSet = wire.NewSet(client.NewRedis, client.NewS3, client.NewKeycloak, client.NewS3Presign)
