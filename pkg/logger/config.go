@@ -17,16 +17,16 @@ type loggerConfig struct {
 	TimeZone     string
 }
 
-func NewConfig(cfg *config.Config) *loggerConfig {
+func NewConfig(srvCfg *config.Server) *loggerConfig {
 	return &loggerConfig{
 		LogFile:      filepath.Join("logs", "app.log"),
 		MaxSize:      10,
 		MaxBackups:   3,
 		MaxAge:       7,
 		Compress:     false,
-		EnableStdout: cfg.EnableStdout,
-		EnableFile:   cfg.EnableFile,
-		TimeZone:     cfg.TimeZone,
+		EnableStdout: srvCfg.EnableStdout,
+		EnableFile:   srvCfg.EnableFile,
+		TimeZone:     srvCfg.TimeZone,
 	}
 }
 

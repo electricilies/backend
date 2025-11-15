@@ -25,7 +25,7 @@ type RepositoryImpl struct {
 	redisClient    *redis.Client
 	keycloakClient *gocloak.GoCloak
 	tokenManager   helper.TokenManager
-	cfg            *config.Config
+	srvCfg         *config.Server
 	logger         *zap.Logger
 }
 
@@ -35,7 +35,7 @@ func NewRepository(
 	redisClient *redis.Client,
 	keycloakClient *gocloak.GoCloak,
 	tokenManager helper.TokenManager,
-	cfg *config.Config,
+	srvCfg *config.Server,
 	logger *zap.Logger,
 ) user.Repository {
 	return &RepositoryImpl{
@@ -44,7 +44,7 @@ func NewRepository(
 		redisClient:    redisClient,
 		keycloakClient: keycloakClient,
 		tokenManager:   tokenManager,
-		cfg:            cfg,
+		srvCfg:         srvCfg,
 		logger:         logger,
 	}
 }
@@ -55,7 +55,7 @@ func ProvideRepository(
 	redisClient *redis.Client,
 	keycloakClient *gocloak.GoCloak,
 	tokenManager helper.TokenManager,
-	cfg *config.Config,
+	srcCfg *config.Server,
 	logger *zap.Logger,
 ) *RepositoryImpl {
 	return &RepositoryImpl{
@@ -64,7 +64,7 @@ func ProvideRepository(
 		redisClient:    redisClient,
 		keycloakClient: keycloakClient,
 		tokenManager:   tokenManager,
-		cfg:            cfg,
+		srvCfg:         srcCfg,
 		logger:         logger,
 	}
 }
@@ -86,7 +86,7 @@ func (r *RepositoryImpl) Get(ctx context.Context, id string) (*user.Model, error
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
-	u, err := r.keycloakClient.GetUserByID(ctx, token, r.cfg.KCRealm, id)
+	u, err := r.keycloakClient.GetUserByID(ctx, token, r.srvCfg.KCRealm, id)
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
@@ -124,7 +124,7 @@ func (r *RepositoryImpl) List(ctx context.Context) ([]*user.Model, error) {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
 	enabled := false
-	users, err := r.keycloakClient.GetUsers(ctx, token, r.cfg.KCRealm, gocloak.GetUsersParams{
+	users, err := r.keycloakClient.GetUsers(ctx, token, r.srvCfg.KCRealm, gocloak.GetUsersParams{
 		Enabled: &enabled,
 	})
 	if err != nil {
@@ -152,7 +152,7 @@ func (r *RepositoryImpl) Create(ctx context.Context, model *user.Model) (*user.M
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
-	user, _ := (r.keycloakClient.GetUserByID(ctx, token, r.cfg.KCRealm, u.String()))
+	user, _ := (r.keycloakClient.GetUserByID(ctx, token, r.srvCfg.KCRealm, u.String()))
 	r.redisClient.Del(ctx, constant.UserListCacheKey)
 
 	return ToDomain(user), nil
@@ -171,7 +171,7 @@ func (r *RepositoryImpl) Update(
 		r.keycloakClient.UpdateUser(
 			ctx,
 			token,
-			r.cfg.KCRealm,
+			r.srvCfg.KCRealm,
 			*ToUpdateUserParams(model, queryParams.UserID),
 		),
 	)
@@ -190,7 +190,7 @@ func (r *RepositoryImpl) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return errors.ToDomainErrorFromGoCloak(err)
 	}
-	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.DeleteUser(ctx, token, r.cfg.KCRealm, id))
+	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.DeleteUser(ctx, token, r.srvCfg.KCRealm, id))
 	if err != nil {
 		return err
 	}

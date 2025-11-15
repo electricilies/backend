@@ -15,18 +15,18 @@ type Role interface {
 }
 
 type RoleMiddleware struct {
-	cfg *config.Config
+	srvCfg *config.Server
 }
 
-func NewRole(requiredRoles []constant.UserRole, cfg *config.Config) Role {
+func NewRole(requiredRoles []constant.UserRole, srvCfg *config.Server) Role {
 	return &RoleMiddleware{
-		cfg: cfg,
+		srvCfg: srvCfg,
 	}
 }
 
-func ProvideRole(cfg *config.Config) *RoleMiddleware {
+func ProvideRole(srvCfg *config.Server) *RoleMiddleware {
 	return &RoleMiddleware{
-		cfg: cfg,
+		srvCfg: srvCfg,
 	}
 }
 

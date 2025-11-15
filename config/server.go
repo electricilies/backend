@@ -32,7 +32,7 @@ const (
 	PublicKeycloakURL   = "PUBLIC_KEYCLOAK_URL"
 )
 
-type Config struct {
+type Server struct {
 	DBUsername          string
 	DBPassword          string
 	DBHost              string
@@ -58,7 +58,7 @@ type Config struct {
 	PublicKeycloakURL   string
 }
 
-func New() *Config {
+func NewServer() *Server {
 	viper.AutomaticEnv()
 
 	viper.SetDefault(DBPort, 5432)
@@ -70,7 +70,7 @@ func New() *Config {
 		log.Print("You need to set S3_BUCKET environment variable")
 	}
 
-	return &Config{
+	return &Server{
 		DBUsername:          viper.GetString(DBUsername),
 		DBPassword:          viper.GetString(DBPassword),
 		DBHost:              viper.GetString(DBHost),

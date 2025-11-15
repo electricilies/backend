@@ -25,21 +25,21 @@ type HealthCheckHandler struct {
 	redisClient    *redis.Client
 	s3Client       *s3.Client
 	dbPool         *pgxpool.Pool
-	cfg            *config.Config
+	srvCfg         *config.Server
 }
 
 func NewHealthCheck(keycloakClient *gocloak.GoCloak,
 	redisClient *redis.Client,
 	s3Client *s3.Client,
 	dbPool *pgxpool.Pool,
-	cfg *config.Config,
+	srvCfg *config.Server,
 ) HealthCheck {
 	return &HealthCheckHandler{
 		keycloakClient: keycloakClient,
 		redisClient:    redisClient,
 		s3Client:       s3Client,
 		dbPool:         dbPool,
-		cfg:            cfg,
+		srvCfg:         srvCfg,
 	}
 }
 
@@ -47,14 +47,14 @@ func ProvideHealthCheck(keycloakClient *gocloak.GoCloak,
 	redisClient *redis.Client,
 	s3Client *s3.Client,
 	dbPool *pgxpool.Pool,
-	cfg *config.Config,
+	cfg *config.Server,
 ) *HealthCheckHandler {
 	return &HealthCheckHandler{
 		keycloakClient: keycloakClient,
 		redisClient:    redisClient,
 		s3Client:       s3Client,
 		dbPool:         dbPool,
-		cfg:            cfg,
+		srvCfg:         cfg,
 	}
 }
 
@@ -64,8 +64,8 @@ func (h *HealthCheckHandler) Readiness(ctx *gin.Context) {
 
 	dbStatus, dbErr := IsDbReady(c, h.dbPool)
 	redisStatus, redisErr := IsRedisReady(c, h.redisClient)
-	s3Status, s3Err := IsS3Ready(c, h.s3Client, h.cfg.S3Bucket)
-	keycloakStatus, keycloakErr := IsKeycloakReady(c, h.keycloakClient, h.cfg.KCHttpManagmentPath)
+	s3Status, s3Err := IsS3Ready(c, h.s3Client, h.srvCfg.S3Bucket)
+	keycloakStatus, keycloakErr := IsKeycloakReady(c, h.keycloakClient, h.srvCfg.KCHttpManagmentPath)
 
 	backendStatus := dbStatus && redisStatus && s3Status && keycloakStatus
 

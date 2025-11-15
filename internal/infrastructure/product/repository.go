@@ -22,7 +22,7 @@ type RepositoryImpl struct {
 	s3Client        *s3.Client
 	s3PresignClient *s3.PresignClient
 	redisClient     *redis.Client
-	cfg             *config.Config
+	srcCfg          *config.Server
 }
 
 func NewRepository(
@@ -30,14 +30,14 @@ func NewRepository(
 	s3Client *s3.Client,
 	s3PresignClient *s3.PresignClient,
 	redisClient *redis.Client,
-	cfg *config.Config,
+	srvCfg *config.Server,
 ) product.Repository {
 	return &RepositoryImpl{
 		db:              db,
 		s3Client:        s3Client,
 		s3PresignClient: s3PresignClient,
 		redisClient:     redisClient,
-		cfg:             cfg,
+		srcCfg:          srvCfg,
 	}
 }
 
@@ -46,14 +46,14 @@ func ProvideRepository(
 	s3Client *s3.Client,
 	s3PresignClient *s3.PresignClient,
 	redisClient *redis.Client,
-	cfg *config.Config,
+	srvCfg *config.Server,
 ) *RepositoryImpl {
 	return &RepositoryImpl{
 		db:              db,
 		s3Client:        s3Client,
 		s3PresignClient: s3PresignClient,
 		redisClient:     redisClient,
-		cfg:             cfg,
+		srcCfg:          srvCfg,
 	}
 }
 
@@ -63,7 +63,7 @@ func (r *RepositoryImpl) GetUploadImageURL(ctx context.Context) (*product.Upload
 	url, err := r.s3PresignClient.PresignPutObject(
 		ctx,
 		&s3.PutObjectInput{
-			Bucket: aws.String(r.cfg.S3Bucket),
+			Bucket: aws.String(r.srcCfg.S3Bucket),
 			Key:    aws.String(key),
 		},
 		s3.WithPresignExpires(10*time.Minute),
@@ -92,7 +92,7 @@ func (r *RepositoryImpl) GetDeleteImageURL(ctx context.Context, imageID int) (st
 	url, err := r.s3PresignClient.PresignDeleteObject(
 		ctx,
 		&s3.DeleteObjectInput{
-			Bucket: aws.String(r.cfg.S3Bucket),
+			Bucket: aws.String(r.srcCfg.S3Bucket),
 			Key:    aws.String(imageURL.URL),
 		},
 		s3.WithPresignExpires(10*time.Minute),
@@ -105,15 +105,15 @@ func (r *RepositoryImpl) GetDeleteImageURL(ctx context.Context, imageID int) (st
 
 func (r *RepositoryImpl) MoveImage(ctx context.Context, key string) error {
 	_, err := r.s3Client.CopyObject(ctx, &s3.CopyObjectInput{
-		Bucket:     aws.String(r.cfg.S3Bucket),
-		CopySource: aws.String(fmt.Sprintf("%s/%s", r.cfg.S3Bucket, "temp/"+key)),
+		Bucket:     aws.String(r.srcCfg.S3Bucket),
+		CopySource: aws.String(fmt.Sprintf("%s/%s", r.srcCfg.S3Bucket, "temp/"+key)),
 		Key:        aws.String(key),
 	})
 	if err != nil {
 		return errors.ToDomainErrorFromS3(err)
 	}
 	_, err = r.s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
-		Bucket: aws.String(r.cfg.S3Bucket),
+		Bucket: aws.String(r.srcCfg.S3Bucket),
 		Key:    aws.String("temp/" + key),
 	})
 	if err != nil {

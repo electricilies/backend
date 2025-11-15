@@ -15,10 +15,10 @@ type TokenManager interface {
 type tokenManager struct {
 	keycloakClient *gocloak.GoCloak
 	token          *gocloak.JWT
-	cfg            *config.Config
+	cfg            *config.Server
 }
 
-func NewTokenManager(keycloakClient *gocloak.GoCloak, cfg *config.Config) TokenManager {
+func NewTokenManager(keycloakClient *gocloak.GoCloak, cfg *config.Server) TokenManager {
 	return &tokenManager{
 		keycloakClient: keycloakClient,
 		cfg:            cfg,

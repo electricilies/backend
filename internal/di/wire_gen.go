@@ -38,7 +38,7 @@ import (
 
 func InitializeServer(ctx context.Context) *server.Server {
 	engine := client.NewGin()
-	configConfig := config.New()
+	configConfig := config.NewServer()
 	pool := client.NewDBConnection(ctx, configConfig)
 	queries := client.NewDBQueries(pool)
 	s3Client := client.NewS3(ctx, configConfig)
@@ -84,7 +84,7 @@ func InitializeServer(ctx context.Context) *server.Server {
 
 // wire.go:
 
-var ConfigSet = wire.NewSet(config.New, logger.NewConfig)
+var ConfigSet = wire.NewSet(config.NewServer, logger.NewConfig)
 
 var LoggerSet = wire.NewSet(logger.New)
 

@@ -17,20 +17,20 @@ type Auth interface {
 
 type AuthMiddleware struct {
 	keycloakClient *gocloak.GoCloak
-	cfg            *config.Config
+	srvCfg         *config.Server
 }
 
-func NewAuth(keycloakClient *gocloak.GoCloak, cfg *config.Config) Auth {
+func NewAuth(keycloakClient *gocloak.GoCloak, srvCfg *config.Server) Auth {
 	return &AuthMiddleware{
 		keycloakClient: keycloakClient,
-		cfg:            cfg,
+		srvCfg:         srvCfg,
 	}
 }
 
-func ProvideAuth(keycloakClient *gocloak.GoCloak, cfg *config.Config) *AuthMiddleware {
+func ProvideAuth(keycloakClient *gocloak.GoCloak, srvCfg *config.Server) *AuthMiddleware {
 	return &AuthMiddleware{
 		keycloakClient: keycloakClient,
-		cfg:            cfg,
+		srvCfg:         srvCfg,
 	}
 }
 
@@ -47,12 +47,12 @@ func (j *AuthMiddleware) Handler() gin.HandlerFunc {
 			return
 		}
 		token := parts[1]
-		tokens, _, err := j.keycloakClient.DecodeAccessToken(ctx, token, j.cfg.KCRealm)
+		tokens, _, err := j.keycloakClient.DecodeAccessToken(ctx, token, j.srvCfg.KCRealm)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Cannot decode access token", "detail": err.Error()})
 			return
 		}
-		rptResult, err := j.keycloakClient.RetrospectToken(ctx, token, j.cfg.KCClientId, j.cfg.KCClientSecret, j.cfg.KCRealm)
+		rptResult, err := j.keycloakClient.RetrospectToken(ctx, token, j.srvCfg.KCClientId, j.srvCfg.KCClientSecret, j.srvCfg.KCRealm)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Failed to introspect token", "detail": err.Error()})
 			return

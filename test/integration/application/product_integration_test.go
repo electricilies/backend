@@ -31,7 +31,7 @@ type ProductTestSuite struct {
 	s3Client        *s3.Client
 	s3PresignClient *s3.PresignClient
 	redisClient     *redis.Client
-	config          *config.Config
+	config          *config.Server
 }
 
 func (s *ProductTestSuite) newContainersConfig() *component.ContainersConfig {
@@ -45,7 +45,7 @@ func (s *ProductTestSuite) newContainersConfig() *component.ContainersConfig {
 func (s *ProductTestSuite) newConfig(
 	ctx context.Context,
 	containersConfig *component.ContainersConfig,
-) *config.Config {
+) *config.Server {
 	s.T().Helper()
 
 	dbConnStr, err := s.containers.DB.ConnectionString(ctx, "sslmode=disable")
@@ -56,7 +56,7 @@ func (s *ProductTestSuite) newConfig(
 
 	redisConnStr, err := s.containers.Redis.ConnectionString(ctx)
 	s.Require().NoError(err, "failed to get redis connection string")
-	return &config.Config{
+	return &config.Server{
 		DBURL:        dbConnStr,
 		S3AccessKey:  containersConfig.MinIO.User,
 		S3SecretKey:  containersConfig.MinIO.Password,
