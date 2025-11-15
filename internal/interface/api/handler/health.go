@@ -16,8 +16,8 @@ import (
 )
 
 type HealthCheck interface {
-	Liveness(ctx *gin.Context)
-	Readiness(ctx *gin.Context)
+	Liveness(*gin.Context)
+	Readiness(*gin.Context)
 }
 
 type HealthCheckHandler struct {

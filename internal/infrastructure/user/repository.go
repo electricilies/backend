@@ -144,7 +144,7 @@ func (r *RepositoryImpl) List(ctx context.Context) ([]*user.Model, error) {
 }
 
 func (r *RepositoryImpl) Create(ctx context.Context, model *user.Model) (*user.Model, error) {
-	createdUser, err := r.db.CreateUser(ctx, ToCreateUserParams(model))
+	u, err := r.db.CreateUser(ctx, ToCreateUserParams(model))
 	if err != nil {
 		return nil, errors.ToDomainErrorFromPostgres(err)
 	}
@@ -152,7 +152,7 @@ func (r *RepositoryImpl) Create(ctx context.Context, model *user.Model) (*user.M
 	if err != nil {
 		return nil, errors.ToDomainErrorFromGoCloak(err)
 	}
-	user, _ := (r.keycloakClient.GetUserByID(ctx, token, r.cfg.KCRealm, createdUser.String()))
+	user, _ := (r.keycloakClient.GetUserByID(ctx, token, r.cfg.KCRealm, u.String()))
 	r.redisClient.Del(ctx, constant.UserListCacheKey)
 
 	return ToDomain(user), nil

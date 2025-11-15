@@ -12,9 +12,9 @@ import (
 )
 
 type Category interface {
-	List(ctx *gin.Context)
-	Create(ctx *gin.Context)
-	Update(ctx *gin.Context)
+	List(*gin.Context)
+	Create(*gin.Context)
+	Update(*gin.Context)
 }
 
 type CategoryHandler struct {

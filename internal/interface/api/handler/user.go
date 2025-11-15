@@ -11,13 +11,13 @@ import (
 )
 
 type User interface {
-	Get(ctx *gin.Context)
-	List(ctx *gin.Context)
-	Create(ctx *gin.Context)
-	Update(ctx *gin.Context)
-	Delete(ctx *gin.Context)
-	GetCart(ctx *gin.Context)
-	GetReturnRequests(ctx *gin.Context)
+	Get(*gin.Context)
+	List(*gin.Context)
+	Create(*gin.Context)
+	Update(*gin.Context)
+	Delete(*gin.Context)
+	GetCart(*gin.Context)
+	GetReturnRequests(*gin.Context)
 }
 
 type UserHandler struct {

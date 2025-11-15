@@ -7,7 +7,7 @@ import (
 )
 
 type Attribute interface {
-	ListAttributes(ctx context.Context, queryParams *attribute.QueryParams) (*attribute.PaginationModel, error)
+	ListAttributes(context.Context, *attribute.QueryParams) (*attribute.PaginationModel, error)
 }
 
 type AttributeApp struct {
@@ -28,6 +28,9 @@ func ProvideAttribute(
 	}
 }
 
-func (a *AttributeApp) ListAttributes(ctx context.Context, queryParams *attribute.QueryParams) (*attribute.PaginationModel, error) {
+func (a *AttributeApp) ListAttributes(
+	ctx context.Context,
+	queryParams *attribute.QueryParams,
+) (*attribute.PaginationModel, error) {
 	return a.attributeRepo.List(ctx, queryParams)
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type Review interface {
-	ListReviewsByProductID(ctx context.Context, productID int, queryParams *review.QueryParams) (*review.Pagination, error)
+	ListReviewsByProductID(context.Context, int, *review.QueryParams) (*review.Pagination, error)
 }
 
 type ReviewApp struct {
@@ -28,6 +28,10 @@ func ProvideReview(
 	}
 }
 
-func (a *ReviewApp) ListReviewsByProductID(ctx context.Context, productID int, queryParams *review.QueryParams) (*review.Pagination, error) {
+func (a *ReviewApp) ListReviewsByProductID(
+	ctx context.Context,
+	productID int,
+	queryParams *review.QueryParams,
+) (*review.Pagination, error) {
 	return a.reviewRepo.ListByProduct(ctx, productID, queryParams)
 }

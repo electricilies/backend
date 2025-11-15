@@ -7,9 +7,9 @@ import (
 )
 
 type Product interface {
-	GetUploadImageURL(ctx context.Context) (*product.UploadImageURLModel, error)
-	GetDeleteImageURL(ctx context.Context, id int) (string, error)
-	ListProducts(ctx context.Context, queryParams *product.QueryParams) (*product.PaginationModel, error)
+	GetUploadImageURL(context.Context) (*product.UploadImageURLModel, error)
+	GetDeleteImageURL(context.Context, int) (string, error)
+	ListProducts(context.Context, *product.QueryParams) (*product.PaginationModel, error)
 }
 
 type ProductApp struct {

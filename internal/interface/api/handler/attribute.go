@@ -12,12 +12,12 @@ import (
 )
 
 type Attribute interface {
-	Get(ctx *gin.Context)
-	List(ctx *gin.Context)
-	Create(ctx *gin.Context)
-	Update(ctx *gin.Context)
-	Delete(ctx *gin.Context)
-	UpdateAttributeValues(ctx *gin.Context)
+	Get(*gin.Context)
+	List(*gin.Context)
+	Create(*gin.Context)
+	Update(*gin.Context)
+	Delete(*gin.Context)
+	UpdateAttributeValues(*gin.Context)
 }
 
 type AttributeHandler struct {

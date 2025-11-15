@@ -9,7 +9,7 @@ import (
 )
 
 type Router interface {
-	RegisterRoutes(e *gin.Engine)
+	RegisterRoutes(*gin.Engine)
 }
 
 type RouterImpl struct {

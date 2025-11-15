@@ -7,10 +7,10 @@ import (
 )
 
 type ReturnRequest interface {
-	Get(ctx *gin.Context)
-	List(ctx *gin.Context)
-	Create(ctx *gin.Context)
-	Update(ctx *gin.Context)
+	Get(*gin.Context)
+	List(*gin.Context)
+	Create(*gin.Context)
+	Update(*gin.Context)
 }
 
 type ReturnRequestHandler struct{}

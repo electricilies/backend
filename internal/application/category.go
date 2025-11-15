@@ -7,7 +7,7 @@ import (
 )
 
 type Category interface {
-	ListCategories(ctx context.Context, queryParams *category.QueryParams) (*category.PaginationModel, error)
+	ListCategories(context.Context, *category.QueryParams) (*category.PaginationModel, error)
 }
 
 type CategoryApp struct {
@@ -28,6 +28,9 @@ func ProvideCategory(
 	}
 }
 
-func (a *CategoryApp) ListCategories(ctx context.Context, queryParams *category.QueryParams) (*category.PaginationModel, error) {
+func (a *CategoryApp) ListCategories(
+	ctx context.Context,
+	queryParams *category.QueryParams,
+) (*category.PaginationModel, error) {
 	return a.categoryRepo.List(ctx, queryParams)
 }

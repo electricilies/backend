@@ -12,18 +12,18 @@ import (
 )
 
 type Product interface {
-	Get(ctx *gin.Context)
-	List(ctx *gin.Context)
-	Create(ctx *gin.Context)
-	Update(ctx *gin.Context)
-	Delete(ctx *gin.Context)
-	CreateProductOption(ctx *gin.Context)
-	CreateProductVariant(ctx *gin.Context)
-	UpdateProductVariant(ctx *gin.Context)
-	UpdateProductOption(ctx *gin.Context)
-	GetDeleteImageURL(ctx *gin.Context)
-	GetUploadImageURL(ctx *gin.Context)
-	CreateProductImages(ctx *gin.Context)
+	Get(*gin.Context)
+	List(*gin.Context)
+	Create(*gin.Context)
+	Update(*gin.Context)
+	Delete(*gin.Context)
+	CreateProductOption(*gin.Context)
+	CreateProductVariant(*gin.Context)
+	UpdateProductVariant(*gin.Context)
+	UpdateProductOption(*gin.Context)
+	GetDeleteImageURL(*gin.Context)
+	GetUploadImageURL(*gin.Context)
+	CreateProductImages(*gin.Context)
 }
 
 type ProductHandler struct {

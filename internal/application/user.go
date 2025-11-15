@@ -8,12 +8,12 @@ import (
 )
 
 type User interface {
-	Get(ctx context.Context, id string) (*user.Model, error)
-	List(ctx context.Context) ([]*user.Model, error)
-	Create(ctx context.Context, u *user.Model) (*user.Model, error)
-	Update(ctx context.Context, u *user.Model, queryParams *user.QueryParams) error
-	Delete(ctx context.Context, id string) error
-	GetCart(ctx context.Context, id string) (*cart.Model, error)
+	Get(context.Context, string) (*user.Model, error)
+	List(context.Context) ([]*user.Model, error)
+	Create(context.Context, *user.Model) (*user.Model, error)
+	Update(context.Context, *user.Model, *user.QueryParams) error
+	Delete(context.Context, string) error
+	GetCart(context.Context, string) (*cart.Model, error)
 }
 
 type UserApp struct {
@@ -49,16 +49,16 @@ func (a *UserApp) List(ctx context.Context) ([]*user.Model, error) {
 	return a.userRepo.List(ctx)
 }
 
-func (a *UserApp) Create(ctx context.Context, u *user.Model) (*user.Model, error) {
-	return a.userRepo.Create(ctx, u)
+func (a *UserApp) Create(ctx context.Context, model *user.Model) (*user.Model, error) {
+	return a.userRepo.Create(ctx, model)
 }
 
 func (a *UserApp) Update(
 	ctx context.Context,
-	u *user.Model,
+	model *user.Model,
 	queryParams *user.QueryParams,
 ) error {
-	return a.userRepo.Update(ctx, u, queryParams)
+	return a.userRepo.Update(ctx, model, queryParams)
 }
 
 func (a *UserApp) Delete(ctx context.Context, id string) error {

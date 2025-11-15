@@ -12,11 +12,11 @@ import (
 )
 
 type Review interface {
-	Get(ctx *gin.Context)
-	ListReviewsByProducts(ctx *gin.Context)
-	Create(ctx *gin.Context)
-	Update(ctx *gin.Context)
-	Delete(ctx *gin.Context)
+	Get(*gin.Context)
+	ListReviewsByProducts(*gin.Context)
+	Create(*gin.Context)
+	Update(*gin.Context)
+	Delete(*gin.Context)
 }
 
 type ReviewHandler struct {

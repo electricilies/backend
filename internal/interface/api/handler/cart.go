@@ -12,10 +12,10 @@ import (
 )
 
 type Cart interface {
-	Get(ctx *gin.Context)
-	CreateItem(ctx *gin.Context)
-	UpdateItem(ctx *gin.Context)
-	RemoveItem(ctx *gin.Context)
+	Get(*gin.Context)
+	CreateItem(*gin.Context)
+	UpdateItem(*gin.Context)
+	RemoveItem(*gin.Context)
 }
 
 type CartHandler struct {

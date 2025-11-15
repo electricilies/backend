@@ -7,8 +7,8 @@ import (
 )
 
 type Refund interface {
-	Get(ctx *gin.Context)
-	List(ctx *gin.Context)
+	Get(*gin.Context)
+	List(*gin.Context)
 }
 
 type RefundHandler struct{}

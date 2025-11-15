@@ -7,10 +7,10 @@ import (
 )
 
 type Payment interface {
-	Create(ctx *gin.Context)
-	Get(ctx *gin.Context)
-	List(ctx *gin.Context)
-	Update(ctx *gin.Context)
+	Create(*gin.Context)
+	Get(*gin.Context)
+	List(*gin.Context)
+	Update(*gin.Context)
 }
 
 type PaymentHandler struct{}

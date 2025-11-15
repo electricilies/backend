@@ -7,7 +7,7 @@ import (
 )
 
 type Cart interface {
-	Get(ctx context.Context, id int, queryParams *cart.QueryParams) (*cart.Model, error)
+	Get(context.Context, int, *cart.QueryParams) (*cart.Model, error)
 }
 
 type CartApp struct {

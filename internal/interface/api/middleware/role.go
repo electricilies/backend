@@ -11,7 +11,7 @@ import (
 )
 
 type Role interface {
-	Handler(requiredRoles []constant.UserRole) gin.HandlerFunc
+	Handler([]constant.UserRole) gin.HandlerFunc
 }
 
 type RoleMiddleware struct {
@@ -38,7 +38,12 @@ func (r *RoleMiddleware) Handler(rolesAllowed []constant.UserRole) gin.HandlerFu
 	return func(ctx *gin.Context) {
 		claimsInterface, exists := ctx.Get("claims")
 		if !exists {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "No JWT claims found, JWT middleware must be used before role middleware"})
+			ctx.AbortWithStatusJSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"error": "No JWT claims found, JWT middleware must be used before role middleware",
+				},
+			)
 			return
 		}
 
