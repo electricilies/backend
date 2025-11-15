@@ -9,9 +9,9 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func NewRedis(ctx context.Context, srcCfg *config.Server) *redis.Client {
+func NewRedis(ctx context.Context, srvCfg *config.Server) *redis.Client {
 	client := redis.NewClient(&redis.Options{
-		Addr: srcCfg.RedisAddr,
+		Addr: srvCfg.RedisAddr,
 	})
 	status := client.Ping(ctx)
 	if err := status.Err(); err != nil {

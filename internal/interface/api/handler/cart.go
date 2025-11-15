@@ -18,16 +18,16 @@ type Cart interface {
 	RemoveItem(*gin.Context)
 }
 
-type CartHandler struct {
+type CartImpl struct {
 	app application.Cart
 }
 
-func NewCart() Cart { return &CartHandler{} }
+func NewCart() Cart { return &CartImpl{} }
 
 func ProvideCart(
 	app application.Cart,
-) *CartHandler {
-	return &CartHandler{
+) *CartImpl {
+	return &CartImpl{
 		app: app,
 	}
 }
@@ -45,7 +45,7 @@ func ProvideCart(
 //	@Failure		404		{object}	response.NotFoundError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/carts/{cart_id} [get]
-func (h *CartHandler) Get(ctx *gin.Context) {
+func (h *CartImpl) Get(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 	offset, _ := strconv.Atoi(ctx.Query("offset"))
 	id, _ := strconv.Atoi(ctx.Param("id"))
@@ -77,7 +77,7 @@ func (h *CartHandler) Get(ctx *gin.Context) {
 //	@Failure		400		{object}	response.BadRequestError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/carts/{cart_id}/item  [post]
-func (h *CartHandler) CreateItem(ctx *gin.Context) {
+func (h *CartImpl) CreateItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -96,7 +96,7 @@ func (h *CartHandler) CreateItem(ctx *gin.Context) {
 //	@Failure		500				{object}	response.InternalServerError
 //
 // /	@Router			/carts/{cart_id}/item [patch]
-func (h *CartHandler) UpdateItem(ctx *gin.Context) {
+func (h *CartImpl) UpdateItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -113,6 +113,6 @@ func (h *CartHandler) UpdateItem(ctx *gin.Context) {
 //	@Failure		500	{object}	response.InternalServerError
 //
 // /	@Router			/carts/{cart_id}/item [delete]
-func (h *CartHandler) RemoveItem(ctx *gin.Context) {
+func (h *CartImpl) RemoveItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

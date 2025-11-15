@@ -13,13 +13,13 @@ type Metric interface {
 	Handler() gin.HandlerFunc
 }
 
-type MetricMiddleware struct {
+type MetricImpl struct {
 	httpRequestsTotal   *prometheus.CounterVec
 	httpRequestDuration *prometheus.HistogramVec
 }
 
 func NewMetric() Metric {
-	return &MetricMiddleware{
+	return &MetricImpl{
 		httpRequestsTotal: promauto.NewCounterVec(
 			prometheus.CounterOpts{
 				Name: "http_requests_total",
@@ -38,8 +38,8 @@ func NewMetric() Metric {
 	}
 }
 
-func ProvideMetric() *MetricMiddleware {
-	return &MetricMiddleware{
+func ProvideMetric() *MetricImpl {
+	return &MetricImpl{
 		httpRequestsTotal: promauto.NewCounterVec(
 			prometheus.CounterOpts{
 				Name: "http_requests_total",
@@ -58,7 +58,7 @@ func ProvideMetric() *MetricMiddleware {
 	}
 }
 
-func (m *MetricMiddleware) Handler() gin.HandlerFunc {
+func (m *MetricImpl) Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		start := time.Now()
 

@@ -19,20 +19,20 @@ type Review interface {
 	Delete(*gin.Context)
 }
 
-type ReviewHandler struct {
+type ReviewImpl struct {
 	app application.Review
 }
 
 func NewReview(app application.Review) Review {
-	return &ReviewHandler{
+	return &ReviewImpl{
 		app: app,
 	}
 }
 
 func ProvideReview(
 	app application.Review,
-) *ReviewHandler {
-	return &ReviewHandler{
+) *ReviewImpl {
+	return &ReviewImpl{
 		app: app,
 	}
 }
@@ -49,7 +49,7 @@ func ProvideReview(
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/reviews/{review_id} [get]
-func (h *ReviewHandler) Get(ctx *gin.Context) {
+func (h *ReviewImpl) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -67,7 +67,7 @@ func (h *ReviewHandler) Get(ctx *gin.Context) {
 //	@Success		200			{object}	response.DataPagination{data=[]response.Review}
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/reviews [get]
-func (h *ReviewHandler) ListReviewsByProducts(ctx *gin.Context) {
+func (h *ReviewImpl) ListReviewsByProducts(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: check, now it not required
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 	productID, _ := strconv.Atoi(ctx.Query("product_id"))
@@ -100,7 +100,7 @@ func (h *ReviewHandler) ListReviewsByProducts(ctx *gin.Context) {
 //	@Failure		409		{object}	response.ConflictError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/reviews [post]
-func (h *ReviewHandler) Create(ctx *gin.Context) {
+func (h *ReviewImpl) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -119,7 +119,7 @@ func (h *ReviewHandler) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	response.ConflictError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/reviews/{review_id} [patch]
-func (h *ReviewHandler) Update(ctx *gin.Context) {
+func (h *ReviewImpl) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -135,6 +135,6 @@ func (h *ReviewHandler) Update(ctx *gin.Context) {
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/reviews/{review_id} [delete]
-func (h *ReviewHandler) Delete(ctx *gin.Context) {
+func (h *ReviewImpl) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

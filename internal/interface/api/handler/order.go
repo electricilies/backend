@@ -14,13 +14,13 @@ type Order interface {
 	Delete(*gin.Context)
 }
 
-type OrderHandler struct{}
+type OrderImpl struct{}
 
-func ProvideOrder() *OrderHandler {
-	return &OrderHandler{}
+func ProvideOrder() *OrderImpl {
+	return &OrderImpl{}
 }
 
-func NewOrder() Order { return &OrderHandler{} }
+func NewOrder() Order { return &OrderImpl{} }
 
 // GetOrder godoc
 //
@@ -34,7 +34,7 @@ func NewOrder() Order { return &OrderHandler{} }
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/orders/{order_id} [get]
-func (h *OrderHandler) Get(ctx *gin.Context) {
+func (h *OrderImpl) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -48,7 +48,7 @@ func (h *OrderHandler) Get(ctx *gin.Context) {
 //	@Success		200	{array}		response.Order
 //	@Failure		500	{object}	response.InternalServerError
 //	@Router			/orders [get]
-func (h *OrderHandler) List(ctx *gin.Context) {
+func (h *OrderImpl) List(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -65,7 +65,7 @@ func (h *OrderHandler) List(ctx *gin.Context) {
 //	@Failure		409		{object}	response.ConflictError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/orders [post]
-func (h *OrderHandler) Create(ctx *gin.Context) {
+func (h *OrderImpl) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -84,7 +84,7 @@ func (h *OrderHandler) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	response.ConflictError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/orders/{order_id} [patch]
-func (h *OrderHandler) Update(ctx *gin.Context) {
+func (h *OrderImpl) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -100,6 +100,6 @@ func (h *OrderHandler) Update(ctx *gin.Context) {
 //	@Failure		404			{object}	response.NotFoundError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/orders/{order_id} [delete]
-func (h *OrderHandler) Delete(ctx *gin.Context) {
+func (h *OrderImpl) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

@@ -15,26 +15,26 @@ type Auth interface {
 	Handler() gin.HandlerFunc
 }
 
-type AuthMiddleware struct {
+type AuthImpl struct {
 	keycloakClient *gocloak.GoCloak
 	srvCfg         *config.Server
 }
 
 func NewAuth(keycloakClient *gocloak.GoCloak, srvCfg *config.Server) Auth {
-	return &AuthMiddleware{
+	return &AuthImpl{
 		keycloakClient: keycloakClient,
 		srvCfg:         srvCfg,
 	}
 }
 
-func ProvideAuth(keycloakClient *gocloak.GoCloak, srvCfg *config.Server) *AuthMiddleware {
-	return &AuthMiddleware{
+func ProvideAuth(keycloakClient *gocloak.GoCloak, srvCfg *config.Server) *AuthImpl {
+	return &AuthImpl{
 		keycloakClient: keycloakClient,
 		srvCfg:         srvCfg,
 	}
 }
 
-func (j *AuthMiddleware) Handler() gin.HandlerFunc {
+func (j *AuthImpl) Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {

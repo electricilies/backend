@@ -16,13 +16,13 @@ type User interface {
 	GetCart(context.Context, string) (*cart.Model, error)
 }
 
-type UserApp struct {
+type UserImpl struct {
 	userRepo    user.Repository
 	userService user.Service
 }
 
 func NewUser(userRepo user.Repository, userService user.Service) User {
-	return &UserApp{
+	return &UserImpl{
 		userRepo:    userRepo,
 		userService: userService,
 	}
@@ -31,29 +31,29 @@ func NewUser(userRepo user.Repository, userService user.Service) User {
 func ProvideUser(
 	userRepo user.Repository,
 	userService user.Service,
-) *UserApp {
-	return &UserApp{
+) *UserImpl {
+	return &UserImpl{
 		userRepo:    userRepo,
 		userService: userService,
 	}
 }
 
-func (a *UserApp) Get(
+func (a *UserImpl) Get(
 	ctx context.Context,
 	id string,
 ) (*user.Model, error) {
 	return a.userRepo.Get(ctx, id)
 }
 
-func (a *UserApp) List(ctx context.Context) ([]*user.Model, error) {
+func (a *UserImpl) List(ctx context.Context) ([]*user.Model, error) {
 	return a.userRepo.List(ctx)
 }
 
-func (a *UserApp) Create(ctx context.Context, model *user.Model) (*user.Model, error) {
+func (a *UserImpl) Create(ctx context.Context, model *user.Model) (*user.Model, error) {
 	return a.userRepo.Create(ctx, model)
 }
 
-func (a *UserApp) Update(
+func (a *UserImpl) Update(
 	ctx context.Context,
 	model *user.Model,
 	queryParams *user.QueryParams,
@@ -61,10 +61,10 @@ func (a *UserApp) Update(
 	return a.userRepo.Update(ctx, model, queryParams)
 }
 
-func (a *UserApp) Delete(ctx context.Context, id string) error {
+func (a *UserImpl) Delete(ctx context.Context, id string) error {
 	return a.userRepo.Delete(ctx, id)
 }
 
-func (a *UserApp) GetCart(ctx context.Context, id string) (*cart.Model, error) {
+func (a *UserImpl) GetCart(ctx context.Context, id string) (*cart.Model, error) {
 	return a.userRepo.GetCart(ctx, id)
 }

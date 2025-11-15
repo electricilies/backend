@@ -10,25 +10,25 @@ type Review interface {
 	ListReviewsByProductID(context.Context, int, *review.QueryParams) (*review.Pagination, error)
 }
 
-type ReviewApp struct {
+type ReviewImpl struct {
 	reviewRepo review.Repository
 }
 
 func NewReview(reviewRepo review.Repository) Review {
-	return &ReviewApp{
+	return &ReviewImpl{
 		reviewRepo: reviewRepo,
 	}
 }
 
 func ProvideReview(
 	reviewRepo review.Repository,
-) *ReviewApp {
-	return &ReviewApp{
+) *ReviewImpl {
+	return &ReviewImpl{
 		reviewRepo: reviewRepo,
 	}
 }
 
-func (a *ReviewApp) ListReviewsByProductID(
+func (a *ReviewImpl) ListReviewsByProductID(
 	ctx context.Context,
 	productID int,
 	queryParams *review.QueryParams,

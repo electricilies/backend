@@ -10,24 +10,24 @@ type Cart interface {
 	Get(context.Context, int, *cart.QueryParams) (*cart.Model, error)
 }
 
-type CartApp struct {
+type CartImpl struct {
 	cartRepo cart.Repository
 }
 
 func NewCart(cartRepo cart.Repository) Cart {
-	return &CartApp{
+	return &CartImpl{
 		cartRepo: cartRepo,
 	}
 }
 
 func ProvideCart(
 	cartRepo cart.Repository,
-) *CartApp {
-	return &CartApp{
+) *CartImpl {
+	return &CartImpl{
 		cartRepo: cartRepo,
 	}
 }
 
-func (a *CartApp) Get(ctx context.Context, id int, queryParams *cart.QueryParams) (*cart.Model, error) {
+func (a *CartImpl) Get(ctx context.Context, id int, queryParams *cart.QueryParams) (*cart.Model, error) {
 	return a.cartRepo.Get(ctx, id, queryParams)
 }

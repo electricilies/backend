@@ -13,23 +13,23 @@ type Auth interface {
 	Handler() gin.HandlerFunc
 }
 
-type AuthHandler struct {
+type AuthImpl struct {
 	cfgSrv *config.Server
 }
 
 func NewAuth(cfgSrv *config.Server) Auth {
-	return &AuthHandler{
+	return &AuthImpl{
 		cfgSrv: cfgSrv,
 	}
 }
 
-func ProvideAuth(cfg *config.Server) *AuthHandler {
-	return &AuthHandler{
+func ProvideAuth(cfg *config.Server) *AuthImpl {
+	return &AuthImpl{
 		cfgSrv: cfg,
 	}
 }
 
-func (h *AuthHandler) Handler() gin.HandlerFunc {
+func (h *AuthImpl) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		basePath := h.cfgSrv.KCBasePath
 		redirectURL := basePath + strings.TrimPrefix(c.Request.URL.String(), "/auth")

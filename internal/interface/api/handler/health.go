@@ -20,7 +20,7 @@ type HealthCheck interface {
 	Readiness(*gin.Context)
 }
 
-type HealthCheckHandler struct {
+type HealthCheckImpl struct {
 	keycloakClient *gocloak.GoCloak
 	redisClient    *redis.Client
 	s3Client       *s3.Client
@@ -34,7 +34,7 @@ func NewHealthCheck(keycloakClient *gocloak.GoCloak,
 	dbPool *pgxpool.Pool,
 	srvCfg *config.Server,
 ) HealthCheck {
-	return &HealthCheckHandler{
+	return &HealthCheckImpl{
 		keycloakClient: keycloakClient,
 		redisClient:    redisClient,
 		s3Client:       s3Client,
@@ -48,8 +48,8 @@ func ProvideHealthCheck(keycloakClient *gocloak.GoCloak,
 	s3Client *s3.Client,
 	dbPool *pgxpool.Pool,
 	cfg *config.Server,
-) *HealthCheckHandler {
-	return &HealthCheckHandler{
+) *HealthCheckImpl {
+	return &HealthCheckImpl{
 		keycloakClient: keycloakClient,
 		redisClient:    redisClient,
 		s3Client:       s3Client,
@@ -58,7 +58,7 @@ func ProvideHealthCheck(keycloakClient *gocloak.GoCloak,
 	}
 }
 
-func (h *HealthCheckHandler) Readiness(ctx *gin.Context) {
+func (h *HealthCheckImpl) Readiness(ctx *gin.Context) {
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
@@ -98,7 +98,7 @@ func (h *HealthCheckHandler) Readiness(ctx *gin.Context) {
 	}
 }
 
-func (h *HealthCheckHandler) Liveness(ctx *gin.Context) {
+func (h *HealthCheckImpl) Liveness(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, time.Now())
 }
 

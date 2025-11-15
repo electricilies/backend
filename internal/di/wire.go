@@ -36,7 +36,7 @@ import (
 )
 
 var ConfigSet = wire.NewSet(
-	config.New,
+	config.NewServer,
 	logger.NewConfig,
 )
 
@@ -104,33 +104,33 @@ var AppSet = wire.NewSet(
 	app.ProvideAttribute,
 	wire.Bind(
 		new(app.Attribute),
-		new(*app.AttributeApp),
+		new(*app.AttributeImpl),
 	),
 	app.ProvideCategory,
 	wire.Bind(
 		new(app.Category),
-		new(*app.CategoryApp),
+		new(*app.CategoryImpl),
 		),
 	app.ProvideProduct,
 	wire.Bind(
 		new(app.Product),
-		new(*app.ProductApp),
+		new(*app.ProductImpl),
 	),
 
 	app.ProvideUser,
 	wire.Bind(
 		new(app.User),
-		new(*app.UserApp),
+		new(*app.UserImpl),
 	),
 	app.ProvideReview,
 	wire.Bind(
 		new(app.Review),
-		new(*app.ReviewApp),
+		new(*app.ReviewImpl),
 	),
 	app.ProvideCart,
 	wire.Bind(
 		new(app.Cart),
-		new(*app.CartApp),
+		new(*app.CartImpl),
 	),
 )
 
@@ -138,22 +138,22 @@ var MiddlewareSet = wire.NewSet(
 	middleware.ProvideAuth,
 	wire.Bind(
 		new(middleware.Auth),
-		new(*middleware.AuthMiddleware),
+		new(*middleware.AuthImpl),
 	),
 	middleware.ProvideLogging,
 	wire.Bind(
 		new(middleware.Logging),
-		new(*middleware.LoggingMiddleware),
+		new(*middleware.LoggingImpl),
 		),
 	middleware.ProvideMetric,
 	wire.Bind(
 		new(middleware.Metric),
-		new(*middleware.MetricMiddleware),
+		new(*middleware.MetricImpl),
 	),
 	middleware.ProvideRole,
 	wire.Bind(
 		new(middleware.Role),
-		new(*middleware.RoleMiddleware),
+		new(*middleware.RoleImpl),
 	),
 )
 
@@ -161,63 +161,63 @@ var HandlerSet = wire.NewSet(
 	handler.ProvideAttribute,
 	wire.Bind(
 		new(handler.Attribute),
-		new(*handler.AttributeHandler),
+		new(*handler.AttributeImpl),
 	),
 	handler.ProvideAuth,
 	wire.Bind(
 		new(handler.Auth),
-		new(*handler.AuthHandler),
+		new(*handler.AuthImpl),
 	),
 	handler.ProvideCategory,
 	wire.Bind(
 		new(handler.Category),
-		new(*handler.CategoryHandler),
+		new(*handler.CategoryImpl),
 	),
 	handler.ProvideHealthCheck,
 	wire.Bind(
 		new(handler.HealthCheck),
-		new(*handler.HealthCheckHandler),
+		new(*handler.HealthCheckImpl),
 	),
 	handler.ProvideOrder,
 	wire.Bind(
 		new(handler.Order),
-		new(*handler.OrderHandler),
+		new(*handler.OrderImpl),
 	),
 
 	handler.ProvidePayment,
 	wire.Bind(
 		new(handler.Payment),
-		new(*handler.PaymentHandler),
+		new(*handler.PaymentImpl),
 	),
 	handler.ProvideProduct,
 	wire.Bind(
 		new(handler.Product),
-		new(*handler.ProductHandler),
+		new(*handler.ProductImpl),
 	),
 	handler.ProvideUser,
 	wire.Bind(
 		new(handler.User),
-		new(*handler.UserHandler),
+		new(*handler.UserImpl),
 	),
 	handler.ProvideReview,
 	wire.Bind(
 		new(handler.Review),
-		new(*handler.ReviewHandler),
+		new(*handler.ReviewImpl),
 	),
 	handler.ProvideCart,
 	wire.Bind(
 		new(handler.Cart),
-		new(*handler.CartHandler),
+		new(*handler.CartImpl),
 	),
 	handler.ProvideReturnRequest,
 	wire.Bind(
 		new(handler.ReturnRequest),
-		new(*handler.ReturnRequestHandler),
+		new(*handler.ReturnRequestImpl),
 	),
 	handler.ProvideRefund,
 	wire.Bind(
 		new(handler.Refund),
-		new(*handler.RefundHandler),
+		new(*handler.RefundImpl),
 	),
 )
 var RouterSet = wire.NewSet(

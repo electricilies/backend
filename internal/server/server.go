@@ -12,11 +12,11 @@ import (
 
 type Server struct {
 	engine      *gin.Engine
-	cfg         *config.Server
+	srvCfg      *config.Server
 	authHandler handler.Auth
 }
 
-func New(e *gin.Engine, r router.Router, cfg *config.Server, authHandler handler.Auth) *Server {
+func New(e *gin.Engine, r router.Router, srvCfg *config.Server, authHandler handler.Auth) *Server {
 	r.RegisterRoutes(e)
 	auth := e.Group("/auth")
 	{
@@ -33,7 +33,7 @@ func New(e *gin.Engine, r router.Router, cfg *config.Server, authHandler handler
 	)
 	return &Server{
 		engine:      e,
-		cfg:         cfg,
+		srvCfg:      srvCfg,
 		authHandler: authHandler,
 	}
 }

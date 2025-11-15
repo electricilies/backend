@@ -13,12 +13,12 @@ type ReturnRequest interface {
 	Update(*gin.Context)
 }
 
-type ReturnRequestHandler struct{}
+type ReturnRequestImpl struct{}
 
-func NewReturn() ReturnRequest { return &ReturnRequestHandler{} }
+func NewReturn() ReturnRequest { return &ReturnRequestImpl{} }
 
-func ProvideReturnRequest() *ReturnRequestHandler {
-	return &ReturnRequestHandler{}
+func ProvideReturnRequest() *ReturnRequestImpl {
+	return &ReturnRequestImpl{}
 }
 
 // GetReturn godoc
@@ -33,7 +33,7 @@ func ProvideReturnRequest() *ReturnRequestHandler {
 //	@Failure		404					{object}	response.NotFoundError
 //	@Failure		500					{object}	response.InternalServerError
 //	@Router			/return-requests/{return_request_id} [get]
-func (h *ReturnRequestHandler) Get(ctx *gin.Context) {
+func (h *ReturnRequestImpl) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -47,7 +47,7 @@ func (h *ReturnRequestHandler) Get(ctx *gin.Context) {
 //	@Success		200	{array}		response.ReturnRequest
 //	@Failure		500	{object}	response.InternalServerError
 //	@Router			/return-requests [get]
-func (h *ReturnRequestHandler) List(ctx *gin.Context) {
+func (h *ReturnRequestImpl) List(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -64,7 +64,7 @@ func (h *ReturnRequestHandler) List(ctx *gin.Context) {
 //	@Failure		409		{object}	response.ConflictError
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/return-requests [post]
-func (h *ReturnRequestHandler) Create(ctx *gin.Context) {
+func (h *ReturnRequestImpl) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -83,6 +83,6 @@ func (h *ReturnRequestHandler) Create(ctx *gin.Context) {
 //	@Failure		409					{object}	response.ConflictError
 //	@Failure		500					{object}	response.InternalServerError
 //	@Router			/return-requests/{return_request_id}/status [patch]
-func (h *ReturnRequestHandler) Update(ctx *gin.Context) {
+func (h *ReturnRequestImpl) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

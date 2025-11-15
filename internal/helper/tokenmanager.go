@@ -15,13 +15,13 @@ type TokenManager interface {
 type tokenManager struct {
 	keycloakClient *gocloak.GoCloak
 	token          *gocloak.JWT
-	cfg            *config.Server
+	srvCfg         *config.Server
 }
 
-func NewTokenManager(keycloakClient *gocloak.GoCloak, cfg *config.Server) TokenManager {
+func NewTokenManager(keycloakClient *gocloak.GoCloak, srvCfg *config.Server) TokenManager {
 	return &tokenManager{
 		keycloakClient: keycloakClient,
-		cfg:            cfg,
+		srvCfg:         srvCfg,
 	}
 }
 
@@ -29,7 +29,7 @@ func (tm *tokenManager) GetClientToken(ctx context.Context) (string, error) {
 	if tm.token == nil || tm.token.ExpiresIn < 10 {
 		return tm.token.AccessToken, nil
 	}
-	token, err := tm.keycloakClient.LoginClient(ctx, tm.cfg.KCClientId, tm.cfg.KCClientSecret, tm.cfg.KCRealm)
+	token, err := tm.keycloakClient.LoginClient(ctx, tm.srvCfg.KCClientId, tm.srvCfg.KCClientSecret, tm.srvCfg.KCRealm)
 	if err != nil {
 		return "", err
 	}

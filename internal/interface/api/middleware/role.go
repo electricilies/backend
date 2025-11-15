@@ -14,23 +14,23 @@ type Role interface {
 	Handler([]constant.UserRole) gin.HandlerFunc
 }
 
-type RoleMiddleware struct {
+type RoleImpl struct {
 	srvCfg *config.Server
 }
 
 func NewRole(requiredRoles []constant.UserRole, srvCfg *config.Server) Role {
-	return &RoleMiddleware{
+	return &RoleImpl{
 		srvCfg: srvCfg,
 	}
 }
 
-func ProvideRole(srvCfg *config.Server) *RoleMiddleware {
-	return &RoleMiddleware{
+func ProvideRole(srvCfg *config.Server) *RoleImpl {
+	return &RoleImpl{
 		srvCfg: srvCfg,
 	}
 }
 
-func (r *RoleMiddleware) Handler(rolesAllowed []constant.UserRole) gin.HandlerFunc {
+func (r *RoleImpl) Handler(rolesAllowed []constant.UserRole) gin.HandlerFunc {
 	set := make(map[constant.UserRole]struct{})
 	for _, requiredRole := range rolesAllowed {
 		set[requiredRole] = struct{}{}

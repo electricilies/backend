@@ -12,23 +12,23 @@ type Logging interface {
 	Handler() gin.HandlerFunc
 }
 
-type LoggingMiddleware struct {
+type LoggingImpl struct {
 	logger *zap.Logger
 }
 
 func NewLogging(logger *zap.Logger) Logging {
-	return &LoggingMiddleware{
+	return &LoggingImpl{
 		logger: logger,
 	}
 }
 
-func ProvideLogging(logger *zap.Logger) *LoggingMiddleware {
-	return &LoggingMiddleware{
+func ProvideLogging(logger *zap.Logger) *LoggingImpl {
+	return &LoggingImpl{
 		logger: logger,
 	}
 }
 
-func (l *LoggingMiddleware) Handler() gin.HandlerFunc {
+func (l *LoggingImpl) Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		start := time.Now()
 		path := ctx.Request.URL.Path

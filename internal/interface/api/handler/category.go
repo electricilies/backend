@@ -17,20 +17,20 @@ type Category interface {
 	Update(*gin.Context)
 }
 
-type CategoryHandler struct {
+type CategoryImpl struct {
 	app application.Category
 }
 
 func NewCategory(app application.Category) Category {
-	return &CategoryHandler{
+	return &CategoryImpl{
 		app: app,
 	}
 }
 
 func ProvideCategory(
 	app application.Category,
-) *CategoryHandler {
-	return &CategoryHandler{
+) *CategoryImpl {
+	return &CategoryImpl{
 		app: app,
 	}
 }
@@ -47,7 +47,7 @@ func ProvideCategory(
 //	@Success		200		{object}	response.DataPagination{data=[]response.Category}
 //	@Failure		500		{object}	response.InternalServerError
 //	@Router			/categories [get]
-func (h *CategoryHandler) List(ctx *gin.Context) {
+func (h *CategoryImpl) List(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset")) // TODO: now it not required
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 
@@ -75,7 +75,7 @@ func (h *CategoryHandler) List(ctx *gin.Context) {
 //	@Failure		409			{object}	response.ConflictError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/categories [post]
-func (h *CategoryHandler) Create(ctx *gin.Context) {
+func (h *CategoryImpl) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -94,6 +94,6 @@ func (h *CategoryHandler) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	response.ConflictError
 //	@Failure		500			{object}	response.InternalServerError
 //	@Router			/categories/{category_id} [patch]
-func (h *CategoryHandler) Update(ctx *gin.Context) {
+func (h *CategoryImpl) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
