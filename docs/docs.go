@@ -2902,7 +2902,7 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string",
-                    "example": "INVALID_EMAIL"
+                    "example": "BAD_REQUEST_ERROR"
                 },
                 "error": {
                     "type": "string",
@@ -2978,7 +2978,7 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string",
-                    "example": "EMAIL_EXISTS"
+                    "example": "CONFLICT_ERROR"
                 },
                 "error": {
                     "type": "string",
@@ -3017,7 +3017,7 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string",
-                    "example": "USER_NOT_FOUND"
+                    "example": "NOT_FOUND_ERROR"
                 },
                 "error": {
                     "type": "string",

@@ -12,22 +12,22 @@ import (
 
 type NotFoundError struct {
 	Error string `json:"error" example:"User with ID 123 not found"`
-	Code  string `json:"code" example:"USER_NOT_FOUND"`
+	Code  string `json:"code" example:"NOT_FOUND_ERROR"`
 }
 
 type BadRequestError struct {
 	Error string `json:"error" example:"Email address is invalid"`
-	Code  string `json:"code" example:"INVALID_EMAIL"`
+	Code  string `json:"code" example:"BAD_REQUEST_ERROR"`
 }
 
 type ConflictError struct {
 	Error string `json:"error" example:"User with email already exists"`
-	Code  string `json:"code" example:"EMAIL_EXISTS"`
+	Code  string `json:"code" example:"CONFLICT_ERROR"`
 }
 
 type ServiceUnavailableError struct {
 	Error string `json:"error" example:"Database connection failed"`
-	Code  string `json:"code" example:"Db_UNAVAILABLE"`
+	Code  string `json:"code" example:"SERVICE_UNAVAILABLE_ERROR"`
 }
 
 type InternalServerError struct {
@@ -37,12 +37,12 @@ type InternalServerError struct {
 
 type UnauthorizedError struct {
 	Error string `json:"error" example:"Unauthorized access"`
-	Code  string `json:"code" example:"UNAUTHORIZED"`
+	Code  string `json:"code" example:"UNAUTHORIZED_ERROR"`
 }
 
 type ForbiddenError struct {
 	Error string `json:"error" example:"Forbidden access"`
-	Code  string `json:"code" example:"FORBIDDEN"`
+	Code  string `json:"code" example:"FORBIDDEN_ERROR"`
 }
 
 func ErrorFromDomain(ctx *gin.Context, err error) {
