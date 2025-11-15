@@ -128,10 +128,10 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 
 		payments := api.Group("/payment")
 		{
-			payments.POST("")
-			payments.GET("/:payment_id")
-			payments.GET("")
-			payments.PATCH("/:payment_id")
+			payments.POST("", r.paymentHandler.Create)
+			payments.GET("/:payment_id", r.paymentHandler.Get)
+			payments.GET("", r.paymentHandler.List)
+			payments.PATCH("/:payment_id", r.paymentHandler.Update)
 		}
 
 		orders := api.Group("/orders")

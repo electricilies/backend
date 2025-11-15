@@ -6,7 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Payment interface{}
+type Payment interface {
+	Create(ctx *gin.Context)
+	Get(ctx *gin.Context)
+	List(ctx *gin.Context)
+	Update(ctx *gin.Context)
+}
 
 type paymentHandler struct{}
 
