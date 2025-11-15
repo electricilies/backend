@@ -17,12 +17,14 @@ import (
 	domainproduct "backend/internal/domain/product"
 	domainreview "backend/internal/domain/review"
 	domainuser "backend/internal/domain/user"
+	domainpayment "backend/internal/domain/payment"
 	infrasattribute "backend/internal/infrastructure/attribute"
 	infrascart "backend/internal/infrastructure/cart"
 	infrascategory "backend/internal/infrastructure/category"
 	infrasproduct "backend/internal/infrastructure/product"
 	infrasreview "backend/internal/infrastructure/review"
 	infrasuser "backend/internal/infrastructure/user"
+	infraspayment "backend/internal/infrastructure/payment"
 
 	handler "backend/internal/interface/api/handler"
 	middleware "backend/internal/interface/api/middleware"
@@ -82,6 +84,11 @@ var RepositorySet = wire.NewSet(
 	wire.Bind(
 		new(domainattribute.Repository),
 		new(*infrasattribute.RepositoryImpl),
+	),
+	infraspayment.ProvideRepository,
+	wire.Bind(
+		new(domainpayment.Repository),
+		new(*infraspayment.RepositoryImpl),
 	),
 )
 

@@ -13,6 +13,7 @@ import (
 	attribute2 "backend/internal/domain/attribute"
 	cart2 "backend/internal/domain/cart"
 	category2 "backend/internal/domain/category"
+	payment2 "backend/internal/domain/payment"
 	product2 "backend/internal/domain/product"
 	review2 "backend/internal/domain/review"
 	user2 "backend/internal/domain/user"
@@ -20,6 +21,7 @@ import (
 	"backend/internal/infrastructure/attribute"
 	"backend/internal/infrastructure/cart"
 	"backend/internal/infrastructure/category"
+	"backend/internal/infrastructure/payment"
 	"backend/internal/infrastructure/product"
 	"backend/internal/infrastructure/review"
 	"backend/internal/infrastructure/user"
@@ -108,6 +110,9 @@ var RepositorySet = wire.NewSet(user.ProvideRepository, wire.Bind(
 ), attribute.ProvideRepository, wire.Bind(
 	new(attribute2.Repository),
 	new(*attribute.RepositoryImpl),
+), payment.ProvideRepository, wire.Bind(
+	new(payment2.Repository),
+	new(*payment.RepositoryImpl),
 ),
 )
 
