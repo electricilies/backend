@@ -27,7 +27,7 @@ type ProductTestSuite struct {
 	containers      *component.Containers
 	app             application.Product
 	productRepo     domainproduct.Repository
-	queries         *postgres.Queries
+	db              *postgres.Queries
 	s3Client        *s3.Client
 	s3PresignClient *s3.PresignClient
 	redisClient     *redis.Client
@@ -79,7 +79,7 @@ func (s *ProductTestSuite) SetupSuite() {
 
 	dbPool := client.NewDBConnection(ctx, s.config)
 	s.Require().NotNil(dbPool, "db pool should not be nil")
-	s.queries = client.NewDBQueries(dbPool)
+	s.db = client.NewDBQueries(dbPool)
 	s.s3Client = client.NewS3(ctx, s.config)
 	s.Require().NotNil(s.s3Client, "s3 client should not be nil")
 	s.s3PresignClient = client.NewS3Presign(s.s3Client)
@@ -89,7 +89,7 @@ func (s *ProductTestSuite) SetupSuite() {
 	s.Require().NoError(err, "failed to create s3 bucket")
 
 	s.productRepo = infraproduct.NewRepository(
-		s.queries,
+		s.db,
 		s.s3Client,
 		s.s3PresignClient,
 		s.redisClient,
