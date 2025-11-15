@@ -22,7 +22,7 @@ const (
 type Payment struct {
 	ID              int             `json:"id" binding:"required"`
 	Amount          int64           `json:"amount" binding:"required"`
-	PaymentStatus   PaymentStatus   `json:"paymentStatusId" binding:"required"`
-	PaymentProvider PaymentProvider `json:"paymentProviderId" binding:"omitempty"`
+	PaymentStatus   PaymentStatus   `json:"paymentStatus" binding:"required"`
+	PaymentProvider PaymentProvider `json:"paymentProvider" binding:"omitempty"`
 	UpdatedAt       time.Time       `json:"updatedAt" binding:"required"`
 }
