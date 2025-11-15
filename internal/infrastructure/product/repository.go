@@ -128,11 +128,11 @@ func (r *RepositoryImpl) List(ctx context.Context, queryParams *product.QueryPar
 	return result, nil
 }
 
-func (r *RepositoryImpl) Create(ctx context.Context, productModel *product.Model) (*product.Model, error) {
+func (r *RepositoryImpl) Create(ctx context.Context, model *product.Model) (*product.Model, error) {
 	return &product.Model{}, nil
 }
 
-func (r *RepositoryImpl) Update(ctx context.Context, productModel *product.Model, id int) (*product.Model, error) {
+func (r *RepositoryImpl) Update(ctx context.Context, model *product.Model, id int) (*product.Model, error) {
 	return &product.Model{}, nil
 }
 
@@ -140,22 +140,42 @@ func (r *RepositoryImpl) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *RepositoryImpl) AddOption(ctx context.Context, productOptionModel *product.OptionModel, id int) (*product.OptionModel, error) {
+func (r *RepositoryImpl) AddOption(
+	ctx context.Context,
+	optionModel *product.OptionModel,
+	id int,
+) (*product.OptionModel, error) {
 	return &product.OptionModel{}, nil
 }
 
-func (r *RepositoryImpl) UpdateOption(ctx context.Context, productOptionModel *product.OptionModel, optionId int) (*product.OptionModel, error) {
+func (r *RepositoryImpl) UpdateOption(
+	ctx context.Context,
+	optionModel *product.OptionModel,
+	optionId int,
+) (*product.OptionModel, error) {
 	return &product.OptionModel{}, nil
 }
 
-func (r *RepositoryImpl) AddVariant(ctx context.Context, productVariantModel *product.VariantModel, id int) (*product.VariantModel, error) {
+func (r *RepositoryImpl) AddVariant(
+	ctx context.Context,
+	variantModel *product.VariantModel,
+	id int,
+) (*product.VariantModel, error) {
 	return &product.VariantModel{}, nil
 }
 
-func (r *RepositoryImpl) UpdateVariant(ctx context.Context, productVariantModel *product.VariantModel, variantId int) (*product.VariantModel, error) {
+func (r *RepositoryImpl) UpdateVariant(
+	ctx context.Context,
+	variantModel *product.VariantModel,
+	variantId int,
+) (*product.VariantModel, error) {
 	return &product.VariantModel{}, nil
 }
 
-func (r *RepositoryImpl) AddImages(ctx context.Context, productImageModels []*product.ImageModel, id int) error {
+func (r *RepositoryImpl) AddImages(
+	ctx context.Context,
+	imageModels []*product.ImageModel,
+	id int,
+) error {
 	return nil
 }

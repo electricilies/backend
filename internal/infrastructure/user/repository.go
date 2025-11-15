@@ -104,7 +104,13 @@ func (r *RepositoryImpl) List(ctx context.Context) ([]*user.Model, error) {
 	cached, err := r.redisClient.Get(ctx, constant.UserListCacheKey).Result()
 	switch {
 	case err != nil && err != redis.Nil:
-		r.logger.Error(constant.ErrRedisGetUserMsg, *logger.CreateRedisListField(constant.UserListCacheKey, err)...)
+		r.logger.Error(
+			constant.ErrRedisGetUserMsg,
+			*logger.CreateRedisListField(
+				constant.UserListCacheKey,
+				err,
+			)...,
+		)
 	default:
 
 		var usersCache []*user.Model
@@ -137,8 +143,8 @@ func (r *RepositoryImpl) List(ctx context.Context) ([]*user.Model, error) {
 	return result, nil
 }
 
-func (r *RepositoryImpl) Create(ctx context.Context, u *user.Model) (*user.Model, error) {
-	createdUser, err := r.db.CreateUser(ctx, ToCreateUserParams(u))
+func (r *RepositoryImpl) Create(ctx context.Context, model *user.Model) (*user.Model, error) {
+	createdUser, err := r.db.CreateUser(ctx, ToCreateUserParams(model))
 	if err != nil {
 		return nil, errors.ToDomainErrorFromPostgres(err)
 	}
@@ -161,7 +167,14 @@ func (r *RepositoryImpl) Update(
 	if err != nil {
 		return errors.ToDomainErrorFromGoCloak(err)
 	}
-	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.UpdateUser(ctx, token, r.cfg.KCRealm, *ToUpdateUserParams(model, queryParams.UserID)))
+	err = errors.ToDomainErrorFromGoCloak(
+		r.keycloakClient.UpdateUser(
+			ctx,
+			token,
+			r.cfg.KCRealm,
+			*ToUpdateUserParams(model, queryParams.UserID),
+		),
+	)
 	if err != nil {
 		return err
 	}

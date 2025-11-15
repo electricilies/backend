@@ -27,7 +27,11 @@ func ProvideRepository(
 	}
 }
 
-func (r *RepositoryImpl) ListByProduct(ctx context.Context, productID int, reviewQueryParams *review.QueryParams) (*review.Pagination, error) {
+func (r *RepositoryImpl) ListByProduct(
+	ctx context.Context,
+	productID int,
+	queryParams *review.QueryParams,
+) (*review.Pagination, error) {
 	return &review.Pagination{}, nil
 }
 
@@ -35,11 +39,11 @@ func (r *RepositoryImpl) Get(ctx context.Context, id int) (*review.Model, error)
 	return nil, nil
 }
 
-func (r *RepositoryImpl) Create(ctx context.Context, reviewModel *review.Model) (*review.Model, error) {
+func (r *RepositoryImpl) Create(ctx context.Context, model *review.Model) (*review.Model, error) {
 	return nil, nil
 }
 
-func (r *RepositoryImpl) Update(ctx context.Context, reviewModel *review.Model, id int) (*review.Model, error) {
+func (r *RepositoryImpl) Update(ctx context.Context, model *review.Model, id int) (*review.Model, error) {
 	return nil, nil
 }
 

@@ -16,7 +16,10 @@ func ProvideRepository() *RepositoryImpl {
 	return &RepositoryImpl{}
 }
 
-func (r *RepositoryImpl) List(ctx context.Context, queryParams *attribute.QueryParams) (*attribute.PaginationModel, error) {
+func (r *RepositoryImpl) List(
+	ctx context.Context,
+	queryParams *attribute.QueryParams,
+) (*attribute.PaginationModel, error) {
 	return &attribute.PaginationModel{}, nil
 }
 
@@ -32,6 +35,10 @@ func (r *RepositoryImpl) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *RepositoryImpl) UpdateValues(ctx context.Context, id int, values *[]attribute.ValueModel) (*[]attribute.ValueModel, error) {
+func (r *RepositoryImpl) UpdateValues(
+	ctx context.Context,
+	id int,
+	values *[]attribute.ValueModel,
+) (*[]attribute.ValueModel, error) {
 	return values, nil
 }

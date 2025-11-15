@@ -20,11 +20,15 @@ func (r *RepositoryImpl) Get(ctx context.Context, id int, queryParams *cart.Quer
 	return &cart.Model{}, nil
 }
 
-func (r *RepositoryImpl) AddItem(ctx context.Context, cartItemModel *cart.ItemModel) (*cart.ItemModel, error) {
+func (r *RepositoryImpl) AddItem(ctx context.Context, itemModel *cart.ItemModel) (*cart.ItemModel, error) {
 	return &cart.ItemModel{}, nil
 }
 
-func (r *RepositoryImpl) UpdateItem(ctx context.Context, cartItemModel *cart.ItemModel, id string) (*cart.ItemModel, error) {
+func (r *RepositoryImpl) UpdateItem(
+	ctx context.Context,
+	itemModel *cart.ItemModel,
+	id string,
+) (*cart.ItemModel, error) {
 	return &cart.ItemModel{}, nil
 }
 

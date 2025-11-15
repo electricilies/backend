@@ -16,7 +16,10 @@ func ProvideRepository() *RepositoryImpl {
 	return &RepositoryImpl{}
 }
 
-func (r *RepositoryImpl) List(ctx context.Context, queryParams *category.QueryParams) (*category.PaginationModel, error) {
+func (r *RepositoryImpl) List(
+	ctx context.Context,
+	queryParams *category.QueryParams,
+) (*category.PaginationModel, error) {
 	return &category.PaginationModel{}, nil
 }
 
