@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"backend/internal/domain/cart"
-	"backend/internal/infrastructure/errors"
+	"backend/internal/infrastructure/mapper"
 	"backend/internal/infrastructure/persistence/postgres"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -30,13 +30,13 @@ func (r *RepositoryImpl) Get(ctx context.Context, id int, queryParams *cart.Quer
 		},
 	})
 	if err != nil {
-		return nil, errors.ToDomainErrorFromPostgres(err)
+		return nil, mapper.ToDomainErrorFromPostgres(err)
 	}
 	return ToDomain(&cartEntity), nil
 }
 
 func (r *RepositoryImpl) AddItem(ctx context.Context, itemModel *cart.ItemModel) (*cart.ItemModel, error) {
-	itemEntity, error := r.db.GetCartItems(ctx, postgres.GetCartItemsParams{})
+	return nil, nil
 }
 
 func (r *RepositoryImpl) UpdateItem(

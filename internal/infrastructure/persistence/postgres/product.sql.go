@@ -265,6 +265,33 @@ func (q *Queries) GetProduct(ctx context.Context, arg GetProductParams) (Product
 	return i, err
 }
 
+const getProductImage = `-- name: GetProductImage :one
+SELECT
+  id, url, created_at, "order", product_id, product_variant_id
+FROM
+  product_images
+WHERE
+  id = $1
+`
+
+type GetProductImageParams struct {
+	ID int32
+}
+
+func (q *Queries) GetProductImage(ctx context.Context, arg GetProductImageParams) (ProductImage, error) {
+	row := q.db.QueryRow(ctx, getProductImage, arg.ID)
+	var i ProductImage
+	err := row.Scan(
+		&i.ID,
+		&i.URL,
+		&i.CreatedAt,
+		&i.Order,
+		&i.ProductID,
+		&i.ProductVariantID,
+	)
+	return i, err
+}
+
 const linkProductAttributeValues = `-- name: LinkProductAttributeValues :execrows
 INSERT INTO products_attribute_values (
   product_id,

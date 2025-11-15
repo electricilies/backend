@@ -9,7 +9,7 @@ import (
 	"backend/internal/domain/cart"
 	"backend/internal/domain/user"
 	"backend/internal/helper"
-	"backend/internal/infrastructure/errors"
+	"backend/internal/infrastructure/mapper"
 	"backend/internal/infrastructure/persistence/postgres"
 	"backend/pkg/logger"
 
@@ -84,11 +84,11 @@ func (r *RepositoryImpl) Get(ctx context.Context, id string) (*user.Model, error
 	}
 	token, err := r.tokenManager.GetClientToken(ctx)
 	if err != nil {
-		return nil, errors.ToDomainErrorFromGoCloak(err)
+		return nil, mapper.ToDomainErrorFromGoCloak(err)
 	}
 	u, err := r.keycloakClient.GetUserByID(ctx, token, r.srvCfg.KCRealm, id)
 	if err != nil {
-		return nil, errors.ToDomainErrorFromGoCloak(err)
+		return nil, mapper.ToDomainErrorFromGoCloak(err)
 	}
 
 	domainUser := ToDomain(u)
@@ -121,14 +121,14 @@ func (r *RepositoryImpl) List(ctx context.Context) ([]*user.Model, error) {
 
 	token, err := r.tokenManager.GetClientToken(ctx)
 	if err != nil {
-		return nil, errors.ToDomainErrorFromGoCloak(err)
+		return nil, mapper.ToDomainErrorFromGoCloak(err)
 	}
 	enabled := false
 	users, err := r.keycloakClient.GetUsers(ctx, token, r.srvCfg.KCRealm, gocloak.GetUsersParams{
 		Enabled: &enabled,
 	})
 	if err != nil {
-		return nil, errors.ToDomainErrorFromGoCloak(err)
+		return nil, mapper.ToDomainErrorFromGoCloak(err)
 	}
 
 	result := make([]*user.Model, len(users))
@@ -146,11 +146,11 @@ func (r *RepositoryImpl) List(ctx context.Context) ([]*user.Model, error) {
 func (r *RepositoryImpl) Create(ctx context.Context, model *user.Model) (*user.Model, error) {
 	u, err := r.db.CreateUser(ctx, ToCreateUserParams(model))
 	if err != nil {
-		return nil, errors.ToDomainErrorFromPostgres(err)
+		return nil, mapper.ToDomainErrorFromPostgres(err)
 	}
 	token, err := r.tokenManager.GetClientToken(ctx)
 	if err != nil {
-		return nil, errors.ToDomainErrorFromGoCloak(err)
+		return nil, mapper.ToDomainErrorFromGoCloak(err)
 	}
 	user, _ := (r.keycloakClient.GetUserByID(ctx, token, r.srvCfg.KCRealm, u.String()))
 	r.redisClient.Del(ctx, constant.UserListCacheKey)
@@ -165,9 +165,9 @@ func (r *RepositoryImpl) Update(
 ) error {
 	token, err := r.tokenManager.GetClientToken(ctx)
 	if err != nil {
-		return errors.ToDomainErrorFromGoCloak(err)
+		return mapper.ToDomainErrorFromGoCloak(err)
 	}
-	err = errors.ToDomainErrorFromGoCloak(
+	err = mapper.ToDomainErrorFromGoCloak(
 		r.keycloakClient.UpdateUser(
 			ctx,
 			token,
@@ -188,9 +188,9 @@ func (r *RepositoryImpl) Update(
 func (r *RepositoryImpl) Delete(ctx context.Context, id string) error {
 	token, err := r.tokenManager.GetClientToken(ctx)
 	if err != nil {
-		return errors.ToDomainErrorFromGoCloak(err)
+		return mapper.ToDomainErrorFromGoCloak(err)
 	}
-	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.DeleteUser(ctx, token, r.srvCfg.KCRealm, id))
+	err = mapper.ToDomainErrorFromGoCloak(r.keycloakClient.DeleteUser(ctx, token, r.srvCfg.KCRealm, id))
 	if err != nil {
 		return err
 	}

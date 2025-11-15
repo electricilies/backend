@@ -24,13 +24,6 @@ type VariantOptionValueModel struct {
 	Value *string
 }
 
-type VariantImageModel struct {
-	ID        *int
-	URL       *string
-	Order     *int
-	CreatedAt *time.Time
-}
-
 type VariantModel struct {
 	ID            *int
 	SKU           *string
@@ -39,8 +32,8 @@ type VariantModel struct {
 	PurchaseCount *int
 	CreatedAt     *time.Time
 	DeletedAt     *time.Time
+	UpdatedAt     *time.Time
 	OptionValue   *[]VariantOptionValueModel
-	Images        *[]VariantImageModel
 }
 
 type ImageModel struct {
@@ -57,11 +50,12 @@ type Model struct {
 	Description     *string
 	ViewsCount      *int
 	TotalPurchase   *int
-	TrendingScore   *int64
-	Rating          *float64
+	TrendingScore   *float32
+	Rating          *float32
 	Price           *int64
 	CreatedAt       *time.Time
 	UpdatedAt       *time.Time
+	DeletedAt       *time.Time
 	Category        *category.Model
 	AttributeValues *[]attribute.ValueModel
 	Variants        *[]VariantModel
@@ -78,7 +72,9 @@ type QueryParams struct {
 	Search           *string
 	MinPrice         *int64
 	MaxPrice         *int64
+	IDs              *[]int
 	CategoryIDs      *[]int
+	Rating           *float32
 	Deleted          *param.Deleted
 	SortPrice        *param.SortPrice
 	SortRating       *param.SortRating

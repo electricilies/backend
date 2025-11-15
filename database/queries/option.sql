@@ -1,9 +1,11 @@
 -- name: CreateOption :one
 INSERT INTO options (
-  name
+  name,
+  product_id
 )
 VALUES (
-  @name
+   @name,
+   @product_id
 )
 RETURNING
   *;

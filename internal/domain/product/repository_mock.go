@@ -38,20 +38,31 @@ func (_m *MockRepository) EXPECT() *MockRepository_Expecter {
 }
 
 // AddImages provides a mock function for the type MockRepository
-func (_mock *MockRepository) AddImages(context1 context.Context, imageModels []*ImageModel, n int) error {
+func (_mock *MockRepository) AddImages(context1 context.Context, imageModels *[]ImageModel, n int) (*[]ImageModel, error) {
 	ret := _mock.Called(context1, imageModels, n)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AddImages")
 	}
 
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, []*ImageModel, int) error); ok {
+	var r0 *[]ImageModel
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]ImageModel, int) (*[]ImageModel, error)); ok {
+		return returnFunc(context1, imageModels, n)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]ImageModel, int) *[]ImageModel); ok {
 		r0 = returnFunc(context1, imageModels, n)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*[]ImageModel)
+		}
 	}
-	return r0
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]ImageModel, int) error); ok {
+		r1 = returnFunc(context1, imageModels, n)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // MockRepository_AddImages_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddImages'
@@ -61,21 +72,21 @@ type MockRepository_AddImages_Call struct {
 
 // AddImages is a helper method to define mock.On call
 //   - context1 context.Context
-//   - imageModels []*ImageModel
+//   - imageModels *[]ImageModel
 //   - n int
 func (_e *MockRepository_Expecter) AddImages(context1 interface{}, imageModels interface{}, n interface{}) *MockRepository_AddImages_Call {
 	return &MockRepository_AddImages_Call{Call: _e.mock.On("AddImages", context1, imageModels, n)}
 }
 
-func (_c *MockRepository_AddImages_Call) Run(run func(context1 context.Context, imageModels []*ImageModel, n int)) *MockRepository_AddImages_Call {
+func (_c *MockRepository_AddImages_Call) Run(run func(context1 context.Context, imageModels *[]ImageModel, n int)) *MockRepository_AddImages_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 []*ImageModel
+		var arg1 *[]ImageModel
 		if args[1] != nil {
-			arg1 = args[1].([]*ImageModel)
+			arg1 = args[1].(*[]ImageModel)
 		}
 		var arg2 int
 		if args[2] != nil {
@@ -90,12 +101,12 @@ func (_c *MockRepository_AddImages_Call) Run(run func(context1 context.Context, 
 	return _c
 }
 
-func (_c *MockRepository_AddImages_Call) Return(err error) *MockRepository_AddImages_Call {
-	_c.Call.Return(err)
+func (_c *MockRepository_AddImages_Call) Return(imageModels1 *[]ImageModel, err error) *MockRepository_AddImages_Call {
+	_c.Call.Return(imageModels1, err)
 	return _c
 }
 
-func (_c *MockRepository_AddImages_Call) RunAndReturn(run func(context1 context.Context, imageModels []*ImageModel, n int) error) *MockRepository_AddImages_Call {
+func (_c *MockRepository_AddImages_Call) RunAndReturn(run func(context1 context.Context, imageModels *[]ImageModel, n int) (*[]ImageModel, error)) *MockRepository_AddImages_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -174,56 +185,56 @@ func (_c *MockRepository_AddOption_Call) RunAndReturn(run func(context1 context.
 	return _c
 }
 
-// AddVariant provides a mock function for the type MockRepository
-func (_mock *MockRepository) AddVariant(context1 context.Context, variantModel *VariantModel, n int) (*VariantModel, error) {
-	ret := _mock.Called(context1, variantModel, n)
+// AddVariants provides a mock function for the type MockRepository
+func (_mock *MockRepository) AddVariants(context1 context.Context, variantModels *[]VariantModel, n int) (*[]VariantModel, error) {
+	ret := _mock.Called(context1, variantModels, n)
 
 	if len(ret) == 0 {
-		panic("no return value specified for AddVariant")
+		panic("no return value specified for AddVariants")
 	}
 
-	var r0 *VariantModel
+	var r0 *[]VariantModel
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *VariantModel, int) (*VariantModel, error)); ok {
-		return returnFunc(context1, variantModel, n)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]VariantModel, int) (*[]VariantModel, error)); ok {
+		return returnFunc(context1, variantModels, n)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *VariantModel, int) *VariantModel); ok {
-		r0 = returnFunc(context1, variantModel, n)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]VariantModel, int) *[]VariantModel); ok {
+		r0 = returnFunc(context1, variantModels, n)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*VariantModel)
+			r0 = ret.Get(0).(*[]VariantModel)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *VariantModel, int) error); ok {
-		r1 = returnFunc(context1, variantModel, n)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]VariantModel, int) error); ok {
+		r1 = returnFunc(context1, variantModels, n)
 	} else {
 		r1 = ret.Error(1)
 	}
 	return r0, r1
 }
 
-// MockRepository_AddVariant_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddVariant'
-type MockRepository_AddVariant_Call struct {
+// MockRepository_AddVariants_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddVariants'
+type MockRepository_AddVariants_Call struct {
 	*mock.Call
 }
 
-// AddVariant is a helper method to define mock.On call
+// AddVariants is a helper method to define mock.On call
 //   - context1 context.Context
-//   - variantModel *VariantModel
+//   - variantModels *[]VariantModel
 //   - n int
-func (_e *MockRepository_Expecter) AddVariant(context1 interface{}, variantModel interface{}, n interface{}) *MockRepository_AddVariant_Call {
-	return &MockRepository_AddVariant_Call{Call: _e.mock.On("AddVariant", context1, variantModel, n)}
+func (_e *MockRepository_Expecter) AddVariants(context1 interface{}, variantModels interface{}, n interface{}) *MockRepository_AddVariants_Call {
+	return &MockRepository_AddVariants_Call{Call: _e.mock.On("AddVariants", context1, variantModels, n)}
 }
 
-func (_c *MockRepository_AddVariant_Call) Run(run func(context1 context.Context, variantModel *VariantModel, n int)) *MockRepository_AddVariant_Call {
+func (_c *MockRepository_AddVariants_Call) Run(run func(context1 context.Context, variantModels *[]VariantModel, n int)) *MockRepository_AddVariants_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *VariantModel
+		var arg1 *[]VariantModel
 		if args[1] != nil {
-			arg1 = args[1].(*VariantModel)
+			arg1 = args[1].(*[]VariantModel)
 		}
 		var arg2 int
 		if args[2] != nil {
@@ -238,12 +249,12 @@ func (_c *MockRepository_AddVariant_Call) Run(run func(context1 context.Context,
 	return _c
 }
 
-func (_c *MockRepository_AddVariant_Call) Return(variantModel1 *VariantModel, err error) *MockRepository_AddVariant_Call {
-	_c.Call.Return(variantModel1, err)
+func (_c *MockRepository_AddVariants_Call) Return(variantModels1 *[]VariantModel, err error) *MockRepository_AddVariants_Call {
+	_c.Call.Return(variantModels1, err)
 	return _c
 }
 
-func (_c *MockRepository_AddVariant_Call) RunAndReturn(run func(context1 context.Context, variantModel *VariantModel, n int) (*VariantModel, error)) *MockRepository_AddVariant_Call {
+func (_c *MockRepository_AddVariants_Call) RunAndReturn(run func(context1 context.Context, variantModels *[]VariantModel, n int) (*[]VariantModel, error)) *MockRepository_AddVariants_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -316,44 +327,44 @@ func (_c *MockRepository_Create_Call) RunAndReturn(run func(context1 context.Con
 	return _c
 }
 
-// Delete provides a mock function for the type MockRepository
-func (_mock *MockRepository) Delete(context1 context.Context, n int) error {
-	ret := _mock.Called(context1, n)
+// Deletes provides a mock function for the type MockRepository
+func (_mock *MockRepository) Deletes(context1 context.Context, ints []int) error {
+	ret := _mock.Called(context1, ints)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Delete")
+		panic("no return value specified for Deletes")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) error); ok {
-		r0 = returnFunc(context1, n)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []int) error); ok {
+		r0 = returnFunc(context1, ints)
 	} else {
 		r0 = ret.Error(0)
 	}
 	return r0
 }
 
-// MockRepository_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
-type MockRepository_Delete_Call struct {
+// MockRepository_Deletes_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Deletes'
+type MockRepository_Deletes_Call struct {
 	*mock.Call
 }
 
-// Delete is a helper method to define mock.On call
+// Deletes is a helper method to define mock.On call
 //   - context1 context.Context
-//   - n int
-func (_e *MockRepository_Expecter) Delete(context1 interface{}, n interface{}) *MockRepository_Delete_Call {
-	return &MockRepository_Delete_Call{Call: _e.mock.On("Delete", context1, n)}
+//   - ints []int
+func (_e *MockRepository_Expecter) Deletes(context1 interface{}, ints interface{}) *MockRepository_Deletes_Call {
+	return &MockRepository_Deletes_Call{Call: _e.mock.On("Deletes", context1, ints)}
 }
 
-func (_c *MockRepository_Delete_Call) Run(run func(context1 context.Context, n int)) *MockRepository_Delete_Call {
+func (_c *MockRepository_Deletes_Call) Run(run func(context1 context.Context, ints []int)) *MockRepository_Deletes_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 int
+		var arg1 []int
 		if args[1] != nil {
-			arg1 = args[1].(int)
+			arg1 = args[1].([]int)
 		}
 		run(
 			arg0,
@@ -363,12 +374,12 @@ func (_c *MockRepository_Delete_Call) Run(run func(context1 context.Context, n i
 	return _c
 }
 
-func (_c *MockRepository_Delete_Call) Return(err error) *MockRepository_Delete_Call {
+func (_c *MockRepository_Deletes_Call) Return(err error) *MockRepository_Deletes_Call {
 	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockRepository_Delete_Call) RunAndReturn(run func(context1 context.Context, n int) error) *MockRepository_Delete_Call {
+func (_c *MockRepository_Deletes_Call) RunAndReturn(run func(context1 context.Context, ints []int) error) *MockRepository_Deletes_Call {
 	_c.Call.Return(run)
 	return _c
 }

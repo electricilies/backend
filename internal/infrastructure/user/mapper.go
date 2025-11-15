@@ -28,22 +28,22 @@ func ToDomain(u *gocloak.User) *user.Model {
 	}
 }
 
-func ToCreateUserParams(u *user.Model) postgres.CreateUserParams {
+func ToCreateUserParams(model *user.Model) postgres.CreateUserParams {
 	return postgres.CreateUserParams{
-		ID: *u.ID,
+		ID: *model.ID,
 	}
 }
 
-func ToUpdateUserParams(u *user.Model, id *uuid.UUID) *gocloak.User {
+func ToUpdateUserParams(model *user.Model, id *uuid.UUID) *gocloak.User {
 	idString := id.String()
 	attributes := make(map[string][]string)
-	attributes["email"] = []string{*u.Email}
-	attributes["phone_numer"] = []string{*u.PhoneNumber}
-	attributes["address"] = []string{*u.Address}
+	attributes["email"] = []string{*model.Email}
+	attributes["phone_numer"] = []string{*model.PhoneNumber}
+	attributes["address"] = []string{*model.Address}
 	return &gocloak.User{
 		ID:         &idString,
-		FirstName:  u.FirstName,
-		LastName:   u.LastName,
+		FirstName:  model.FirstName,
+		LastName:   model.LastName,
 		Attributes: &attributes,
 	}
 }

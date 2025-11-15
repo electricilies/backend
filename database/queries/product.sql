@@ -254,3 +254,11 @@ DELETE FROM
   product_images
 WHERE
   id = ANY (@ids::integer[]);
+
+-- name: GetProductImage :one
+SELECT
+  *
+FROM
+  product_images
+WHERE
+  id = @id;

@@ -7,6 +7,10 @@ const (
 	UserListCacheKey = "user:list"
 	UserCacheTTL     = 5 * time.Minute
 	UserListCacheTTL = 2 * time.Minute
+
+	ProductListCachePrefix = "product:list"
+	ProductCachePrefix     = "product:"
+	ProductCacheTTL        = 5 * time.Minute
 )
 
 const (

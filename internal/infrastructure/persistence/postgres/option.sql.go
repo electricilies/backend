@@ -13,21 +13,24 @@ import (
 
 const createOption = `-- name: CreateOption :one
 INSERT INTO options (
-  name
+  name,
+  product_id
 )
 VALUES (
-  $1
+   $1,
+   $2
 )
 RETURNING
   id, name, product_id, deleted_at
 `
 
 type CreateOptionParams struct {
-	Name string
+	Name      string
+	ProductID int32
 }
 
 func (q *Queries) CreateOption(ctx context.Context, arg CreateOptionParams) (Option, error) {
-	row := q.db.QueryRow(ctx, createOption, arg.Name)
+	row := q.db.QueryRow(ctx, createOption, arg.Name, arg.ProductID)
 	var i Option
 	err := row.Scan(
 		&i.ID,
