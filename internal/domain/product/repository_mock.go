@@ -37,6 +37,217 @@ func (_m *MockRepository) EXPECT() *MockRepository_Expecter {
 	return &MockRepository_Expecter{mock: &_m.Mock}
 }
 
+// AddImages provides a mock function for the type MockRepository
+func (_mock *MockRepository) AddImages(ctx context.Context, images []*ImageModel, id int) error {
+	ret := _mock.Called(ctx, images, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddImages")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []*ImageModel, int) error); ok {
+		r0 = returnFunc(ctx, images, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockRepository_AddImages_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddImages'
+type MockRepository_AddImages_Call struct {
+	*mock.Call
+}
+
+// AddImages is a helper method to define mock.On call
+//   - ctx context.Context
+//   - images []*ImageModel
+//   - id int
+func (_e *MockRepository_Expecter) AddImages(ctx interface{}, images interface{}, id interface{}) *MockRepository_AddImages_Call {
+	return &MockRepository_AddImages_Call{Call: _e.mock.On("AddImages", ctx, images, id)}
+}
+
+func (_c *MockRepository_AddImages_Call) Run(run func(ctx context.Context, images []*ImageModel, id int)) *MockRepository_AddImages_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []*ImageModel
+		if args[1] != nil {
+			arg1 = args[1].([]*ImageModel)
+		}
+		var arg2 int
+		if args[2] != nil {
+			arg2 = args[2].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_AddImages_Call) Return(err error) *MockRepository_AddImages_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockRepository_AddImages_Call) RunAndReturn(run func(ctx context.Context, images []*ImageModel, id int) error) *MockRepository_AddImages_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// AddOption provides a mock function for the type MockRepository
+func (_mock *MockRepository) AddOption(ctx context.Context, option *OptionModel, id int) (*OptionModel, error) {
+	ret := _mock.Called(ctx, option, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddOption")
+	}
+
+	var r0 *OptionModel
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *OptionModel, int) (*OptionModel, error)); ok {
+		return returnFunc(ctx, option, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *OptionModel, int) *OptionModel); ok {
+		r0 = returnFunc(ctx, option, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*OptionModel)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *OptionModel, int) error); ok {
+		r1 = returnFunc(ctx, option, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_AddOption_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddOption'
+type MockRepository_AddOption_Call struct {
+	*mock.Call
+}
+
+// AddOption is a helper method to define mock.On call
+//   - ctx context.Context
+//   - option *OptionModel
+//   - id int
+func (_e *MockRepository_Expecter) AddOption(ctx interface{}, option interface{}, id interface{}) *MockRepository_AddOption_Call {
+	return &MockRepository_AddOption_Call{Call: _e.mock.On("AddOption", ctx, option, id)}
+}
+
+func (_c *MockRepository_AddOption_Call) Run(run func(ctx context.Context, option *OptionModel, id int)) *MockRepository_AddOption_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *OptionModel
+		if args[1] != nil {
+			arg1 = args[1].(*OptionModel)
+		}
+		var arg2 int
+		if args[2] != nil {
+			arg2 = args[2].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_AddOption_Call) Return(optionModel *OptionModel, err error) *MockRepository_AddOption_Call {
+	_c.Call.Return(optionModel, err)
+	return _c
+}
+
+func (_c *MockRepository_AddOption_Call) RunAndReturn(run func(ctx context.Context, option *OptionModel, id int) (*OptionModel, error)) *MockRepository_AddOption_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// AddVariant provides a mock function for the type MockRepository
+func (_mock *MockRepository) AddVariant(ctx context.Context, variant *VariantModel, id int) (*VariantModel, error) {
+	ret := _mock.Called(ctx, variant, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddVariant")
+	}
+
+	var r0 *VariantModel
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *VariantModel, int) (*VariantModel, error)); ok {
+		return returnFunc(ctx, variant, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *VariantModel, int) *VariantModel); ok {
+		r0 = returnFunc(ctx, variant, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*VariantModel)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *VariantModel, int) error); ok {
+		r1 = returnFunc(ctx, variant, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_AddVariant_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddVariant'
+type MockRepository_AddVariant_Call struct {
+	*mock.Call
+}
+
+// AddVariant is a helper method to define mock.On call
+//   - ctx context.Context
+//   - variant *VariantModel
+//   - id int
+func (_e *MockRepository_Expecter) AddVariant(ctx interface{}, variant interface{}, id interface{}) *MockRepository_AddVariant_Call {
+	return &MockRepository_AddVariant_Call{Call: _e.mock.On("AddVariant", ctx, variant, id)}
+}
+
+func (_c *MockRepository_AddVariant_Call) Run(run func(ctx context.Context, variant *VariantModel, id int)) *MockRepository_AddVariant_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *VariantModel
+		if args[1] != nil {
+			arg1 = args[1].(*VariantModel)
+		}
+		var arg2 int
+		if args[2] != nil {
+			arg2 = args[2].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_AddVariant_Call) Return(variantModel *VariantModel, err error) *MockRepository_AddVariant_Call {
+	_c.Call.Return(variantModel, err)
+	return _c
+}
+
+func (_c *MockRepository_AddVariant_Call) RunAndReturn(run func(ctx context.Context, variant *VariantModel, id int) (*VariantModel, error)) *MockRepository_AddVariant_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Create provides a mock function for the type MockRepository
 func (_mock *MockRepository) Create(ctx context.Context, product *Model) (*Model, error) {
 	ret := _mock.Called(ctx, product)
@@ -101,74 +312,6 @@ func (_c *MockRepository_Create_Call) Return(model *Model, err error) *MockRepos
 }
 
 func (_c *MockRepository_Create_Call) RunAndReturn(run func(ctx context.Context, product *Model) (*Model, error)) *MockRepository_Create_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// CreateOption provides a mock function for the type MockRepository
-func (_mock *MockRepository) CreateOption(ctx context.Context, option *Option) (*Option, error) {
-	ret := _mock.Called(ctx, option)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateOption")
-	}
-
-	var r0 *Option
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *Option) (*Option, error)); ok {
-		return returnFunc(ctx, option)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *Option) *Option); ok {
-		r0 = returnFunc(ctx, option)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Option)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *Option) error); ok {
-		r1 = returnFunc(ctx, option)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockRepository_CreateOption_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateOption'
-type MockRepository_CreateOption_Call struct {
-	*mock.Call
-}
-
-// CreateOption is a helper method to define mock.On call
-//   - ctx context.Context
-//   - option *Option
-func (_e *MockRepository_Expecter) CreateOption(ctx interface{}, option interface{}) *MockRepository_CreateOption_Call {
-	return &MockRepository_CreateOption_Call{Call: _e.mock.On("CreateOption", ctx, option)}
-}
-
-func (_c *MockRepository_CreateOption_Call) Run(run func(ctx context.Context, option *Option)) *MockRepository_CreateOption_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 *Option
-		if args[1] != nil {
-			arg1 = args[1].(*Option)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *MockRepository_CreateOption_Call) Return(option1 *Option, err error) *MockRepository_CreateOption_Call {
-	_c.Call.Return(option1, err)
-	return _c
-}
-
-func (_c *MockRepository_CreateOption_Call) RunAndReturn(run func(ctx context.Context, option *Option) (*Option, error)) *MockRepository_CreateOption_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -553,6 +696,154 @@ func (_c *MockRepository_Update_Call) Return(model *Model, err error) *MockRepos
 }
 
 func (_c *MockRepository_Update_Call) RunAndReturn(run func(ctx context.Context, product *Model, id int) (*Model, error)) *MockRepository_Update_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateOption provides a mock function for the type MockRepository
+func (_mock *MockRepository) UpdateOption(ctx context.Context, option *OptionModel, optionId int) (*OptionModel, error) {
+	ret := _mock.Called(ctx, option, optionId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateOption")
+	}
+
+	var r0 *OptionModel
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *OptionModel, int) (*OptionModel, error)); ok {
+		return returnFunc(ctx, option, optionId)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *OptionModel, int) *OptionModel); ok {
+		r0 = returnFunc(ctx, option, optionId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*OptionModel)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *OptionModel, int) error); ok {
+		r1 = returnFunc(ctx, option, optionId)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_UpdateOption_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateOption'
+type MockRepository_UpdateOption_Call struct {
+	*mock.Call
+}
+
+// UpdateOption is a helper method to define mock.On call
+//   - ctx context.Context
+//   - option *OptionModel
+//   - optionId int
+func (_e *MockRepository_Expecter) UpdateOption(ctx interface{}, option interface{}, optionId interface{}) *MockRepository_UpdateOption_Call {
+	return &MockRepository_UpdateOption_Call{Call: _e.mock.On("UpdateOption", ctx, option, optionId)}
+}
+
+func (_c *MockRepository_UpdateOption_Call) Run(run func(ctx context.Context, option *OptionModel, optionId int)) *MockRepository_UpdateOption_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *OptionModel
+		if args[1] != nil {
+			arg1 = args[1].(*OptionModel)
+		}
+		var arg2 int
+		if args[2] != nil {
+			arg2 = args[2].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_UpdateOption_Call) Return(optionModel *OptionModel, err error) *MockRepository_UpdateOption_Call {
+	_c.Call.Return(optionModel, err)
+	return _c
+}
+
+func (_c *MockRepository_UpdateOption_Call) RunAndReturn(run func(ctx context.Context, option *OptionModel, optionId int) (*OptionModel, error)) *MockRepository_UpdateOption_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateVariant provides a mock function for the type MockRepository
+func (_mock *MockRepository) UpdateVariant(ctx context.Context, variant *VariantModel, variantId int) (*VariantModel, error) {
+	ret := _mock.Called(ctx, variant, variantId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateVariant")
+	}
+
+	var r0 *VariantModel
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *VariantModel, int) (*VariantModel, error)); ok {
+		return returnFunc(ctx, variant, variantId)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *VariantModel, int) *VariantModel); ok {
+		r0 = returnFunc(ctx, variant, variantId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*VariantModel)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *VariantModel, int) error); ok {
+		r1 = returnFunc(ctx, variant, variantId)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_UpdateVariant_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateVariant'
+type MockRepository_UpdateVariant_Call struct {
+	*mock.Call
+}
+
+// UpdateVariant is a helper method to define mock.On call
+//   - ctx context.Context
+//   - variant *VariantModel
+//   - variantId int
+func (_e *MockRepository_Expecter) UpdateVariant(ctx interface{}, variant interface{}, variantId interface{}) *MockRepository_UpdateVariant_Call {
+	return &MockRepository_UpdateVariant_Call{Call: _e.mock.On("UpdateVariant", ctx, variant, variantId)}
+}
+
+func (_c *MockRepository_UpdateVariant_Call) Run(run func(ctx context.Context, variant *VariantModel, variantId int)) *MockRepository_UpdateVariant_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *VariantModel
+		if args[1] != nil {
+			arg1 = args[1].(*VariantModel)
+		}
+		var arg2 int
+		if args[2] != nil {
+			arg2 = args[2].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_UpdateVariant_Call) Return(variantModel *VariantModel, err error) *MockRepository_UpdateVariant_Call {
+	_c.Call.Return(variantModel, err)
+	return _c
+}
+
+func (_c *MockRepository_UpdateVariant_Call) RunAndReturn(run func(ctx context.Context, variant *VariantModel, variantId int) (*VariantModel, error)) *MockRepository_UpdateVariant_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -5,6 +5,7 @@
 package user
 
 import (
+	"backend/internal/domain/cart"
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
@@ -226,6 +227,74 @@ func (_c *MockRepository_Get_Call) Return(model *Model, err error) *MockReposito
 }
 
 func (_c *MockRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id string) (*Model, error)) *MockRepository_Get_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetCart provides a mock function for the type MockRepository
+func (_mock *MockRepository) GetCart(ctx context.Context, id string) (*cart.Model, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCart")
+	}
+
+	var r0 *cart.Model
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*cart.Model, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *cart.Model); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*cart.Model)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRepository_GetCart_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCart'
+type MockRepository_GetCart_Call struct {
+	*mock.Call
+}
+
+// GetCart is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+func (_e *MockRepository_Expecter) GetCart(ctx interface{}, id interface{}) *MockRepository_GetCart_Call {
+	return &MockRepository_GetCart_Call{Call: _e.mock.On("GetCart", ctx, id)}
+}
+
+func (_c *MockRepository_GetCart_Call) Run(run func(ctx context.Context, id string)) *MockRepository_GetCart_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRepository_GetCart_Call) Return(model *cart.Model, err error) *MockRepository_GetCart_Call {
+	_c.Call.Return(model, err)
+	return _c
+}
+
+func (_c *MockRepository_GetCart_Call) RunAndReturn(run func(ctx context.Context, id string) (*cart.Model, error)) *MockRepository_GetCart_Call {
 	_c.Call.Return(run)
 	return _c
 }

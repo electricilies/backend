@@ -105,56 +105,56 @@ func (_c *MockRepository_AddItem_Call) RunAndReturn(run func(ctx context.Context
 	return _c
 }
 
-// GetCartByUser provides a mock function for the type MockRepository
-func (_mock *MockRepository) GetCartByUser(ctx context.Context, userID string, queryParams *QueryParams) (*Model, error) {
-	ret := _mock.Called(ctx, userID, queryParams)
+// Get provides a mock function for the type MockRepository
+func (_mock *MockRepository) Get(ctx context.Context, id int, queryParams *QueryParams) (*Model, error) {
+	ret := _mock.Called(ctx, id, queryParams)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetCartByUser")
+		panic("no return value specified for Get")
 	}
 
 	var r0 *Model
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, *QueryParams) (*Model, error)); ok {
-		return returnFunc(ctx, userID, queryParams)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int, *QueryParams) (*Model, error)); ok {
+		return returnFunc(ctx, id, queryParams)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, *QueryParams) *Model); ok {
-		r0 = returnFunc(ctx, userID, queryParams)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int, *QueryParams) *Model); ok {
+		r0 = returnFunc(ctx, id, queryParams)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Model)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string, *QueryParams) error); ok {
-		r1 = returnFunc(ctx, userID, queryParams)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int, *QueryParams) error); ok {
+		r1 = returnFunc(ctx, id, queryParams)
 	} else {
 		r1 = ret.Error(1)
 	}
 	return r0, r1
 }
 
-// MockRepository_GetCartByUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCartByUser'
-type MockRepository_GetCartByUser_Call struct {
+// MockRepository_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type MockRepository_Get_Call struct {
 	*mock.Call
 }
 
-// GetCartByUser is a helper method to define mock.On call
+// Get is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userID string
+//   - id int
 //   - queryParams *QueryParams
-func (_e *MockRepository_Expecter) GetCartByUser(ctx interface{}, userID interface{}, queryParams interface{}) *MockRepository_GetCartByUser_Call {
-	return &MockRepository_GetCartByUser_Call{Call: _e.mock.On("GetCartByUser", ctx, userID, queryParams)}
+func (_e *MockRepository_Expecter) Get(ctx interface{}, id interface{}, queryParams interface{}) *MockRepository_Get_Call {
+	return &MockRepository_Get_Call{Call: _e.mock.On("Get", ctx, id, queryParams)}
 }
 
-func (_c *MockRepository_GetCartByUser_Call) Run(run func(ctx context.Context, userID string, queryParams *QueryParams)) *MockRepository_GetCartByUser_Call {
+func (_c *MockRepository_Get_Call) Run(run func(ctx context.Context, id int, queryParams *QueryParams)) *MockRepository_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 string
+		var arg1 int
 		if args[1] != nil {
-			arg1 = args[1].(string)
+			arg1 = args[1].(int)
 		}
 		var arg2 *QueryParams
 		if args[2] != nil {
@@ -169,12 +169,12 @@ func (_c *MockRepository_GetCartByUser_Call) Run(run func(ctx context.Context, u
 	return _c
 }
 
-func (_c *MockRepository_GetCartByUser_Call) Return(model *Model, err error) *MockRepository_GetCartByUser_Call {
+func (_c *MockRepository_Get_Call) Return(model *Model, err error) *MockRepository_Get_Call {
 	_c.Call.Return(model, err)
 	return _c
 }
 
-func (_c *MockRepository_GetCartByUser_Call) RunAndReturn(run func(ctx context.Context, userID string, queryParams *QueryParams) (*Model, error)) *MockRepository_GetCartByUser_Call {
+func (_c *MockRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id int, queryParams *QueryParams) (*Model, error)) *MockRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }

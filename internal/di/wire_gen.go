@@ -10,8 +10,6 @@ import (
 	"backend/config"
 	"backend/internal/application"
 	"backend/internal/client"
-	"backend/internal/di/db"
-	"backend/internal/di/ginengine"
 	user2 "backend/internal/domain/user"
 	"backend/internal/helper"
 	"backend/internal/infrastructure/attribute"
@@ -32,10 +30,10 @@ import (
 // Injectors from wire.go:
 
 func InitializeServer(ctx context.Context) *server.Server {
-	engine := ginengine.New()
+	engine := client.NewGin()
 	configConfig := config.New()
-	pool := db.NewConnection(ctx, configConfig)
-	queries := db.New(pool)
+	pool := client.NewDBConnection(ctx, configConfig)
+	queries := client.NewDBQueries(pool)
 	s3Client := client.NewS3(ctx, configConfig)
 	redisClient := client.NewRedis(ctx, configConfig)
 	goCloak := client.NewKeycloak(ctx, configConfig)
@@ -43,7 +41,7 @@ func InitializeServer(ctx context.Context) *server.Server {
 	loggerConfig := logger.NewConfig(configConfig)
 	zapLogger := logger.New(loggerConfig)
 	repository := user.NewRepository(queries, s3Client, redisClient, goCloak, tokenManager, configConfig, zapLogger)
-	transactor := db.NewTransactor(pool)
+	transactor := client.NewDBTransactor(pool)
 	service := user2.NewService(repository, transactor)
 	applicationUser := application.NewUser(repository, service)
 	handlerUser := handler.NewUser(applicationUser)
@@ -81,9 +79,9 @@ var ConfigSet = wire.NewSet(config.New, logger.NewConfig)
 
 var LoggerSet = wire.NewSet(logger.New)
 
-var DbSet = wire.NewSet(db.NewConnection, db.New, db.NewTransactor)
+var DbSet = wire.NewSet(client.NewDBConnection, client.NewDBQueries, client.NewDBTransactor)
 
-var EngineSet = wire.NewSet(ginengine.New)
+var EngineSet = wire.NewSet(client.NewGin)
 
 var RepositorySet = wire.NewSet(user.NewRepository, product.NewRepository, attribute.NewRepository, review.NewRepository, cart.NewRepository, category.NewRepository)
 

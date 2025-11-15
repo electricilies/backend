@@ -112,7 +112,9 @@ func (r *repositoryImpl) List(ctx context.Context, queryParams *product.QueryPar
 	return result, nil
 }
 
-func (r *repositoryImpl) Create(ctx context.Context, product *product.Model) (*product.Model, error)
+func (r *repositoryImpl) Create(ctx context.Context, product *product.Model) (*product.Model, error) {
+	return &product.Model{}, nil
+}
 func (r *repositoryImpl) Update(ctx context.Context, product *product.Model, id int) (*product.Model, error)
 func (r *repositoryImpl) Delete(ctx context.Context, id int) error
 func (r *repositoryImpl) AddOption(ctx context.Context, option *product.OptionModel, id int) (*product.OptionModel, error)

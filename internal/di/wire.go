@@ -9,8 +9,6 @@ import (
 	"backend/config"
 	app "backend/internal/application"
 	"backend/internal/client"
-	"backend/internal/di/db"
-	"backend/internal/di/ginengine"
 	userservice "backend/internal/domain/user"
 	"backend/internal/helper"
 	attributerepo "backend/internal/infrastructure/attribute"
@@ -38,13 +36,13 @@ var LoggerSet = wire.NewSet(
 )
 
 var DbSet = wire.NewSet(
-	db.NewConnection,
-	db.New,
-	db.NewTransactor,
+	client.NewDBConnection,
+	client.NewDBQueries,
+	client.NewDBTransactor,
 )
 
 var EngineSet = wire.NewSet(
-	ginengine.New,
+	client.NewGin,
 )
 
 var RepositorySet = wire.NewSet(
@@ -102,6 +100,20 @@ var ClientSet = wire.NewSet(
 )
 
 func InitializeServer(ctx context.Context) *server.Server {
-	wire.Build(ConfigSet, LoggerSet, DbSet, EngineSet, RepositorySet, ServiceSet, AppSet, MiddlewareSet, HandlerSet, RouterSet, ClientSet, helper.NewTokenManager, server.New)
+	wire.Build(
+		AppSet,
+		ClientSet,
+		ConfigSet,
+		DbSet,
+		EngineSet,
+		HandlerSet,
+		LoggerSet,
+		MiddlewareSet,
+		RepositorySet,
+		RouterSet,
+		ServiceSet,
+		helper.NewTokenManager,
+		server.New,
+	)
 	return nil
 }

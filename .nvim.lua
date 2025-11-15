@@ -31,6 +31,7 @@ map("n", "<localleader>lb", function()
     "none",
     "integration",
     "wireinject",
+    "integration,wireinject",
   }, {
     prompt = "Select gopls build tag",
   }, function(tag)

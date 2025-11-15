@@ -11,7 +11,6 @@ import (
 	"backend/config"
 	"backend/internal/application"
 	"backend/internal/client"
-	"backend/internal/di/db"
 	domainproduct "backend/internal/domain/product"
 	"backend/internal/infrastructure/persistence/postgres"
 	infraproduct "backend/internal/infrastructure/product"
@@ -78,9 +77,9 @@ func (s *ProductTestSuite) SetupSuite() {
 
 	s.config = s.newConfig(ctx, containersConfig)
 
-	dbPool := db.NewConnection(ctx, s.config)
+	dbPool := client.NewDBConnection(ctx, s.config)
 	s.Require().NotNil(dbPool, "db pool should not be nil")
-	s.queries = db.New(dbPool)
+	s.queries = client.NewDBQueries(dbPool)
 	s.s3Client = client.NewS3(ctx, s.config)
 	s.Require().NotNil(s.s3Client, "s3 client should not be nil")
 	s.s3PresignClient = client.NewS3Presign(s.s3Client)

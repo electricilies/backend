@@ -1,7 +1,7 @@
-package ginengine
+package client
 
 import "github.com/gin-gonic/gin"
 
-func New() *gin.Engine {
+func NewGin() *gin.Engine {
 	return gin.New()
 }
