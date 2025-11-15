@@ -16,6 +16,7 @@ type User interface {
 	Create(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
+	GetCart(ctx *gin.Context)
 	GetReturnRequests(ctx *gin.Context)
 }
 
@@ -174,5 +175,21 @@ func (h *userHandler) Delete(ctx *gin.Context) {
 //	@Router			/users/{user_id}/returns [get]
 func (h *userHandler) GetReturnRequests(ctx *gin.Context) {
 	// TODO: implement getting return requests for a user
+	ctx.Status(http.StatusNoContent)
+}
+
+// GetCart godoc
+//
+//	@Summary		Get cart for a user
+//	@Description	Get cart for a user by user ID
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//	@Param			user_id	path		string	true	"User ID"
+//	@Success		200		{object}	response.Cart
+//	@Failure		400		{object}	response.BadRequestError
+//	@Failure		500		{object}	response.InternalServerError
+//	@Router			/users/{user_id}/cart [get]
+func (h *userHandler) GetCart(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

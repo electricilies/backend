@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 
+	"backend/internal/domain/cart"
 	"backend/internal/domain/user"
 )
 
@@ -12,6 +13,7 @@ type User interface {
 	Create(ctx context.Context, u *user.Model) (*user.Model, error)
 	Update(ctx context.Context, u *user.Model, queryParams *user.QueryParams) error
 	Delete(ctx context.Context, id string) error
+	GetCart(ctx context.Context, id string) (*cart.Model, error)
 }
 
 type userApp struct {
@@ -51,4 +53,8 @@ func (a *userApp) Update(
 
 func (a *userApp) Delete(ctx context.Context, id string) error {
 	return a.userRepo.Delete(ctx, id)
+}
+
+func (a *userApp) GetCart(ctx context.Context, id string) (*cart.Model, error) {
+	return a.userRepo.GetCart(ctx, id)
 }
