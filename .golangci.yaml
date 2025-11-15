@@ -2,11 +2,21 @@
 # yaml-language-server: $schema=https://golangci-lint.run/jsonschema/golangci.jsonschema.json
 version: "2"
 linters:
+  enable:
+    - lll
+    - testifylint
   exclusions:
     generated: strict
+    rules:
+      - linters:
+          - lll
+        path: ^(internal/interface/api/handler/|cmd/)\w*\.go$
   settings:
     testifylint:
       enable-all: true
+    lll:
+      tab-width: 8
+      line-length: 120
 formatters:
   enable:
     - gofumpt
