@@ -130,7 +130,7 @@ func (s *ProductTestSuite) TestGetProductImageUploadURL() {
 			}
 			log.Println("Generated upload URL:", result.URL)
 
-			s.NoError(err)
+			s.Require().NoError(err)
 			s.NotNil(result)
 			s.NotEmpty(result.URL, "URL should not be empty")
 			s.NotEmpty(result.Key, "Key should not be empty")
@@ -176,7 +176,7 @@ func (s *ProductTestSuite) TestGetProductImageDeleteURL() {
 				return
 			}
 
-			s.NoError(err)
+			s.Require().NoError(err)
 			s.NotEmpty(result, "Delete URL should not be empty")
 			s.Contains(result, minioConnStr, "Delete URL should contain MinIO connection string")
 			s.Contains(result, "test-empty-object", "Delete URL should contain the correct object key")
