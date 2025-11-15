@@ -10,16 +10,16 @@ type Repository interface {
 	// Create(ctx context.Context, user *User) (*User, error)
 	// Update(ctx context.Context, user *User) error
 	// Delete(ctx context.Context, id string) error
-	GetUploadImageURL(ctx context.Context) (*UploadImageURLModel, error)
-	GetDeleteImageURL(ctx context.Context, id int) (string, error)
-	MoveImage(ctx context.Context, key string) error
-	List(ctx context.Context, queryParams *QueryParams) (*PaginationModel, error)
-	Create(ctx context.Context, product *Model) (*Model, error)
-	Update(ctx context.Context, product *Model, id int) (*Model, error)
-	Delete(ctx context.Context, id int) error
-	AddOption(ctx context.Context, option  *OptionModel,id int) (*OptionModel, error)
-	UpdateOption(ctx context.Context, option  *OptionModel,optionId int) (*OptionModel, error)
-	AddVariant(ctx context.Context, variant  *VariantModel,id int) (*VariantModel, error)
-	UpdateVariant(ctx context.Context, variant  *VariantModel,variantId int) (*VariantModel, error)
-	AddImages(ctx context.Context, images  []*ImageModel,id int) error
+	GetUploadImageURL(context.Context) (*UploadImageURLModel, error)
+	GetDeleteImageURL(context.Context, int) (string, error)
+	MoveImage(context.Context, string) error
+	List(context.Context, *QueryParams) (*PaginationModel, error)
+	Create(context.Context, *Model) (*Model, error)
+	Update(context.Context, *Model, int) (*Model, error)
+	Delete(context.Context, int) error
+	AddOption(context.Context, *OptionModel, int) (*OptionModel, error)
+	UpdateOption(context.Context, *OptionModel, int) (*OptionModel, error)
+	AddVariant(context.Context, *VariantModel, int) (*VariantModel, error)
+	UpdateVariant(context.Context, *VariantModel, int) (*VariantModel, error)
+	AddImages(context.Context, []*ImageModel, int) error
 }

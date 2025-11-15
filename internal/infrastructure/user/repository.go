@@ -6,6 +6,7 @@ import (
 
 	"backend/config"
 	"backend/internal/constant"
+	"backend/internal/domain/cart"
 	"backend/internal/domain/user"
 	"backend/internal/helper"
 	"backend/internal/infrastructure/errors"
@@ -157,4 +158,8 @@ func (r *repositoryImpl) Delete(ctx context.Context, id string) error {
 	r.redisClient.Del(ctx, constant.UserListCacheKey)
 
 	return nil
+}
+
+func (r *repositoryImpl) GetCart(ctx context.Context, id string) (*cart.Model, error) {
+	return nil, nil
 }

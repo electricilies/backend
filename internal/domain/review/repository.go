@@ -3,9 +3,9 @@ package review
 import "context"
 
 type Repository interface {
-	ListByProduct(ctx context.Context, productID int, queryParams *QueryParams) (*Pagination, error)
-	Get(ctx context.Context, id int) (*Model, error)
-	Create(ctx context.Context, review *Model) (*Model, error)
-	Update(ctx context.Context, review *Model, id int) (*Model, error)
-	Delete(ctx context.Context, id int) error
+	ListByProduct(context.Context, int, *QueryParams) (*Pagination, error)
+	Get(context.Context, int) (*Model, error)
+	Create(context.Context, *Model) (*Model, error)
+	Update(context.Context, *Model, int) (*Model, error)
+	Delete(context.Context, int) error
 }

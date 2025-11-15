@@ -1,10 +1,11 @@
 package user
 
 import (
+	"time"
+
 	"backend/internal/constant"
 	"backend/internal/domain/user"
 	"backend/internal/infrastructure/persistence/postgres"
-	"time"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/google/uuid"

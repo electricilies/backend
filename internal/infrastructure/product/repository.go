@@ -65,7 +65,7 @@ func (r *repositoryImpl) GetUploadImageURL(ctx context.Context) (*product.Upload
 }
 
 // FIXME: param id? what id? product id? variant id?
-func (r *repositoryImpl) GetDeleteImageURL(ctx context.Context, id int) (string, error) {
+func (r *repositoryImpl) GetDeleteImageURL(ctx context.Context, imageID int) (string, error) {
 	// TODO: get image URL from DB using id
 	// TODO: from Kev, how about the tiki data? it's not from our S3 bucket
 	imageURL := &struct {
@@ -112,13 +112,34 @@ func (r *repositoryImpl) List(ctx context.Context, queryParams *product.QueryPar
 	return result, nil
 }
 
-func (r *repositoryImpl) Create(ctx context.Context, product *product.Model) (*product.Model, error) {
+func (r *repositoryImpl) Create(ctx context.Context, productModel *product.Model) (*product.Model, error) {
 	return &product.Model{}, nil
 }
-func (r *repositoryImpl) Update(ctx context.Context, product *product.Model, id int) (*product.Model, error)
-func (r *repositoryImpl) Delete(ctx context.Context, id int) error
-func (r *repositoryImpl) AddOption(ctx context.Context, option *product.OptionModel, id int) (*product.OptionModel, error)
-func (r *repositoryImpl) UpdateOption(ctx context.Context, option *product.OptionModel, optionId int) (*product.OptionModel, error)
-func (r *repositoryImpl) AddVariant(ctx context.Context, variant *product.VariantModel, id int) (*product.VariantModel, error)
-func (r *repositoryImpl) UpdateVariant(ctx context.Context, variant *product.VariantModel, variantId int) (*product.VariantModel, error)
-func (r *repositoryImpl) AddImages(ctx context.Context, images []*product.ImageModel, id int) error
+
+func (r *repositoryImpl) Update(ctx context.Context, productModel *product.Model, id int) (*product.Model, error) {
+	return &product.Model{}, nil
+}
+
+func (r *repositoryImpl) Delete(ctx context.Context, id int) error {
+	return nil
+}
+
+func (r *repositoryImpl) AddOption(ctx context.Context, productOptionModel *product.OptionModel, id int) (*product.OptionModel, error) {
+	return &product.OptionModel{}, nil
+}
+
+func (r *repositoryImpl) UpdateOption(ctx context.Context, productOptionModel *product.OptionModel, optionId int) (*product.OptionModel, error) {
+	return &product.OptionModel{}, nil
+}
+
+func (r *repositoryImpl) AddVariant(ctx context.Context, productVariantModel *product.VariantModel, id int) (*product.VariantModel, error) {
+	return &product.VariantModel{}, nil
+}
+
+func (r *repositoryImpl) UpdateVariant(ctx context.Context, productVariantModel *product.VariantModel, variantId int) (*product.VariantModel, error) {
+	return &product.VariantModel{}, nil
+}
+
+func (r *repositoryImpl) AddImages(ctx context.Context, productImageModels []*product.ImageModel, id int) error {
+	return nil
+}

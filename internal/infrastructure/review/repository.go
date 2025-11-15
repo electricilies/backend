@@ -19,14 +19,22 @@ func NewRepository(
 	}
 }
 
-func (r *repositoryImpl) ListByProduct(ctx context.Context, productID int, queryParams *review.QueryParams) (*review.Pagination, error) {
+func (r *repositoryImpl) ListByProduct(ctx context.Context, productID int, reviewQueryParams *review.QueryParams) (*review.Pagination, error) {
 	return &review.Pagination{}, nil
 }
 
-func (r *repositoryImpl) Get(ctx context.Context, id int) (*review.Model, error)
+func (r *repositoryImpl) Get(ctx context.Context, id int) (*review.Model, error) {
+	return nil, nil
+}
 
-func (r *repositoryImpl) Create(ctx context.Context, review *review.Model) (*review.Model, error)
+func (r *repositoryImpl) Create(ctx context.Context, reviewModel *review.Model) (*review.Model, error) {
+	return nil, nil
+}
 
-func (r *repositoryImpl) Update(ctx context.Context, review *review.Model, id int) (*review.Model, error)
+func (r *repositoryImpl) Update(ctx context.Context, reviewModel *review.Model, id int) (*review.Model, error) {
+	return nil, nil
+}
 
-func (r *repositoryImpl) Delete(ctx context.Context, id int) error
+func (r *repositoryImpl) Delete(ctx context.Context, id int) error {
+	return nil
+}

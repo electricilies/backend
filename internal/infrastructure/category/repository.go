@@ -16,10 +16,10 @@ func (r *repositoryImpl) List(ctx context.Context, queryParams *category.QueryPa
 	return &category.PaginationModel{}, nil
 }
 
-func (r *repositoryImpl) Create(ctx context.Context, category *category.Model) (*category.Model, error) {
+func (r *repositoryImpl) Create(ctx context.Context, categoryModel *category.Model) (*category.Model, error) {
 	return &category.Model{}, nil
 }
 
-func (r *repositoryImpl) Update(ctx context.Context, category *category.Model, id int) (*category.Model, error) {
+func (r *repositoryImpl) Update(ctx context.Context, categoryModel *category.Model, id int) (*category.Model, error) {
 	return &category.Model{}, nil
 }

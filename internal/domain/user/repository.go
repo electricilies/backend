@@ -1,15 +1,16 @@
 package user
 
 import (
-	"backend/internal/domain/cart"
 	"context"
+
+	"backend/internal/domain/cart"
 )
 
 type Repository interface {
-	Get(ctx context.Context, id string) (*Model, error)
-	List(ctx context.Context) ([]*Model, error)
-	Create(ctx context.Context, user *Model) (*Model, error)
-	Update(ctx context.Context, user *Model, queryParams *QueryParams) error
-	Delete(ctx context.Context, id string) error
-	GetCart(ctx context.Context, id string) (*cart.Model, error)
+	Get(context.Context, string) (*Model, error)
+	List(context.Context) ([]*Model, error)
+	Create(context.Context, *Model) (*Model, error)
+	Update(context.Context, *Model, *QueryParams) error
+	Delete(context.Context, string) error
+	GetCart(context.Context, string) (*cart.Model, error)
 }

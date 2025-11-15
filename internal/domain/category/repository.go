@@ -5,7 +5,7 @@ import (
 )
 
 type Repository interface {
-	List(ctx context.Context, queryParams *QueryParams) (*PaginationModel, error)
-	Create(ctx context.Context, category *Model) (*Model, error)
-	Update(ctx context.Context, category *Model, id int) (*Model, error)
+	List(context.Context, *QueryParams) (*PaginationModel, error)
+	Create(context.Context, *Model) (*Model, error)
+	Update(context.Context, *Model, int) (*Model, error)
 }

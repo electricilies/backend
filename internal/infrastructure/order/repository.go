@@ -16,12 +16,12 @@ func (r *repositoryImpl) List(ctx context.Context) (*[]order.Model, error) {
 	return &[]order.Model{}, nil
 }
 
-func (r *repositoryImpl) Create(ctx context.Context, order *order.Model) (*order.Model, error) {
-	return order, nil
+func (r *repositoryImpl) Create(ctx context.Context, orderModel *order.Model) (*order.Model, error) {
+	return orderModel, nil
 }
 
-func (r *repositoryImpl) Update(ctx context.Context, order *order.Model, id int) (*order.Model, error) {
-	return order, nil
+func (r *repositoryImpl) Update(ctx context.Context, orderModel *order.Model, id int) (*order.Model, error) {
+	return orderModel, nil
 }
 
 func (r *repositoryImpl) Delete(ctx context.Context, id int) error {

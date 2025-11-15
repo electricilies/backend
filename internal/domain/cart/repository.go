@@ -5,8 +5,8 @@ import (
 )
 
 type Repository interface {
-	Get(ctx context.Context, id int, queryParams *QueryParams) (*Model, error)
-	AddItem(ctx context.Context, cartItem *ItemModel) (*ItemModel, error)
-	UpdateItem(ctx context.Context, cartItem *ItemModel, id string) (*ItemModel, error)
-	RemoveItem(ctx context.Context, id string) error
+	Get(context.Context, int, *QueryParams) (*Model, error)
+	AddItem(context.Context, *ItemModel) (*ItemModel, error)
+	UpdateItem(context.Context, *ItemModel, string) (*ItemModel, error)
+	RemoveItem(context.Context, string) error
 }
