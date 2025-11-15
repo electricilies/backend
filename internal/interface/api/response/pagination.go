@@ -6,6 +6,7 @@ type Pagination struct {
 	TotalItems   int `json:"totalItems" binding:"required"`
 	CurrentPage  int `json:"currentPage" binding:"required"`
 	ItemsPerPage int `json:"itemsPerPage" binding:"required"`
+	PageItems    int `json:"pageItems"`
 }
 
 func PaginationFromDomain(p *param.PaginationMetadata) *Pagination {
@@ -13,6 +14,7 @@ func PaginationFromDomain(p *param.PaginationMetadata) *Pagination {
 		TotalItems:   *p.TotalRecords,
 		CurrentPage:  *p.CurrentPage,
 		ItemsPerPage: *p.ItemsPerPage,
+		PageItems:    *p.PageItems,
 	}
 }
 

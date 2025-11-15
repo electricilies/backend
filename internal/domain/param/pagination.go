@@ -9,4 +9,5 @@ type PaginationMetadata struct {
 	TotalRecords *int
 	CurrentPage  *int
 	ItemsPerPage *int
+	PageItems    *int
 }

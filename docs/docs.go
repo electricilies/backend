@@ -3112,6 +3112,9 @@ const docTemplate = `{
                 "itemsPerPage": {
                     "type": "integer"
                 },
+                "pageItems": {
+                    "type": "integer"
+                },
                 "totalItems": {
                     "type": "integer"
                 }
