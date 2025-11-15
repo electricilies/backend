@@ -29,9 +29,9 @@ type repositoryImpl struct {
 	logger         *zap.Logger
 }
 
-func NewRepository(queries *postgres.Queries, s3Client *s3.Client, redisClient *redis.Client, keycloakClient *gocloak.GoCloak, tokenManager helper.TokenManager, cfg *config.Config, logger *zap.Logger) user.Repository {
+func NewRepository(db *postgres.Queries, s3Client *s3.Client, redisClient *redis.Client, keycloakClient *gocloak.GoCloak, tokenManager helper.TokenManager, cfg *config.Config, logger *zap.Logger) user.Repository {
 	return &repositoryImpl{
-		db:             queries,
+		db:             db,
 		s3Client:       s3Client,
 		redisClient:    redisClient,
 		keycloakClient: keycloakClient,
@@ -126,19 +126,19 @@ func (r *repositoryImpl) Create(ctx context.Context, u *user.Model) (*user.Model
 
 func (r *repositoryImpl) Update(
 	ctx context.Context,
-	u *user.Model,
+	model *user.Model,
 	queryParams *user.QueryParams,
 ) error {
 	token, err := r.tokenManager.GetClientToken(ctx)
 	if err != nil {
 		return errors.ToDomainErrorFromGoCloak(err)
 	}
-	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.UpdateUser(ctx, token, r.cfg.KCRealm, *ToUpdateUserParams(u, queryParams.UserID)))
+	err = errors.ToDomainErrorFromGoCloak(r.keycloakClient.UpdateUser(ctx, token, r.cfg.KCRealm, *ToUpdateUserParams(model, queryParams.UserID)))
 	if err != nil {
 		return err
 	}
 
-	r.redisClient.Del(ctx, constant.UserCachePrefix+u.ID.String())
+	r.redisClient.Del(ctx, constant.UserCachePrefix+model.ID.String())
 	r.redisClient.Del(ctx, constant.UserListCacheKey)
 
 	return nil
@@ -160,6 +160,7 @@ func (r *repositoryImpl) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
+// TODO: implement
 func (r *repositoryImpl) GetCart(ctx context.Context, id string) (*cart.Model, error) {
 	return nil, nil
 }
