@@ -20,7 +20,7 @@ INSERT INTO cart_items (
 RETURNING
   *;
 
--- name: GetCart :many
+-- name: GetCart :one
 SELECT
   *
 FROM

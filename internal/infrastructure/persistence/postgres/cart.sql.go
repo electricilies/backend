@@ -83,7 +83,7 @@ func (q *Queries) DeleteCartItemByIDs(ctx context.Context, arg DeleteCartItemByI
 	return result.RowsAffected(), nil
 }
 
-const getCart = `-- name: GetCart :many
+const getCart = `-- name: GetCart :one
 SELECT
   id, user_id, updated_at
 FROM
@@ -104,24 +104,11 @@ type GetCartParams struct {
 	userID pgtype.UUID
 }
 
-func (q *Queries) GetCart(ctx context.Context, arg GetCartParams) ([]Cart, error) {
-	rows, err := q.db.Query(ctx, getCart, arg.ID, arg.userID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Cart
-	for rows.Next() {
-		var i Cart
-		if err := rows.Scan(&i.ID, &i.userID, &i.UpdatedAt); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetCart(ctx context.Context, arg GetCartParams) (Cart, error) {
+	row := q.db.QueryRow(ctx, getCart, arg.ID, arg.userID)
+	var i Cart
+	err := row.Scan(&i.ID, &i.userID, &i.UpdatedAt)
+	return i, err
 }
 
 const getCartItems = `-- name: GetCartItems :many
