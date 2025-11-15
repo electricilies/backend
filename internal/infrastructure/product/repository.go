@@ -26,14 +26,14 @@ type RepositoryImpl struct {
 }
 
 func NewRepository(
-	query *postgres.Queries,
+	db *postgres.Queries,
 	s3Client *s3.Client,
 	s3PresignClient *s3.PresignClient,
 	redisClient *redis.Client,
 	cfg *config.Config,
 ) product.Repository {
 	return &RepositoryImpl{
-		db:              query,
+		db:              db,
 		s3Client:        s3Client,
 		s3PresignClient: s3PresignClient,
 		redisClient:     redisClient,
@@ -42,14 +42,14 @@ func NewRepository(
 }
 
 func ProvideRepository(
-	query *postgres.Queries,
+	db *postgres.Queries,
 	s3Client *s3.Client,
 	s3PresignClient *s3.PresignClient,
 	redisClient *redis.Client,
 	cfg *config.Config,
 ) *RepositoryImpl {
 	return &RepositoryImpl{
-		db:              query,
+		db:              db,
 		s3Client:        s3Client,
 		s3PresignClient: s3PresignClient,
 		redisClient:     redisClient,
