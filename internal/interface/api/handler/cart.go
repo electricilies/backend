@@ -40,9 +40,9 @@ func NewCart() Cart { return &cartHandler{} }
 func (h *cartHandler) Get(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 	offset, _ := strconv.Atoi(ctx.Query("offset"))
-	id := ctx.Param("id")
+	id, _ := strconv.Atoi(ctx.Param("id"))
 
-	cart, err := h.app.GetCartByUser(
+	cart, err := h.app.Get(
 		ctx,
 		id,
 		request.CartQueryParamsToDomain(&request.CartQueryParams{
