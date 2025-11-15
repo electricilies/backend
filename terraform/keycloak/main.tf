@@ -81,6 +81,43 @@ resource "keycloak_generic_protocol_mapper" "realm_role_more" {
   }
 }
 
+resource "keycloak_openid_client_scope" "custom_address" {
+  realm_id    = keycloak_realm.electricilies.id
+  name        = "custom-address"
+  description = "Custom Address Scope"
+}
+
+resource "keycloak_generic_protocol_mapper" "custom_address" {
+  realm_id        = keycloak_realm.electricilies.id
+  client_scope_id = keycloak_openid_client_scope.custom_address.id
+  name            = "address mapper"
+  protocol        = "openid-connect"
+  protocol_mapper = "oidc-usermodel-attribute-mapper"
+  config = {
+    "user.attribute" : "address",
+    "claim.name" : "address",
+    "jsonType.label" : "String",
+    "id.token.claim" : "true",
+    "access.token.claim" : "true",
+    "userinfo.token.claim" : "true"
+  }
+}
+
+resource "keycloak_openid_client_default_scopes" "frontend" {
+  realm_id  = keycloak_realm.electricilies.id
+  client_id = keycloak_openid_client.frontend.id
+  default_scopes = [
+    data.keycloak_openid_client_scope.roles.name,
+    keycloak_openid_client_scope.custom_address.name,
+    "acr",
+    "email",
+    "profile",
+    "web-origins",
+    "roles",
+    "basic",
+  ]
+}
+
 resource "keycloak_realm_user_profile" "userprofile" {
   realm_id = keycloak_realm.electricilies.id
 
@@ -212,17 +249,44 @@ locals {
   }
 }
 
+data "keycloak_openid_client" "account" {
+  realm_id  = keycloak_realm.electricilies.id
+  client_id = "account"
+}
+
+data "keycloak_role" "account_manage_account" {
+  realm_id  = keycloak_realm.electricilies.id
+  client_id = data.keycloak_openid_client.account.id
+  name      = "manage-account"
+}
+
+data "keycloak_role" "account_delete_account" {
+  realm_id  = keycloak_realm.electricilies.id
+  client_id = data.keycloak_openid_client.account.id
+  name      = "delete-account"
+}
+
+data "keycloak_role" "account_view_profile" {
+  realm_id  = keycloak_realm.electricilies.id
+  client_id = data.keycloak_openid_client.account.id
+  name      = "view-profile"
+}
+
 resource "keycloak_role" "roles" {
   for_each = toset(local.roles)
 
-  realm_id = keycloak_realm.electricilies.id
-  name     = each.key
+  realm_id    = keycloak_realm.electricilies.id
+  name        = each.key
+  description = "Role ${each.key} for app"
 }
 
 resource "keycloak_default_roles" "default_roles" {
   realm_id = keycloak_realm.electricilies.id
   default_roles = [
-    keycloak_role.roles["customer"].name
+    keycloak_role.roles["customer"].name,
+    "${data.keycloak_openid_client.account.client_id}/manage-account",
+    "${data.keycloak_openid_client.account.client_id}/delete-account",
+    "${data.keycloak_openid_client.account.client_id}/view-profile",
   ]
 }
 
@@ -257,5 +321,8 @@ resource "keycloak_user_roles" "users" {
   user_id  = keycloak_user.users[each.key].id
   role_ids = [
     keycloak_role.roles[each.value.role].id,
+    data.keycloak_role.account_manage_account.id,
+    data.keycloak_role.account_delete_account.id,
+    data.keycloak_role.account_view_profile.id,
   ]
 }
