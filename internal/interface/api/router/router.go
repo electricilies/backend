@@ -126,9 +126,13 @@ func (r *router) RegisterRoutes(e *gin.Engine) {
 			attributes.PATCH("/:attribute_id/values/bulk", r.attributeHandler.UpdateAttributeValues)
 		}
 
-		// payments := api.Group("/payment")
-		// {
-		// }
+		payments := api.Group("/payment")
+		{
+			payments.POST("")
+			payments.GET("/:payment_id")
+			payments.GET("")
+			payments.PATCH("/:payment_id")
+		}
 
 		orders := api.Group("/orders")
 		{

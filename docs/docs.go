@@ -895,6 +895,183 @@ const docTemplate = `{
                 }
             }
         },
+        "/payments": {
+            "get": {
+                "description": "Get all payments",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "List all payments",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.Payment"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new payment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Create a new payment",
+                "parameters": [
+                    {
+                        "description": "Payment request",
+                        "name": "payment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreatePayment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Payment"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BadRequestError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/payments/{payment_id}": {
+            "get": {
+                "description": "Get payment details by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Get payment by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Payment ID",
+                        "name": "payment_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Payment"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.NotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.InternalServerError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update payment details by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Update payment by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Payment ID",
+                        "name": "payment_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Payment update request",
+                        "name": "payment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdatePayment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Payment"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BadRequestError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.NotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/products": {
             "get": {
                 "description": "Get all products",
@@ -2553,6 +2730,21 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreatePayment": {
+            "type": "object",
+            "required": [
+                "orderId",
+                "paymentProvider"
+            ],
+            "properties": {
+                "orderId": {
+                    "type": "integer"
+                },
+                "paymentProvider": {
+                    "$ref": "#/definitions/request.PaymentProvider"
+                }
+            }
+        },
         "request.CreateProduct": {
             "type": "object",
             "required": [
@@ -2745,6 +2937,34 @@ const docTemplate = `{
                 }
             }
         },
+        "request.PaymentProvider": {
+            "type": "string",
+            "enum": [
+                "COD",
+                "VNPAY",
+                "MOMO",
+                "ZALO"
+            ],
+            "x-enum-varnames": [
+                "PaymentProviderCOD",
+                "PaymentProviderVNPAY",
+                "PaymentProviderMOMO",
+                "PaymentProviderZALOPAY"
+            ]
+        },
+        "request.PaymentStatus": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "COMPLETED",
+                "FAILED"
+            ],
+            "x-enum-varnames": [
+                "PaymentStatusPending",
+                "PaymentStatusCompleted",
+                "PaymentStatusFailed"
+            ]
+        },
         "request.UpdateAttribute": {
             "type": "object",
             "required": [
@@ -2802,6 +3022,17 @@ const docTemplate = `{
             "properties": {
                 "orderStatus": {
                     "type": "string"
+                }
+            }
+        },
+        "request.UpdatePayment": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "$ref": "#/definitions/request.PaymentStatus"
                 }
             }
         },
@@ -3180,15 +3411,43 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "paymentProviderId": {
-                    "type": "string"
+                    "$ref": "#/definitions/response.PaymentProvider"
                 },
                 "paymentStatusId": {
-                    "type": "string"
+                    "$ref": "#/definitions/response.PaymentStatus"
                 },
                 "updatedAt": {
                     "type": "string"
                 }
             }
+        },
+        "response.PaymentProvider": {
+            "type": "string",
+            "enum": [
+                "COD",
+                "VNPAY",
+                "MOMO",
+                "ZALO"
+            ],
+            "x-enum-varnames": [
+                "PaymentProviderCOD",
+                "PaymentProviderVNPAY",
+                "PaymentProviderMOMO",
+                "PaymentProviderZALOPAY"
+            ]
+        },
+        "response.PaymentStatus": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "COMPLETED",
+                "FAILED"
+            ],
+            "x-enum-varnames": [
+                "PaymentStatusPending",
+                "PaymentStatusCompleted",
+                "PaymentStatusFailed"
+            ]
         },
         "response.Product": {
             "type": "object",
