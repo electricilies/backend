@@ -1,0 +1,5 @@
+internal/**
+cmd/**
+config/**
+test/**/*.go
+database/**
