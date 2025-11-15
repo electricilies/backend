@@ -4,7 +4,7 @@ import (
 	"backend/internal/domain/product"
 )
 
-func ToGetProductImageByIDParams(id int) any {
+func ToGetProductImageByIDParams(id int) interface{} {
 	return &struct {
 		ID int32 `json:"id"`
 	}{
