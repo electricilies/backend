@@ -3427,17 +3427,9 @@ const docTemplate = `{
                 "COD",
                 "VNPAY",
                 "MOMO",
-                "ZALO",
-                "COD",
-                "VNPAY",
-                "MOMO",
                 "ZALO"
             ],
             "x-enum-varnames": [
-                "PaymentProviderCOD",
-                "PaymentProviderVNPAY",
-                "PaymentProviderMOMO",
-                "PaymentProviderZALOPAY",
                 "PaymentProviderCOD",
                 "PaymentProviderVNPAY",
                 "PaymentProviderMOMO",
@@ -3449,15 +3441,9 @@ const docTemplate = `{
             "enum": [
                 "PENDING",
                 "COMPLETED",
-                "FAILED",
-                "PENDING",
-                "COMPLETED",
                 "FAILED"
             ],
             "x-enum-varnames": [
-                "PaymentStatusPending",
-                "PaymentStatusCompleted",
-                "PaymentStatusFailed",
                 "PaymentStatusPending",
                 "PaymentStatusCompleted",
                 "PaymentStatusFailed"
