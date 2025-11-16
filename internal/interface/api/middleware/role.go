@@ -3,35 +3,37 @@ package middleware
 import (
 	"net/http"
 
-	"backend/config"
 	"backend/internal/constant"
+	"backend/internal/common"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type UserRole string
+
+const (
+	RoleCustomer UserRole = "customer"
+	RoleAdmin    UserRole = "admin"
+	RoleStaff    UserRole = "staff"
+)
+
 type Role interface {
-	Handler([]constant.UserRole) gin.HandlerFunc
+	Handler([]UserRole) gin.HandlerFunc
 }
 
 type RoleImpl struct {
-	srvCfg *config.Server
+	config *common.Config
 }
 
-func NewRole(requiredRoles []constant.UserRole, srvCfg *config.Server) Role {
+func ProvideRole(config *common.Config) *RoleImpl {
 	return &RoleImpl{
-		srvCfg: srvCfg,
+		config: config,
 	}
 }
 
-func ProvideRole(srvCfg *config.Server) *RoleImpl {
-	return &RoleImpl{
-		srvCfg: srvCfg,
-	}
-}
-
-func (r *RoleImpl) Handler(rolesAllowed []constant.UserRole) gin.HandlerFunc {
-	set := make(map[constant.UserRole]struct{})
+func (r *RoleImpl) Handler(rolesAllowed []UserRole) gin.HandlerFunc {
+	set := make(map[UserRole]struct{})
 	for _, requiredRole := range rolesAllowed {
 		set[requiredRole] = struct{}{}
 	}
@@ -61,7 +63,7 @@ func (r *RoleImpl) Handler(rolesAllowed []constant.UserRole) gin.HandlerFunc {
 
 		allowed := false
 		for _, role := range userRoles {
-			if _, exists := set[constant.UserRole(role)]; exists {
+			if _, exists := set[UserRole(role)]; exists {
 				allowed = true
 				break
 			}

@@ -14,40 +14,20 @@ type Metric interface {
 }
 
 type MetricImpl struct {
-	httpRequestsTotal   *prometheus.CounterVec
-	httpRequestDuration *prometheus.HistogramVec
-}
-
-func NewMetric() Metric {
-	return &MetricImpl{
-		httpRequestsTotal: promauto.NewCounterVec(
-			prometheus.CounterOpts{
-				Name: "http_requests_total",
-				Help: "Total number of HTTP requests",
-			},
-			[]string{"method", "path", "status"},
-		),
-		httpRequestDuration: promauto.NewHistogramVec(
-			prometheus.HistogramOpts{
-				Name:    "http_request_duration_seconds",
-				Help:    "HTTP request duration in seconds",
-				Buckets: prometheus.DefBuckets,
-			},
-			[]string{"method", "path", "status"},
-		),
-	}
+	requestsTotal   *prometheus.CounterVec
+	requestDuration *prometheus.HistogramVec
 }
 
 func ProvideMetric() *MetricImpl {
 	return &MetricImpl{
-		httpRequestsTotal: promauto.NewCounterVec(
+		requestsTotal: promauto.NewCounterVec(
 			prometheus.CounterOpts{
 				Name: "http_requests_total",
 				Help: "Total number of HTTP requests",
 			},
 			[]string{"method", "path", "status"},
 		),
-		httpRequestDuration: promauto.NewHistogramVec(
+		requestDuration: promauto.NewHistogramVec(
 			prometheus.HistogramOpts{
 				Name:    "http_request_duration_seconds",
 				Help:    "HTTP request duration in seconds",
@@ -71,7 +51,7 @@ func (m *MetricImpl) Handler() gin.HandlerFunc {
 			path = ctx.Request.URL.Path
 		}
 
-		m.httpRequestsTotal.WithLabelValues(ctx.Request.Method, path, status).Inc()
-		m.httpRequestDuration.WithLabelValues(ctx.Request.Method, path, status).Observe(duration)
+		m.requestsTotal.WithLabelValues(ctx.Request.Method, path, status).Inc()
+		m.requestDuration.WithLabelValues(ctx.Request.Method, path, status).Observe(duration)
 	}
 }

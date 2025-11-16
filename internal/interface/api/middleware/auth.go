@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"backend/config"
+	"backend/internal/common"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-gonic/gin"
@@ -17,24 +17,17 @@ type Auth interface {
 
 type AuthImpl struct {
 	keycloakClient *gocloak.GoCloak
-	srvCfg         *config.Server
+	config         *common.Config
 }
 
-func NewAuth(keycloakClient *gocloak.GoCloak, srvCfg *config.Server) Auth {
+func ProvideAuth(keycloakClient *gocloak.GoCloak, config *common.Config) *AuthImpl {
 	return &AuthImpl{
 		keycloakClient: keycloakClient,
-		srvCfg:         srvCfg,
+		config:         config,
 	}
 }
 
-func ProvideAuth(keycloakClient *gocloak.GoCloak, srvCfg *config.Server) *AuthImpl {
-	return &AuthImpl{
-		keycloakClient: keycloakClient,
-		srvCfg:         srvCfg,
-	}
-}
-
-func (j *AuthImpl) Handler() gin.HandlerFunc {
+func (m *AuthImpl) Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {
@@ -50,7 +43,7 @@ func (j *AuthImpl) Handler() gin.HandlerFunc {
 			return
 		}
 		token := parts[1]
-		tokens, _, err := j.keycloakClient.DecodeAccessToken(ctx, token, j.srvCfg.KCRealm)
+		tokens, _, err := m.keycloakClient.DecodeAccessToken(ctx, token, m.config.KCRealm)
 		if err != nil {
 			ctx.AbortWithStatusJSON(
 				http.StatusUnauthorized,
@@ -58,12 +51,12 @@ func (j *AuthImpl) Handler() gin.HandlerFunc {
 			)
 			return
 		}
-		rptResult, err := j.keycloakClient.RetrospectToken(
+		rptResult, err := m.keycloakClient.RetrospectToken(
 			ctx,
 			token,
-			j.srvCfg.KCClientId,
-			j.srvCfg.KCClientSecret,
-			j.srvCfg.KCRealm,
+			m.config.KCClientId,
+			m.config.KCClientSecret,
+			m.config.KCRealm,
 		)
 		if err != nil {
 			ctx.AbortWithStatusJSON(

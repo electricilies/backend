@@ -4,6 +4,13 @@ import (
 	"fmt"
 )
 
+type Error = error
+
+const (
+	ErrNotFound = "not_found"
+	ErrConflict = "conflict"
+)
+
 type Err struct {
 	Message string
 	Cause   error

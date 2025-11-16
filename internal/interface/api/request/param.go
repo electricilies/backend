@@ -2,62 +2,58 @@ package request
 
 import "backend/internal/domain/param"
 
-func PaginationParamsToDomain(limit int, offset int) *param.Pagination {
-	return &param.Pagination{
+const ErrorInvalidDeletedParam = errors.New("invalid deleted param")
+const ErrorInvalidSortParam = errors.New("invalid sort param")
+const ErrorInvalidSortRatingParam = errors.New("invalid sort rating param")
+
+func PaginationParamsToDomain(limit, offset int) param.Pagination {
+	return param.Pagination{
 		Limit:  limit,
 		Offset: offset,
 	}
 }
 
-func DeletedParamToDomain(deleted string) *param.Deleted {
+func DeletedParamToDomain(deleted string) (*param.Deleted, error) {
 	switch deleted {
 	case "all":
 		all := param.All
-		return &all
+		return &all, nil
 	case "only":
 		only := param.Only
-		return &only
+		return &only, nil
 	case "exclude":
 		exclude := param.Exclude
-		return &exclude
+		return &exclude, nil
 	default:
-		return nil
+		return nil,  ErrorInvalidDeletedParam
 	}
 }
 
-func sortParamToDomain(sort string) *param.Sort {
+func sortParamToDomain(sort string) (*param.Sort, error) {
 	switch sort {
 	case "asc":
 		asc := param.Ascending
-		return &asc
+		return &asc, nil
 	case "desc":
 		desc := param.Descending
-		return &desc
+		return &desc, nil
 	default:
-		return nil
+		return nil, ErrorInvalidSortParam
 	}
 }
 
-func SortPriceParamToDomain(sort string) *param.SortPrice {
-	s := sortParamToDomain(sort)
-	if s != nil {
-		return (*param.SortPrice)(s)
+func SortPriceParamToDomain(sort string) (*param.SortPrice, error) {
+	sortPrice, err := sortParamToDomain(sort)
+	if err != nil {
+		return nil, ErrorInvalidSortParam
 	}
-	// TODO: if more sort option handle later
-	switch sort {
-	default:
-		return nil
-	}
+	return sortPrice, nil
 }
 
-func SortRatingParamToDomain(sort string) *param.SortRating {
-	s := sortParamToDomain(sort)
-	if s != nil {
-		return (*param.SortRating)(s)
+func SortRatingParamToDomain(sort string) (*param.SortRating, error) {
+	sortRating, err := sortParamToDomain(sort)
+	if err != nil {
+		return nil, ErrorInvalidSortRatingParam
 	}
-	// TODO: if more sort option handle later
-	switch sort {
-	default:
-		return nil
-	}
+	return sortRating, nil
 }
