@@ -189,9 +189,8 @@ func ListProductRowsToDomain(
 ) *product.PaginationModel {
 	length := len(listProductRow)
 	if length == 0 {
-		emptyProducts := make([]product.Model, 0)
 		return &product.PaginationModel{
-			Products: emptyProducts,
+			Products: []product.Model{},
 			Metadata: *PaginationMetadataToDomain(
 				paginationParams,
 				0,
