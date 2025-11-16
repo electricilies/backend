@@ -9,31 +9,39 @@ import (
 )
 
 type UploadImageURLModel struct {
-	URL *string
-	Key *string
+	URL string
+	Key string
 }
 
 type OptionModel struct {
-	ID     *int
-	Name   *string
-	Values *[]VariantOptionValueModel
+	ID     int
+	Name   string
+	Values []VariantOptionValueModel
 }
 
 type VariantOptionValueModel struct {
-	ID    *int
-	Value *string
+	ID    int
+	Value string
+}
+
+type VariantImageModel struct {
+	ID        int
+	URL       string
+	Order     int
+	CreatedAt time.Time
 }
 
 type VariantModel struct {
-	ID            *int
-	SKU           *string
+	ID            int
+	SKU           string
 	Price         *int64
 	Quantity      *int
-	PurchaseCount *int
-	CreatedAt     *time.Time
+	PurchaseCount int
+	CreatedAt     time.Time
 	DeletedAt     *time.Time
-	UpdatedAt     *time.Time
-	OptionValue   *[]VariantOptionValueModel
+	UpdatedAt     time.Time
+	OptionValue   []VariantOptionValueModel
+	Images        []VariantImageModel
 }
 
 type ImageModel struct {
@@ -45,16 +53,16 @@ type ImageModel struct {
 }
 
 type Model struct {
-	ID              *int
+	ID              int
 	Name            *string
 	Description     *string
-	ViewsCount      *int
-	TotalPurchase   *int
-	TrendingScore   *float32
-	Rating          *float32
-	Price           *int64
-	CreatedAt       *time.Time
-	UpdatedAt       *time.Time
+	ViewsCount      int
+	TotalPurchase   int
+	TrendingScore   float32
+	Rating          float32
+	Price           int64
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
 	DeletedAt       *time.Time
 	Category        *category.Model
 	AttributeValues *[]attribute.ValueModel
@@ -62,20 +70,20 @@ type Model struct {
 }
 
 type PaginationModel struct {
-	Metadata *param.PaginationMetadata
-	Products *[]Model
+	Metadata param.PaginationMetadata
+	Products []Model
 }
 
 // TODO: Add param later
 type QueryParams struct {
-	PaginationParams *param.Pagination
+	PaginationParams param.Pagination
 	Search           *string
 	MinPrice         *int64
 	MaxPrice         *int64
 	IDs              *[]int
 	CategoryIDs      *[]int
 	Rating           *float32
-	Deleted          *param.Deleted
-	SortPrice        *param.SortPrice
-	SortRating       *param.SortRating
+	Deleted          param.Deleted
+	SortPrice        param.SortPrice
+	SortRating       param.SortRating
 }

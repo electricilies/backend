@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"backend/internal/domain/product"
+	"backend/internal/domain/user"
 )
 
 type OrderStatus string
@@ -17,22 +18,20 @@ const (
 )
 
 type Model struct {
-	ID        *int
-	UserID    *string
-	Address   *string
-	Status    *OrderStatus
-	CreatedAt *time.Time
-	UpdatedAt *time.Time
+	ID        int
+	User      *user.Model
+	Address   string
+	Status    OrderStatus
+	CreatedAt time.Time
+	UpdatedAt time.Time
 	Items     []ItemModel
-	// TODO: implement payment later
-	//	Payment   Payment     `json:"payment" binding:"required"`
 }
 
 type ItemModel struct {
-	ID             *int
-	OrderID        *int
-	Product        *product.Model
-	ProductVariant *product.VariantModel
-	Quantity       *int
-	Price          *int64
+	ID             int
+	OrderID        int
+	Product        product.Model
+	ProductVariant product.VariantModel
+	Quantity       int
+	Price          int64
 }

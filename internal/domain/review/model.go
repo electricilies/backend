@@ -8,21 +8,22 @@ import (
 )
 
 type Model struct {
-	ID        *int
-	Rating    *int
-	Content   *string
+	ID        int
+	Rating    int
+	Content   string
 	ImageURL  *string
-	User      *user.Model
-	CreatedAt *time.Time
-	UpdatedAt *time.Time
+	User      user.Model
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
 }
 
 type QueryParams struct {
-	PaginationParams *param.Pagination
-	Deleted          *param.Deleted
+	PaginationParams param.Pagination
+	Deleted          param.Deleted
 }
 
 type Pagination struct {
-	Metadata *param.PaginationMetadata
-	Reviews  *[]Model
+	Metadata param.PaginationMetadata
+	Reviews  []Model
 }

@@ -1,6 +1,10 @@
 package payment
 
-import "time"
+import (
+	"time"
+
+	"backend/internal/domain/order"
+)
 
 type Provider string
 
@@ -20,9 +24,10 @@ const (
 )
 
 type Model struct {
-	ID              *int
-	Amount          *int64
-	PaymentStatus   *Status
-	PaymentProvider *Provider
-	UpdatedAt       *time.Time
+	ID              int
+	Amount          int64
+	PaymentStatus   Status
+	Order           order.Model
+	PaymentProvider Provider
+	UpdatedAt       time.Time
 }

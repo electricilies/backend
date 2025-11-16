@@ -24,5 +24,6 @@ type Payment struct {
 	Amount          int64           `json:"amount" binding:"required"`
 	PaymentStatus   PaymentStatus   `json:"paymentStatus" binding:"required"`
 	PaymentProvider PaymentProvider `json:"paymentProvider" binding:"omitempty"`
+	Order           Order           `json:"order" binding:"required"`
 	UpdatedAt       time.Time       `json:"updatedAt" binding:"required"`
 }

@@ -77,7 +77,7 @@ func (h *AttributeImpl) List(ctx *gin.Context) {
 		productID = 0
 	}
 	pagination, err := h.app.ListAttributes(ctx, request.AttributeQueryParamsToDomain(
-		&request.AttributeQueryParams{
+		request.AttributeQueryParams{
 			Limit:     limit,
 			Offset:    offset,
 			ProductID: productID,

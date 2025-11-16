@@ -22,12 +22,12 @@ type ReviewQueryParams struct {
 	Deleted string
 }
 
-func ReviewQueryParamsToDomain(reviewQueryParams *ReviewQueryParams) *review.QueryParams {
+func ReviewQueryParamsToDomain(reviewQueryParams ReviewQueryParams) *review.QueryParams {
 	return &review.QueryParams{
-		PaginationParams: PaginationParamsToDomain(
+		PaginationParams: *PaginationParamsToDomain(
 			reviewQueryParams.Limit,
 			reviewQueryParams.Offset,
 		),
-		Deleted: DeletedParamToDomain(reviewQueryParams.Deleted),
+		Deleted: *DeletedParamToDomain(reviewQueryParams.Deleted),
 	}
 }

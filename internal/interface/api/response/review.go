@@ -7,24 +7,26 @@ import (
 )
 
 type Review struct {
-	ID        int       `json:"id" binding:"required"`
-	Rating    int       `json:"rating" binding:"required"`
-	Content   string    `json:"content" binding:"omitnil"`
-	OrderItem OrderItem `json:"orderItem" binding:"required"`
-	ImageURL  string    `json:"imageUrl" binding:"omitnil"`
-	User      *User     `json:"user" binding:"required"`
-	CreatedAt time.Time `json:"createdAt" binding:"required"`
-	UpdatedAt time.Time `json:"updatedAt" binding:"required"`
+	ID        int        `json:"id" binding:"required"`
+	Rating    int        `json:"rating" binding:"required"`
+	Content   string     `json:"content" binding:"omitnil"`
+	OrderItem OrderItem  `json:"orderItem" binding:"required"`
+	ImageURL  string     `json:"imageUrl" binding:"omitnil"`
+	User      *User      `json:"user" binding:"required"`
+	CreatedAt time.Time  `json:"createdAt" binding:"required"`
+	UpdatedAt time.Time  `json:"updatedAt" binding:"required"`
+	DeletedAt *time.Time `json:"deletedAt" binding:"omitnil"`
 }
 
-func ReviewFromDomain(r *review.Model) *Review {
+func ReviewFromDomain(r review.Model) *Review {
 	return &Review{
-		ID:        *r.ID,
-		Rating:    *r.Rating,
-		Content:   *r.Content,
+		ID:        r.ID,
+		Rating:    r.Rating,
+		Content:   r.Content,
 		ImageURL:  *r.ImageURL,
-		User:      UserFromDomain(r.User),
-		CreatedAt: *r.CreatedAt,
-		UpdatedAt: *r.UpdatedAt,
+		User:      UserFromDomain(&r.User),
+		CreatedAt: r.CreatedAt,
+		UpdatedAt: r.UpdatedAt,
+		DeletedAt: r.DeletedAt,
 	}
 }

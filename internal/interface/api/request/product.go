@@ -14,9 +14,9 @@ type CreateProduct struct {
 }
 
 type UpdateProduct struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
-	CategoryIds int    `json:"categoryIds,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+	CategoryID  *int    `json:"categoryId,omitempty"`
 }
 
 type AddAttributeValues struct {
@@ -31,8 +31,8 @@ type CreateProductVariant struct {
 }
 
 type UpdateProductVariant struct {
-	Price    int64 `json:"price,omitempty"`
-	Quantity int   `json:"quantity,omitempty"`
+	Price    *int64 `json:"price,omitempty"`
+	Quantity *int   `json:"quantity,omitempty"`
 }
 
 type CreateProductImage struct {
@@ -48,7 +48,7 @@ type CreateProductOption struct {
 }
 
 type UpdateProductOption struct {
-	Value string `json:"value" binding:"required"`
+	Name *string `json:"name" binding:"required"`
 }
 
 type ProductQueryParams struct {
@@ -63,15 +63,15 @@ type ProductQueryParams struct {
 	Deleted     string
 }
 
-func ProductQueryParamsToDomain(productQueryParams *ProductQueryParams) *product.QueryParams {
+func ProductQueryParamsToDomain(productQueryParams ProductQueryParams) *product.QueryParams {
 	return &product.QueryParams{
-		PaginationParams: PaginationParamsToDomain(productQueryParams.Limit, productQueryParams.Offset),
+		PaginationParams: *PaginationParamsToDomain(productQueryParams.Limit, productQueryParams.Offset),
 		Search:           &productQueryParams.Search,
 		MinPrice:         &productQueryParams.MinPrice,
 		MaxPrice:         &productQueryParams.MaxPrice,
 		CategoryIDs:      &productQueryParams.CategoryIDs,
-		Deleted:          DeletedParamToDomain(productQueryParams.Deleted),
-		SortPrice:        SortPriceParamToDomain(productQueryParams.SortPrice),
-		SortRating:       SortRatingParamToDomain(productQueryParams.SortRating),
+		Deleted:          *DeletedParamToDomain(productQueryParams.Deleted),
+		SortPrice:        *SortPriceParamToDomain(productQueryParams.SortPrice),
+		SortRating:       *SortRatingParamToDomain(productQueryParams.SortRating),
 	}
 }

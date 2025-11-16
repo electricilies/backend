@@ -17,7 +17,7 @@ func ToGetProductImageParam(id int) *postgres.GetProductImageParams {
 	}
 }
 
-func ToListProductsParam(productQueryParams *product.QueryParams) *postgres.ListProductsParams {
+func ToListProductsParam(productQueryParams product.QueryParams) *postgres.ListProductsParams {
 	return &postgres.ListProductsParams{
 		Search:      mapper.ToPostgresTextType(productQueryParams.Search),
 		IDs:         mapper.ToInt32Slice(productQueryParams.IDs),
@@ -25,58 +25,59 @@ func ToListProductsParam(productQueryParams *product.QueryParams) *postgres.List
 		MaxPrice:    mapper.ToPostgresTypeNumeric(productQueryParams.MaxPrice),
 		Rating:      mapper.ToPostgresTypeFloat(productQueryParams.Rating),
 		CategoryIDs: mapper.ToInt32Slice(productQueryParams.CategoryIDs),
-		Deleted:     string(*productQueryParams.Deleted),
-		SortRating:  mapper.ToPostgresTextType((*string)(productQueryParams.SortRating)),
-		SortPrice:   mapper.ToPostgresTextType((*string)(productQueryParams.SortPrice)),
+		Deleted:     string(productQueryParams.Deleted),
+		SortRating:  mapper.ToPostgresTextType(helper.ToPtr(string(productQueryParams.SortRating))),
+		SortPrice:   mapper.ToPostgresTextType(helper.ToPtr(string(productQueryParams.SortPrice))),
 		Limit: mapper.ToPostgresTypeInt(
-			productQueryParams.PaginationParams.Limit,
+			&productQueryParams.PaginationParams.Limit,
 		),
 		Offset: mapper.ToPostgresTypeInt(
-			productQueryParams.PaginationParams.Offset,
+			&productQueryParams.PaginationParams.Offset,
 		),
 	}
 }
 
-func ToCreateProductParams(model *product.Model) *postgres.CreateProductParams {
+func ToCreateProductParams(model product.Model) *postgres.CreateProductParams {
 	return &postgres.CreateProductParams{
 		Name:        *model.Name,
 		Description: *model.Description,
 	}
 }
 
-func ToUpdateProductParams(model *product.Model, id int) *postgres.UpdateProductParams {
+func ToUpdateProductParams(model product.Model, id int) *postgres.UpdateProductParams {
 	return &postgres.UpdateProductParams{
 		ID:          int32(id),
 		Name:        mapper.ToPostgresTextType(model.Name),
 		Description: mapper.ToPostgresTextType(model.Description),
+		CategoryID:  mapper.ToPostgresTypeInt(&model.Category.ID),
 	}
 }
 
-func ToDeleteProductsParam(ids *[]int) *postgres.DeleteProductsParams {
+func ToDeleteProductsParam(ids []int) *postgres.DeleteProductsParams {
 	return &postgres.DeleteProductsParams{
-		IDs: mapper.ToInt32Slice(ids),
+		IDs: mapper.ToInt32Slice(&ids),
 	}
 }
 
 func ToCreateOptionParams(
-	optionModel *product.OptionModel,
+	optionModel product.OptionModel,
 	id int,
 ) *postgres.CreateOptionParams {
 	return &postgres.CreateOptionParams{
-		Name:      *optionModel.Name,
+		Name:      optionModel.Name,
 		ProductID: int32(id),
 	}
 }
 
 func ToCreateProductImagesParams(
-	imageModel *[]product.ImageModel,
+	imageModel []product.ImageModel,
 	productID int,
 ) *postgres.CreateProductImagesParams {
-	length := len(*imageModel)
+	length := len(imageModel)
 	URLs := make([]string, 0, length)
 	Orders := make([]int32, 0, length)
 	VariantIDs := make([]int32, 0, length)
-	for _, image := range *imageModel {
+	for _, image := range imageModel {
 		URLs = append(URLs, *image.URL)
 		Orders = append(Orders, int32(*image.Order))
 		VariantIDs = append(
@@ -93,15 +94,15 @@ func ToCreateProductImagesParams(
 }
 
 func ToCreateProductVariantParams(
-	variantModel *[]product.VariantModel,
+	variantModel []product.VariantModel,
 	productId int,
 ) *postgres.CreateProductVariantsParams {
-	length := len(*variantModel)
+	length := len(variantModel)
 	SKUs := make([]string, 0, length)
 	Prices := make([]pgtype.Numeric, 0, length)
 	Quantities := make([]int32, 0, length)
-	for _, variant := range *variantModel {
-		SKUs = append(SKUs, *variant.SKU)
+	for _, variant := range variantModel {
+		SKUs = append(SKUs, variant.SKU)
 		Prices = append(
 			Prices,
 			mapper.ToPostgresTypeNumeric(variant.Price),
@@ -119,7 +120,7 @@ func ToCreateProductVariantParams(
 	}
 }
 
-func ImageToDomain(productImageEntity *postgres.ProductImage) *product.ImageModel {
+func ImageToDomain(productImageEntity postgres.ProductImage) *product.ImageModel {
 	return &product.ImageModel{
 		ID:               helper.ToPtr(int(productImageEntity.ID)),
 		URL:              helper.ToPtr(productImageEntity.URL),
@@ -129,83 +130,95 @@ func ImageToDomain(productImageEntity *postgres.ProductImage) *product.ImageMode
 	}
 }
 
-func VariantToDomain(productVariantEntity *postgres.ProductVariant) *product.VariantModel {
+func VariantToDomain(productVariantEntity postgres.ProductVariant) *product.VariantModel {
 	return &product.VariantModel{
-		ID:            helper.ToPtr(int(productVariantEntity.ID)),
-		SKU:           helper.ToPtr(productVariantEntity.SKU),
+		ID:            int(productVariantEntity.ID),
+		SKU:           productVariantEntity.SKU,
 		Price:         helper.ToPtr(productVariantEntity.Price.Int.Int64()),
 		Quantity:      helper.ToPtr(int(productVariantEntity.Quantity)),
-		PurchaseCount: helper.ToPtr(int(productVariantEntity.PurchaseCount)),
-		CreatedAt:     &productVariantEntity.CreatedAt.Time,
-		UpdatedAt:     &productVariantEntity.UpdatedAt.Time,
+		PurchaseCount: int(productVariantEntity.PurchaseCount),
+		CreatedAt:     productVariantEntity.CreatedAt.Time,
+		UpdatedAt:     productVariantEntity.UpdatedAt.Time,
 		DeletedAt:     &productVariantEntity.DeletedAt.Time,
 	}
 }
 
-func ToDomain(productEntity *postgres.Product) *product.Model {
+func ToDomain(productEntity postgres.Product) *product.Model {
 	return &product.Model{
-		ID:            helper.ToPtr(int(productEntity.ID)),
+		ID:            int(productEntity.ID),
 		Name:          &productEntity.Name,
 		Description:   &productEntity.Description,
-		Price:         helper.ToPtr(productEntity.Price.Int.Int64()),
-		ViewsCount:    helper.ToPtr(int(productEntity.ViewsCount)),
-		TotalPurchase: helper.ToPtr(int(productEntity.TotalPurchase)),
-		Rating:        &productEntity.Rating,
-		TrendingScore: helper.ToPtr(productEntity.TrendingScore),
+		Price:         productEntity.Price.Int.Int64(),
+		ViewsCount:    int(productEntity.ViewsCount),
+		TotalPurchase: int(productEntity.TotalPurchase),
+		Rating:        productEntity.Rating,
+		TrendingScore: productEntity.TrendingScore,
 		Category: &category.Model{
-			ID: helper.ToPtr(int(productEntity.CategoryID)), // TODO: add mapper later
+			ID: int(productEntity.CategoryID), // TODO: add mapper later
 		},
-		CreatedAt: &productEntity.CreatedAt.Time,
-		UpdatedAt: &productEntity.UpdatedAt.Time,
+		CreatedAt: productEntity.CreatedAt.Time,
+		UpdatedAt: productEntity.UpdatedAt.Time,
 		DeletedAt: &productEntity.DeletedAt.Time,
 	}
 }
 
-func OptionToDomain(productEntity *postgres.Option) *product.OptionModel {
+func OptionToDomain(productEntity postgres.Option) *product.OptionModel {
 	return &product.OptionModel{
-		ID:   helper.ToPtr(int(productEntity.ID)),
-		Name: &productEntity.Name,
+		ID:   int(productEntity.ID),
+		Name: productEntity.Name,
 	}
 }
 
 func PaginationMetadataToDomain(
-	paginationParams *param.Pagination,
-	currentCount *int,
-	totalCount *int,
+	paginationParams param.Pagination,
+	currentCount int,
+	totalCount int,
 ) *param.PaginationMetadata {
-	currentPage := int(*paginationParams.Offset / *paginationParams.Limit) + 1
+	currentPage := int(paginationParams.Offset/paginationParams.Limit) + 1
 	return &param.PaginationMetadata{
 		TotalRecords: totalCount,
-		CurrentPage:  &currentPage,
+		CurrentPage:  currentPage,
 		ItemsPerPage: paginationParams.Limit,
 		PageItems:    currentCount,
 	}
 }
 
 func ListProductRowsToDomain(
-	listProductRow *[]postgres.ListProductsRow,
-	paginationParams *param.Pagination,
+	listProductRow []postgres.ListProductsRow,
+	paginationParams param.Pagination,
 ) *product.PaginationModel {
-	domainProducts := make([]product.Model, 0, len(*listProductRow))
-	for _, row := range *listProductRow {
-		domainProducts = append(domainProducts, *ToDomain(&row.Product))
+	length := len(listProductRow)
+	if length == 0 {
+		emptyProducts := make([]product.Model, 0)
+		return &product.PaginationModel{
+			Products: emptyProducts,
+			Metadata: *PaginationMetadataToDomain(
+				paginationParams,
+				0,
+				0,
+			),
+		}
+	}
+	domainProducts := make([]product.Model, 0, len(listProductRow))
+	for _, row := range listProductRow {
+		domainProducts = append(domainProducts, *ToDomain(row.Product))
 	}
 	return &product.PaginationModel{
-		Products: &domainProducts,
-		Metadata: PaginationMetadataToDomain(
+		Products: domainProducts,
+		Metadata: *PaginationMetadataToDomain(
 			paginationParams,
-			helper.ToPtr(int((*listProductRow)[0].CurrentCount)),
-			helper.ToPtr(int((*listProductRow)[0].TotalCount)),
+			int((listProductRow)[0].CurrentCount),
+			int((listProductRow)[0].TotalCount),
 		),
 	}
 }
 
 type UploadURLImage struct {
-	URL *string
-	Key *string
+	URL string
+	Key string
 }
 
-func (p *UploadURLImage) ToDomain() *product.UploadImageURLModel {
+func (p UploadURLImage) ToDomain() *product.UploadImageURLModel {
 	return &product.UploadImageURLModel{
 		URL: p.URL,
 		Key: p.Key,

@@ -53,7 +53,7 @@ func (h *CartImpl) Get(ctx *gin.Context) {
 	cart, err := h.app.Get(
 		ctx,
 		id,
-		request.CartQueryParamsToDomain(&request.CartQueryParams{
+		request.CartQueryParamsToDomain(request.CartQueryParams{
 			Limit:  limit,
 			Offset: offset,
 		}),

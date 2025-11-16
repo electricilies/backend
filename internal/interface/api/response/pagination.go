@@ -9,12 +9,12 @@ type Pagination struct {
 	PageItems    int `json:"pageItems"`
 }
 
-func PaginationFromDomain(p *param.PaginationMetadata) *Pagination {
+func PaginationFromDomain(p param.PaginationMetadata) *Pagination {
 	return &Pagination{
-		TotalItems:   *p.TotalRecords,
-		CurrentPage:  *p.CurrentPage,
-		ItemsPerPage: *p.ItemsPerPage,
-		PageItems:    *p.PageItems,
+		TotalItems:   p.TotalRecords,
+		CurrentPage:  p.CurrentPage,
+		ItemsPerPage: p.ItemsPerPage,
+		PageItems:    p.PageItems,
 	}
 }
 
@@ -23,7 +23,7 @@ type DataPagination struct {
 	Meta *Pagination `json:"pagination" binding:"required"`
 }
 
-func DataPaginationFromDomain(data interface{}, p *param.PaginationMetadata) *DataPagination {
+func DataPaginationFromDomain(data interface{}, p param.PaginationMetadata) *DataPagination {
 	return &DataPagination{
 		Data: data,
 		Meta: PaginationFromDomain(p),

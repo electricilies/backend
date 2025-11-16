@@ -30,6 +30,7 @@ type Product struct {
 	Images          []ProductImage    `json:"images" binding:"omitnil"`
 	CreatedAt       time.Time         `json:"createdAt" binding:"required"`
 	UpdatedAt       time.Time         `json:"updatedAt" binding:"required"`
+	DeletedAt       *time.Time        `json:"deletedAt" binding:"omitnil"`
 	Category        Category          `json:"category" binding:"required"`
 	AttributeValues []AttributeValue  `json:"attributeValues" binding:"required"`
 	Variants        *[]ProductVariant `json:"variants" binding:"omitnil"`
@@ -73,7 +74,7 @@ type ProductVariant struct {
 }
 
 // TODO: Implement
-func ProductVariantFromDomain(v *product.VariantModel) *ProductVariant {
+func ProductVariantFromDomain(v product.VariantModel) *ProductVariant {
 	return &ProductVariant{}
 }
 
@@ -90,7 +91,7 @@ func ProductUploadURLImageFromDomain(
 	u *product.UploadImageURLModel,
 ) *ProductUploadURLImage {
 	return &ProductUploadURLImage{
-		URL: *u.URL,
-		Key: *u.Key,
+		URL: u.URL,
+		Key: u.Key,
 	}
 }

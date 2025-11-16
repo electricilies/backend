@@ -12,7 +12,7 @@ type CreateUser struct {
 	ID string `json:"id" binding:"required"`
 }
 
-func (r *CreateUser) ToDomain() *user.Model {
+func (r CreateUser) ToDomain() *user.Model {
 	id := uuid.MustParse(r.ID)
 	return &user.Model{
 		ID: &id,

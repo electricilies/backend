@@ -74,7 +74,7 @@ func (h *ReviewImpl) ListReviewsByProducts(ctx *gin.Context) {
 	pagination, err := h.app.ListReviewsByProductID(
 		ctx,
 		productID,
-		request.ReviewQueryParamsToDomain(&request.ReviewQueryParams{
+		request.ReviewQueryParamsToDomain(request.ReviewQueryParams{
 			Limit:   limit,
 			Offset:  offset,
 			Deleted: ctx.Query("deleted"),

@@ -17,7 +17,7 @@ type CategoryQueryParams struct {
 
 func CategoryQueryParamsToDomain(categoryQueryParams *CategoryQueryParams) *category.QueryParams {
 	return &category.QueryParams{
-		PaginationParams: PaginationParamsToDomain(
+		PaginationParams: *PaginationParamsToDomain(
 			categoryQueryParams.Limit,
 			categoryQueryParams.Offset,
 		),

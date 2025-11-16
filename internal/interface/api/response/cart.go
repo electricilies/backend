@@ -8,11 +8,11 @@ type CartItem struct {
 	Quantity       int            `json:"quantity" binding:"required"`
 }
 
-func CartItemFromDomain(i *cart.ItemModel) *CartItem {
+func CartItemFromDomain(i cart.ItemModel) *CartItem {
 	return &CartItem{
-		ID:             *i.ID,
+		ID:             i.ID,
 		ProductVariant: *ProductVariantFromDomain(i.ProductVariant),
-		Quantity:       *i.Quantity,
+		Quantity:       i.Quantity,
 	}
 }
 
@@ -22,13 +22,13 @@ type Cart struct {
 }
 
 func CartFromDomain(c *cart.Model) *Cart {
-	cartItemsPagination := make([]DataPagination, len(*c.Items))
-	for i, item := range *c.Items {
+	cartItemsPagination := make([]DataPagination, len(c.Items))
+	for i, item := range c.Items {
 		cartItemsPagination[i] = *DataPaginationFromDomain(item.Items, item.Metadata)
 	}
 
 	return &Cart{
-		ID:    *c.ID,
+		ID:    c.ID,
 		Items: cartItemsPagination,
 	}
 }

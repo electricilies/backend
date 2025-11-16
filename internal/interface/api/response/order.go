@@ -6,10 +6,10 @@ type OrderStatus string
 
 type Order struct {
 	ID        int         `json:"id" binding:"required"`
-	UserID    string      `json:"userId" binding:"required"`
+	User      *User       `json:"user" binding:"omitnil"`
 	Address   string      `json:"address" binding:"required"`
 	Status    OrderStatus `json:"status" binding:"required"`
-	Payment   Payment     `json:"payment" binding:"required"`
+	Payment   *Payment    `json:"payment" binding:"omitnil"`
 	CreatedAt time.Time   `json:"createdAt" binding:"required"`
 	UpdatedAt time.Time   `json:"updatedAt" binding:"required"`
 	Items     []OrderItem `json:"items" binding:"required"`

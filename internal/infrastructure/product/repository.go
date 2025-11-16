@@ -75,8 +75,8 @@ func (r *RepositoryImpl) GetUploadImageURL(ctx context.Context) (*product.Upload
 
 	key = strings.Replace(key, "temp/", "", 1)
 	model := &UploadURLImage{
-		URL: &url.URL,
-		Key: &key,
+		URL: url.URL,
+		Key: key,
 	}
 	return model.ToDomain(), nil
 }
@@ -123,32 +123,32 @@ func (r *RepositoryImpl) MoveImage(ctx context.Context, key string) error {
 }
 
 // TODO: implement cache later
-func (r *RepositoryImpl) List(ctx context.Context, queryParams *product.QueryParams) (*product.PaginationModel, error) {
+func (r *RepositoryImpl) List(ctx context.Context, queryParams product.QueryParams) (*product.PaginationModel, error) {
 	productRows, err := r.db.ListProducts(ctx, *ToListProductsParam(queryParams))
 	if err != nil {
 		return nil, mapper.ToDomainErrorFromPostgres(err)
 	}
-	return ListProductRowsToDomain(&productRows, queryParams.PaginationParams), nil
+	return ListProductRowsToDomain(productRows, queryParams.PaginationParams), nil
 }
 
-func (r *RepositoryImpl) Create(ctx context.Context, model *product.Model) (*product.Model, error) {
+func (r *RepositoryImpl) Create(ctx context.Context, model product.Model) (*product.Model, error) {
 	productEntity, err := r.db.CreateProduct(ctx, *ToCreateProductParams(model))
 	if err != nil {
 		return nil, mapper.ToDomainErrorFromPostgres(err)
 	}
-	return ToDomain(&productEntity), nil
+	return ToDomain(productEntity), nil
 }
 
-func (r *RepositoryImpl) Update(ctx context.Context, model *product.Model, id int) (*product.Model, error) {
+func (r *RepositoryImpl) Update(ctx context.Context, model product.Model, id int) (*product.Model, error) {
 	productEntity, err := r.db.UpdateProduct(ctx, *ToUpdateProductParams(model, id))
 	if err != nil {
 		return nil, mapper.ToDomainErrorFromPostgres(err)
 	}
-	return ToDomain(&productEntity), nil
+	return ToDomain(productEntity), nil
 }
 
 func (r *RepositoryImpl) Deletes(ctx context.Context, id []int) error {
-	rowAffected, err := r.db.DeleteProducts(ctx, *ToDeleteProductsParam(&id))
+	rowAffected, err := r.db.DeleteProducts(ctx, *ToDeleteProductsParam(id))
 	if err != nil {
 		return mapper.ToDomainErrorFromPostgres(err)
 	}
@@ -160,19 +160,19 @@ func (r *RepositoryImpl) Deletes(ctx context.Context, id []int) error {
 
 func (r *RepositoryImpl) AddOption(
 	ctx context.Context,
-	optionModel *product.OptionModel,
+	optionModel product.OptionModel,
 	id int,
 ) (*product.OptionModel, error) {
 	optionEntity, err := r.db.CreateOption(ctx, *ToCreateOptionParams(optionModel, id))
 	if err != nil {
 		return nil, mapper.ToDomainErrorFromPostgres(err)
 	}
-	return OptionToDomain(&optionEntity), nil
+	return OptionToDomain(optionEntity), nil
 }
 
 func (r *RepositoryImpl) UpdateOption(
 	ctx context.Context,
-	optionModel *product.OptionModel,
+	optionModel product.OptionModel,
 	optionId int,
 ) (*product.OptionModel, error) {
 	return &product.OptionModel{}, nil
@@ -180,7 +180,7 @@ func (r *RepositoryImpl) UpdateOption(
 
 func (r *RepositoryImpl) AddVariants(
 	ctx context.Context,
-	variantModel *[]product.VariantModel,
+	variantModel []product.VariantModel,
 	id int,
 ) (*[]product.VariantModel, error) {
 	productVariantEntities, err := r.db.CreateProductVariants(ctx, *ToCreateProductVariantParams(variantModel, id))
@@ -189,23 +189,23 @@ func (r *RepositoryImpl) AddVariants(
 	}
 	var productVariantModels []product.VariantModel
 	for _, v := range productVariantEntities {
-		variant := VariantToDomain(&v)
+		variant := VariantToDomain(v)
 		productVariantModels = append(productVariantModels, *variant)
 	}
 	return &productVariantModels, nil
 }
 
-func (r *RepositoryImpl) UpdateVariant(
+func (r *RepositoryImpl) UpdateVariants(
 	ctx context.Context,
-	variantModel *product.VariantModel,
+	variantModel []product.VariantModel,
 	variantId int,
-) (*product.VariantModel, error) {
-	return &product.VariantModel{}, nil
+) (*[]product.VariantModel, error) {
+	return &[]product.VariantModel{}, nil
 }
 
 func (r *RepositoryImpl) AddImages(
 	ctx context.Context,
-	imageModels *[]product.ImageModel,
+	imageModels []product.ImageModel,
 	id int,
 ) (*[]product.ImageModel, error) {
 	productImageEntities, err := r.db.CreateProductImages(ctx, *ToCreateProductImagesParams(imageModels, id))
@@ -214,7 +214,7 @@ func (r *RepositoryImpl) AddImages(
 	}
 	var productImageModels []product.ImageModel
 	for _, entity := range productImageEntities {
-		image := ImageToDomain(&entity)
+		image := ImageToDomain(entity)
 		productImageModels = append(productImageModels, *image)
 	}
 	return &productImageModels, nil

@@ -17,7 +17,7 @@ type CartQueryParams struct {
 	Offset int
 }
 
-func CartQueryParamsToDomain(cartQueryParams *CartQueryParams) *cart.QueryParams {
+func CartQueryParamsToDomain(cartQueryParams CartQueryParams) *cart.QueryParams {
 	return &cart.QueryParams{
 		Pagination: PaginationParamsToDomain(
 			cartQueryParams.Limit,

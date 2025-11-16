@@ -3039,7 +3039,7 @@ const docTemplate = `{
         "request.UpdateProduct": {
             "type": "object",
             "properties": {
-                "categoryIds": {
+                "categoryId": {
                     "type": "integer"
                 },
                 "description": {
@@ -3053,10 +3053,10 @@ const docTemplate = `{
         "request.UpdateProductOption": {
             "type": "object",
             "required": [
-                "value"
+                "name"
             ],
             "properties": {
-                "value": {
+                "name": {
                     "type": "string"
                 }
             }
@@ -3307,10 +3307,8 @@ const docTemplate = `{
                 "createdAt",
                 "id",
                 "items",
-                "payment",
                 "status",
-                "updatedAt",
-                "userId"
+                "updatedAt"
             ],
             "properties": {
                 "address": {
@@ -3337,8 +3335,8 @@ const docTemplate = `{
                 "updatedAt": {
                     "type": "string"
                 },
-                "userId": {
-                    "type": "string"
+                "user": {
+                    "$ref": "#/definitions/response.User"
                 }
             }
         },
@@ -3400,6 +3398,7 @@ const docTemplate = `{
             "required": [
                 "amount",
                 "id",
+                "order",
                 "paymentStatus",
                 "updatedAt"
             ],
@@ -3409,6 +3408,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "order": {
+                    "$ref": "#/definitions/response.Order"
                 },
                 "paymentProvider": {
                     "$ref": "#/definitions/response.PaymentProvider"
@@ -3477,6 +3479,9 @@ const docTemplate = `{
                     "$ref": "#/definitions/response.Category"
                 },
                 "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
                     "type": "string"
                 },
                 "description": {
@@ -3769,6 +3774,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
                     "type": "string"
                 },
                 "id": {

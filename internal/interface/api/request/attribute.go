@@ -30,11 +30,11 @@ type AttributeQueryParams struct {
 	Deleted   string
 }
 
-func AttributeQueryParamsToDomain(attributeQueryParams *AttributeQueryParams) *attribute.QueryParams {
+func AttributeQueryParamsToDomain(attributeQueryParams AttributeQueryParams) *attribute.QueryParams {
 	return &attribute.QueryParams{
-		PaginationParams: PaginationParamsToDomain(attributeQueryParams.Limit, attributeQueryParams.Offset),
+		PaginationParams: *PaginationParamsToDomain(attributeQueryParams.Limit, attributeQueryParams.Offset),
 		ProductID:        &attributeQueryParams.ProductID,
 		Search:           &attributeQueryParams.Search,
-		Deleted:          DeletedParamToDomain(attributeQueryParams.Deleted),
+		Deleted:          *DeletedParamToDomain(attributeQueryParams.Deleted),
 	}
 }

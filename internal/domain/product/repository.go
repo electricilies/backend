@@ -13,13 +13,13 @@ type Repository interface {
 	GetUploadImageURL(context.Context) (*UploadImageURLModel, error)
 	GetDeleteImageURL(context.Context, int) (string, error)
 	MoveImage(context.Context, string) error
-	List(context.Context, *QueryParams) (*PaginationModel, error)
-	Create(context.Context, *Model) (*Model, error)
-	Update(context.Context, *Model, int) (*Model, error)
+	List(context.Context, QueryParams) (*PaginationModel, error)
+	Create(context.Context, Model) (*Model, error)
+	Update(context.Context, Model, int) (*Model, error)
 	Deletes(context.Context, []int) error
-	AddOption(context.Context, *OptionModel, int) (*OptionModel, error)
-	UpdateOption(context.Context, *OptionModel, int) (*OptionModel, error)
-	AddVariants(context.Context, *[]VariantModel, int) (*[]VariantModel, error)
-	UpdateVariant(context.Context, *VariantModel, int) (*VariantModel, error)
-	AddImages(context.Context, *[]ImageModel, int) (*[]ImageModel, error)
+	AddOption(context.Context, OptionModel, int) (*OptionModel, error)
+	UpdateOption(context.Context, OptionModel, int) (*OptionModel, error)
+	AddVariants(context.Context, []VariantModel, int) (*[]VariantModel, error)
+	UpdateVariants(context.Context, []VariantModel, int) (*[]VariantModel, error)
+	AddImages(context.Context, []ImageModel, int) (*[]ImageModel, error)
 }

@@ -32,7 +32,7 @@ func (r *RepositoryImpl) Get(ctx context.Context, id int, queryParams *cart.Quer
 	if err != nil {
 		return nil, mapper.ToDomainErrorFromPostgres(err)
 	}
-	return ToDomain(&cartEntity), nil
+	return ToDomain(cartEntity), nil
 }
 
 func (r *RepositoryImpl) AddItem(ctx context.Context, itemModel *cart.ItemModel) (*cart.ItemModel, error) {
