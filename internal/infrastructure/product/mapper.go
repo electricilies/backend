@@ -72,9 +72,10 @@ func ToCreateProductImagesParams(
 	imageModel *[]product.ImageModel,
 	productID int,
 ) *postgres.CreateProductImagesParams {
-	URLs := make([]string, 0)
-	Orders := make([]int32, 0)
-	VariantIDs := make([]int32, 0)
+	length := len(*imageModel)
+	URLs := make([]string, 0, length)
+	Orders := make([]int32, 0, length)
+	VariantIDs := make([]int32, 0, length)
 	for _, image := range *imageModel {
 		URLs = append(URLs, *image.URL)
 		Orders = append(Orders, int32(*image.Order))
@@ -95,9 +96,10 @@ func ToCreateProductVariantParams(
 	variantModel *[]product.VariantModel,
 	productId int,
 ) *postgres.CreateProductVariantsParams {
-	SKUs := make([]string, 0)
-	Prices := make([]pgtype.Numeric, 0)
-	Quantities := make([]int32, 0)
+	length := len(*variantModel)
+	SKUs := make([]string, 0, length)
+	Prices := make([]pgtype.Numeric, 0, length)
+	Quantities := make([]int32, 0, length)
 	for _, variant := range *variantModel {
 		SKUs = append(SKUs, *variant.SKU)
 		Prices = append(
@@ -184,7 +186,7 @@ func ListProductRowsToDomain(
 	listProductRow *[]postgres.ListProductsRow,
 	paginationParams *param.Pagination,
 ) *product.PaginationModel {
-	domainProducts := make([]product.Model, 0)
+	domainProducts := make([]product.Model, 0, len(*listProductRow))
 	for _, row := range *listProductRow {
 		domainProducts = append(domainProducts, *ToDomain(&row.Product))
 	}
