@@ -20,23 +20,23 @@ func NewCategory(name string) *Category {
 	}
 }
 
-func (c *Category) ID() int {
+func (c *Category) GetID() int {
 	return c.id
 }
 
-func (c *Category) Name() string {
+func (c *Category) GetName() string {
 	return c.name
 }
 
-func (c *Category) CreatedAt() time.Time {
+func (c *Category) GetCreatedAt() time.Time {
 	return c.createdAt
 }
 
-func (c *Category) UpdatedAt() time.Time {
+func (c *Category) GetUpdatedAt() time.Time {
 	return c.updatedAt
 }
 
-func (c *Category) DeletedAt() time.Time {
+func (c *Category) GetDeletedAt() time.Time {
 	return c.deletedAt
 }
 
