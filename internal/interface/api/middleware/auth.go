@@ -43,22 +43,40 @@ func (j *AuthImpl) Handler() gin.HandlerFunc {
 		}
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization header format"})
+			ctx.AbortWithStatusJSON(
+				http.StatusUnauthorized,
+				gin.H{"error": "Invalid Authorization header format"},
+			)
 			return
 		}
 		token := parts[1]
 		tokens, _, err := j.keycloakClient.DecodeAccessToken(ctx, token, j.srvCfg.KCRealm)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Cannot decode access token", "detail": err.Error()})
+			ctx.AbortWithStatusJSON(
+				http.StatusUnauthorized,
+				gin.H{"error": "Cannot decode access token", "detail": err.Error()},
+			)
 			return
 		}
-		rptResult, err := j.keycloakClient.RetrospectToken(ctx, token, j.srvCfg.KCClientId, j.srvCfg.KCClientSecret, j.srvCfg.KCRealm)
+		rptResult, err := j.keycloakClient.RetrospectToken(
+			ctx,
+			token,
+			j.srvCfg.KCClientId,
+			j.srvCfg.KCClientSecret,
+			j.srvCfg.KCRealm,
+		)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Failed to introspect token", "detail": err.Error()})
+			ctx.AbortWithStatusJSON(
+				http.StatusUnauthorized,
+				gin.H{"error": "Failed to introspect token", "detail": err.Error()},
+			)
 			return
 		}
 		if rptResult == nil || !*rptResult.Active {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Inactive or invalid token"})
+			ctx.AbortWithStatusJSON(
+				http.StatusUnauthorized,
+				gin.H{"error": "Inactive or invalid token"},
+			)
 			return
 		}
 

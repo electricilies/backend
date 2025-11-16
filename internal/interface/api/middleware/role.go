@@ -41,7 +41,7 @@ func (r *RoleImpl) Handler(rolesAllowed []constant.UserRole) gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(
 				http.StatusUnauthorized,
 				gin.H{
-					"error": "No JWT claims found, JWT middleware must be used before role middleware",
+					"error": "No JWT claims found",
 				},
 			)
 			return

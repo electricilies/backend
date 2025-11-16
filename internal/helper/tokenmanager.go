@@ -29,7 +29,12 @@ func (tm *tokenManager) GetClientToken(ctx context.Context) (string, error) {
 	if tm.token == nil || tm.token.ExpiresIn < 10 {
 		return tm.token.AccessToken, nil
 	}
-	token, err := tm.keycloakClient.LoginClient(ctx, tm.srvCfg.KCClientId, tm.srvCfg.KCClientSecret, tm.srvCfg.KCRealm)
+	token, err := tm.keycloakClient.LoginClient(
+		ctx,
+		tm.srvCfg.KCClientId,
+		tm.srvCfg.KCClientSecret,
+		tm.srvCfg.KCRealm,
+	)
 	if err != nil {
 		return "", err
 	}
