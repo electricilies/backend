@@ -10,14 +10,14 @@ VALUES (
 RETURNING
   *;
 
--- name: CreateAttributeValues :many
+-- name: CreateAttributeValue :one
 INSERT INTO attribute_values (
   attribute_id,
   value
 )
 SELECT
-  UNNEST(sqlc.arg('attribute_ids')::integer[]) AS attribute_id,
-  UNNEST(sqlc.arg('values')::text[]) AS value
+  UNNEST(sqlc.arg('attribute_id')::integer) AS attribute_id,
+  UNNEST(sqlc.arg('value')::text) AS value
 RETURNING
   *;
 

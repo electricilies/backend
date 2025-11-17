@@ -8,10 +8,10 @@ import (
 )
 
 type Attribute interface {
-	GetAttribute(context.Context, service.GetAttributeParam) (*domain.Attribute, error)
-	ListAttributes(context.Context, service.ListAttributesParam) (*domain.Pagination[domain.Attribute], error)
-	CreateAttribute(context.Context, service.CreateAttributeParam) (*domain.Attribute, error)
-	UpdateAttribute(context.Context, service.UpdateAttributeParam) (*domain.Attribute, error)
-	CreateAttributeValue(context.Context, service.CreateAttributeValueParam) (*domain.AttributeValue, error)
-	UpdateAttributeValues(context.Context, []service.UpdateAttributeValueParam) error
+	Get(context.Context, service.GetAttributeParam) (*domain.Attribute, error)
+	List(context.Context, service.ListAttributesParam) (*domain.Pagination[domain.Attribute], error)
+	Create(context.Context, service.CreateAttributeParam) (*domain.Attribute, error)
+	Update(context.Context, service.UpdateAttributeParam) (*domain.Attribute, error)
+	CreateValue(context.Context, service.CreateAttributeValueParam) (*domain.AttributeValue, error)
+	UpdateValues(context.Context, []service.UpdateAttributeValueParam) error
 }

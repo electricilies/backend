@@ -2,6 +2,14 @@ package repository
 
 import "reflect"
 
+func mapPgtypeToDomain[T interface{}](value T, valid bool) T {
+	if !valid {
+		var zero T
+		return zero
+	}
+	return value
+}
+
 func mapPgtypeToDomainPtr[T interface{}](value T, valid bool) *T {
 	if !valid {
 		return nil
@@ -35,4 +43,12 @@ func domainPtrSliceToPgtype[T, U interface{}](value *[]T, mapper ...func(T) U) (
 		mapped[i] = mapper[0](v)
 	}
 	return mapped, true
+}
+
+func domainSliceToPgtype[T, U interface{}](value []T, mapper func(T) U) []U {
+	mapped := make([]U, len(value))
+	for i, v := range value {
+		mapped[i] = mapper(v)
+	}
+	return mapped
 }

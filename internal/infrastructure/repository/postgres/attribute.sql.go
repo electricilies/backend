@@ -41,41 +41,28 @@ func (q *Queries) CreateAttribute(ctx context.Context, arg CreateAttributeParams
 	return i, err
 }
 
-const createAttributeValues = `-- name: CreateAttributeValues :many
+const createAttributeValue = `-- name: CreateAttributeValue :one
 INSERT INTO attribute_values (
   attribute_id,
   value
 )
 SELECT
-  UNNEST($1::integer[]) AS attribute_id,
-  UNNEST($2::text[]) AS value
+  UNNEST($1::integer) AS attribute_id,
+  UNNEST($2::text) AS value
 RETURNING
   id, attribute_id, value
 `
 
-type CreateAttributeValuesParams struct {
-	AttributeIDs []int32
-	Values       []string
+type CreateAttributeValueParams struct {
+	AttributeID int32
+	Value       string
 }
 
-func (q *Queries) CreateAttributeValues(ctx context.Context, arg CreateAttributeValuesParams) ([]AttributeValue, error) {
-	rows, err := q.db.Query(ctx, createAttributeValues, arg.AttributeIDs, arg.Values)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []AttributeValue
-	for rows.Next() {
-		var i AttributeValue
-		if err := rows.Scan(&i.ID, &i.AttributeID, &i.Value); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) CreateAttributeValue(ctx context.Context, arg CreateAttributeValueParams) (AttributeValue, error) {
+	row := q.db.QueryRow(ctx, createAttributeValue, arg.AttributeID, arg.Value)
+	var i AttributeValue
+	err := row.Scan(&i.ID, &i.AttributeID, &i.Value)
+	return i, err
 }
 
 const deleteAttributeValues = `-- name: DeleteAttributeValues :execrows

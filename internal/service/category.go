@@ -19,7 +19,8 @@ type CreateCategoryParam struct {
 }
 
 type UpdateCategoryParam struct {
-	Name string `json:"name" binding:"required"`
+	CategoryID int    `json:"categoryId" binding:"required"`
+	Name       string `json:"name" binding:"required"`
 }
 
 type Category interface {
