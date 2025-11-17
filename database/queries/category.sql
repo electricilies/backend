@@ -26,6 +26,15 @@ ORDER BY
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
 
+-- name: GetCategory :one
+SELECT
+  *
+FROM
+  categories
+WHERE
+  deleted_at IS NULL
+  AND id = sqlc.arg('id');
+
 -- name: UpdateCategory :one
 UPDATE
   categories
