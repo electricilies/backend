@@ -79,7 +79,7 @@ type Product interface {
 	Delete(context.Context, DeleteProductParam) error
 	CreateOptions(context.Context, []CreateProductOptionParam) (*domain.ProductOption, error)
 	CreateVariants(context.Context, []CreateProductVariantParam) (*domain.ProductVariant, error)
-	UpdateVariants(context.Context, []UpdateProductVariantParam) (*domain.ProductVariant, error)
+	UpdateVariant(context.Context, UpdateProductVariantParam) (*domain.ProductVariant, error)
 	UpdateOption(context.Context, UpdateProductOptionParam) (*domain.ProductOption, error)
 	GetDeleteImageURL(context.Context, int) (string, error)
 	GetUploadImageURL(context.Context) (*domain.ProductUploadURLImage, error)
@@ -122,7 +122,7 @@ func (s *ProductImpl) CreateVariants(ctx context.Context, param []CreateProductV
 	return nil, nil
 }
 
-func (s *ProductImpl) UpdateVariants(ctx context.Context, param []UpdateProductVariantParam) (*domain.ProductVariant, error) {
+func (s *ProductImpl) UpdateVariant(ctx context.Context, param UpdateProductVariantParam) (*domain.ProductVariant, error) {
 	return nil, nil
 }
 

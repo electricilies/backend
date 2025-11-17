@@ -206,30 +206,20 @@ WHERE
 RETURNING
   *;
 
--- name: UpdateProductVariants :many
-WITH updated_variants AS (
-  SELECT
-    UNNEST(sqlc.arg('ids')::integer[]) AS id,
-    UNNEST(sqlc.arg('skus')::text[]) AS sku,
-    UNNEST(sqlc.arg('prices')::decimal[]) AS price,
-    UNNEST(sqlc.arg('quantities')::integer[]) AS quantity,
-    UNNEST(sqlc.arg('purchase_counts')::integer[]) AS purchase_count
-)
+-- name: UpdateProductVariant :one
 UPDATE
   product_variants
 SET
-  sku = COALESCE(updated_variants.sku, product_variants.sku),
-  price = COALESCE(updated_variants.price, product_variants.price),
-  quantity = COALESCE(updated_variants.quantity, product_variants.quantity),
-  purchase_count = COALESCE(updated_variants.purchase_count, product_variants.purchase_count),
+  sku = COALESCE(sqlc.narg('sku')::text, sku),
+  price = COALESCE(sqlc.narg('price')::decimal, price),
+  quantity = COALESCE(sqlc.narg('quantity')::integer, quantity),
+  purchase_count = COALESCE(sqlc.narg('purchase_count')::integer, purchase_count),
   updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
-FROM
-  updated_variants
 WHERE
-  product_variants.id = updated_variants.id
+  product_variants.id = sqlc.arg('id')
   AND product_variants.deleted_at IS NULL
 RETURNING
-  product_variants.*;
+  *;
 
 -- name: DeleteProducts :execrows
 UPDATE

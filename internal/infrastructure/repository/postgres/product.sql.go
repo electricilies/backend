@@ -652,74 +652,51 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 	return i, err
 }
 
-const updateProductVariants = `-- name: UpdateProductVariants :many
-WITH updated_variants AS (
-  SELECT
-    UNNEST($2::integer[]) AS id,
-    UNNEST($3::text[]) AS sku,
-    UNNEST($4::decimal[]) AS price,
-    UNNEST($5::integer[]) AS quantity,
-    UNNEST($6::integer[]) AS purchase_count
-)
+const updateProductVariant = `-- name: UpdateProductVariant :one
 UPDATE
   product_variants
 SET
-  sku = COALESCE(updated_variants.sku, product_variants.sku),
-  price = COALESCE(updated_variants.price, product_variants.price),
-  quantity = COALESCE(updated_variants.quantity, product_variants.quantity),
-  purchase_count = COALESCE(updated_variants.purchase_count, product_variants.purchase_count),
-  updated_at = COALESCE($1::timestamp, NOW())
-FROM
-  updated_variants
+  sku = COALESCE($1::text, sku),
+  price = COALESCE($2::decimal, price),
+  quantity = COALESCE($3::integer, quantity),
+  purchase_count = COALESCE($4::integer, purchase_count),
+  updated_at = COALESCE($5::timestamp, NOW())
 WHERE
-  product_variants.id = updated_variants.id
+  product_variants.id = $6
   AND product_variants.deleted_at IS NULL
 RETURNING
-  product_variants.id, product_variants.sku, product_variants.price, product_variants.quantity, product_variants.purchase_count, product_variants.product_id, product_variants.created_at, product_variants.updated_at, product_variants.deleted_at
+  id, sku, price, quantity, purchase_count, product_id, created_at, updated_at, deleted_at
 `
 
-type UpdateProductVariantsParams struct {
-	UpdatedAt      pgtype.Timestamp
-	IDs            []int32
-	SKUs           []string
-	Prices         []pgtype.Numeric
-	Quantities     []int32
-	PurchaseCounts []int32
+type UpdateProductVariantParams struct {
+	SKU           pgtype.Text
+	Price         pgtype.Numeric
+	Quantity      pgtype.Int4
+	PurchaseCount pgtype.Int4
+	UpdatedAt     pgtype.Timestamp
+	ID            int32
 }
 
-func (q *Queries) UpdateProductVariants(ctx context.Context, arg UpdateProductVariantsParams) ([]ProductVariant, error) {
-	rows, err := q.db.Query(ctx, updateProductVariants,
+func (q *Queries) UpdateProductVariant(ctx context.Context, arg UpdateProductVariantParams) (ProductVariant, error) {
+	row := q.db.QueryRow(ctx, updateProductVariant,
+		arg.SKU,
+		arg.Price,
+		arg.Quantity,
+		arg.PurchaseCount,
 		arg.UpdatedAt,
-		arg.IDs,
-		arg.SKUs,
-		arg.Prices,
-		arg.Quantities,
-		arg.PurchaseCounts,
+		arg.ID,
 	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ProductVariant
-	for rows.Next() {
-		var i ProductVariant
-		if err := rows.Scan(
-			&i.ID,
-			&i.SKU,
-			&i.Price,
-			&i.Quantity,
-			&i.PurchaseCount,
-			&i.ProductID,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+	var i ProductVariant
+	err := row.Scan(
+		&i.ID,
+		&i.SKU,
+		&i.Price,
+		&i.Quantity,
+		&i.PurchaseCount,
+		&i.ProductID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
