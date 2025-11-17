@@ -27,7 +27,7 @@ func ProvideRoleMiddleware(srvCfg *config.Server) *RoleMiddlewareImpl {
 	}
 }
 
-func (r *RoleMiddlewareImpl) Handler(rolesAllowed []UserRole) gin.HandlerFunc {
+func (m *RoleMiddlewareImpl) Handler(rolesAllowed []UserRole) gin.HandlerFunc {
 	set := make(map[UserRole]struct{})
 	for _, requiredRole := range rolesAllowed {
 		set[requiredRole] = struct{}{}

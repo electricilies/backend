@@ -24,7 +24,7 @@ func ProvideLoggingMiddleware(logger *zap.Logger) *LoggingMiddlewareImpl {
 	}
 }
 
-func (l *LoggingMiddlewareImpl) Handler() gin.HandlerFunc {
+func (m *LoggingMiddlewareImpl) Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		start := time.Now()
 		path := ctx.Request.URL.Path
@@ -46,10 +46,10 @@ func (l *LoggingMiddlewareImpl) Handler() gin.HandlerFunc {
 
 		if len(ctx.Errors) > 0 && status >= 500 {
 			for _, e := range ctx.Errors.Errors() {
-				l.logger.Error(e, fields...)
+				m.logger.Error(e, fields...)
 			}
 			return
 		}
-		l.logger.Info(path, fields...)
+		m.logger.Info(path, fields...)
 	}
 }

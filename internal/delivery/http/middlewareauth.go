@@ -29,7 +29,7 @@ func ProvideAuthMiddleware(keycloakClient *gocloak.GoCloak, srvCfg *config.Serve
 	}
 }
 
-func (j *AuthMiddlewareImpl) Handler() gin.HandlerFunc {
+func (m *AuthMiddlewareImpl) Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {
@@ -45,7 +45,7 @@ func (j *AuthMiddlewareImpl) Handler() gin.HandlerFunc {
 			return
 		}
 		token := parts[1]
-		tokens, _, err := j.keycloakClient.DecodeAccessToken(ctx, token, j.srvCfg.KCRealm)
+		tokens, _, err := m.keycloakClient.DecodeAccessToken(ctx, token, m.srvCfg.KCRealm)
 		if err != nil {
 			ctx.AbortWithStatusJSON(
 				http.StatusUnauthorized,
@@ -53,12 +53,12 @@ func (j *AuthMiddlewareImpl) Handler() gin.HandlerFunc {
 			)
 			return
 		}
-		rptResult, err := j.keycloakClient.RetrospectToken(
+		rptResult, err := m.keycloakClient.RetrospectToken(
 			ctx,
 			token,
-			j.srvCfg.KCClientId,
-			j.srvCfg.KCClientSecret,
-			j.srvCfg.KCRealm,
+			m.srvCfg.KCClientId,
+			m.srvCfg.KCClientSecret,
+			m.srvCfg.KCRealm,
 		)
 		if err != nil {
 			ctx.AbortWithStatusJSON(
