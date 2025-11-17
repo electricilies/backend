@@ -6,9 +6,9 @@ WITH payments AS (
     provider_id
   )
   VALUES (
-    sql.arg('amount'),
-    sql.arg('status_id'),
-    sql.arg('provider_id')
+    sqlc.arg('amount'),
+    sqlc.arg('status_id'),
+    sqlc.arg('provider_id')
   )
   RETURNING
     *
@@ -131,6 +131,6 @@ SET
   status_id = COALESCE(sqlc.narg('status_id')::integer, status_id),
   updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 WHERE
-  id = sql.arg('id')::integer
+  id = sqlc.arg('id')::integer
 RETURNING
   *;

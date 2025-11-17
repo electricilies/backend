@@ -3,8 +3,8 @@ INSERT INTO orders (
   user_id,
   status_id
 ) VALUES (
-  sql.arg('user_id'),
-  sql.arg('status_id')
+  sqlc.arg('user_id'),
+  sqlc.arg('status_id')
 )
 RETURNING
   *;
@@ -16,10 +16,10 @@ INSERT INTO order_items (
   price_at_order,
   product_variant_id
 ) VALUES (
-  sql.arg('quantity'),
-  sql.arg('order_id'),
-  sql.arg('price_at_order'),
-  sql.arg('product_variant_id')
+  sqlc.arg('quantity'),
+  sqlc.arg('order_id'),
+  sqlc.arg('price_at_order'),
+  sqlc.arg('product_variant_id')
 )
 RETURNING
   *;
@@ -55,7 +55,7 @@ SELECT
 FROM
   orders
 WHERE
-  id = sql.arg('id');
+  id = sqlc.arg('id');
 
 -- name: ListOrderItems :many
 SELECT
@@ -80,7 +80,7 @@ SELECT
 FROM
   order_items
 WHERE
-  id = sql.arg('id');
+  id = sqlc.arg('id');
 
 -- name: ListOrderStatuses :many
 SELECT
@@ -113,10 +113,10 @@ WHERE
 -- name: UpdateOrder :one
 UPDATE orders
 SET
-  user_id = COALESCE(sql.arg('user_id'), user_id),
-  status_id = COALESCE(sql.arg('status_id'), status_id),
+  user_id = COALESCE(sqlc.arg('user_id'), user_id),
+  status_id = COALESCE(sqlc.arg('status_id'), status_id),
   updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 WHERE
-  id = sql.arg('id')
+  id = sqlc.arg('id')
 RETURNING
   *;

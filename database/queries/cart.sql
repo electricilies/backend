@@ -2,7 +2,7 @@
 INSERT INTO carts (
   user_id
 ) VALUES (
-  sql.arg('user_id')
+  sqlc.arg('user_id')
 )
 RETURNING
   *;
@@ -13,9 +13,9 @@ INSERT INTO cart_items (
   cart_id,
   product_variant_id
 ) VALUES (
-  sql.arg('quantity'),
-  sql.arg('cart_id'),
-  sql.arg('product_variant_id')
+  sqlc.arg('quantity'),
+  sqlc.arg('cart_id'),
+  sqlc.arg('product_variant_id')
 )
 RETURNING
   *;
@@ -53,11 +53,11 @@ UPDATE cart_items
 SET
   quantity = COALESCE(sqlc.narg('quantity')::integer, quantity)
 WHERE
-  id = sql.arg('id')
+  id = sqlc.arg('id')
 RETURNING
   *;
 
 -- name: DeleteCartItemByIDs :execrows
 DELETE FROM cart_items
 WHERE
-  id = ANY (sql.arg('ids')::UUID[]);
+  id = ANY (sqlc.arg('ids')::UUID[]);

@@ -4,8 +4,8 @@ INSERT INTO attributes (
   name
 )
 VALUES (
-  sql.arg('code'),
-  sql.arg('name')
+  sqlc.arg('code'),
+  sqlc.arg('name')
 )
 RETURNING
   *;
@@ -16,8 +16,8 @@ INSERT INTO attribute_values (
   value
 )
 SELECT
-  UNNEST(sql.arg('attribute_ids')::integer[]) AS attribute_id,
-  UNNEST(sql.arg('values')::text[]) AS value
+  UNNEST(sqlc.arg('attribute_ids')::integer[]) AS attribute_id,
+  UNNEST(sqlc.arg('values')::text[]) AS value
 RETURNING
   *;
 
@@ -40,9 +40,9 @@ WHERE
       OR name ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
   END
   AND CASE
-    WHEN sql.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN sql.arg('deleted')::text = 'only' THEN deleted_at IS NULL
-    WHEN sql.arg('deleted')::text = 'all' THEN TRUE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END
 ORDER BY
@@ -57,7 +57,7 @@ SELECT
 FROM
   attributes
 WHERE
-  id = sql.arg('id');
+  id = sqlc.arg('id');
 
 -- name: ListProductsAttributeValues :many
 SELECT
@@ -98,15 +98,15 @@ SET
   code = COALESCE(sqlc.narg('code')::varchar(100), code),
   name = COALESCE(sqlc.narg('name')::text, name)
 WHERE
-  id = sql.arg('id')
+  id = sqlc.arg('id')
 RETURNING
   *;
 
 -- name: UpdateAttributeValues :many
 WITH updated_attribute_values AS (
   SELECT
-    UNNEST(sql.arg('ids')::integer[]) AS id,
-    UNNEST(sql.arg('values')::text[]) AS value
+    UNNEST(sqlc.arg('ids')::integer[]) AS id,
+    UNNEST(sqlc.arg('values')::text[]) AS value
 )
 UPDATE
   attribute_values
@@ -125,10 +125,10 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY (sql.arg('ids')::integer[]);
+  id = ANY (sqlc.arg('ids')::integer[]);
 
 -- name: DeleteAttributeValues :execrows
 DELETE FROM
   attribute_values
 WHERE
-  id = ANY (sql.arg('ids')::integer[]);
+  id = ANY (sqlc.arg('ids')::integer[]);

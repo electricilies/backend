@@ -275,7 +275,7 @@ FROM
 WHERE
   CASE
     WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE product_variant_id = ANY ($1::integer[])
+    ELSE product_id = ANY ($1::integer[])
   END
   AND CASE
     WHEN $2::integer[] IS NULL THEN TRUE
@@ -284,12 +284,12 @@ WHERE
 `
 
 type ListProductsAttributeValuesParams struct {
-	ProductVariantIDs []int32
+	ProductIDs        []int32
 	AttributeValueIDs []int32
 }
 
 func (q *Queries) ListProductsAttributeValues(ctx context.Context, arg ListProductsAttributeValuesParams) ([]ProductsAttributeValue, error) {
-	rows, err := q.db.Query(ctx, listProductsAttributeValues, arg.ProductVariantIDs, arg.AttributeValueIDs)
+	rows, err := q.db.Query(ctx, listProductsAttributeValues, arg.ProductIDs, arg.AttributeValueIDs)
 	if err != nil {
 		return nil, err
 	}

@@ -3,12 +3,11 @@ INSERT INTO categories (
   name
 )
 VALUES (
-  sql.arg('name')
+  sqlc.arg('name')
 )
 RETURNING
   *;
 
--- TODO: Get category by name (paradedb)
 -- name: ListCategories :many
 SELECT
   *,
@@ -17,33 +16,25 @@ SELECT
 FROM
   categories
 WHERE
-  deleted_at IS NULL
+  CASE
+    WHEN sqlc.narg('search')::text IS NULL THEN TRUE
+    ELSE name ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
+  END
+  AND deleted_at IS NULL
 ORDER BY
   id DESC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
 
--- name: GetSuggestedCategories :many
-SELECT
-  *
-FROM
-  categories
-WHERE
-  deleted_at IS NULL
-  AND name ||| sql.arg('name')
-ORDER BY
-  pdb.score(id) DESC
-LIMIT COALESCE(sqlc.narg('limit')::integer, 10);
-
 -- name: UpdateCategory :one
 UPDATE
   categories
 SET
-  name = sql.arg('name'),
+  name = sqlc.arg('name'),
   updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 WHERE
   deleted_at IS NULL
-  AND id = sql.arg('id')
+  AND id = sqlc.arg('id')
 RETURNING
   *;
 
@@ -54,4 +45,4 @@ SET
   deleted_at = NOW()
 WHERE
   deleted_at IS NULL
-  AND id = sql.arg('id');
+  AND id = sqlc.arg('id');

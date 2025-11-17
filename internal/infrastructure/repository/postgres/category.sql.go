@@ -61,50 +61,6 @@ func (q *Queries) DeleteCategory(ctx context.Context, arg DeleteCategoryParams) 
 	return result.RowsAffected(), nil
 }
 
-const getSuggestedCategories = `-- name: GetSuggestedCategories :many
-SELECT
-  id, name, created_at, updated_at, deleted_at
-FROM
-  categories
-WHERE
-  deleted_at IS NULL
-  AND name ||| $1
-ORDER BY
-  pdb.score(id) DESC
-LIMIT COALESCE($2::integer, 10)
-`
-
-type GetSuggestedCategoriesParams struct {
-	Name  string
-	Limit pgtype.Int4
-}
-
-func (q *Queries) GetSuggestedCategories(ctx context.Context, arg GetSuggestedCategoriesParams) ([]Category, error) {
-	rows, err := q.db.Query(ctx, getSuggestedCategories, arg.Name, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Category
-	for rows.Next() {
-		var i Category
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listCategories = `-- name: ListCategories :many
 SELECT
   id, name, created_at, updated_at, deleted_at,
@@ -113,14 +69,19 @@ SELECT
 FROM
   categories
 WHERE
-  deleted_at IS NULL
+  CASE
+    WHEN $1::text IS NULL THEN TRUE
+    ELSE name ||| ($1::text)::pdb.fuzzy(2)
+  END
+  AND deleted_at IS NULL
 ORDER BY
   id DESC
-OFFSET COALESCE($1::integer, 0)
-LIMIT COALESCE($2::integer, 20)
+OFFSET COALESCE($2::integer, 0)
+LIMIT COALESCE($3::integer, 20)
 `
 
 type ListCategoriesParams struct {
+	Search pgtype.Text
 	Offset pgtype.Int4
 	Limit  pgtype.Int4
 }
@@ -135,9 +96,8 @@ type ListCategoriesRow struct {
 	TotalCount   int64
 }
 
-// TODO: Get category by name (paradedb)
 func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) ([]ListCategoriesRow, error) {
-	rows, err := q.db.Query(ctx, listCategories, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, listCategories, arg.Search, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

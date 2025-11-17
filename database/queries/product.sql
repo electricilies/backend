@@ -4,8 +4,8 @@ INSERT INTO products (
   description
 )
 VALUES (
-  sql.arg('name'),
-  sql.arg('description')
+  sqlc.arg('name'),
+  sqlc.arg('description')
 )
 RETURNING
   *;
@@ -18,10 +18,10 @@ INSERT INTO product_variants (
   product_id
 )
 SELECT
-  UNNEST(sql.arg('skus')::text[]) AS sku,
-  UNNEST(sql.arg('prices')::decimal[]) AS price,
-  UNNEST(sql.arg('quantities')::integer[]) AS quantity,
-  sql.arg('product_id')
+  UNNEST(sqlc.arg('skus')::text[]) AS sku,
+  UNNEST(sqlc.arg('prices')::decimal[]) AS price,
+  UNNEST(sqlc.arg('quantities')::integer[]) AS quantity,
+  sqlc.arg('product_id')
 RETURNING
   *;
 
@@ -33,10 +33,10 @@ INSERT INTO product_images (
   product_id
 )
 SELECT
-  UNNEST(sql.arg('urls')::text[]) AS url,
-  UNNEST(sql.arg('orders')::integer[]) AS "order",
-  UNNEST(sql.arg('product_variant_ids')::integer[]) AS product_variant_id,
-  sql.arg('product_id')
+  UNNEST(sqlc.arg('urls')::text[]) AS url,
+  UNNEST(sqlc.arg('orders')::integer[]) AS "order",
+  UNNEST(sqlc.arg('product_variant_ids')::integer[]) AS product_variant_id,
+  sqlc.arg('product_id')
 RETURNING
   *;
 
@@ -46,8 +46,8 @@ INSERT INTO products_attribute_values (
   attribute_value_id
 )
 SELECT
-  sql.arg('product_id'),
-  UNNEST(sql.arg('attribute_value_ids')::integer[]) AS attribute_value_id;
+  sqlc.arg('product_id'),
+  UNNEST(sqlc.arg('attribute_value_ids')::integer[]) AS attribute_value_id;
 
 -- name: LinkProductVariantsWithOptionValues :execrows
 INSERT INTO option_values_product_variants (
@@ -55,8 +55,8 @@ INSERT INTO option_values_product_variants (
   product_variant_id
 )
 SELECT
-  UNNEST(sql.arg('option_value_ids')::integer[]) AS option_value_id,
-  UNNEST(sql.arg('product_variant_ids')::integer[]) AS product_variant_id;
+  UNNEST(sqlc.arg('option_value_ids')::integer[]) AS option_value_id,
+  UNNEST(sqlc.arg('product_variant_ids')::integer[]) AS product_variant_id;
 
 -- This is used for list, search (with filter, order), suggest
 -- name: ListProducts :many
@@ -107,9 +107,9 @@ WHERE
     ELSE products.category_id = ANY (sqlc.narg('category_ids')::integer[])
   END
   AND CASE
-    WHEN sql.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NOT NULL
-    WHEN sql.arg('deleted')::text = 'only' THEN products.deleted_at IS NULL
-    WHEN sql.arg('deleted')::text = 'all' THEN TRUE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN products.deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END
 ORDER BY
@@ -137,11 +137,11 @@ SELECT
 FROM
   products
 WHERE
-  products.id = sql.arg('id')
+  products.id = sqlc.arg('id')
   AND CASE
-    WHEN sql.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN sql.arg('deleted')::text = 'only' THEN deleted_at IS NULL
-    WHEN sql.arg('deleted')::text = 'all' THEN TRUE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END;
 
@@ -160,9 +160,9 @@ WHERE
     ELSE product_id = ANY (sqlc.narg('product_ids')::integer[])
   END
   AND CASE
-    WHEN sql.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN sql.arg('deleted')::text = 'only' THEN deleted_at IS NULL
-    WHEN sql.arg('deleted')::text = 'all' THEN TRUE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END
 ORDER BY
@@ -201,7 +201,7 @@ SET
   category_id = COALESCE(sqlc.narg('category_id')::integer, category_id),
   updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 WHERE
-  id = sql.arg('id')
+  id = sqlc.arg('id')
   AND deleted_at IS NULL
 RETURNING
   *;
@@ -209,11 +209,11 @@ RETURNING
 -- name: UpdateProductVariants :many
 WITH updated_variants AS (
   SELECT
-    UNNEST(sql.arg('ids')::integer[]) AS id,
-    UNNEST(sql.arg('skus')::text[]) AS sku,
-    UNNEST(sql.arg('prices')::decimal[]) AS price,
-    UNNEST(sql.arg('quantities')::integer[]) AS quantity,
-    UNNEST(sql.arg('purchase_counts')::integer[]) AS purchase_count
+    UNNEST(sqlc.arg('ids')::integer[]) AS id,
+    UNNEST(sqlc.arg('skus')::text[]) AS sku,
+    UNNEST(sqlc.arg('prices')::decimal[]) AS price,
+    UNNEST(sqlc.arg('quantities')::integer[]) AS quantity,
+    UNNEST(sqlc.arg('purchase_counts')::integer[]) AS purchase_count
 )
 UPDATE
   product_variants
@@ -237,7 +237,7 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY (sql.arg('ids')::integer[])
+  id = ANY (sqlc.arg('ids')::integer[])
   AND deleted_at IS NULL;
 
 -- name: DeleteProductVariants :execrows
@@ -246,14 +246,14 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY (sql.arg('ids')::integer[])
+  id = ANY (sqlc.arg('ids')::integer[])
   AND deleted_at IS NULL;
 
 -- name: DeleteProductImages :execrows
 DELETE FROM
   product_images
 WHERE
-  id = ANY (sql.arg('ids')::integer[]);
+  id = ANY (sqlc.arg('ids')::integer[]);
 
 -- name: GetProductImage :one
 SELECT
@@ -261,4 +261,4 @@ SELECT
 FROM
   product_images
 WHERE
-  id = sql.arg('id');
+  id = sqlc.arg('id');
