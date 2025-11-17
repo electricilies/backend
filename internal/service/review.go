@@ -21,8 +21,7 @@ type UpdateReviewParam struct {
 }
 
 type ListReviewsParam struct {
-	Limit   int
-	Offset  int
+	PaginationParam
 	Deleted string
 }
 
@@ -35,11 +34,11 @@ type DeleteReviewParam struct {
 }
 
 type Review interface {
-	CreateReview(context.Context, CreateReviewParam) (*domain.Review, error)
-	UpdateReview(context.Context, UpdateReviewParam) (*domain.Review, error)
-	ListReviews(context.Context, ListReviewsParam) (*domain.DataPagination, error)
-	GetReview(context.Context, int) (*domain.Review, error)
-	DeleteReview(context.Context, int) error
+	Create(context.Context, CreateReviewParam) (*domain.Review, error)
+	Update(context.Context, UpdateReviewParam) (*domain.Review, error)
+	List(context.Context, ListReviewsParam) (*domain.Pagination[domain.Review], error)
+	Get(context.Context, int) (*domain.Review, error)
+	Delete(context.Context, int) error
 }
 
 type ReviewImpl struct{}
@@ -50,23 +49,22 @@ func ProvideReview() *ReviewImpl {
 
 var _ Review = &ReviewImpl{}
 
-func (s *ReviewImpl) CreateReview(ctx context.Context, param CreateReviewParam) (*domain.Review, error) {
+func (s *ReviewImpl) Create(ctx context.Context, param CreateReviewParam) (*domain.Review, error) {
 	return nil, nil
 }
 
-func (s *ReviewImpl) UpdateReview(ctx context.Context, param UpdateReviewParam) (*domain.Review, error) {
+func (s *ReviewImpl) Update(ctx context.Context, param UpdateReviewParam) (*domain.Review, error) {
 	return nil, nil
 }
 
-func (s *ReviewImpl) ListReviews(ctx context.Context, param ListReviewsParam) (*domain.DataPagination, error) {
+func (s *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*domain.Pagination[domain.Review], error) {
 	return nil, nil
 }
 
-func (s *ReviewImpl) GetReview(ctx context.Context, reviewID int) (*domain.Review, error) {
+func (s *ReviewImpl) Get(ctx context.Context, reviewID int) (*domain.Review, error) {
 	return nil, nil
 }
 
-func (s *ReviewImpl) DeleteReview(ctx context.Context, reviewID int) error {
+func (s *ReviewImpl) Delete(ctx context.Context, reviewID int) error {
 	return nil
 }
-

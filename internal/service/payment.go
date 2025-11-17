@@ -16,8 +16,7 @@ type UpdatePaymentParam struct {
 }
 
 type ListPaymentParam struct {
-	Limit  int
-	Offset int
+	PaginationParam
 }
 
 type GetPaymentParam struct {
@@ -25,10 +24,10 @@ type GetPaymentParam struct {
 }
 
 type Payment interface {
-	CreatePayment(context.Context, CreatePaymentParam) (*domain.Payment, error)
-	UpdatePayment(context.Context, UpdatePaymentParam) (*domain.Payment, error)
-	ListPayments(context.Context, ListPaymentParam) (*domain.DataPagination, error)
-	GetPayment(context.Context, int) (*domain.Payment, error)
+	Create(context.Context, CreatePaymentParam) (*domain.Payment, error)
+	Update(context.Context, UpdatePaymentParam) (*domain.Payment, error)
+	List(context.Context, ListPaymentParam) (*domain.Pagination[domain.Payment], error)
+	Get(context.Context, int) (*domain.Payment, error)
 }
 
 type PaymentImpl struct{}
@@ -39,19 +38,18 @@ func ProvidePayment() *PaymentImpl {
 
 var _ Payment = &PaymentImpl{}
 
-func (s *PaymentImpl) CreatePayment(ctx context.Context, param CreatePaymentParam) (*domain.Payment, error) {
+func (s *PaymentImpl) Create(ctx context.Context, param CreatePaymentParam) (*domain.Payment, error) {
 	return nil, nil
 }
 
-func (s *PaymentImpl) UpdatePayment(ctx context.Context, param UpdatePaymentParam) (*domain.Payment, error) {
+func (s *PaymentImpl) Update(ctx context.Context, param UpdatePaymentParam) (*domain.Payment, error) {
 	return nil, nil
 }
 
-func (s *PaymentImpl) ListPayments(ctx context.Context, param ListPaymentParam) (*domain.DataPagination, error) {
+func (s *PaymentImpl) List(ctx context.Context, param ListPaymentParam) (*domain.Pagination[domain.Payment], error) {
 	return nil, nil
 }
 
-func (s *PaymentImpl) GetPayment(ctx context.Context, paymentID int) (*domain.Payment, error) {
+func (s *PaymentImpl) Get(ctx context.Context, paymentID int) (*domain.Payment, error) {
 	return nil, nil
 }
-

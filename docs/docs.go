@@ -2341,6 +2341,7 @@ const docTemplate = `{
             "required": [
                 "attributeValues",
                 "code",
+                "deletedAt",
                 "id",
                 "name"
             ],
@@ -2355,9 +2356,12 @@ const docTemplate = `{
                     "type": "string",
                     "example": "color"
                 },
+                "deletedAt": {
+                    "type": "string"
+                },
                 "id": {
-                    "type": "string",
-                    "example": "123"
+                    "type": "integer",
+                    "example": 123
                 },
                 "name": {
                     "type": "string",
@@ -2373,8 +2377,8 @@ const docTemplate = `{
             ],
             "properties": {
                 "id": {
-                    "type": "string",
-                    "example": "1"
+                    "type": "integer",
+                    "example": 1
                 },
                 "value": {
                     "type": "string",
@@ -3300,9 +3304,13 @@ const docTemplate = `{
         "service.UpdateProductOptionParam": {
             "type": "object",
             "required": [
+                "id",
                 "name"
             ],
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 }

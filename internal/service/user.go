@@ -28,9 +28,9 @@ type GetUserCartParam struct {
 }
 
 type User interface {
-	CreateUser(context.Context, CreateUserParam) (*domain.User, error)
-	UpdateUser(context.Context, UpdateUserParam) (*domain.User, error)
-	ListUsers(context.Context, ListUsersParam) (*domain.DataPagination, error)
+	Create(context.Context, CreateUserParam) (*domain.User, error)
+	Update(context.Context, UpdateUserParam) (*domain.User, error)
+	List(context.Context, ListUsersParam) (*domain.Pagination[domain.User], error)
 	GetCart(context.Context, GetUserCartParam) (*domain.Cart, error)
 }
 
@@ -42,19 +42,18 @@ func ProvideUser() *UserImpl {
 
 var _ User = &UserImpl{}
 
-func (s *UserImpl) CreateUser(ctx context.Context, param CreateUserParam) (*domain.User, error) {
+func (s *UserImpl) Create(ctx context.Context, param CreateUserParam) (*domain.User, error) {
 	return nil, nil
 }
 
-func (s *UserImpl) UpdateUser(ctx context.Context, param UpdateUserParam) (*domain.User, error) {
+func (s *UserImpl) Update(ctx context.Context, param UpdateUserParam) (*domain.User, error) {
 	return nil, nil
 }
 
-func (s *UserImpl) ListUsers(ctx context.Context, param ListUsersParam) (*domain.DataPagination, error) {
+func (s *UserImpl) List(ctx context.Context, param ListUsersParam) (*domain.Pagination[domain.User], error) {
 	return nil, nil
 }
 
 func (s *UserImpl) GetCart(ctx context.Context, param GetUserCartParam) (*domain.Cart, error) {
 	return nil, nil
 }
-

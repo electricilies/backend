@@ -14,7 +14,7 @@ type AttributeHandler interface {
 	Create(*gin.Context)
 	Update(*gin.Context)
 	Delete(*gin.Context)
-	UpdateAttributeValues(*gin.Context)
+	UpdateValues(*gin.Context)
 }
 
 type GinAttributeHandler struct{}
@@ -112,7 +112,7 @@ func (h *GinAttributeHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
-// UpdateAttributeValues godoc
+// UpdateValues godoc
 //
 //	@Summary		Update attribute values
 //	@Description	Update attribute values for a given attribute
@@ -127,6 +127,6 @@ func (h *GinAttributeHandler) Delete(ctx *gin.Context) {
 //	@Failure		409				{object}	service.ConflictError
 //	@Failure		500				{object}	service.InternalServerError
 //	@Router			/attributes/{attribute_id}/values/bulk [patch]
-func (h *GinAttributeHandler) UpdateAttributeValues(ctx *gin.Context) {
+func (h *GinAttributeHandler) UpdateValues(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

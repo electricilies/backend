@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"backend/config"
-	"backend/internal/infrastructure/persistence/postgres"
+	"backend/internal/infrastructure/repository/postgres"
 
 	"github.com/Thiht/transactor"
 	transactorpgx "github.com/Thiht/transactor/pgx"

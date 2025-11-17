@@ -30,10 +30,10 @@ type RemoveCartItemParam struct {
 }
 
 type Cart interface {
-	GetCart(context.Context, GetCartParam) (*domain.Cart, error)
-	AddCartItem(context.Context, AddCartItemParam) (*domain.CartItem, error)
-	UpdateCartItem(context.Context, UpdateCartItemParam) (*domain.CartItem, error)
-	RemoveCartItem(context.Context, RemoveCartItemParam) error
+	Get(context.Context, GetCartParam) (*domain.Cart, error)
+	AddItem(context.Context, AddCartItemParam) (*domain.CartItem, error)
+	UpdateItem(context.Context, UpdateCartItemParam) (*domain.CartItem, error)
+	RemoveItem(context.Context, RemoveCartItemParam) error
 }
 
 type CartImpl struct{}
@@ -44,18 +44,18 @@ func ProvideCart() *CartImpl {
 
 var _ Cart = &CartImpl{}
 
-func (s *CartImpl) GetCart(ctx context.Context, param GetCartParam) (*domain.Cart, error) {
+func (s *CartImpl) Get(ctx context.Context, param GetCartParam) (*domain.Cart, error) {
 	return nil, nil
 }
 
-func (s *CartImpl) AddCartItem(ctx context.Context, param AddCartItemParam) (*domain.CartItem, error) {
+func (s *CartImpl) AddItem(ctx context.Context, param AddCartItemParam) (*domain.CartItem, error) {
 	return nil, nil
 }
 
-func (s *CartImpl) UpdateCartItem(ctx context.Context, param UpdateCartItemParam) (*domain.CartItem, error) {
+func (s *CartImpl) UpdateItem(ctx context.Context, param UpdateCartItemParam) (*domain.CartItem, error) {
 	return nil, nil
 }
 
-func (s *CartImpl) RemoveCartItem(ctx context.Context, param RemoveCartItemParam) error {
+func (s *CartImpl) RemoveItem(ctx context.Context, param RemoveCartItemParam) error {
 	return nil
 }

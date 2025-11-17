@@ -7,8 +7,8 @@ import (
 )
 
 type CreateOrderParam struct {
-	UserID  string                   `json:"userId" binding:"required"`
-	Address string                   `json:"address" binding:"required"`
+	UserID  string                 `json:"userId" binding:"required"`
+	Address string                 `json:"address" binding:"required"`
 	Items   []CreateOrderItemParam `json:"items" binding:"required"`
 }
 
@@ -24,11 +24,10 @@ type UpdateOrderParam struct {
 }
 
 type ListOrderParam struct {
+	PaginationParam
 	OrderIDs  []int
 	UserIDs   []string
 	StatusIDs []int
-	Limit     int
-	Offset    int
 }
 
 type GetOrderParam struct {
@@ -40,11 +39,11 @@ type DeleteOrderParam struct {
 }
 
 type Order interface {
-	CreateOrder(context.Context, CreateOrderParam) (*domain.Order, error)
-	UpdateOrderStatus(context.Context, UpdateOrderParam) (*domain.Order, error)
-	ListOrders(context.Context, ListOrderParam) (*domain.DataPagination, error)
-	GetOrder(context.Context, GetOrderParam) (*domain.Order, error)
-	DeleteOrder(context.Context, DeleteOrderParam) error
+	Create(context.Context, CreateOrderParam) (*domain.Order, error)
+	UpdateStatus(context.Context, UpdateOrderParam) (*domain.Order, error)
+	List(context.Context, ListOrderParam) (*domain.Pagination[domain.Order], error)
+	Get(context.Context, GetOrderParam) (*domain.Order, error)
+	Delete(context.Context, DeleteOrderParam) error
 }
 
 type OrderImpl struct{}
@@ -55,23 +54,22 @@ func ProvideOrder() *OrderImpl {
 
 var _ Order = &OrderImpl{}
 
-func (s *OrderImpl) CreateOrder(ctx context.Context, param CreateOrderParam) (*domain.Order, error) {
+func (s *OrderImpl) Create(ctx context.Context, param CreateOrderParam) (*domain.Order, error) {
 	return nil, nil
 }
 
-func (s *OrderImpl) UpdateOrderStatus(ctx context.Context, param UpdateOrderParam) (*domain.Order, error) {
+func (s *OrderImpl) UpdateStatus(ctx context.Context, param UpdateOrderParam) (*domain.Order, error) {
 	return nil, nil
 }
 
-func (s *OrderImpl) ListOrders(ctx context.Context, param ListOrderParam) (*domain.DataPagination, error) {
+func (s *OrderImpl) List(ctx context.Context, param ListOrderParam) (*domain.Pagination[domain.Order], error) {
 	return nil, nil
 }
 
-func (s *OrderImpl) GetOrder(ctx context.Context, param GetOrderParam) (*domain.Order, error) {
+func (s *OrderImpl) Get(ctx context.Context, param GetOrderParam) (*domain.Order, error) {
 	return nil, nil
 }
 
-func (s *OrderImpl) DeleteOrder(ctx context.Context, param DeleteOrderParam) error {
+func (s *OrderImpl) Delete(ctx context.Context, param DeleteOrderParam) error {
 	return nil
 }
-

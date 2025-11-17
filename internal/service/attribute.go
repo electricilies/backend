@@ -11,11 +11,10 @@ type GetAttributeParam struct {
 }
 
 type ListAttributesParam struct {
-	Limit       int    `json:"limit" binding:"required"`
-	Offset      int    `json:"offset" binding:"required"`
-	AttributeID int    `json:"attributeId"`
-	Search      string `json:"search"`
-	Deleted     string `json:"deleted"`
+	PaginationParam
+	AttributeIDs *[]int  `json:"attributeId"`
+	Search       *string `json:"search"`
+	Deleted      string  `json:"deleted"`
 }
 
 type CreateAttributeParam struct {
@@ -43,12 +42,12 @@ type UpdateAttributeValueParam struct {
 }
 
 type Attribute interface {
-	GetAttribute(context.Context, GetAttributeParam) (*domain.Attribute, error)
-	ListAttributes(context.Context, ListAttributesParam) (*domain.DataPagination, error)
-	CreateAttribute(context.Context, CreateAttributeParam) (*domain.Attribute, error)
-	UpdateAttribute(context.Context, UpdateAttributeParam) (*domain.Attribute, error)
-	DeleteAttribute(context.Context, DeleteAttributeParam) error
-	UpdateAttributeValues(context.Context, []UpdateAttributeValueParam) error
+	Get(context.Context, GetAttributeParam) (*domain.Attribute, error)
+	List(context.Context, ListAttributesParam) (*domain.Pagination[domain.Attribute], error)
+	Create(context.Context, CreateAttributeParam) (*domain.Attribute, error)
+	Update(context.Context, UpdateAttributeParam) (*domain.Attribute, error)
+	Delete(context.Context, DeleteAttributeParam) error
+	UpdateValues(context.Context, []UpdateAttributeValueParam) error
 }
 
 type AttributeImpl struct{}
@@ -59,26 +58,26 @@ func ProvideAttribute() *AttributeImpl {
 
 var _ Attribute = &AttributeImpl{}
 
-func (s *AttributeImpl) GetAttribute(ctx context.Context, param GetAttributeParam) (*domain.Attribute, error) {
+func (s *AttributeImpl) Get(ctx context.Context, param GetAttributeParam) (*domain.Attribute, error) {
 	return nil, nil
 }
 
-func (s *AttributeImpl) ListAttributes(ctx context.Context, param ListAttributesParam) (*domain.DataPagination, error) {
+func (s *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*domain.Pagination[domain.Attribute], error) {
 	return nil, nil
 }
 
-func (s *AttributeImpl) CreateAttribute(ctx context.Context, param CreateAttributeParam) (*domain.Attribute, error) {
+func (s *AttributeImpl) Create(ctx context.Context, param CreateAttributeParam) (*domain.Attribute, error) {
 	return nil, nil
 }
 
-func (s *AttributeImpl) UpdateAttribute(ctx context.Context, param UpdateAttributeParam) (*domain.Attribute, error) {
+func (s *AttributeImpl) Update(ctx context.Context, param UpdateAttributeParam) (*domain.Attribute, error) {
 	return nil, nil
 }
 
-func (s *AttributeImpl) DeleteAttribute(ctx context.Context, param DeleteAttributeParam) error {
+func (s *AttributeImpl) Delete(ctx context.Context, param DeleteAttributeParam) error {
 	return nil
 }
 
-func (s *AttributeImpl) UpdateAttributeValues(ctx context.Context, param []UpdateAttributeValueParam) error {
+func (s *AttributeImpl) UpdateValues(ctx context.Context, param []UpdateAttributeValueParam) error {
 	return nil
 }

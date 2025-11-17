@@ -7,8 +7,7 @@ import (
 )
 
 type ListCategoryParam struct {
-	Limit  int
-	Offset int
+	PaginationParam
 }
 
 type GetCategoryParam struct {
@@ -24,10 +23,10 @@ type UpdateCategoryParam struct {
 }
 
 type Category interface {
-	ListCategories(context.Context, ListCategoryParam) (*domain.DataPagination, error)
-	CreateCategory(context.Context, CreateCategoryParam) (*domain.Category, error)
-	UpdateCategory(context.Context, UpdateCategoryParam) (*domain.Category, error)
-	GetCategory(context.Context, GetCategoryParam) (*domain.Category, error)
+	List(context.Context, ListCategoryParam) (*domain.Pagination[domain.Category], error)
+	Create(context.Context, CreateCategoryParam) (*domain.Category, error)
+	Update(context.Context, UpdateCategoryParam) (*domain.Category, error)
+	Get(context.Context, GetCategoryParam) (*domain.Category, error)
 }
 
 type CategoryImpl struct{}
@@ -38,19 +37,18 @@ func ProvideCategory() *CategoryImpl {
 
 var _ Category = &CategoryImpl{}
 
-func (s *CategoryImpl) ListCategories(ctx context.Context, param ListCategoryParam) (*domain.DataPagination, error) {
+func (s *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*domain.Pagination[domain.Category], error) {
 	return nil, nil
 }
 
-func (s *CategoryImpl) CreateCategory(ctx context.Context, param CreateCategoryParam) (*domain.Category, error) {
+func (s *CategoryImpl) Create(ctx context.Context, param CreateCategoryParam) (*domain.Category, error) {
 	return nil, nil
 }
 
-func (s *CategoryImpl) UpdateCategory(ctx context.Context, param UpdateCategoryParam) (*domain.Category, error) {
+func (s *CategoryImpl) Update(ctx context.Context, param UpdateCategoryParam) (*domain.Category, error) {
 	return nil, nil
 }
 
-func (s *CategoryImpl) GetCategory(ctx context.Context, param GetCategoryParam) (*domain.Category, error) {
+func (s *CategoryImpl) Get(ctx context.Context, param GetCategoryParam) (*domain.Category, error) {
 	return nil, nil
 }
-

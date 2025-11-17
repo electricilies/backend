@@ -7,6 +7,6 @@ type CartItem struct {
 }
 
 type Cart struct {
-	ID    int              `json:"id" binding:"required"`
-	Items []DataPagination `json:"items" binding:"required"`
+	ID    int                    `json:"id" binding:"required"`
+	Items []Pagination[CartItem] `json:"items" binding:"required"`
 }
