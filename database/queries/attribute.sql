@@ -66,8 +66,8 @@ FROM
   products_attribute_values
 WHERE
   CASE
-    WHEN sqlc.narg('product_variant_ids')::integer[] IS NULL THEN TRUE
-    ELSE product_variant_id = ANY (sqlc.narg('product_variant_ids')::integer[])
+    WHEN sqlc.narg('product_ids')::integer[] IS NULL THEN TRUE
+    ELSE product_id = ANY (sqlc.narg('product_ids')::integer[])
   END
   AND CASE
     WHEN sqlc.narg('attribute_value_ids')::integer[] IS NULL THEN TRUE

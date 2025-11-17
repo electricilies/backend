@@ -8,27 +8,9 @@ package di
 
 import (
 	"backend/config"
-	"backend/internal/application"
 	"backend/internal/client"
-	attribute2 "backend/internal/domain/attribute"
-	cart2 "backend/internal/domain/cart"
-	category2 "backend/internal/domain/category"
-	payment2 "backend/internal/domain/payment"
-	product2 "backend/internal/domain/product"
-	review2 "backend/internal/domain/review"
-	user2 "backend/internal/domain/user"
-	"backend/internal/helper"
-	"backend/internal/infrastructure/attribute"
-	"backend/internal/infrastructure/cart"
-	"backend/internal/infrastructure/category"
-	"backend/internal/infrastructure/payment"
-	"backend/internal/infrastructure/product"
-	"backend/internal/infrastructure/review"
-	"backend/internal/infrastructure/user"
-	"backend/internal/interface/api/handler"
-	"backend/internal/interface/api/middleware"
-	"backend/internal/interface/api/router"
-	"backend/internal/server"
+	"backend/internal/delivery/http"
+	"backend/internal/service"
 	"backend/pkg/logger"
 	"context"
 	"github.com/google/wire"
@@ -36,50 +18,31 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeServer(ctx context.Context) *server.Server {
+func InitializeServer(ctx context.Context) *http.Server {
 	engine := client.NewGin()
-	configServer := config.NewServer()
-	pool := client.NewDBConnection(ctx, configServer)
-	queries := client.NewDBQueries(pool)
-	s3Client := client.NewS3(ctx, configServer)
-	redisClient := client.NewRedis(ctx, configServer)
-	goCloak := client.NewKeycloak(ctx, configServer)
-	tokenManager := helper.NewTokenManager(goCloak, configServer)
-	loggerConfig := logger.NewConfig(configServer)
+	ginUserHandler := http.ProvideUserHandler()
+	server := config.NewServer()
+	goCloak := client.NewKeycloak(ctx, server)
+	redisClient := client.NewRedis(ctx, server)
+	s3Client := client.NewS3(ctx, server)
+	pool := client.NewDBConnection(ctx, server)
+	ginHealthHandler := http.ProvideHealthHandler(goCloak, redisClient, s3Client, pool, server)
+	metricMiddlewareImpl := http.ProvideMetricMiddleware()
+	loggerConfig := logger.NewConfig(server)
 	zapLogger := logger.New(loggerConfig)
-	repositoryImpl := user.ProvideRepository(queries, s3Client, redisClient, goCloak, tokenManager, configServer, zapLogger)
-	transactor := client.NewDBTransactor(pool)
-	serviceImpl := user2.ProvideService(repositoryImpl, transactor)
-	userImpl := application.ProvideUser(repositoryImpl, serviceImpl)
-	handlerUserImpl := handler.ProvideUser(userImpl)
-	healthCheckImpl := handler.ProvideHealthCheck(goCloak, redisClient, s3Client, pool, configServer)
-	metricImpl := middleware.ProvideMetric()
-	loggingImpl := middleware.ProvideLogging(zapLogger)
-	authImpl := middleware.ProvideAuth(goCloak, configServer)
-	categoryRepositoryImpl := category.ProvideRepository()
-	categoryImpl := application.ProvideCategory(categoryRepositoryImpl)
-	handlerCategoryImpl := handler.ProvideCategory(categoryImpl)
-	presignClient := client.NewS3Presign(s3Client)
-	productRepositoryImpl := product.ProvideRepository(queries, s3Client, presignClient, redisClient, configServer)
-	productImpl := application.ProvideProduct(productRepositoryImpl)
-	handlerProductImpl := handler.ProvideProduct(productImpl)
-	attributeRepositoryImpl := attribute.ProvideRepository()
-	attributeImpl := application.ProvideAttribute(attributeRepositoryImpl)
-	handlerAttributeImpl := handler.ProvideAttribute(attributeImpl)
-	paymentImpl := handler.ProvidePayment()
-	orderImpl := handler.ProvideOrder()
-	returnRequestImpl := handler.ProvideReturnRequest()
-	refundImpl := handler.ProvideRefund()
-	reviewRepositoryImpl := review.ProvideRepository(queries)
-	reviewImpl := application.ProvideReview(reviewRepositoryImpl)
-	handlerReviewImpl := handler.ProvideReview(reviewImpl)
-	cartRepositoryImpl := cart.ProvideRepository()
-	cartImpl := application.ProvideCart(cartRepositoryImpl)
-	handlerCartImpl := handler.ProvideCart(cartImpl)
-	routerImpl := router.Provide(handlerUserImpl, healthCheckImpl, metricImpl, loggingImpl, authImpl, handlerCategoryImpl, handlerProductImpl, handlerAttributeImpl, paymentImpl, orderImpl, returnRequestImpl, refundImpl, handlerReviewImpl, handlerCartImpl)
-	handlerAuthImpl := handler.ProvideAuth(configServer)
-	serverServer := server.New(engine, routerImpl, configServer, handlerAuthImpl)
-	return serverServer
+	loggingMiddlewareImpl := http.ProvideLoggingMiddleware(zapLogger)
+	authMiddlewareImpl := http.ProvideAuthMiddleware(goCloak, server)
+	ginCategoryHandler := http.ProvideCategoryHandler()
+	ginProductHandler := http.ProvideProductHandler()
+	ginAttributeHandler := http.ProvideAttributeHandler()
+	ginPaymentHandler := http.ProvidePaymentHandler()
+	ginOrderHandler := http.ProvideOrderHandler()
+	ginReviewHandler := http.ProvideReviewHandler()
+	ginCartHandler := http.ProvideCartHandler()
+	ginRouter := http.ProvideRouter(ginUserHandler, ginHealthHandler, metricMiddlewareImpl, loggingMiddlewareImpl, authMiddlewareImpl, ginCategoryHandler, ginProductHandler, ginAttributeHandler, ginPaymentHandler, ginOrderHandler, ginReviewHandler, ginCartHandler)
+	ginAuthHandler := http.ProvideAuthHandler(server)
+	httpServer := http.NewServer(engine, ginRouter, server, ginAuthHandler)
+	return httpServer
 }
 
 // wire.go:
@@ -92,114 +55,81 @@ var DbSet = wire.NewSet(client.NewDBConnection, client.NewDBQueries, client.NewD
 
 var EngineSet = wire.NewSet(client.NewGin)
 
-var RepositorySet = wire.NewSet(user.ProvideRepository, wire.Bind(
-	new(user2.Repository),
-	new(*user.RepositoryImpl),
-), category.ProvideRepository, wire.Bind(
-	new(category2.Repository),
-	new(*category.RepositoryImpl),
-), product.ProvideRepository, wire.Bind(
-	new(product2.Repository),
-	new(*product.RepositoryImpl),
-), review.ProvideRepository, wire.Bind(
-	new(review2.Repository),
-	new(*review.RepositoryImpl),
-), cart.ProvideRepository, wire.Bind(
-	new(cart2.Repository),
-	new(*cart.RepositoryImpl),
-), attribute.ProvideRepository, wire.Bind(
-	new(attribute2.Repository),
-	new(*attribute.RepositoryImpl),
-), payment.ProvideRepository, wire.Bind(
-	new(payment2.Repository),
-	new(*payment.RepositoryImpl),
+var ServiceSet = wire.NewSet(service.ProvideAttribute, wire.Bind(
+	new(service.Attribute),
+	new(*service.AttributeImpl),
+), service.ProvideCategory, wire.Bind(
+	new(service.Category),
+	new(*service.CategoryImpl),
+), service.ProvideProduct, wire.Bind(
+	new(service.Product),
+	new(*service.ProductImpl),
+), service.ProvideUser, wire.Bind(
+	new(service.User),
+	new(*service.UserImpl),
+), service.ProvideReview, wire.Bind(
+	new(service.Review),
+	new(*service.ReviewImpl),
+), service.ProvideCart, wire.Bind(
+	new(service.Cart),
+	new(*service.CartImpl),
+), service.ProvidePayment, wire.Bind(
+	new(service.Payment),
+	new(*service.PaymentImpl),
 ),
 )
 
-var ServiceSet = wire.NewSet(user2.ProvideService, wire.Bind(
-	new(user2.Service),
-	new(*user2.ServiceImpl),
+var MiddlewareSet = wire.NewSet(http.ProvideAuthMiddleware, wire.Bind(
+	new(http.AuthMiddleware),
+	new(*http.AuthMiddlewareImpl),
+), http.ProvideLoggingMiddleware, wire.Bind(
+	new(http.LoggingMiddleware),
+	new(*http.LoggingMiddlewareImpl),
+), http.ProvideMetricMiddleware, wire.Bind(
+	new(http.MetricMiddleware),
+	new(*http.MetricMiddlewareImpl),
+), http.ProvideRoleMiddleware, wire.Bind(
+	new(http.RoleMiddleware),
+	new(*http.RoleMiddlewareImpl),
 ),
 )
 
-var AppSet = wire.NewSet(application.ProvideAttribute, wire.Bind(
-	new(application.Attribute),
-	new(*application.AttributeImpl),
-), application.ProvideCategory, wire.Bind(
-	new(application.Category),
-	new(*application.CategoryImpl),
-), application.ProvideProduct, wire.Bind(
-	new(application.Product),
-	new(*application.ProductImpl),
-), application.ProvideUser, wire.Bind(
-	new(application.User),
-	new(*application.UserImpl),
-), application.ProvideReview, wire.Bind(
-	new(application.Review),
-	new(*application.ReviewImpl),
-), application.ProvideCart, wire.Bind(
-	new(application.Cart),
-	new(*application.CartImpl),
+var HandlerSet = wire.NewSet(http.ProvideAttributeHandler, wire.Bind(
+	new(http.AttributeHandler),
+	new(*http.GinAttributeHandler),
+), http.ProvideAuthHandler, wire.Bind(
+	new(http.AuthHandler),
+	new(*http.GinAuthHandler),
+), http.ProvideCategoryHandler, wire.Bind(
+	new(http.CategoryHandler),
+	new(*http.GinCategoryHandler),
+), http.ProvideHealthHandler, wire.Bind(
+	new(http.HealthHandler),
+	new(*http.GinHealthHandler),
+), http.ProvideOrderHandler, wire.Bind(
+	new(http.OrderHandler),
+	new(*http.GinOrderHandler),
+), http.ProvidePaymentHandler, wire.Bind(
+	new(http.PaymentHandler),
+	new(*http.GinPaymentHandler),
+), http.ProvideProductHandler, wire.Bind(
+	new(http.ProductHandler),
+	new(*http.GinProductHandler),
+), http.ProvideUserHandler, wire.Bind(
+	new(http.UserHandler),
+	new(*http.GinUserHandler),
+), http.ProvideReviewHandler, wire.Bind(
+	new(http.ReviewHandler),
+	new(*http.GinReviewHandler),
+), http.ProvideCartHandler, wire.Bind(
+	new(http.CartHandler),
+	new(*http.GinCartHandler),
 ),
 )
 
-var MiddlewareSet = wire.NewSet(middleware.ProvideAuth, wire.Bind(
-	new(middleware.Auth),
-	new(*middleware.AuthImpl),
-), middleware.ProvideLogging, wire.Bind(
-	new(middleware.Logging),
-	new(*middleware.LoggingImpl),
-), middleware.ProvideMetric, wire.Bind(
-	new(middleware.Metric),
-	new(*middleware.MetricImpl),
-), middleware.ProvideRole, wire.Bind(
-	new(middleware.Role),
-	new(*middleware.RoleImpl),
-),
-)
-
-var HandlerSet = wire.NewSet(handler.ProvideAttribute, wire.Bind(
-	new(handler.Attribute),
-	new(*handler.AttributeImpl),
-), handler.ProvideAuth, wire.Bind(
-	new(handler.Auth),
-	new(*handler.AuthImpl),
-), handler.ProvideCategory, wire.Bind(
-	new(handler.Category),
-	new(*handler.CategoryImpl),
-), handler.ProvideHealthCheck, wire.Bind(
-	new(handler.HealthCheck),
-	new(*handler.HealthCheckImpl),
-), handler.ProvideOrder, wire.Bind(
-	new(handler.Order),
-	new(*handler.OrderImpl),
-), handler.ProvidePayment, wire.Bind(
-	new(handler.Payment),
-	new(*handler.PaymentImpl),
-), handler.ProvideProduct, wire.Bind(
-	new(handler.Product),
-	new(*handler.ProductImpl),
-), handler.ProvideUser, wire.Bind(
-	new(handler.User),
-	new(*handler.UserImpl),
-), handler.ProvideReview, wire.Bind(
-	new(handler.Review),
-	new(*handler.ReviewImpl),
-), handler.ProvideCart, wire.Bind(
-	new(handler.Cart),
-	new(*handler.CartImpl),
-), handler.ProvideReturnRequest, wire.Bind(
-	new(handler.ReturnRequest),
-	new(*handler.ReturnRequestImpl),
-), handler.ProvideRefund, wire.Bind(
-	new(handler.Refund),
-	new(*handler.RefundImpl),
-),
-)
-
-var RouterSet = wire.NewSet(router.Provide, wire.Bind(
-	new(router.Router),
-	new(*router.RouterImpl),
+var RouterSet = wire.NewSet(http.ProvideRouter, wire.Bind(
+	new(http.Router),
+	new(*http.GinRouter),
 ),
 )
 

@@ -7,29 +7,9 @@ import (
 	"context"
 
 	"backend/config"
-	app "backend/internal/application"
+	"backend/internal/service"
 	"backend/internal/client"
-
-	"backend/internal/helper"
-	domainattribute "backend/internal/domain/attribute"
-	domaincart "backend/internal/domain/cart"
-	domaincategory "backend/internal/domain/category"
-	domainproduct "backend/internal/domain/product"
-	domainreview "backend/internal/domain/review"
-	domainuser "backend/internal/domain/user"
-	domainpayment "backend/internal/domain/payment"
-	infrasattribute "backend/internal/infrastructure/attribute"
-	infrascart "backend/internal/infrastructure/cart"
-	infrascategory "backend/internal/infrastructure/category"
-	infrasproduct "backend/internal/infrastructure/product"
-	infrasreview "backend/internal/infrastructure/review"
-	infrasuser "backend/internal/infrastructure/user"
-	infraspayment "backend/internal/infrastructure/payment"
-
-	handler "backend/internal/interface/api/handler"
-	middleware "backend/internal/interface/api/middleware"
-	"backend/internal/interface/api/router"
-	"backend/internal/server"
+	"backend/internal/delivery/http"
 	"backend/pkg/logger"
 
 	"github.com/google/wire"
@@ -54,177 +34,127 @@ var EngineSet = wire.NewSet(
 	client.NewGin,
 )
 
-var RepositorySet = wire.NewSet(
-	infrasuser.ProvideRepository,
-	wire.Bind(
-		new(domainuser.Repository),
-		new(*infrasuser.RepositoryImpl),
-	),
-	infrascategory.ProvideRepository,
-	wire.Bind(
-		new(domaincategory.Repository),
-		new(*infrascategory.RepositoryImpl),
-	),
-	infrasproduct.ProvideRepository,
-	wire.Bind(
-		new(domainproduct.Repository),
-		new(*infrasproduct.RepositoryImpl),
-	),
-	infrasreview.ProvideRepository,
-	wire.Bind(
-		new(domainreview.Repository),
-		new(*infrasreview.RepositoryImpl),
-	),
-	infrascart.ProvideRepository,
-	wire.Bind(
-		new(domaincart.Repository),
-		new(*infrascart.RepositoryImpl),
-	),
-	infrasattribute.ProvideRepository,
-	wire.Bind(
-		new(domainattribute.Repository),
-		new(*infrasattribute.RepositoryImpl),
-	),
-	infraspayment.ProvideRepository,
-	wire.Bind(
-		new(domainpayment.Repository),
-		new(*infraspayment.RepositoryImpl),
-	),
-)
-
 var ServiceSet = wire.NewSet(
-	domainuser.ProvideService,
+	service.ProvideAttribute,
 	wire.Bind(
-		new(domainuser.Service),
-		new(*domainuser.ServiceImpl),
-	),
-)
-
-var AppSet = wire.NewSet(
-	app.ProvideAttribute,
-	wire.Bind(
-		new(app.Attribute),
-		new(*app.AttributeImpl),
-	),
-	app.ProvideCategory,
-	wire.Bind(
-		new(app.Category),
-		new(*app.CategoryImpl),
+		new(service.Attribute),
+		new(*service.AttributeImpl),
 		),
-	app.ProvideProduct,
+	service.ProvideCategory,
 	wire.Bind(
-		new(app.Product),
-		new(*app.ProductImpl),
+		new(service.Category),
+		new(*service.CategoryImpl),
 	),
+	service.ProvideProduct,
+	wire.Bind(
+		new(service.Product),
+		new(*service.ProductImpl),
+	),
+	service.ProvideUser,
+	wire.Bind(
+		new(service.User),
+		new(*service.UserImpl),
+	),
+	service.ProvideReview,
+	wire.Bind(
+		new(service.Review),
+		new(*service.ReviewImpl),
+	),
+	service.ProvideCart,
+	wire.Bind(
+		new(service.Cart),
+		new(*service.CartImpl),
+	),
+	service.ProvidePayment,
+	wire.Bind(
+		new(service.Payment),
+		new(*service.PaymentImpl),
+	),
+	)
 
-	app.ProvideUser,
-	wire.Bind(
-		new(app.User),
-		new(*app.UserImpl),
-	),
-	app.ProvideReview,
-	wire.Bind(
-		new(app.Review),
-		new(*app.ReviewImpl),
-	),
-	app.ProvideCart,
-	wire.Bind(
-		new(app.Cart),
-		new(*app.CartImpl),
-	),
-)
+
 
 var MiddlewareSet = wire.NewSet(
-	middleware.ProvideAuth,
+	http.ProvideAuthMiddleware,
 	wire.Bind(
-		new(middleware.Auth),
-		new(*middleware.AuthImpl),
+		new(http.AuthMiddleware),
+		new(*http.AuthMiddlewareImpl),
 	),
-	middleware.ProvideLogging,
+	http.ProvideLoggingMiddleware,
 	wire.Bind(
-		new(middleware.Logging),
-		new(*middleware.LoggingImpl),
+		new(http.LoggingMiddleware),
+		new(*http.LoggingMiddlewareImpl),
 		),
-	middleware.ProvideMetric,
+	http.ProvideMetricMiddleware,
 	wire.Bind(
-		new(middleware.Metric),
-		new(*middleware.MetricImpl),
+		new(http.MetricMiddleware),
+		new(*http.MetricMiddlewareImpl),
 	),
-	middleware.ProvideRole,
+	http.ProvideRoleMiddleware,
 	wire.Bind(
-		new(middleware.Role),
-		new(*middleware.RoleImpl),
+		new(http.RoleMiddleware),
+		new(*http.RoleMiddlewareImpl),
 	),
 )
 
 var HandlerSet = wire.NewSet(
-	handler.ProvideAttribute,
+	http.ProvideAttributeHandler,
 	wire.Bind(
-		new(handler.Attribute),
-		new(*handler.AttributeImpl),
+		new(http.AttributeHandler),
+		new(*http.GinAttributeHandler),
 	),
-	handler.ProvideAuth,
+	http.ProvideAuthHandler,
 	wire.Bind(
-		new(handler.Auth),
-		new(*handler.AuthImpl),
+		new(http.AuthHandler),
+		new(*http.GinAuthHandler),
 	),
-	handler.ProvideCategory,
+	http.ProvideCategoryHandler,
 	wire.Bind(
-		new(handler.Category),
-		new(*handler.CategoryImpl),
+		new(http.CategoryHandler),
+		new(*http.GinCategoryHandler),
 	),
-	handler.ProvideHealthCheck,
+	http.ProvideHealthHandler,
 	wire.Bind(
-		new(handler.HealthCheck),
-		new(*handler.HealthCheckImpl),
+		new(http.HealthHandler),
+		new(*http.GinHealthHandler),
 	),
-	handler.ProvideOrder,
+	http.ProvideOrderHandler,
 	wire.Bind(
-		new(handler.Order),
-		new(*handler.OrderImpl),
+		new(http.OrderHandler),
+		new(*http.GinOrderHandler),
 	),
 
-	handler.ProvidePayment,
+	http.ProvidePaymentHandler,
 	wire.Bind(
-		new(handler.Payment),
-		new(*handler.PaymentImpl),
+		new(http.PaymentHandler),
+		new(*http.GinPaymentHandler),
 	),
-	handler.ProvideProduct,
+	http.ProvideProductHandler,
 	wire.Bind(
-		new(handler.Product),
-		new(*handler.ProductImpl),
+		new(http.ProductHandler),
+		new(*http.GinProductHandler),
 	),
-	handler.ProvideUser,
+	http.ProvideUserHandler,
 	wire.Bind(
-		new(handler.User),
-		new(*handler.UserImpl),
+		new(http.UserHandler),
+		new(*http.GinUserHandler),
 	),
-	handler.ProvideReview,
+	http.ProvideReviewHandler,
 	wire.Bind(
-		new(handler.Review),
-		new(*handler.ReviewImpl),
+		new(http.ReviewHandler),
+		new(*http.GinReviewHandler),
 	),
-	handler.ProvideCart,
+	http.ProvideCartHandler,
 	wire.Bind(
-		new(handler.Cart),
-		new(*handler.CartImpl),
-	),
-	handler.ProvideReturnRequest,
-	wire.Bind(
-		new(handler.ReturnRequest),
-		new(*handler.ReturnRequestImpl),
-	),
-	handler.ProvideRefund,
-	wire.Bind(
-		new(handler.Refund),
-		new(*handler.RefundImpl),
+		new(http.CartHandler),
+		new(*http.GinCartHandler),
 	),
 )
 var RouterSet = wire.NewSet(
-	router.Provide,
+	http.ProvideRouter,
 	wire.Bind(
-		new(router.Router),
-		new(*router.RouterImpl),
+		new(http.Router),
+		new(*http.GinRouter),
 	),
 )
 
@@ -235,9 +165,8 @@ var ClientSet = wire.NewSet(
 	client.NewS3Presign,
 )
 
-func InitializeServer(ctx context.Context) *server.Server {
+func InitializeServer(ctx context.Context) *http.Server {
 	wire.Build(
-		AppSet,
 		ClientSet,
 		ConfigSet,
 		DbSet,
@@ -245,11 +174,8 @@ func InitializeServer(ctx context.Context) *server.Server {
 		HandlerSet,
 		LoggerSet,
 		MiddlewareSet,
-		RepositorySet,
 		RouterSet,
-		ServiceSet,
-		helper.NewTokenManager,
-		server.New,
+		http.NewServer,
 	)
 	return nil
 }
