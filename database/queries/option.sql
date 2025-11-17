@@ -4,8 +4,8 @@ INSERT INTO options (
   product_id
 )
 VALUES (
-   @name,
-   @product_id
+   sql.arg('name'),
+   sql.arg('product_id')
 )
 RETURNING
   *;
@@ -16,8 +16,8 @@ INSERT INTO option_values (
   value
 )
 SELECT
-  @option_id,
-  UNNEST(@values::text[]) AS value
+  sql.arg('option_id'),
+  UNNEST(sql.arg('values')::text[]) AS value
 RETURNING
   *;
 
@@ -36,9 +36,9 @@ WHERE
     ELSE options.product_id = sqlc.narg('product_id')::integer
   END
   AND CASE
-    WHEN @deleted::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN @deleted::text = 'only' THEN deleted_at IS NULL
-    WHEN @deleted::text = 'all' THEN TRUE
+    WHEN sql.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN sql.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sql.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END
 ORDER BY
@@ -50,11 +50,11 @@ SELECT
 FROM
   options
 WHERE
-  id = @id::integer
+  id = sql.arg('id')::integer
   AND CASE
-    WHEN @deleted::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN @deleted::text = 'only' THEN deleted_at IS NULL
-    WHEN @deleted::text = 'all' THEN TRUE
+    WHEN sql.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN sql.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sql.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END;
 
@@ -93,8 +93,8 @@ ORDER BY
 -- name: UpdateOptions :many
 WITH updated_options AS (
   SELECT
-    UNNEST(@ids::integer[]) AS id,
-    UNNEST(@names::text[]) AS name
+    UNNEST(sql.arg('ids')::integer[]) AS id,
+    UNNEST(sql.arg('names')::text[]) AS name
 )
 UPDATE options
 SET
@@ -110,8 +110,8 @@ RETURNING
 -- name: UpdateOptionValues :many
 WITH updated_option_values AS (
   SELECT
-    UNNEST(@ids::integer[]) AS id,
-    UNNEST(@values::text[]) AS value
+    UNNEST(sql.arg('ids')::integer[]) AS id,
+    UNNEST(sql.arg('values')::text[]) AS value
 )
 UPDATE option_values
 SET
@@ -129,11 +129,11 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY (@ids::integer[])
+  id = ANY (sql.arg('ids')::integer[])
   AND deleted_at IS NULL;
 
 -- name: DeleteOptionValues :execrows
 DELETE FROM
   option_values
 WHERE
-  id = ANY (@ids::integer[]);
+  id = ANY (sql.arg('ids')::integer[]);

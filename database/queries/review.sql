@@ -7,11 +7,11 @@ INSERT INTO reviews (
   order_item_id
 )
 VALUES (
-  @rating,
-  @content,
-  @image_url,
-  @user_id,
-  @order_item_id
+  sql.arg('rating'),
+  sql.arg('content'),
+  sql.arg('image_url'),
+  sql.arg('user_id'),
+  sql.arg('order_item_id')
 )
 RETURNING
   *;
@@ -33,9 +33,9 @@ WHERE
     ELSE order_item_id = ANY (sqlc.narg('order_item_ids')::integer[])
   END
   AND CASE
-    WHEN @deleted::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN @deleted::text = 'only' THEN deleted_at IS NULL
-    WHEN @deleted::text = 'all' THEN TRUE
+    WHEN sql.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN sql.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sql.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END
 ORDER BY
@@ -51,7 +51,7 @@ SET
   image_url = COALESCE(sqlc.narg('image_url')::text, image_url),
   updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 WHERE
-  id = @id::integer
+  id = sql.arg('id')::integer
   AND deleted_at IS NULL
 RETURNING
   *;
@@ -61,5 +61,5 @@ UPDATE reviews
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY(@ids::integer[])
+  id = ANY(sql.arg('ids')::integer[])
   AND deleted_at IS NULL;

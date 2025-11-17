@@ -3,7 +3,7 @@ INSERT INTO categories (
   name
 )
 VALUES (
-  @name
+  sql.arg('name')
 )
 RETURNING
   *;
@@ -30,7 +30,7 @@ FROM
   categories
 WHERE
   deleted_at IS NULL
-  AND name ||| @name
+  AND name ||| sql.arg('name')
 ORDER BY
   pdb.score(id) DESC
 LIMIT COALESCE(sqlc.narg('limit')::integer, 10);
@@ -39,11 +39,11 @@ LIMIT COALESCE(sqlc.narg('limit')::integer, 10);
 UPDATE
   categories
 SET
-  name = @name,
+  name = sql.arg('name'),
   updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 WHERE
   deleted_at IS NULL
-  AND id = @id
+  AND id = sql.arg('id')
 RETURNING
   *;
 
@@ -54,4 +54,4 @@ SET
   deleted_at = NOW()
 WHERE
   deleted_at IS NULL
-  AND id = @id;
+  AND id = sql.arg('id');
