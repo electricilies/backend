@@ -59,11 +59,7 @@ return {
           },
           condition = function(_, ctx)
             local filename = ctx.filename
-            return filename:match("internal/interface/api/handler") ~= nil
-              or filename:match("internal/interface/api/mapper") ~= nil
-              or filename:match("internal/interface/api/request") ~= nil
-              or filename:match("internal/interface/api/response") ~= nil
-              or filename:match("cmd") ~= nil
+            return filename:match("internal/delivery/http/handler.*%.go") ~= nil or filename:match("cmd") ~= nil
           end,
           stdin = false,
         },
@@ -79,13 +75,7 @@ return {
           condition = function(_, ctx)
             local filename = ctx.filename
             return not g.dev_no_gen
-              and (
-                filename:match("internal/interface/api/handler") ~= nil
-                or filename:match("internal/interface/api/mapper") ~= nil
-                or filename:match("internal/interface/api/request") ~= nil
-                or filename:match("internal/interface/api/response") ~= nil
-                or filename:match("cmd") ~= nil
-              )
+              and (filename:match("internal/delivery/http/handler.*%.go") ~= nil or filename:match("cmd") ~= nil)
           end,
           stdin = false,
         },
@@ -135,17 +125,11 @@ return {
             return filename:match("database/.*%.sql") ~= nil and filename:match("database/.*seed-fake%.sql") == nil
           end,
         },
-        pgsqlfluff = {
-          condition = function(_, ctx)
-            local filename = ctx.filename
-            return filename:match("database/queries/.*%.sql") == nil
-          end,
-        },
         mockery = {
           command = "mockery",
           condition = function(_, ctx)
             local filename = ctx.filename
-            return not g.dev_no_gen and filename:match(".*/internal/domain/%w*/repository%.go") ~= nil
+            return not g.dev_no_gen and filename:match("internal/repository/.*%.go") ~= nil
           end,
         },
       },
@@ -176,21 +160,6 @@ return {
     "mfussenegger/nvim-lint",
     opts = function()
       local lint = require("lint")
-
-      if lint.linters.pgsqlfluff then
-        local pgsqlfluff = lint.linters.pgsqlfluff
-        lint.linters.pgsqlfluff = function()
-          local bufname = vim.api.nvim_buf_get_name(0)
-          if bufname:match("database/queries/.*%.sql") ~= nil then
-            return {}
-          end
-          if type(pgsqlfluff) == "table" then
-            return pgsqlfluff
-          else
-            return pgsqlfluff()
-          end
-        end
-      end
 
       -- lint.linters.sqlc = function()
       --   local bufname = vim.api.nvim_buf_get_name(0)
