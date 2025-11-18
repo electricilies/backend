@@ -32,8 +32,8 @@ func ProvideCategoryHandler() *GinCategoryHandler {
 //	@Produce		json
 //	@Param			page	query		int	false	"Page for pagination"
 //	@Param			limit	query		int	false	"Limit for pagination"	default(20)
-//	@Success		200		{object} domain.DataPagination{data=[]domain.Category}
-//	@Failure		500		{object}	service.InternalServerError
+//	@Success		200		{object} service.Pagination{data=[]domain.Category}
+//	@Failure		500		{object}	Error
 //	@Router			/categories [get]
 func (h *GinCategoryHandler) List(ctx *gin.Context) {
 }
@@ -45,11 +45,11 @@ func (h *GinCategoryHandler) List(ctx *gin.Context) {
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Param			category	body		service.CreateCategoryParam	true	"Category request"
+//	@Param			category	body		service.CreateCategoryData	true	"Category request"
 //	@Success		201			{object} domain.Category
-//	@Failure		400			{object}	service.BadRequestError
-//	@Failure		409			{object}	service.ConflictError
-//	@Failure		500			{object}	service.InternalServerError
+//	@Failure		400			{object}	Error
+//	@Failure		409			{object}	Error
+//	@Failure		500			{object}	Error
 //	@Router			/categories [post]
 func (h *GinCategoryHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -63,12 +63,12 @@ func (h *GinCategoryHandler) Create(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			category_id	path		int						true	"Category ID"
-//	@Param			category	body		service.UpdateCategoryParam	true	"Update category request"
+//	@Param			category	body		service.UpdateCategoryData 	true	"Update category request"
 //	@Success		200			{object} domain.Category
-//	@Failure		400			{object}	service.BadRequestError
-//	@Failure		404			{object}	service.NotFoundError
-//	@Failure		409			{object}	service.ConflictError
-//	@Failure		500			{object}	service.InternalServerError
+//	@Failure		400			{object}	Error
+//	@Failure		404			{object}	Error
+//	@Failure		409			{object}	Error
+//	@Failure		500			{object}	Error
 //	@Router			/categories/{category_id} [patch]
 func (h *GinCategoryHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)

@@ -41,8 +41,8 @@ func ProvideProductHandler() *GinProductHandler {
 //	@Produce		json
 //	@Param			produdt_id	path		int	true	"Product ID"
 //	@Success		200			{object} domain.Product
-//	@Failure		404			{object}	service.NotFoundError
-//	@Failure		500			{object}	service.InternalServerError
+//	@Failure		404			{object}	Error
+//	@Failure		500			{object}	Error
 //	@Router			/products/{product_id} [get]
 func (h *GinProductHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -63,8 +63,8 @@ func (h *GinProductHandler) Get(ctx *gin.Context) {
 //	@Param			category_ids	query		[]int	false	"Filter by category ID"		CollectionFormat(csv)
 //	@Param			min_price		query		int		false	"Minimum price filter"
 //	@Param			max_price		query		int		false	"Maximum price filter"
-//	@Success		200				{object} domain.DataPagination{data=[]domain.Product}
-//	@Failure		500				{object}	service.InternalServerError
+//	@Success		200				{object} service.Pagination{data=[]domain.Product}
+//	@Failure		500				{object}	Error
 //	@Router			/products [get]
 func (h *GinProductHandler) List(ctx *gin.Context) {
 }
@@ -76,11 +76,11 @@ func (h *GinProductHandler) List(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product	body service.CreateProductParam	true	"Product request"
+//	@Param			product	body service.CreateProductData	true	"Product request"
 //	@Success		201		{object} domain.Product
-//	@Failure		400		{object}	service.BadRequestError
-//	@Failure		409		{object}	service.ConflictError
-//	@Failure		500		{object}	service.InternalServerError
+//	@Failure		400		{object}	Error
+//	@Failure		409		{object}	Error
+//	@Failure		500		{object}	Error
 //	@Router			/products [post]
 func (h *GinProductHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -94,12 +94,12 @@ func (h *GinProductHandler) Create(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			product_id	path		int						true	"Product ID"
-//	@Param			product		body		service.UpdateProductParam	true	"Update product request"
+//	@Param			product		body		service.UpdateProductData	true	"Update product request"
 //	@Success		200			{object} domain.Product
-//	@Failure		400			{object}	service.BadRequestError
-//	@Failure		404			{object}	service.NotFoundError
-//	@Failure		409			{object}	service.ConflictError
-//	@Failure		500			{object}	service.InternalServerError
+//	@Failure		400			{object}	Error
+//	@Failure		404			{object}	Error
+//	@Failure		409			{object}	Error
+//	@Failure		500			{object}	Error
 //	@Router			/products/{product_id} [patch]
 func (h *GinProductHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -114,8 +114,8 @@ func (h *GinProductHandler) Update(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			product_id	path		int		true	"Product ID"
 //	@Success		204
-//	@Failure		404			{object}	service.NotFoundError
-//	@Failure		500			{object}	service.InternalServerError
+//	@Failure		404			{object}	Error
+//	@Failure		500			{object}	Error
 //	@Router			/products/{product_id} [delete]
 func (h *GinProductHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -129,13 +129,13 @@ func (h *GinProductHandler) Delete(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			product_id		path		int							true	"Product ID"
-//	@Param			productOption	body service.CreateProductOptionParam	true	"Product option request"
+//	@Param			productOption	body service.CreateProductOptionData	true	"Product option request"
 //
 //	@Success		201				{object} domain.ProductOption
 //
-//	@Failure		400				{object}	service.BadRequestError
-//	@Failure		409				{object}	service.ConflictError
-//	@Failure		500				{object}	service.InternalServerError
+//	@Failure		400				{object}	Error
+//	@Failure		409				{object}	Error
+//	@Failure		500				{object}	Error
 //	@Router			/products/options [post]
 func (h *GinProductHandler) CreateProductOption(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -148,7 +148,7 @@ func (h *GinProductHandler) CreateProductOption(ctx *gin.Context) {
 //	@Tags			Product
 //	@Produce		json
 //	@Success		200	{object} domain.ProductUploadURLImage
-//	@Failure		500	{object}	service.InternalServerError
+//	@Failure		500	{object}	Error
 //	@Router			/products/images/upload-url [get]
 //
 //	@Security		OAuth2AccessCode
@@ -166,7 +166,7 @@ func (h *GinProductHandler) GetUploadImageURL(ctx *gin.Context) {
 //	@Param			image_id	query		int	true	"Product Image ID"
 //
 //	@Success		204			{object} domain.ProductImageDeleteURL
-//	@Failure		500			{object}	service.InternalServerError
+//	@Failure		500			{object}	Error
 //	@Router			/products/images/delete-url [get]
 //
 //	@Security		OAuth2AccessCode
@@ -182,11 +182,11 @@ func (h *GinProductHandler) GetDeleteImageURL(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			product_id		path		int								true	"Product ID"``
-//	@Param			productVariant	body service.CreateProductVariantParam	true	"Product variant request"
+//	@Param			productVariant	body service.CreateProductVariantData	true	"Product variant request"
 //	@Success		201				{object} domain.ProductVariant
-//	@Failure		400				{object}	service.BadRequestError
-//	@Failure		409				{object}	service.ConflictError
-//	@Failure		500				{object}	service.InternalServerError
+//	@Failure		400				{object}	Error
+//	@Failure		409				{object}	Error
+//	@Failure		500				{object}	Error
 //	@Router			/products/variants [post]
 func (h *GinProductHandler) CreateProductVariant(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -200,12 +200,12 @@ func (h *GinProductHandler) CreateProductVariant(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			variant_id		path		int								true	"Product Variant ID"
-//	@Param			productVariant	body service.UpdateProductVariantParam	true	"Update product variant request"
+//	@Param			productVariant	body service.UpdateProductVariantData	true	"Update product variant request"
 //	@Success		200				{object} domain.ProductVariant
-//	@Failure		400				{object}	service.BadRequestError
-//	@Failure		404				{object}	service.NotFoundError
-//	@Failure		409				{object}	service.ConflictError
-//	@Failure		500				{object}	service.InternalServerError
+//	@Failure		400				{object}	Error
+//	@Failure		404				{object}	Error
+//	@Failure		409				{object}	Error
+//	@Failure		500				{object}	Error
 //	@Router			/products/variants/{variant_id} [patch]
 func (h *GinProductHandler) UpdateProductVariant(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -220,12 +220,12 @@ func (h *GinProductHandler) UpdateProductVariant(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			product_id		path		int							true	"Product ID"
 //	@Param			option_id		path		int							true	"Product Option ID"
-//	@Param			productOption	body service.UpdateProductOptionParam true	"Update product option request"
+//	@Param			productOption	body service.UpdateProductOptionData true	"Update product option request"
 //	@Success		200				{object} domain.ProductOption
-//	@Failure		400				{object}	service.BadRequestError
-//	@Failure		404				{object}	service.NotFoundError
-//	@Failure		409				{object}	service.ConflictError
-//	@Failure		500				{object}	service.InternalServerError
+//	@Failure		400				{object}	Error
+//	@Failure		404				{object}	Error
+//	@Failure		409				{object}	Error
+//	@Failure		500				{object}	Error
 //	@Router			/products/options/{option_id} [patch]
 func (h *GinProductHandler) UpdateProductOption(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -239,11 +239,11 @@ func (h *GinProductHandler) UpdateProductOption(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Params			product_id   path        int                     true    "Product ID"
-//	@Param			productImages	body		[]service.CreateProductImageParam	true	"Product images request"
+//	@Param			productImages	body		[]service.CreateProductImageData	true	"Product images request"
 //	@Success		201				{array} domain.ProductImage
-//	@Failure		400				{object}	service.BadRequestError
-//	@Failure		409				{object}	service.ConflictError
-//	@Failure		500				{object}	service.InternalServerError
+//	@Failure		400				{object}	Error
+//	@Failure		409				{object}	Error
+//	@Failure		500				{object}	Error
 //	@Router			/products/{product_id}/images/bulk [post]
 func (h *GinProductHandler) CreateProductImages(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)

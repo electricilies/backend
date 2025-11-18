@@ -31,10 +31,10 @@ func ProvidePaymentHandler() *GinPaymentHandler {
 //	@Tags			Payment
 //	@Accept			json
 //	@Produce		json
-//	@Param			payment	body		service.CreatePaymentParam	true	"Payment request"
+//	@Param			payment	body		service.CreatePaymentData	true	"Payment request"
 //	@Success		201		{object} domain.Payment
-//	@Failure		400		{object}	service.BadRequestError
-//	@Failure		500		{object}	service.InternalServerError
+//	@Failure		400		{object}	Error
+//	@Failure		500		{object}	Error
 //	@Router			/payments [post]
 func (h *GinPaymentHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -49,8 +49,8 @@ func (h *GinPaymentHandler) Create(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			payment_id	path		int	true	"Payment ID"
 //	@Success		200			{object} domain.Payment
-//	@Failure		404			{object}	service.NotFoundError
-//	@Failure		500			{object}	service.InternalServerError
+//	@Failure		404			{object}	Error
+//	@Failure		500			{object}	Error
 //	@Router			/payments/{payment_id} [get]
 func (h *GinPaymentHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -64,7 +64,7 @@ func (h *GinPaymentHandler) Get(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{array} domain.Payment
-//	@Failure		500	{object}	service.InternalServerError
+//	@Failure		500	{object}	Error
 //	@Router			/payments [get]
 func (h *GinPaymentHandler) List(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -78,11 +78,11 @@ func (h *GinPaymentHandler) List(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			payment_id	path		int						true	"Payment ID"
-//	@Param			payment		body		service.UpdatePaymentParam	true	"Payment update request"
+//	@Param			payment		body		service.UpdatePaymentData	true	"Payment update request"
 //	@Success		200			{object} domain.Payment
-//	@Failure		400			{object}	service.BadRequestError
-//	@Failure		404			{object}	service.NotFoundError
-//	@Failure		500			{object}	service.InternalServerError
+//	@Failure		400			{object}	Error
+//	@Failure		404			{object}	Error
+//	@Failure		500			{object}	Error
 //	@Router			/payments/{payment_id} [put]
 func (h *GinPaymentHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)

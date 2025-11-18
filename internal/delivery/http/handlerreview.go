@@ -34,8 +34,8 @@ func ProvideReviewHandler() *GinReviewHandler {
 //	@Produce		json
 //	@Param			review_id	path		int	true	"Review ID"
 //	@Success		200			{object} domain.Review
-//	@Failure		404			{object}	service.NotFoundError
-//	@Failure		500			{object}	service.InternalServerError
+//	@Failure		404			{object}	Error
+//	@Failure		500			{object}	Error
 //	@Router			/reviews/{review_id} [get]
 func (h *GinReviewHandler) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -52,8 +52,8 @@ func (h *GinReviewHandler) Get(ctx *gin.Context) {
 //	@Param			deleted		query		string	false	"Include deleted reviews"	Enums(include, only, exclude)
 //	@Param			page		query		int		false	"Page for pagination"
 //	@Param			limit		query		int		false	"Limit for pagination"	default(10)
-//	@Success		200			{object} domain.DataPagination{data=[]domain.Review}
-//	@Failure		500			{object}	service.InternalServerError
+//	@Success		200			{object} service.Pagination{data=[]domain.Review}
+//	@Failure		500			{object}	Error
 //	@Router			/reviews [get]
 func (h *GinReviewHandler) ListReviewsByProducts(ctx *gin.Context) {
 }
@@ -65,11 +65,11 @@ func (h *GinReviewHandler) ListReviewsByProducts(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			review	body service.CreateReviewParam	true	"Review request"
+//	@Param			review	body service.CreateReviewData	true	"Review request"
 //	@Success		201		{object} domain.Review
-//	@Failure		400		{object}	service.BadRequestError
-//	@Failure		409		{object}	service.ConflictError
-//	@Failure		500		{object}	service.InternalServerError
+//	@Failure		400		{object}	Error
+//	@Failure		409		{object}	Error
+//	@Failure		500		{object}	Error
 //	@Router			/reviews [post]
 func (h *GinReviewHandler) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -83,12 +83,12 @@ func (h *GinReviewHandler) Create(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			review_id	path		int						true	"Review ID"
-//	@Param			review		body service.UpdateReviewParam	true	"Update review request"
+//	@Param			review		body service.UpdateReviewData	true	"Update review request"
 //	@Success		204			{object} domain.Review
-//	@Failure		400			{object}	service.BadRequestError
-//	@Failure		404			{object}	service.NotFoundError
-//	@Failure		409			{object}	service.ConflictError
-//	@Failure		500			{object}	service.InternalServerError
+//	@Failure		400			{object}	Error
+//	@Failure		404			{object}	Error
+//	@Failure		409			{object}	Error
+//	@Failure		500			{object}	Error
 //	@Router			/reviews/{review_id} [patch]
 func (h *GinReviewHandler) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -103,8 +103,8 @@ func (h *GinReviewHandler) Update(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			review_id	path		int		true	"Review ID"
 //	@Success		204
-//	@Failure		404			{object}	service.NotFoundError
-//	@Failure		500			{object}	service.InternalServerError
+//	@Failure		404			{object}	Error
+//	@Failure		500			{object}	Error
 //	@Router			/reviews/{review_id} [delete]
 func (h *GinReviewHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
