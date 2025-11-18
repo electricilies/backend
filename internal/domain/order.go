@@ -19,7 +19,7 @@ type Order struct {
 	Status    OrderStatus  `json:"status" binding:"required,oneof=Pending Processing Shipped Delivered Cancelled"`
 	CreatedAt time.Time    `json:"createdAt" binding:"required"`
 	UpdatedAt time.Time    `json:"updatedAt" binding:"required"`
-	Items     *[]OrderItem `json:"items" binding:"omitnil"`
+	Items     *[]OrderItem `json:"items" binding:"omitnil,dive"`
 }
 
 type OrderItem struct {

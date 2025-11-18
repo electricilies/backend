@@ -74,7 +74,7 @@ type DeleteProductParam struct {
 type Product interface {
 	Create(context.Context, CreateProductParam) (*domain.Product, error)
 	Update(context.Context, UpdateProductParam) (*domain.Product, error)
-	List(context.Context, ListProductParam) (*domain.Pagination[domain.Product], error)
+	List(context.Context, ListProductParam) (*Pagination[domain.Product], error)
 	Get(context.Context, GetProductParam) (*domain.Product, error)
 	Delete(context.Context, DeleteProductParam) error
 	CreateOptions(context.Context, []CreateProductOptionParam) (*domain.ProductOption, error)
@@ -82,7 +82,7 @@ type Product interface {
 	UpdateVariant(context.Context, UpdateProductVariantParam) (*domain.ProductVariant, error)
 	UpdateOption(context.Context, UpdateProductOptionParam) (*domain.ProductOption, error)
 	GetDeleteImageURL(context.Context, int) (string, error)
-	GetUploadImageURL(context.Context) (*domain.ProductUploadURLImage, error)
+	GetUploadImageURL(context.Context) (*ProductUploadURLImage, error)
 	CreateImages(context.Context, []CreateProductImageParam) ([]domain.ProductImage, error)
 }
 

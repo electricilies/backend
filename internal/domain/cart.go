@@ -4,7 +4,7 @@ import "github.com/google/uuid"
 
 type Cart struct {
 	ID    int         `json:"id" binding:"required"`
-	Items *[]CartItem `json:"items" binding:"omitnil"`
+	Items *[]CartItem `json:"items" binding:"omitnil,dive"`
 }
 
 type CartItem struct {
