@@ -3,7 +3,7 @@ package service
 import "backend/internal/domain"
 
 type CreatePaymentParam struct {
-	Data CreatePaymentData
+	Data CreatePaymentData `binding:"required"`
 }
 
 type CreatePaymentData struct {
@@ -12,12 +12,12 @@ type CreatePaymentData struct {
 }
 
 type UpdatePaymentParam struct {
-	PaymentID int
-	Data      UpdatePaymentData
+	PaymentID int `binding:"required"`
+	Data      UpdatePaymentData `binding:"required"`
 }
 
 type UpdatePaymentData struct {
-	Status *string `json:"status" binding:"required"`
+	Status *string `json:"status" binding:"omitnil,oneof=Pending Completed Failed"`
 }
 
 type ListPaymentParam struct {
@@ -25,5 +25,5 @@ type ListPaymentParam struct {
 }
 
 type GetPaymentParam struct {
-	PaymentID int
+	PaymentID int `binding:"required"`
 }

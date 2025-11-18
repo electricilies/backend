@@ -1,24 +1,37 @@
 package service
 
 type GetCartParam struct {
-	CartID int `json:"cartId" binding:"required"`
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
+	CartID int `binding:"required"`
 }
 
-type AddCartItemParam struct {
-	CartID    int `json:"cartId" binding:"required"`
-	ProductID int `json:"productId" binding:"required"`
-	Quantity  int `json:"quantity" binding:"required"`
+type CreateCartParam struct {
+	UserID int `binding:"required"`
+}
+
+type CreateCartItemParam struct {
+	UserID int `binding:"required"`
+	CartID int `binding:"required"`
+	Data   CreateCartItemData `binding:"required"`
+}
+
+type CreateCartItemData struct {
+	ProductVariantID int `json:"productVariantId" binding:"required"`
+	Quantity         int `json:"quantity" binding:"required"`
 }
 
 type UpdateCartItemParam struct {
-	CartID   int `json:"cartId" binding:"required"`
-	ItemID   int `json:"itemId" binding:"required,uuid"`
+	UserID int `binding:"required"`
+	CartID int `binding:"required"`
+	ItemID int `binding:"required"`
+	Data   UpdateCartItemData `binding:"required"`
+}
+
+type UpdateCartItemData struct {
 	Quantity int `json:"quantity" binding:"required"`
 }
 
-type RemoveCartItemParam struct {
-	CartID int `json:"cartId" binding:"required"`
-	ItemID int `json:"itemId" binding:"required,uuid"`
+type DeleteCartItemParam struct {
+	UserID int `binding:"required"`
+	CartID int `binding:"required"`
+	ItemID int `binding:"required"`
 }

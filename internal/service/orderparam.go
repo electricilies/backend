@@ -3,13 +3,13 @@ package service
 import "backend/internal/domain"
 
 type CreateOrderParam struct {
-	UserID string
-	Data   CreateOrderData
+	UserID string `binding:"required"`
+	Data   CreateOrderData `binding:"required"`
 }
 
 type CreateOrderData struct {
 	Address string                `json:"address" binding:"required"`
-	Items   []CreateOrderItemData `json:"items" binding:"required,dive,required"`
+	Items   []CreateOrderItemData `json:"items" binding:"required,dive"`
 }
 
 type CreateOrderItemData struct {
@@ -19,26 +19,26 @@ type CreateOrderItemData struct {
 }
 
 type UpdateOrderParam struct {
-	OrderID int
-	Data    UpdateOrderData
+	OrderID int `binding:"required"`
+	Data    UpdateOrderData `binding:"required"`
 }
 
 type UpdateOrderData struct {
-	Status  *domain.OrderStatus `json:"status" binding:"required,oneof=Pending Processing Shipped Delivered Cancelled"`
-	Address *string             `json:"address" binding:"required"`
+	Status  *domain.OrderStatus `json:"status" binding:"omitnil,oneof=Pending Processing Shipped Delivered Cancelled"`
+	Address *string             `json:"address" binding:"omitnil"`
 }
 
 type ListOrderParam struct {
 	PaginationParam
-	OrderIDs  *[]int
-	UserIDs   *[]string
-	StatusIDs *[]int
+	OrderIDs  *[]int    `binding:"omitnil"`
+	UserIDs   *[]string `binding:"omitnil"`
+	StatusIDs *[]int    `binding:"omitnil"`
 }
 
 type GetOrderParam struct {
-	OrderID int
+	OrderID int `binding:"required"`
 }
 
 type DeleteOrderParam struct {
-	OrderID int
+	OrderID int `binding:"required"`
 }

@@ -1,8 +1,8 @@
 package service
 
 type PaginationParam struct {
-	Page  *int
-	Limit *int
+	Page  *int `binding:"omitnil,min=1,max=50"`
+	Limit *int `binding:"omitnil,min=1,max=100"`
 }
 
 type PaginationMeta struct {

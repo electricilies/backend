@@ -43,4 +43,14 @@ type AttributeRepository interface {
 		attributeValueID int,
 		value *string,
 	) (*[]AttributeValue, error)
+
+	Delete(
+		tx pgx.Tx,
+		id int,
+	) error
+
+	DeleteValue(
+		tx pgx.Tx,
+		attributeValueID int,
+	) error
 }

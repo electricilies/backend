@@ -10,18 +10,26 @@ type CategoryRepository interface {
 		search *string,
 		limit int,
 		offset int,
-	) ([]Category, error)
+	) (*[]Category, error)
+
 	Get(
 		tx pgx.Tx,
 		id int,
-	) (Category, error)
+	) (*Category, error)
+
 	Create(
-		Tx pgx.Tx,
-		Name string,
-	) (Category, error)
+		tx pgx.Tx,
+		name string,
+	) (*Category, error)
+
 	Update(
-		Tx pgx.Tx,
+		tx pgx.Tx,
 		id int,
 		name *string,
-	) (Category, error)
+	) (*Category, error)
+
+	Delete(
+		tx pgx.Tx,
+		id int,
+	) error
 }

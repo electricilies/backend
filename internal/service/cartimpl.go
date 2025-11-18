@@ -15,17 +15,21 @@ func ProvideCart() *CartImpl {
 var _ Cart = &CartImpl{}
 
 func (s *CartImpl) Get(ctx context.Context, param GetCartParam) (*domain.Cart, error) {
-	return nil, nil
+	panic("implement me")
 }
 
-func (s *CartImpl) AddItem(ctx context.Context, param AddCartItemParam) (*domain.CartItem, error) {
-	return nil, nil
+func (s *CartImpl) Create(ctx context.Context, param CreateCartParam) (*domain.Cart, error) {
+	panic("implement me")
+}
+
+func (s *CartImpl) CreateItem(ctx context.Context, param CreateCartItemParam) (*domain.CartItem, error) {
+	panic("implement me")
 }
 
 func (s *CartImpl) UpdateItem(ctx context.Context, param UpdateCartItemParam) (*domain.CartItem, error) {
-	return nil, nil
+	panic("implement me")
 }
 
-func (s *CartImpl) RemoveItem(ctx context.Context, param RemoveCartItemParam) error {
-	return nil
+func (s *CartImpl) DeleteItem(ctx context.Context, param DeleteCartItemParam) error {
+	panic("implement me")
 }

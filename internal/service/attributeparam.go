@@ -6,9 +6,9 @@ type GetAttributeParam struct {
 
 type ListAttributesParam struct {
 	PaginationParam
-	AttributeIDs *[]int
-	Search       *string
-	Deleted      *string
+	AttributeIDs *[]int  `binding:"omitnil"`
+	Search       *string `binding:"omitnil"`
+	Deleted      *string `binding:"omitnil"`
 }
 
 type CreateAttributeParam struct {
@@ -21,12 +21,12 @@ type CreateAttributeData struct {
 }
 
 type UpdateAttributeParam struct {
-	AttributeID int
-	Data        UpdateAttributeData
+	AttributeID int                 `binding:"required"`
+	Data        UpdateAttributeData `binding:"required"`
 }
 
 type UpdateAttributeData struct {
-	Name *string `json:"name"`
+	Name *string `json:"name" binding:"omitnil"`
 }
 
 type DeleteAttributeParam struct {
@@ -34,8 +34,8 @@ type DeleteAttributeParam struct {
 }
 
 type CreateAttributeValueParam struct {
-	AttributeID int
-	Data        CreateAttributeValueData
+	AttributeID int                      `binding:"required"`
+	Data        CreateAttributeValueData `binding:"required"`
 }
 
 type CreateAttributeValueData struct {
@@ -43,8 +43,8 @@ type CreateAttributeValueData struct {
 }
 
 type UpdateAttributeValueParam struct {
-	AttributeValueIDs int
-	Data              UpdateAttributeValueData
+	AttributeValueID int                      `binding:"required"`
+	Data             UpdateAttributeValueData `binding:"required"`
 }
 
 type UpdateAttributeValueData struct {

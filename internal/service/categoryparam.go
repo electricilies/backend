@@ -1,7 +1,7 @@
 package service
 
 type CreateCategoryParam struct {
-	Data CreateCategoryData
+	Data CreateCategoryData `binding:"required"`
 }
 
 type CreateCategoryData struct {
@@ -9,12 +9,12 @@ type CreateCategoryData struct {
 }
 
 type GetCategoryParam struct {
-	CategoryID int
+	CategoryID int `binding:"required"`
 }
 
 type UpdateCategoryParam struct {
-	CategoryID int
-	Data       UpdateCategoryData
+	CategoryID int `binding:"required"`
+	Data       UpdateCategoryData `binding:"required"`
 }
 
 type UpdateCategoryData struct {
@@ -23,5 +23,5 @@ type UpdateCategoryData struct {
 
 type ListCategoryParam struct {
 	PaginationParam
-	Search *string `json:"search"`
+	Search *string `json:"search" binding:"omitnil"`
 }
