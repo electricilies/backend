@@ -6,25 +6,8 @@ import (
 	"backend/internal/domain"
 )
 
-type ListCategoryParam struct {
-	PaginationParam
-}
-
-type GetCategoryParam struct {
-	CategoryID int `json:"categoryId" binding:"required"`
-}
-
-type CreateCategoryParam struct {
-	Name string `json:"name" binding:"required"`
-}
-
-type UpdateCategoryParam struct {
-	CategoryID int    `json:"categoryId" binding:"required"`
-	Name       string `json:"name" binding:"required"`
-}
-
 type Category interface {
-	List(context.Context, ListCategoryParam) (*domain.Pagination[domain.Category], error)
+	List(context.Context, ListCategoryParam) (*Pagination[domain.Category], error)
 	Create(context.Context, CreateCategoryParam) (*domain.Category, error)
 	Update(context.Context, UpdateCategoryParam) (*domain.Category, error)
 	Get(context.Context, GetCategoryParam) (*domain.Category, error)
@@ -38,7 +21,7 @@ func ProvideCategory() *CategoryImpl {
 
 var _ Category = &CategoryImpl{}
 
-func (s *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*domain.Pagination[domain.Category], error) {
+func (s *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*Pagination[domain.Category], error) {
 	return nil, nil
 }
 
