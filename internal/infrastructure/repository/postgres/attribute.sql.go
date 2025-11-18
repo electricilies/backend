@@ -144,6 +144,10 @@ WHERE
     WHEN $2::integer[] IS NULL THEN TRUE
     ELSE attribute_id = ANY ($2::integer[])
   END
+  AND CASE
+    WHEN $3::text IS NULL THEN TRUE
+    ELSE value ||| ($3::text)::pdb.fuzzy(2)
+  END
 ORDER BY
   id ASC
 `
@@ -151,10 +155,11 @@ ORDER BY
 type ListAttributeValuesParams struct {
 	IDs          []int32
 	AttributeIDs []int32
+	Search       pgtype.Text
 }
 
 func (q *Queries) ListAttributeValues(ctx context.Context, arg ListAttributeValuesParams) ([]AttributeValue, error) {
-	rows, err := q.db.Query(ctx, listAttributeValues, arg.IDs, arg.AttributeIDs)
+	rows, err := q.db.Query(ctx, listAttributeValues, arg.IDs, arg.AttributeIDs, arg.Search)
 	if err != nil {
 		return nil, err
 	}

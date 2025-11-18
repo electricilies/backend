@@ -88,6 +88,10 @@ WHERE
     WHEN sqlc.narg('attribute_ids')::integer[] IS NULL THEN TRUE
     ELSE attribute_id = ANY (sqlc.narg('attribute_ids')::integer[])
   END
+  AND CASE
+    WHEN sqlc.narg('search')::text IS NULL THEN TRUE
+    ELSE value ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
+  END
 ORDER BY
   id ASC;
 

@@ -53,3 +53,14 @@ type ProductImage struct {
 	Order     int       `json:"order" binding:"required"`
 	CreatedAt time.Time `json:"createdAt" binding:"required"`
 }
+
+// Which is not part of the domain??
+
+type ProductImageDeleteURL struct {
+	URL string `json:"url" binding:"required,url"`
+}
+
+type ProductUploadURLImage struct {
+	URL string `json:"url" binding:"required,url"`
+	Key string `json:"key" binding:"required"`
+}

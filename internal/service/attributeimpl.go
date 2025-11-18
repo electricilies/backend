@@ -41,3 +41,11 @@ func (s *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeVa
 func (s *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeValueParam) (*domain.AttributeValue, error) {
 	panic("implement me")
 }
+
+func (s *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValuesParam) (*Pagination[domain.AttributeValue], error) {
+	panic("implement me")
+}
+
+func (s *AttributeImpl) DeleteValue(ctx context.Context, param DeleteAttributeValueParam) error {
+	panic("implement me")
+}
