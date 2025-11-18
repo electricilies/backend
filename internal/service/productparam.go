@@ -84,7 +84,7 @@ type CreateProductOptionData CreateProductVariantOptionValue
 
 type UpdateProductOptionParam struct {
 	OptionID int     `json:"id" binding:"required"`
-	Name     *string `json:"name" binding:"required"`
+	Name     *string `json:"name,omitempty"`
 }
 
 type CreateProductVariantParam struct {
