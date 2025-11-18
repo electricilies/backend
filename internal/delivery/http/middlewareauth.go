@@ -76,6 +76,8 @@ func (m *AuthMiddlewareImpl) Handler() gin.HandlerFunc {
 		}
 
 		claims, _ := tokens.Claims.(jwt.MapClaims)
+		userID := claims["sub"].(string)
+		ctx.Set("userID", userID)
 		ctx.Set("claims", claims)
 		ctx.Next()
 	}
