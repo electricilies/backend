@@ -62,7 +62,10 @@ func (s *AttributeImpl) Get(ctx context.Context, param GetAttributeParam) (*doma
 	return nil, nil
 }
 
-func (s *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*domain.Pagination[domain.Attribute], error) {
+func (s *AttributeImpl) List(
+	ctx context.Context,
+	param ListAttributesParam,
+) (*domain.Pagination[domain.Attribute], error) {
 	return nil, nil
 }
 
