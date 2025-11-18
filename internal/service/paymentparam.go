@@ -1,12 +1,14 @@
 package service
 
+import "backend/internal/domain"
+
 type CreatePaymentParam struct {
 	Data CreatePaymentData
 }
 
 type CreatePaymentData struct {
-	Provider string `json:"paymentProvider" binding:"required"`
-	OrderID  int    `json:"orderId" binding:"required"`
+	Provider domain.PaymentProvider `json:"paymentProvider" binding:"required,oneof=COD VNPAY MOMO ZALOPAY"`
+	OrderID  int                    `json:"orderId" binding:"required"`
 }
 
 type UpdatePaymentParam struct {
