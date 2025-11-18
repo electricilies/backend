@@ -1,37 +1,35 @@
 package domain
 
 import (
-	"context"
-
 	"github.com/jackc/pgx/v5"
 )
 
 type AttributeRepository interface {
 	Get(
 		tx pgx.Tx,
-		ID int,
+		id int,
 	) (*Attribute, error)
 
 	List(
 		tx pgx.Tx,
-		IDs *[]int,
-		Search *string,
-		Deleted string,
-		Limit int,
-		Offset int,
+		ids *[]int,
+		search *string,
+		deleted string,
+		limit int,
+		offset int,
 	) (*[]Attribute, error)
 
 	Create(
 		tx pgx.Tx,
-		Code string,
-		Name string,
+		code string,
+		name string,
 	) (*Attribute, error)
 
 	Update(
 		tx pgx.Tx,
-		ID int,
-		Code *string,
-		Name *string,
+		id int,
+		code *string,
+		name *string,
 	) (*Attribute, error)
 
 	CreateValues(
