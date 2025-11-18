@@ -14,7 +14,7 @@ type OrderRepository interface {
 		tx pgx.Tx,
 		ids *[]int,
 		search *string,
-		deleted string,
+		deleted DeletedParam,
 		limit int,
 		offset int,
 	) (*[]Order, error)

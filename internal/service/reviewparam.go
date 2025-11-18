@@ -1,5 +1,7 @@
 package service
 
+import "backend/internal/domain"
+
 type CreateReviewParam struct {
 	OrderItemID int              `binding:"required"`
 	UserID      int              `binding:"required"`
@@ -25,10 +27,10 @@ type UpdateReviewData struct {
 
 type ListReviewsParam struct {
 	PaginationParam
-	OrderItemIDs     *[]int  `binding:"omitnil"`
-	ProductVariantID *int    `binding:"omitnil"`
-	UserIDs          *[]int  `binding:"omitnil"`
-	Deleted          *string `binding:"omitnil"`
+	OrderItemIDs     *[]int              `binding:"omitnil"`
+	ProductVariantID *int                `binding:"omitnil"`
+	UserIDs          *[]int              `binding:"omitnil"`
+	Deleted          domain.DeletedParam `binding:"required,oneof=exclude only all"`
 }
 
 type GetReviewParam struct {

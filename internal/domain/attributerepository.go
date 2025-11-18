@@ -14,7 +14,7 @@ type AttributeRepository interface {
 		tx pgx.Tx,
 		ids *[]int,
 		search *string,
-		deleted string,
+		deleted DeletedParam,
 		limit int,
 		offset int,
 	) (*[]Attribute, error)

@@ -1,14 +1,16 @@
 package service
 
+import "backend/internal/domain"
+
 type GetAttributeParam struct {
 	AttributeID int `json:"attributeId" binding:"required"`
 }
 
 type ListAttributesParam struct {
 	PaginationParam
-	AttributeIDs *[]int  `binding:"omitnil"`
-	Search       *string `binding:"omitnil"`
-	Deleted      *string `binding:"omitnil"`
+	AttributeIDs *[]int              `binding:"omitnil"`
+	Search       *string             `binding:"omitnil"`
+	Deleted      domain.DeletedParam `binding:"required,oneof=exclude only all"`
 }
 
 type CreateAttributeParam struct {
