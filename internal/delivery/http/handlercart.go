@@ -32,7 +32,7 @@ func ProvideCartHandler() *GinCartHandler {
 //	@Accept			json
 //	@Produce		json
 //	@Param			limit	query		int	false	"Limit"	default(20)
-//	@Param			offset	query		int	false	"Offset"
+//	@Param			page	query		int	false	"Page"
 //	@Success		200		{object} domain.Cart{items=domain.DataPagination{data=[]domain.CartItem}}
 //	@Failure		404		{object}	service.NotFoundError
 //	@Failure		500		{object}	service.InternalServerError

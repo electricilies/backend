@@ -48,7 +48,7 @@ func (h *GinAttributeHandler) Get(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			offset		query		int		false	"Offset for pagination"
+//	@Param			page		query		int		false	"Page for pagination"
 //	@Param			limit		query		int		false	"Limit for pagination"	default(20)
 //	@Param			product_id	query		int		false	"Product ID"
 //	@Param			search		query		string	false	"Search term"

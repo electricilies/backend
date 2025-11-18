@@ -30,7 +30,7 @@ func ProvideCategoryHandler() *GinCategoryHandler {
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Param			offset	query		int	false	"Offset for pagination"
+//	@Param			page	query		int	false	"Page for pagination"
 //	@Param			limit	query		int	false	"Limit for pagination"	default(20)
 //	@Success		200		{object} domain.DataPagination{data=[]domain.Category}
 //	@Failure		500		{object}	service.InternalServerError

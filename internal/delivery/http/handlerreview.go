@@ -50,7 +50,7 @@ func (h *GinReviewHandler) Get(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			product_ids	query		[]int	false	"Product IDs"				collectionFormat(csv)
 //	@Param			deleted		query		string	false	"Include deleted reviews"	Enums(include, only, exclude)
-//	@Param			offset		query		int		false	"Offset for pagination"
+//	@Param			page		query		int		false	"Page for pagination"
 //	@Param			limit		query		int		false	"Limit for pagination"	default(10)
 //	@Success		200			{object} domain.DataPagination{data=[]domain.Review}
 //	@Failure		500			{object}	service.InternalServerError
