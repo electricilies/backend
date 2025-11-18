@@ -24,8 +24,8 @@ type UpdateOrderParam struct {
 }
 
 type UpdateOrderData struct {
-	Status  domain.OrderStatus `json:"status" binding:"required,oneof=Pending Processing Shipped Delivered Cancelled"`
-	Address string             `json:"address" binding:"required"`
+	Status  *domain.OrderStatus `json:"status" binding:"required,oneof=Pending Processing Shipped Delivered Cancelled"`
+	Address *string             `json:"address" binding:"required"`
 }
 
 type ListOrderParam struct {
