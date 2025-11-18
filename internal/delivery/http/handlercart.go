@@ -53,6 +53,7 @@ func (h *GinCartHandler) Get(ctx *gin.Context) {}
 //	@Router			/carts/{cart_id}/item  [post]
 func (h *GinCartHandler) CreateItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
+	ctx.JSON(404, &gin.H{"message": "not found"})
 }
 
 // UpdateCartItem godoc
