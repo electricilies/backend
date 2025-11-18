@@ -12,7 +12,7 @@ type ListAttributesParam struct {
 }
 
 type CreateAttributeParam struct {
-	Data CreateAttributeData
+	Data CreateAttributeData `binding:"required"`
 }
 
 type CreateAttributeData struct {
