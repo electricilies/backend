@@ -181,10 +181,10 @@ func (r *PostgresAttribute) UpdateValues(
 
 func mapPostgresAttributeToDomain(attr postgres.Attribute) *domain.Attribute {
 	return &domain.Attribute{
-		ID:              int(attr.ID),
-		Code:            attr.Code,
-		Name:            attr.Name,
-		AttributeValues: []domain.AttributeValue{},
+		ID:     int(attr.ID),
+		Code:   attr.Code,
+		Name:   attr.Name,
+		Values: []domain.AttributeValue{},
 		DeletedAt: mapPgtypeToDomainPtr(
 			attr.DeletedAt.Time,
 			attr.DeletedAt.Valid,

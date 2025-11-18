@@ -5,13 +5,13 @@ import (
 )
 
 type User struct {
-	ID          string    `json:"id"`
-	FirstName   string    `json:"firstName"`
-	LastName    string    `json:"lastName"`
-	Username    string    `json:"userName"`
-	Email       string    `json:"email"`
-	DateOfBirth time.Time `json:"dateOfBirth"`
-	PhoneNumber string    `json:"phoneNumber"`
-	Address     string    `json:"address,omitempty"`
-	CreatedAt   time.Time `json:"createdAt"`
+	ID          string    `json:"id" binding:"required"`
+	FirstName   string    `json:"firstName" binding:"required"`
+	LastName    string    `json:"lastName" binding:"required"`
+	Username    string    `json:"userName" binding:"required"`
+	Email       string    `json:"email" binding:"required"`
+	DateOfBirth time.Time `json:"dateOfBirth" binding:"required"`
+	PhoneNumber string    `json:"phoneNumber" binding:"required"`
+	Address     string    `json:"address" binding:"required"`
+	CreatedAt   time.Time `json:"createdAt" binding:"required"`
 }
