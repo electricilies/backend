@@ -12,42 +12,8 @@ type Attribute interface {
 	Create(ctx context.Context, param CreateAttributeParam) (*domain.Attribute, error)
 	Update(ctx context.Context, param UpdateAttributeParam) (*domain.Attribute, error)
 	Delete(ctx context.Context, param DeleteAttributeParam) error
+	CreateValues(ctx context.Context, param []CreateAttributeValueParam) error
 	UpdateValues(ctx context.Context, param []UpdateAttributeValueParam) error
-}
-
-type GetAttributeParam struct {
-	AttributeID int `json:"attributeId" binding:"required"`
-}
-
-type ListAttributesParam struct {
-	PaginationParam
-	AttributeIDs []int   `json:"attributeIds"`
-	Search       *string `json:"search"`
-	Deleted      string  `json:"deleted"`
-}
-
-type CreateAttributeParam struct {
-	Code string `json:"code" binding:"required"`
-	Name string `json:"name" binding:"required"`
-}
-
-type UpdateAttributeParam struct {
-	AttributeID int    `json:"attributeId" binding:"required"`
-	Name        string `json:"name" binding:"required"`
-}
-
-type DeleteAttributeParam struct {
-	AttributeID int `json:"attributeId" binding:"required"`
-}
-
-type CreateAttributeValueParam struct {
-	AttributeID int    `json:"attributeId" binding:"required"`
-	Value       string `json:"value" binding:"required"`
-}
-
-type UpdateAttributeValueParam struct {
-	AttributeValueIds int    `json:"attributeValueIds" binding:"required"`
-	Values            string `json:"values" binding:"required"`
 }
 
 type AttributeImpl struct{}

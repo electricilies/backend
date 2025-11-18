@@ -14,5 +14,5 @@ type PaginationMeta struct {
 
 type Pagination[T interface{}] struct {
 	Data []T            `json:"data" binding:"required"`
-	Meta PaginationMeta `json:"pagination" binding:"required"`
+	Meta PaginationMeta `json:"meta" binding:"required"`
 }
