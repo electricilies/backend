@@ -38,7 +38,7 @@ func (s *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeVa
 	panic("implement me")
 }
 
-func (s *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeValueParam) (*domain.AttributeValue, error) {
+func (s *AttributeImpl) UpdateValues(ctx context.Context, param UpdateAttributeValuesParam) (*[]domain.AttributeValue, error) {
 	panic("implement me")
 }
 

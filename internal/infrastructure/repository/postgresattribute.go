@@ -151,16 +151,16 @@ func (r *PostgresAttribute) CreateValue(
 
 func (r *PostgresAttribute) UpdateValues(
 	ctx context.Context,
-	param []service.UpdateAttributeValueParam,
+	param []service.UpdateAttributeValuesParam,
 ) error {
 	if len(param) == 0 {
 		return nil
 	}
 
-	ids := domainSliceToPgtype(param, func(p service.UpdateAttributeValueParam) int32 {
+	ids := domainSliceToPgtype(param, func(p service.UpdateAttributeValuesParam) int32 {
 		return int32(p.AttributeValueIds)
 	})
-	values := domainSliceToPgtype(param, func(p service.UpdateAttributeValueParam) string {
+	values := domainSliceToPgtype(param, func(p service.UpdateAttributeValuesParam) string {
 		return p.Values
 	})
 

@@ -44,9 +44,13 @@ type CreateAttributeValueData struct {
 	Value string `json:"value" binding:"required"`
 }
 
-type UpdateAttributeValueParam struct {
-	AttributeValueID int                      `binding:"required"`
-	Data             UpdateAttributeValueData `binding:"required"`
+type UpdateAttributeValuesParam struct {
+	AttributeValueID int                         `binding:"required"`
+	Data             []UpdateAttributeValuesData `binding:"required,dive"`
+}
+
+type UpdateAttributeValuesData struct {
+	Value *string `json:"value" binding:"required"`
 }
 
 type ListAttributeValuesParam struct {
@@ -54,10 +58,6 @@ type ListAttributeValuesParam struct {
 	AttributeValueIDs *[]int  `binding:"omitnil"`
 	AttributeIDs      *[]int  `binding:"omitnil"`
 	Search            *string `binding:"omitnil"`
-}
-
-type UpdateAttributeValueData struct {
-	Value *string `json:"value" binding:"required"`
 }
 
 type DeleteAttributeValueParam struct {
