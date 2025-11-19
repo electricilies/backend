@@ -3,8 +3,8 @@ package http
 import (
 	"net/http"
 
+	_ "backend/internal/application"
 	_ "backend/internal/domain"
-	_ "backend/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -62,7 +62,7 @@ func (h *GinOrderHandler) List(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order	body		service.CreateOrderData	true	"Order request"
+//	@Param			order	body		domain.CreateOrderData	true	"Order request"
 //	@Success		201		{object} domain.Order
 //	@Failure		400		{object}	Error
 //	@Failure		409		{object}	Error
@@ -80,7 +80,7 @@ func (h *GinOrderHandler) Create(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			order_id	path		int							true	"Order ID"
-//	@Param			status		body		service.UpdateOrderData	true	"Update order status request"
+//	@Param			status		body		domain.UpdateOrderData	true	"Update order status request"
 //	@Success		200			{object} domain.Order
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error

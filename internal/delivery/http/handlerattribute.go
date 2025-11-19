@@ -3,8 +3,8 @@ package http
 import (
 	"net/http"
 
+	_ "backend/internal/application"
 	_ "backend/internal/domain"
-	_ "backend/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -53,7 +53,7 @@ func (h *GinAttributeHandler) Get(ctx *gin.Context) {
 //	@Param			product_id	query		int		false	"Product ID"
 //	@Param			search		query		string	false	"Search term"
 //	@Param			deleted		query		string	false	"Filter by deletion status"	Enums(exclude, only, all)
-//	@Success		200			{object} service.Pagination{data=[]domain.Attribute}
+//	@Success		200			{object} application.Pagination[domain.Attribute]
 //	@Failure		500			{object}	Error
 //	@Router			/attributes [get]
 func (h *GinAttributeHandler) List(ctx *gin.Context) {
@@ -67,7 +67,7 @@ func (h *GinAttributeHandler) List(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute	body service.CreateAttributeData true	"Attribute request"
+//	@Param			attribute	body domain.CreateAttributeData true	"Attribute request"
 //	@Success		201			{object}	domain.Attribute
 //	@Failure		400			{object}	Error
 //	@Failure		409			{object}	Error
@@ -85,7 +85,7 @@ func (h *GinAttributeHandler) Create(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			attribute_id	path		string					true	"Attribute ID"
-//	@Param			attribute		body service.UpdateAttributeValueData	true	"Update attribute request"
+//	@Param			attribute		body domain.UpdateAttributeValueData	true	"Update attribute request"
 //	@Success		200				{object} domain.Attribute
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
@@ -120,7 +120,7 @@ func (h *GinAttributeHandler) Delete(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			attribute_id	path		string							true	"Attribute ID"
-//	@Param			values			body		[]service.UpdateAttributeValueData  true	"Update attribute values request"
+//	@Param			values			body		[]domain.UpdateAttributeValueData  true	"Update attribute values request"
 //	@Success		200				{array} domain.Attribute
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error

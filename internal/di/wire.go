@@ -7,9 +7,10 @@ import (
 	"context"
 
 	"backend/config"
-	"backend/internal/service"
 	"backend/internal/client"
 	"backend/internal/delivery/http"
+	"backend/internal/domain"
+	"backend/internal/serviceimpl"
 	"backend/pkg/logger"
 
 	"github.com/google/wire"
@@ -35,56 +36,49 @@ var EngineSet = wire.NewSet(
 )
 
 var ServiceSet = wire.NewSet(
-	service.ProvideAttribute,
+	serviceimpl.ProvideAttribute,
 	wire.Bind(
-		new(service.Attribute),
-		new(*service.AttributeImpl),
-		),
-	service.ProvideCategory,
-	wire.Bind(
-		new(service.Category),
-		new(*service.CategoryImpl),
+		new(domain.AttributeService),
+		new(*serviceimpl.Attribute),
 	),
-	service.ProvideProduct,
+	serviceimpl.ProvideCategory,
 	wire.Bind(
-		new(service.Product),
-		new(*service.ProductImpl),
+		new(domain.CategoryService),
+		new(*serviceimpl.Category),
 	),
-	service.ProvideUser,
+	serviceimpl.ProvideProduct,
 	wire.Bind(
-		new(service.User),
-		new(*service.UserImpl),
+		new(domain.ProductService),
+		new(*serviceimpl.Product),
 	),
-	service.ProvideReview,
+	serviceimpl.ProvideReview,
 	wire.Bind(
-		new(service.Review),
-		new(*service.ReviewImpl),
+		new(domain.ReviewService),
+		new(*serviceimpl.Review),
 	),
-	service.ProvideCart,
+	serviceimpl.ProvideCart,
 	wire.Bind(
-		new(service.Cart),
-		new(*service.CartImpl),
+		new(domain.CartService),
+		new(*serviceimpl.Cart),
 	),
-	service.ProvidePayment,
+	serviceimpl.ProvidePayment,
 	wire.Bind(
-		new(service.Payment),
-		new(*service.PaymentImpl),
+		new(domain.PaymentService),
+		new(*serviceimpl.Payment),
 	),
-	)
-
-
+)
 
 var MiddlewareSet = wire.NewSet(
 	http.ProvideAuthMiddleware,
 	wire.Bind(
 		new(http.AuthMiddleware),
-		new(*http.AuthMiddlewareImpl),
+		new(*http.GinAuthMiddleware),
 	),
 	http.ProvideLoggingMiddleware,
 	wire.Bind(
 		new(http.LoggingMiddleware),
 		new(*http.LoggingMiddlewareImpl),
-		),
+	),
 	http.ProvideMetricMiddleware,
 	wire.Bind(
 		new(http.MetricMiddleware),
@@ -134,11 +128,6 @@ var HandlerSet = wire.NewSet(
 		new(http.ProductHandler),
 		new(*http.GinProductHandler),
 	),
-	http.ProvideUserHandler,
-	wire.Bind(
-		new(http.UserHandler),
-		new(*http.GinUserHandler),
-	),
 	http.ProvideReviewHandler,
 	wire.Bind(
 		new(http.ReviewHandler),
@@ -150,6 +139,7 @@ var HandlerSet = wire.NewSet(
 		new(*http.GinCartHandler),
 	),
 )
+
 var RouterSet = wire.NewSet(
 	http.ProvideRouter,
 	wire.Bind(

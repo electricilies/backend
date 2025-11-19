@@ -10,7 +10,6 @@ type Router interface {
 }
 
 type GinRouter struct {
-	userHandler      UserHandler
 	categoryHandler  CategoryHandler
 	productHandler   ProductHandler
 	attributeHandler AttributeHandler
@@ -26,7 +25,6 @@ type GinRouter struct {
 }
 
 func ProvideRouter(
-	userHandler UserHandler,
 	healthCheckHandler HealthHandler,
 	metricMiddleware MetricMiddleware,
 	loggingMiddleware LoggingMiddleware,
@@ -40,7 +38,6 @@ func ProvideRouter(
 	cartHandler CartHandler,
 ) *GinRouter {
 	return &GinRouter{
-		userHandler:       userHandler,
 		healthHandler:     healthCheckHandler,
 		metricMiddleware:  metricMiddleware,
 		loggingMiddleware: loggingMiddleware,
@@ -67,15 +64,6 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 	{
 		api.Use(r.loggingMiddleware.Handler())
 		api.Use(r.authMiddleware.Handler())
-		users := api.Group("/users")
-		{
-			users.GET("", r.userHandler.List)
-			users.POST("", r.userHandler.Create)
-			users.GET("/:user_id", r.userHandler.Get)
-			users.PATCH("/:user_id", r.userHandler.Update)
-			users.DELETE("/:user_id", r.userHandler.Delete)
-			users.GET("/:user_id/cart", r.userHandler.GetCart)
-		}
 		cart := api.Group("/carts")
 		{
 			cart.GET("/:cart_id", r.cartHandler.Get)

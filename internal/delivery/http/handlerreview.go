@@ -3,8 +3,8 @@ package http
 import (
 	"net/http"
 
+	_ "backend/internal/application"
 	_ "backend/internal/domain"
-	_ "backend/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -52,7 +52,7 @@ func (h *GinReviewHandler) Get(ctx *gin.Context) {
 //	@Param			deleted		query		string	false	"Include deleted reviews"	Enums(include, only, exclude)
 //	@Param			page		query		int		false	"Page for pagination"
 //	@Param			limit		query		int		false	"Limit for pagination"	default(10)
-//	@Success		200			{object} service.Pagination{data=[]domain.Review}
+//	@Success		200			{object} application.Pagination[domain.Review]
 //	@Failure		500			{object}	Error
 //	@Router			/reviews [get]
 func (h *GinReviewHandler) ListReviewsByProducts(ctx *gin.Context) {
@@ -65,7 +65,7 @@ func (h *GinReviewHandler) ListReviewsByProducts(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			review	body service.CreateReviewData	true	"Review request"
+//	@Param			review	body domain.CreateReviewData	true	"Review request"
 //	@Success		201		{object} domain.Review
 //	@Failure		400		{object}	Error
 //	@Failure		409		{object}	Error
@@ -83,7 +83,7 @@ func (h *GinReviewHandler) Create(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			review_id	path		int						true	"Review ID"
-//	@Param			review		body service.UpdateReviewData	true	"Update review request"
+//	@Param			review		body domain.UpdateReviewData	true	"Update review request"
 //	@Success		204			{object} domain.Review
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error

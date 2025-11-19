@@ -10,7 +10,8 @@ import (
 	"backend/config"
 	"backend/internal/client"
 	"backend/internal/delivery/http"
-	"backend/internal/service"
+	"backend/internal/domain"
+	"backend/internal/serviceimpl"
 	"backend/pkg/logger"
 	"context"
 	"github.com/google/wire"
@@ -20,7 +21,6 @@ import (
 
 func InitializeServer(ctx context.Context) *http.Server {
 	engine := client.NewGin()
-	ginUserHandler := http.ProvideUserHandler()
 	server := config.NewServer()
 	goCloak := client.NewKeycloak(ctx, server)
 	redisClient := client.NewRedis(ctx, server)
@@ -31,7 +31,7 @@ func InitializeServer(ctx context.Context) *http.Server {
 	loggerConfig := logger.NewConfig(server)
 	zapLogger := logger.New(loggerConfig)
 	loggingMiddlewareImpl := http.ProvideLoggingMiddleware(zapLogger)
-	authMiddlewareImpl := http.ProvideAuthMiddleware(goCloak, server)
+	ginAuthMiddleware := http.ProvideAuthMiddleware(goCloak, server)
 	ginCategoryHandler := http.ProvideCategoryHandler()
 	ginProductHandler := http.ProvideProductHandler()
 	ginAttributeHandler := http.ProvideAttributeHandler()
@@ -39,7 +39,7 @@ func InitializeServer(ctx context.Context) *http.Server {
 	ginOrderHandler := http.ProvideOrderHandler()
 	ginReviewHandler := http.ProvideReviewHandler()
 	ginCartHandler := http.ProvideCartHandler()
-	ginRouter := http.ProvideRouter(ginUserHandler, ginHealthHandler, metricMiddlewareImpl, loggingMiddlewareImpl, authMiddlewareImpl, ginCategoryHandler, ginProductHandler, ginAttributeHandler, ginPaymentHandler, ginOrderHandler, ginReviewHandler, ginCartHandler)
+	ginRouter := http.ProvideRouter(ginHealthHandler, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, ginCategoryHandler, ginProductHandler, ginAttributeHandler, ginPaymentHandler, ginOrderHandler, ginReviewHandler, ginCartHandler)
 	ginAuthHandler := http.ProvideAuthHandler(server)
 	httpServer := http.NewServer(engine, ginRouter, server, ginAuthHandler)
 	return httpServer
@@ -55,33 +55,30 @@ var DbSet = wire.NewSet(client.NewDBConnection, client.NewDBQueries, client.NewD
 
 var EngineSet = wire.NewSet(client.NewGin)
 
-var ServiceSet = wire.NewSet(service.ProvideAttribute, wire.Bind(
-	new(service.Attribute),
-	new(*service.AttributeImpl),
-), service.ProvideCategory, wire.Bind(
-	new(service.Category),
-	new(*service.CategoryImpl),
-), service.ProvideProduct, wire.Bind(
-	new(service.Product),
-	new(*service.ProductImpl),
-), service.ProvideUser, wire.Bind(
-	new(service.User),
-	new(*service.UserImpl),
-), service.ProvideReview, wire.Bind(
-	new(service.Review),
-	new(*service.ReviewImpl),
-), service.ProvideCart, wire.Bind(
-	new(service.Cart),
-	new(*service.CartImpl),
-), service.ProvidePayment, wire.Bind(
-	new(service.Payment),
-	new(*service.PaymentImpl),
+var ServiceSet = wire.NewSet(serviceimpl.ProvideAttribute, wire.Bind(
+	new(domain.AttributeService),
+	new(*serviceimpl.Attribute),
+), serviceimpl.ProvideCategory, wire.Bind(
+	new(domain.CategoryService),
+	new(*serviceimpl.Category),
+), serviceimpl.ProvideProduct, wire.Bind(
+	new(domain.ProductService),
+	new(*serviceimpl.Product),
+), serviceimpl.ProvideReview, wire.Bind(
+	new(domain.ReviewService),
+	new(*serviceimpl.Review),
+), serviceimpl.ProvideCart, wire.Bind(
+	new(domain.CartService),
+	new(*serviceimpl.Cart),
+), serviceimpl.ProvidePayment, wire.Bind(
+	new(domain.PaymentService),
+	new(*serviceimpl.Payment),
 ),
 )
 
 var MiddlewareSet = wire.NewSet(http.ProvideAuthMiddleware, wire.Bind(
 	new(http.AuthMiddleware),
-	new(*http.AuthMiddlewareImpl),
+	new(*http.GinAuthMiddleware),
 ), http.ProvideLoggingMiddleware, wire.Bind(
 	new(http.LoggingMiddleware),
 	new(*http.LoggingMiddlewareImpl),
@@ -115,9 +112,6 @@ var HandlerSet = wire.NewSet(http.ProvideAttributeHandler, wire.Bind(
 ), http.ProvideProductHandler, wire.Bind(
 	new(http.ProductHandler),
 	new(*http.GinProductHandler),
-), http.ProvideUserHandler, wire.Bind(
-	new(http.UserHandler),
-	new(*http.GinUserHandler),
 ), http.ProvideReviewHandler, wire.Bind(
 	new(http.ReviewHandler),
 	new(*http.GinReviewHandler),

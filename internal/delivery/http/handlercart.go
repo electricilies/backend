@@ -3,8 +3,8 @@ package http
 import (
 	"net/http"
 
+	_ "backend/internal/application"
 	_ "backend/internal/domain"
-	_ "backend/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,7 +33,7 @@ func ProvideCartHandler() *GinCartHandler {
 //	@Produce		json
 //	@Param			limit	query		int	false	"Limit"	default(20)
 //	@Param			page	query		int	false	"Page"
-//	@Success		200		{object} domain.Cart{items=service.Pagination{data=[]domain.CartItem}}
+//	@Success		200		{object} domain.Cart
 //	@Failure		404		{object}	Error
 //	@Failure		500		{object}	Error
 //	@Router			/carts/{cart_id} [get]
@@ -46,7 +46,7 @@ func (h *GinCartHandler) Get(ctx *gin.Context) {}
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
-//	@Param			item	body		service.CreateCartItemData	true	"Cart item request"
+//	@Param			item	body		domain.CreateCartItemData	true	"Cart item request"
 //	@Success		201		{object} domain.CartItem
 //	@Failure		400		{object}	Error
 //	@Failure		500		{object}	Error
@@ -63,7 +63,7 @@ func (h *GinCartHandler) CreateItem(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			cart_item_id	path		int						true	"Cart Item ID"
-//	@Param			item			body		service.UpdateCartItemData	true	"Update cart item request"
+//	@Param			item			body		domain.UpdateCartItemData	true	"Update cart item request"
 //	@Success		200				{object} domain.CartItem
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error

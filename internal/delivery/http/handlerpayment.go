@@ -3,8 +3,8 @@ package http
 import (
 	"net/http"
 
+	_ "backend/internal/application"
 	_ "backend/internal/domain"
-	_ "backend/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +31,7 @@ func ProvidePaymentHandler() *GinPaymentHandler {
 //	@Tags			Payment
 //	@Accept			json
 //	@Produce		json
-//	@Param			payment	body		service.CreatePaymentData	true	"Payment request"
+//	@Param			payment	body		domain.CreatePaymentData	true	"Payment request"
 //	@Success		201		{object} domain.Payment
 //	@Failure		400		{object}	Error
 //	@Failure		500		{object}	Error
@@ -78,7 +78,7 @@ func (h *GinPaymentHandler) List(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			payment_id	path		int						true	"Payment ID"
-//	@Param			payment		body		service.UpdatePaymentData	true	"Payment update request"
+//	@Param			payment		body		domain.UpdatePaymentData	true	"Payment update request"
 //	@Success		200			{object} domain.Payment
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
