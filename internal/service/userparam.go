@@ -32,5 +32,5 @@ type GetUserParam struct {
 }
 
 type GetUserCartParam struct {
-	CartID string `json:"cartId" binding:"required"`
+	UserID string `json:"cartId" binding:"required"`
 }

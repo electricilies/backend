@@ -16,7 +16,7 @@ type Product interface {
 	CreateVariants(context.Context, []CreateProductVariantParam) (*domain.ProductVariant, error)
 	UpdateVariant(context.Context, UpdateProductVariantParam) (*domain.ProductVariant, error)
 	UpdateOption(context.Context, UpdateProductOptionParam) (*domain.ProductOption, error)
-	GetDeleteImageURL(context.Context, int) (*domain.ProductImageDeleteURL, error)
-	GetUploadImageURL(context.Context) (*domain.ProductUploadURLImage, error)
+	GetDeleteImageURL(context.Context, int) (*domain.DeleteImageURL, error)
+	GetUploadImageURL(context.Context) (*domain.UploadURLImage, error)
 	CreateImages(context.Context, []CreateProductImageParam) ([]domain.ProductImage, error)
 }

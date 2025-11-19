@@ -13,11 +13,11 @@ type Product struct {
 	TrendingScore int64             `json:"trendingScore" binding:"required"`
 	Price         int64             `json:"price" binding:"required"`
 	Rating        float64           `json:"rating" binding:"required,gte=0,lte=5"`
-	Options       *[]ProductOption  `json:"options" binding:"omitempty,dive"`
-	Images        *[]ProductImage   `json:"images" binding:"omitempty,dive"`
+	Options       *[]ProductOption  `json:"options" binding:"omitnil,dive"`
+	Images        *[]ProductImage   `json:"images" binding:"omitnil,dive"`
 	CreatedAt     time.Time         `json:"createdAt" binding:"required"`
 	UpdatedAt     time.Time         `json:"updatedAt" binding:"required"`
-	DeletedAt     *time.Time        `json:"deletedAt" binding:"omitnil"`
+	DeletedAt     *time.Time        `json:"deletedAt" binding:"required"`
 	Category      *Category         `json:"category" binding:"omitnil"`
 	Attributes    *[]Attribute      `json:"attributes" binding:"omitnil,dive"`
 	Variants      *[]ProductVariant `json:"variants" binding:"omitnil,dive"`
@@ -26,7 +26,7 @@ type Product struct {
 type ProductOption struct {
 	ID     int            `json:"id" binding:"required"`
 	Name   string         `json:"name" binding:"required"`
-	Values *[]OptionValue `json:"values" binding:"omitempty,dive"`
+	Values *[]OptionValue `json:"values" binding:"omitnil,dive"`
 }
 
 type OptionValue struct {
@@ -41,10 +41,10 @@ type ProductVariant struct {
 	Quantity      int             `json:"quantity" binding:"required"`
 	PurchaseCount int             `json:"purchaseCount" binding:"required"`
 	CreatedAt     time.Time       `json:"createdAt" binding:"required"`
-	DeletedAt     *time.Time      `json:"deletedAt" binding:"omitnil"`
-	OptionValues  *[]OptionValue  `json:"optionValues" binding:"omitempty,dive"`
-	Images        *[]ProductImage `json:"images" binding:"omitempty,dive"`
-	Product       *Product        `json:"product,omitempty"`
+	DeletedAt     *time.Time      `json:"deletedAt" binding:"required"`
+	OptionValues  *[]OptionValue  `json:"optionValues" binding:"omitnil,dive"`
+	Images        *[]ProductImage `json:"images" binding:"omitnil,dive"`
+	Product       *Product        `json:"product" binding:"omitnil"`
 }
 
 type ProductImage struct {
@@ -52,15 +52,4 @@ type ProductImage struct {
 	URL       string    `json:"url" binding:"required,url"`
 	Order     int       `json:"order" binding:"required"`
 	CreatedAt time.Time `json:"createdAt" binding:"required"`
-}
-
-// Which is not part of the domain??
-
-type ProductImageDeleteURL struct {
-	URL string `json:"url" binding:"required,url"`
-}
-
-type ProductUploadURLImage struct {
-	URL string `json:"url" binding:"required,url"`
-	Key string `json:"key" binding:"required"`
 }

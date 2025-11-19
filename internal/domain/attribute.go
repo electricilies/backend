@@ -7,7 +7,7 @@ type Attribute struct {
 	Code      string            `json:"code" binding:"required" example:"color"`
 	Name      string            `json:"name" binding:"required" example:"Color"`
 	Values    *[]AttributeValue `json:"values" binding:"omitnil,dive"`
-	DeletedAt *time.Time        `json:"deletedAt,omitempty" binding:"required"`
+	DeletedAt *time.Time        `json:"deletedAt" binding:"required"`
 }
 
 type AttributeValue struct {

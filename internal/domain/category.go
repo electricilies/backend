@@ -9,5 +9,5 @@ type Category struct {
 	Name      string     `json:"name" binding:"required"`
 	CreatedAt time.Time  `json:"createdAt" binding:"required"`
 	UpdatedAt time.Time  `json:"updatedAt" binding:"required"`
-	DeletedAt *time.Time `json:"deletedAt" binding:"omitnil"`
+	DeletedAt *time.Time `json:"deletedAt" binding:"required"`
 }
