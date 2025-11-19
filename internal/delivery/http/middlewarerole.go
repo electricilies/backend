@@ -1,8 +1,6 @@
 package http
 
 import (
-	"backend/config"
-
 	"github.com/gin-gonic/gin"
 )
 
