@@ -13,7 +13,7 @@ type Product struct {
 	TrendingScore int64             `json:"trendingScore" binding:"required"`
 	Price         int64             `json:"price" binding:"required"`
 	Rating        float64           `json:"rating" binding:"required,gte=0,lte=5"`
-	Options       *[]ProductOption  `json:"options" binding:"omitnil,dive"`
+	Options       *[]Option         `json:"options" binding:"omitnil,dive"`
 	Images        *[]ProductImage   `json:"images" binding:"omitnil,dive"`
 	CreatedAt     time.Time         `json:"createdAt" binding:"required"`
 	UpdatedAt     time.Time         `json:"updatedAt" binding:"required"`
@@ -23,7 +23,7 @@ type Product struct {
 	Variants      *[]ProductVariant `json:"variants" binding:"omitnil,dive"`
 }
 
-type ProductOption struct {
+type Option struct {
 	ID     int            `json:"id" binding:"required"`
 	Name   string         `json:"name" binding:"required"`
 	Values *[]OptionValue `json:"values" binding:"omitnil,dive"`

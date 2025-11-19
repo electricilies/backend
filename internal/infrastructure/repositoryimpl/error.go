@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"backend/internal/domain"
+
 	"github.com/Nerzal/gocloak/v13"
 	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 	"github.com/aws/smithy-go"

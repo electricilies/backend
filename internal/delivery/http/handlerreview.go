@@ -33,7 +33,7 @@ func ProvideReviewHandler() *GinReviewHandler {
 //	@Accept			json
 //	@Produce		json
 //	@Param			review_id	path		int	true	"Review ID"
-//	@Success		200			{object} domain.Review
+//	@Success		200			{object}	domain.Review
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/reviews/{review_id} [get]
@@ -52,7 +52,7 @@ func (h *GinReviewHandler) Get(ctx *gin.Context) {
 //	@Param			deleted		query		string	false	"Include deleted reviews"	Enums(include, only, exclude)
 //	@Param			page		query		int		false	"Page for pagination"
 //	@Param			limit		query		int		false	"Limit for pagination"	default(10)
-//	@Success		200			{object} application.Pagination[domain.Review]
+//	@Success		200			{object}	application.Pagination[domain.Review]
 //	@Failure		500			{object}	Error
 //	@Router			/reviews [get]
 func (h *GinReviewHandler) ListReviewsByProducts(ctx *gin.Context) {
@@ -65,8 +65,8 @@ func (h *GinReviewHandler) ListReviewsByProducts(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			review	body domain.CreateReviewData	true	"Review request"
-//	@Success		201		{object} domain.Review
+//	@Param			review	body		domain.CreateReviewData	true	"Review request"
+//	@Success		201		{object}	domain.Review
 //	@Failure		400		{object}	Error
 //	@Failure		409		{object}	Error
 //	@Failure		500		{object}	Error
@@ -83,8 +83,8 @@ func (h *GinReviewHandler) Create(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			review_id	path		int						true	"Review ID"
-//	@Param			review		body domain.UpdateReviewData	true	"Update review request"
-//	@Success		204			{object} domain.Review
+//	@Param			review		body		domain.UpdateReviewData	true	"Update review request"
+//	@Success		204			{object}	domain.Review
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
 //	@Failure		409			{object}	Error
@@ -101,10 +101,10 @@ func (h *GinReviewHandler) Update(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			review_id	path		int		true	"Review ID"
+//	@Param			review_id	path	int	true	"Review ID"
 //	@Success		204
-//	@Failure		404			{object}	Error
-//	@Failure		500			{object}	Error
+//	@Failure		404	{object}	Error
+//	@Failure		500	{object}	Error
 //	@Router			/reviews/{review_id} [delete]
 func (h *GinReviewHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)

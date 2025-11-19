@@ -33,7 +33,7 @@ func ProvideOrderHandler() *GinOrderHandler {
 //	@Accept			json
 //	@Produce		json
 //	@Param			order_id	path		int	true	"Order ID"
-//	@Success		200			{object} domain.Order
+//	@Success		200			{object}	domain.Order
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/orders/{order_id} [get]
@@ -48,7 +48,7 @@ func (h *GinOrderHandler) Get(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{array} domain.Order
+//	@Success		200	{array}		domain.Order
 //	@Failure		500	{object}	Error
 //	@Router			/orders [get]
 func (h *GinOrderHandler) List(ctx *gin.Context) {
@@ -63,7 +63,7 @@ func (h *GinOrderHandler) List(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			order	body		domain.CreateOrderData	true	"Order request"
-//	@Success		201		{object} domain.Order
+//	@Success		201		{object}	domain.Order
 //	@Failure		400		{object}	Error
 //	@Failure		409		{object}	Error
 //	@Failure		500		{object}	Error
@@ -79,9 +79,9 @@ func (h *GinOrderHandler) Create(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order_id	path		int							true	"Order ID"
+//	@Param			order_id	path		int						true	"Order ID"
 //	@Param			status		body		domain.UpdateOrderData	true	"Update order status request"
-//	@Success		200			{object} domain.Order
+//	@Success		200			{object}	domain.Order
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
 //	@Failure		409			{object}	Error
@@ -98,10 +98,10 @@ func (h *GinOrderHandler) Update(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order_id	path		int		true	"Order ID"
+//	@Param			order_id	path	int	true	"Order ID"
 //	@Success		204
-//	@Failure		404			{object}	Error
-//	@Failure		500			{object}	Error
+//	@Failure		404	{object}	Error
+//	@Failure		500	{object}	Error
 //	@Router			/orders/{order_id} [delete]
 func (h *GinOrderHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)

@@ -32,7 +32,7 @@ func ProvidePaymentHandler() *GinPaymentHandler {
 //	@Accept			json
 //	@Produce		json
 //	@Param			payment	body		domain.CreatePaymentData	true	"Payment request"
-//	@Success		201		{object} domain.Payment
+//	@Success		201		{object}	domain.Payment
 //	@Failure		400		{object}	Error
 //	@Failure		500		{object}	Error
 //	@Router			/payments [post]
@@ -48,7 +48,7 @@ func (h *GinPaymentHandler) Create(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			payment_id	path		int	true	"Payment ID"
-//	@Success		200			{object} domain.Payment
+//	@Success		200			{object}	domain.Payment
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/payments/{payment_id} [get]
@@ -63,7 +63,7 @@ func (h *GinPaymentHandler) Get(ctx *gin.Context) {
 //	@Tags			Payment
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{array} domain.Payment
+//	@Success		200	{array}		domain.Payment
 //	@Failure		500	{object}	Error
 //	@Router			/payments [get]
 func (h *GinPaymentHandler) List(ctx *gin.Context) {
@@ -77,9 +77,9 @@ func (h *GinPaymentHandler) List(ctx *gin.Context) {
 //	@Tags			Payment
 //	@Accept			json
 //	@Produce		json
-//	@Param			payment_id	path		int						true	"Payment ID"
+//	@Param			payment_id	path		int							true	"Payment ID"
 //	@Param			payment		body		domain.UpdatePaymentData	true	"Payment update request"
-//	@Success		200			{object} domain.Payment
+//	@Success		200			{object}	domain.Payment
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error

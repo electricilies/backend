@@ -9,8 +9,10 @@ type ProductService interface {
 	Update(context.Context, UpdateProductParam) (*Product, error)
 	Get(context.Context, GetProductParam) (*Product, error)
 	Delete(context.Context, DeleteProductParam) error
-	AddVariants(context.Context, []CreateProductVariantParam) (*ProductVariant, error)
+	AddImages(context.Context, AddProductImagesParam) ([]ProductImage, error)
+	DeleteImages(context.Context, DeleteProductImagesParam) error
+	AddVariants(context.Context, AddProductVariantsParam) (*ProductVariant, error)
 	UpdateVariant(context.Context, UpdateProductVariantParam) (*ProductVariant, error)
-	UpdateOption(context.Context, UpdateProductOptionParam) (*ProductOption, error)
-	CreateImages(context.Context, []CreateProductImageParam) ([]ProductImage, error)
+	UpdateOptions(context.Context, UpdateProductOptionsParam) (*[]Option, error)
+	UpdateOptionValues(context.Context, UpdateProductOptionValuesParam) (*[]OptionValue, error)
 }

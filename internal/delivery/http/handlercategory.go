@@ -32,7 +32,7 @@ func ProvideCategoryHandler() *GinCategoryHandler {
 //	@Produce		json
 //	@Param			page	query		int	false	"Page for pagination"
 //	@Param			limit	query		int	false	"Limit for pagination"	default(20)
-//	@Success		200		{object} application.Pagination[domain.Category]
+//	@Success		200		{object}	application.Pagination[domain.Category]
 //	@Failure		500		{object}	Error
 //	@Router			/categories [get]
 func (h *GinCategoryHandler) List(ctx *gin.Context) {
@@ -46,7 +46,7 @@ func (h *GinCategoryHandler) List(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			category	body		domain.CreateCategoryData	true	"Category request"
-//	@Success		201			{object} domain.Category
+//	@Success		201			{object}	domain.Category
 //	@Failure		400			{object}	Error
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
@@ -62,9 +62,9 @@ func (h *GinCategoryHandler) Create(ctx *gin.Context) {
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Param			category_id	path		int						true	"Category ID"
-//	@Param			category	body		domain.UpdateCategoryData 	true	"Update category request"
-//	@Success		200			{object} domain.Category
+//	@Param			category_id	path		int							true	"Category ID"
+//	@Param			category	body		domain.UpdateCategoryData	true	"Update category request"
+//	@Success		200			{object}	domain.Category
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
 //	@Failure		409			{object}	Error

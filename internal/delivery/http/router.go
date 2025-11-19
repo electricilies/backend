@@ -80,18 +80,18 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 
 		products := api.Group("/products")
 		{
-			products.GET("", r.productHandler.List)
 			products.POST("", r.productHandler.Create)
+			products.GET("", r.productHandler.List)
 			products.GET("/:product_id", r.productHandler.Get)
-			products.PATCH("/:product_id", r.productHandler.Update)
 			products.DELETE("/:product_id", r.productHandler.Delete)
-			products.POST("/:product_id/options", r.productHandler.CreateProductOption)
+			products.POST("/images/bulk", r.productHandler.AddImages)
+			products.DELETE("images", r.productHandler.DeleteImages)
+			products.PATCH("/:product_id", r.productHandler.Update)
 			products.GET("/images/upload-url", r.productHandler.GetUploadImageURL)
 			products.GET("/images/delete-url/:image_id", r.productHandler.GetDeleteImageURL)
-			products.POST("/:product_id/variants", r.productHandler.CreateProductVariant)
-			products.PATCH("/variants/:variant_id", r.productHandler.UpdateProductVariant)
-			products.PATCH("/:product_id/options/:option_id", r.productHandler.UpdateProductOption)
-			products.POST("/:product_id/images/bulk", r.productHandler.CreateProductImages)
+			products.POST("/:product_id/variants", r.productHandler.AddVariants)
+			products.PATCH("/variants/:variant_id", r.productHandler.UpdateVariant)
+			products.PUT("/options/bulk", r.productHandler.UpdateOptions)
 		}
 
 		attributes := api.Group("/attributes")

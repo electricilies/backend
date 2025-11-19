@@ -2,6 +2,7 @@ package repository
 
 import (
 	"backend/internal/domain"
+
 	"github.com/jackc/pgx/v5"
 )
 
@@ -15,7 +16,7 @@ type Attribute interface {
 		tx pgx.Tx,
 		ids *[]int,
 		search *string,
-		deleted DeletedParam,
+		deleted string,
 		limit int,
 		offset int,
 	) (*[]domain.Attribute, error)

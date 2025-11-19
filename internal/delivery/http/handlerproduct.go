@@ -15,13 +15,13 @@ type ProductHandler interface {
 	Create(*gin.Context)
 	Update(*gin.Context)
 	Delete(*gin.Context)
-	CreateProductOption(*gin.Context)
-	CreateProductVariant(*gin.Context)
-	UpdateProductVariant(*gin.Context)
-	UpdateProductOption(*gin.Context)
+	AddImages(*gin.Context)
+	DeleteImages(*gin.Context)
+	AddVariants(*gin.Context)
+	UpdateVariant(*gin.Context)
+	UpdateOptions(*gin.Context)
 	GetDeleteImageURL(*gin.Context)
 	GetUploadImageURL(*gin.Context)
-	CreateProductImages(*gin.Context)
 }
 
 type GinProductHandler struct{}
@@ -40,7 +40,7 @@ func ProvideProductHandler() *GinProductHandler {
 //	@Accept			json
 //	@Produce		json
 //	@Param			produdt_id	path		int	true	"Product ID"
-//	@Success		200			{object} domain.Product
+//	@Success		200			{object}	domain.Product
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/products/{product_id} [get]
@@ -51,7 +51,7 @@ func (h *GinProductHandler) Get(ctx *gin.Context) {
 // ListProducts godoc
 //
 //	@Summary		List all products
-//	@Description	Get all products
+//	@Description	Get all products, used for search and suggestions also
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
@@ -63,7 +63,7 @@ func (h *GinProductHandler) Get(ctx *gin.Context) {
 //	@Param			category_ids	query		[]int	false	"Filter by category ID"		CollectionFormat(csv)
 //	@Param			min_price		query		int		false	"Minimum price filter"
 //	@Param			max_price		query		int		false	"Maximum price filter"
-//	@Success		200				{object} application.Pagination[domain.Product]
+//	@Success		200				{object}	application.Pagination[domain.Product]
 //	@Failure		500				{object}	Error
 //	@Router			/products [get]
 func (h *GinProductHandler) List(ctx *gin.Context) {
@@ -72,12 +72,12 @@ func (h *GinProductHandler) List(ctx *gin.Context) {
 // CreateProduct godoc
 //
 //	@Summary		Create a new product
-//	@Description	Create a new product
+//	@Description	Create a new product, including allllll
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product	body domain.CreateProductData	true	"Product request"
-//	@Success		201		{object} domain.Product
+//	@Param			product	body		domain.CreateProductData	true	"Product request"
+//	@Success		201		{object}	domain.Product
 //	@Failure		400		{object}	Error
 //	@Failure		409		{object}	Error
 //	@Failure		500		{object}	Error
@@ -93,9 +93,9 @@ func (h *GinProductHandler) Create(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id	path		int						true	"Product ID"
+//	@Param			product_id	path		int							true	"Product ID"
 //	@Param			product		body		domain.UpdateProductData	true	"Update product request"
-//	@Success		200			{object} domain.Product
+//	@Success		200			{object}	domain.Product
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
 //	@Failure		409			{object}	Error
@@ -112,32 +112,102 @@ func (h *GinProductHandler) Update(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id	path		int		true	"Product ID"
+//	@Param			product_id	path	int	true	"Product ID"
 //	@Success		204
-//	@Failure		404			{object}	Error
-//	@Failure		500			{object}	Error
+//	@Failure		404	{object}	Error
+//	@Failure		500	{object}	Error
 //	@Router			/products/{product_id} [delete]
 func (h *GinProductHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
-// CreateProductOption godoc
+// AddImages godoc
 //
-//	@Summary		Create a new product option
-//	@Description	Create a new product option for a product
+//	@Summary		Add product images
+//	@Description	Create new images for an existing product
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id		path		int							true	"Product ID"
-//	@Param			productOption	body domain.CreateProductOptionData	true	"Product option request"
-//
-//	@Success		201				{object} domain.ProductOption
-//
+//	@Param			productImages	body		[]domain.CreateProductImageData	true	"Product images request"
+//	@Success		201				{array}		domain.ProductImage
 //	@Failure		400				{object}	Error
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
-//	@Router			/products/options [post]
-func (h *GinProductHandler) CreateProductOption(ctx *gin.Context) {
+//	@Router			/products/images/bulk [post]
+func (h *GinProductHandler) AddImages(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+// DeleteImages godoc
+//
+//	@Summary		Delete product images
+//	@Description	Delete images for an existing product
+//	@Tags			Product
+//	@Accept			json
+//	@Produce		json
+//	@Param			ids	query	[]int	true	"Product Image IDs"
+//	@Success		204
+//	@Failure		400	{object}	Error
+//	@Failure		500	{object}	Error
+//	@Router			/products/images [delete]
+func (h *GinProductHandler) DeleteImages(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+// AddVariants godoc
+//
+//	@Summary		Add a new product variant
+//	@Description	Add a new variant for a existing product
+//	@Tags			Product
+//	@Accept			json
+//	@Produce		json
+//	@Param			product_id		path		int									true	"Product ID"``
+//	@Param			productVariant	body		[]domain.CreateProductVariantData	true	"Product variant request"
+//	@Success		201				{object}	domain.ProductVariant
+//	@Failure		400				{object}	Error
+//	@Failure		409				{object}	Error
+//	@Failure		500				{object}	Error
+//	@Router			/products/{product_id}/variants/bulk [post]
+func (h *GinProductHandler) AddVariants(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+// UpdateVariant godoc
+//
+//	@Summary		Update a product variant
+//	@Description	Update a product variant by ID
+//	@Tags			Product
+//	@Accept			json
+//	@Produce		json
+//	@Param			variant_id		path		int								true	"Product Variant ID"
+//	@Param			productVariant	body		domain.UpdateProductVariantData	true	"Update product variant request"
+//	@Success		200				{object}	[]domain.ProductVariant
+//	@Failure		400				{object}	Error
+//	@Failure		404				{object}	Error
+//	@Failure		409				{object}	Error
+//	@Failure		500				{object}	Error
+//	@Router			/products/variants/{variant_id} [patch]
+func (h *GinProductHandler) UpdateVariant(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
+// UpdateOptions godoc
+//
+//	@Summary		Update options
+//	@Description	Update a product options
+//	@Tags			Product
+//	@Accept			json
+//	@Produce		json
+//	@Param			product_id	path		int									true	"Product ID"
+//	@Param			option_id	path		int									true	"Product Option ID"
+//	@Param			option		body		[]domain.UpdateProductOptionsData	true	"Update product option request"
+//	@Success		200			{object}	domain.Option
+//	@Failure		400			{object}	Error
+//	@Failure		404			{object}	Error
+//	@Failure		409			{object}	Error
+//	@Failure		500			{object}	Error
+//	@Router			/products/options/bulk  [put]
+func (h *GinProductHandler) UpdateOptions(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -147,7 +217,7 @@ func (h *GinProductHandler) CreateProductOption(ctx *gin.Context) {
 //	@Description	Get a presigned URL to upload product images
 //	@Tags			Product
 //	@Produce		json
-//	@Success		200	{object} application.UploadImageURL
+//	@Success		200	{object}	application.UploadImageURL
 //	@Failure		500	{object}	Error
 //	@Router			/products/images/upload-url [get]
 //
@@ -165,86 +235,11 @@ func (h *GinProductHandler) GetUploadImageURL(ctx *gin.Context) {
 //
 //	@Param			image_id	query		int	true	"Product Image ID"
 //
-//	@Success		204			{object} application.DeleteImageURL
+//	@Success		204			{object}	application.DeleteImageURL
 //	@Failure		500			{object}	Error
 //	@Router			/products/images/delete-url [get]
 //
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *GinProductHandler) GetDeleteImageURL(ctx *gin.Context) {
-}
-
-// CreateProductVariant godoc
-//
-//	@Summary		Create a new product variant
-//	@Description	Create a new variant for a product
-//	@Tags			Product
-//	@Accept			json
-//	@Produce		json
-//	@Param			product_id		path		int								true	"Product ID"``
-//	@Param			productVariant	body domain.CreateProductVariantData	true	"Product variant request"
-//	@Success		201				{object} domain.ProductVariant
-//	@Failure		400				{object}	Error
-//	@Failure		409				{object}	Error
-//	@Failure		500				{object}	Error
-//	@Router			/products/variants [post]
-func (h *GinProductHandler) CreateProductVariant(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
-}
-
-// UpdateProductVariant godoc
-//
-//	@Summary		Update a product variant
-//	@Description	Update a product variant by ID
-//	@Tags			Product
-//	@Accept			json
-//	@Produce		json
-//	@Param			variant_id		path		int								true	"Product Variant ID"
-//	@Param			productVariant	body domain.UpdateProductVariantData	true	"Update product variant request"
-//	@Success		200				{object} domain.ProductVariant
-//	@Failure		400				{object}	Error
-//	@Failure		404				{object}	Error
-//	@Failure		409				{object}	Error
-//	@Failure		500				{object}	Error
-//	@Router			/products/variants/{variant_id} [patch]
-func (h *GinProductHandler) UpdateProductVariant(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
-}
-
-// UpdateProductOption godoc
-//
-//	@Summary		Update a product option
-//	@Description	Update a product option by ID
-//	@Tags			Product
-//	@Accept			json
-//	@Produce		json
-//	@Param			product_id		path		int							true	"Product ID"
-//	@Param			option_id		path		int							true	"Product Option ID"
-//	@Param			productOption	body domain.UpdateProductOptionData true	"Update product option request"
-//	@Success		200				{object} domain.ProductOption
-//	@Failure		400				{object}	Error
-//	@Failure		404				{object}	Error
-//	@Failure		409				{object}	Error
-//	@Failure		500				{object}	Error
-//	@Router			/products/options/{option_id} [patch]
-func (h *GinProductHandler) UpdateProductOption(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
-}
-
-// CreateProductImages godoc
-//
-//	@Summary		Create product images
-//	@Description	Create new images for products
-//	@Tags			Product
-//	@Accept			json
-//	@Produce		json
-//	@Params			product_id   path        int                     true    "Product ID"
-//	@Param			productImages	body		[]domain.CreateProductImageData	true	"Product images request"
-//	@Success		201				{array} domain.ProductImage
-//	@Failure		400				{object}	Error
-//	@Failure		409				{object}	Error
-//	@Failure		500				{object}	Error
-//	@Router			/products/{product_id}/images/bulk [post]
-func (h *GinProductHandler) CreateProductImages(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
 }

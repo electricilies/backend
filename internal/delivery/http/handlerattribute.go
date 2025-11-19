@@ -5,6 +5,7 @@ import (
 
 	_ "backend/internal/application"
 	_ "backend/internal/domain"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,7 +34,7 @@ func ProvideAttributeHandler() *GinAttributeHandler {
 //	@Accept			json
 //	@Produce		json
 //	@Param			attribute_id	path		string	true	"Attribute ID"
-//	@Success		200				{object} domain.Attribute
+//	@Success		200				{object}	domain.Attribute
 //	@Failure		404				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/attributes/{attribute_id} [get]
@@ -53,7 +54,7 @@ func (h *GinAttributeHandler) Get(ctx *gin.Context) {
 //	@Param			product_id	query		int		false	"Product ID"
 //	@Param			search		query		string	false	"Search term"
 //	@Param			deleted		query		string	false	"Filter by deletion status"	Enums(exclude, only, all)
-//	@Success		200			{object} application.Pagination[domain.Attribute]
+//	@Success		200			{object}	application.Pagination[domain.Attribute]
 //	@Failure		500			{object}	Error
 //	@Router			/attributes [get]
 func (h *GinAttributeHandler) List(ctx *gin.Context) {
@@ -67,7 +68,7 @@ func (h *GinAttributeHandler) List(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute	body domain.CreateAttributeData true	"Attribute request"
+//	@Param			attribute	body		domain.CreateAttributeData	true	"Attribute request"
 //	@Success		201			{object}	domain.Attribute
 //	@Failure		400			{object}	Error
 //	@Failure		409			{object}	Error
@@ -84,9 +85,9 @@ func (h *GinAttributeHandler) Create(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute_id	path		string					true	"Attribute ID"
-//	@Param			attribute		body domain.UpdateAttributeValueData	true	"Update attribute request"
-//	@Success		200				{object} domain.Attribute
+//	@Param			attribute_id	path		string							true	"Attribute ID"
+//	@Param			attribute		body		domain.UpdateAttributeValueData	true	"Update attribute request"
+//	@Success		200				{object}	domain.Attribute
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
 //	@Failure		409				{object}	Error
@@ -103,10 +104,10 @@ func (h *GinAttributeHandler) Update(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute_id	path		string	true	"Attribute ID"
+//	@Param			attribute_id	path	string	true	"Attribute ID"
 //	@Success		204
-//	@Failure		404				{object}	Error
-//	@Failure		500				{object}	Error
+//	@Failure		404	{object}	Error
+//	@Failure		500	{object}	Error
 //	@Router			/attributes/{attribute_id} [delete]
 func (h *GinAttributeHandler) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -119,9 +120,9 @@ func (h *GinAttributeHandler) Delete(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute_id	path		string							true	"Attribute ID"
-//	@Param			values			body		[]domain.UpdateAttributeValueData  true	"Update attribute values request"
-//	@Success		200				{array} domain.Attribute
+//	@Param			attribute_id	path		string								true	"Attribute ID"
+//	@Param			values			body		[]domain.UpdateAttributeValueData	true	"Update attribute values request"
+//	@Success		200				{array}		domain.Attribute
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
 //	@Failure		409				{object}	Error

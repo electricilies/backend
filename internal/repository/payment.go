@@ -2,6 +2,7 @@ package repository
 
 import (
 	"backend/internal/domain"
+
 	"github.com/jackc/pgx/v5"
 )
 
