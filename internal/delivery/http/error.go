@@ -12,6 +12,10 @@ type Error struct {
 	Message string `json:"message"`
 }
 
+func NewError(message string) *Error {
+	return &Error{Message: message}
+}
+
 func SendError(ctx *gin.Context, err error) {
 	var httpErrCode int
 	switch {
@@ -34,5 +38,5 @@ func SendError(ctx *gin.Context, err error) {
 	default:
 		httpErrCode = 500
 	}
-	ctx.JSON(httpErrCode, Error{Message: errors.Unwrap(err).Error()})
+	ctx.JSON(httpErrCode, NewError(err.Error()))
 }

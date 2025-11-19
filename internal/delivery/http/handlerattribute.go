@@ -126,7 +126,7 @@ func (h *GinAttributeHandler) Delete(ctx *gin.Context) {
 //	@Failure		404				{object}	Error
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
-//	@Router			/attributes/{attribute_id}/values [patch]
+//	@Router			/attributes/{attribute_id}/values [put]
 func (h *GinAttributeHandler) UpdateValue(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

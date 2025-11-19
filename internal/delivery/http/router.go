@@ -113,7 +113,7 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 			attributes.GET("/:attribute_id", r.attributeHandler.Get)
 			attributes.PATCH("/:attribute_id", r.attributeHandler.Update)
 			attributes.DELETE("/:id", r.attributeHandler.Delete)
-			attributes.PATCH("/:attribute_id/values/bul", r.attributeHandler.UpdateValue)
+			attributes.PUT("/:attribute_id/values", r.attributeHandler.UpdateValue)
 		}
 
 		payments := api.Group("/payments")
