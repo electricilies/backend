@@ -9,11 +9,23 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type RoleMiddlewareImpl struct {
+	noJWTFoundErr              string
+	invalidJWTErr              string
+	noRoleFoundErr             string
+	insufficientPermissionsErr string
+	srvCfg                     *config.Server
+}
+
 var _ RoleMiddleware = &RoleMiddlewareImpl{}
 
 func ProvideRoleMiddleware(srvCfg *config.Server) *RoleMiddlewareImpl {
 	return &RoleMiddlewareImpl{
-		srvCfg: srvCfg,
+		srvCfg:                     srvCfg,
+		noJWTFoundErr:              "no JWT token found",
+		invalidJWTErr:              "invalid JWT token",
+		noRoleFoundErr:             "no role found in JWT claims",
+		insufficientPermissionsErr: "insufficient permissions",
 	}
 }
 
@@ -27,22 +39,19 @@ func (m *RoleMiddlewareImpl) Handler(rolesAllowed []UserRole) gin.HandlerFunc {
 		if !exists {
 			ctx.AbortWithStatusJSON(
 				http.StatusUnauthorized,
-				gin.H{
-					"error": "No JWT claims found",
-				},
-			)
+				NewError(m.noJWTFoundErr))
 			return
 		}
 
 		claims, ok := claimsInterface.(jwt.MapClaims)
 		if !ok {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid JWT claims format"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, NewError(m.invalidJWTErr))
 			return
 		}
 
 		userRoles := extractRolesFromClaims(claims)
 		if len(userRoles) == 0 {
-			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "No role found in JWT claims"})
+			ctx.AbortWithStatusJSON(http.StatusForbidden, NewError(m.noRoleFoundErr))
 			return
 		}
 
@@ -55,7 +64,7 @@ func (m *RoleMiddlewareImpl) Handler(rolesAllowed []UserRole) gin.HandlerFunc {
 			}
 		}
 		if !allowed {
-			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+			ctx.AbortWithStatusJSON(http.StatusForbidden, NewError(m.insufficientPermissionsErr))
 			return
 		}
 
