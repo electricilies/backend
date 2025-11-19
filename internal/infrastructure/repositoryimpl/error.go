@@ -28,7 +28,7 @@ func ToDomainErrorFromPostgres(err error) error {
 
 	var pgErr *pgconn.PgError
 	if !errors.As(err, &pgErr) {
-		return WrapMutilError(domain.ErrInternalDB, "unexpected postgres error", err)
+		return WrapMutilError(domain.ErrServiceError, "unexpected postgres error", err)
 	}
 
 	switch pgErr.Code {
@@ -44,7 +44,7 @@ func ToDomainErrorFromPostgres(err error) error {
 		return WrapMutilError(domain.ErrInvalid, "check constraint failed: "+pgErr.ConstraintName, err)
 
 	case pgerrcode.InvalidTextRepresentation:
-		return WrapMutilError(domain.ErrInvalidFormat, "invalid text representation", err)
+		return WrapMutilError(domain.ErrInvalid, "invalid text representation", err)
 
 	case pgerrcode.StringDataRightTruncationDataException:
 		field := pgErr.ColumnName
@@ -66,19 +66,15 @@ func ToDomainErrorFromPostgres(err error) error {
 	case pgerrcode.SerializationFailure:
 		return WrapMutilError(domain.ErrConflict, "serialization failed", err)
 
-	case pgerrcode.TooManyConnections:
-		return WrapMutilError(domain.ErrUnavailable, "too many connections", err)
-
-	case pgerrcode.AdminShutdown,
+	case
+		pgerrcode.ConnectionFailure,
+		pgerrcode.TooManyConnections, pgerrcode.AdminShutdown,
 		pgerrcode.CrashShutdown,
 		pgerrcode.CannotConnectNow:
-		return WrapMutilError(domain.ErrUnavailable, "database not available", err)
-
-	case pgerrcode.ConnectionFailure:
-		return WrapMutilError(domain.ErrConnection, "database connection failed", err)
+		return WrapMutilError(domain.ErrUnavailable, "database connection failed", err)
 
 	default:
-		return WrapMutilError(domain.ErrInternalDB, "unhandled postgres error", err)
+		return WrapMutilError(domain.ErrServiceError, "unhandled postgres error", err)
 	}
 }
 
@@ -98,7 +94,7 @@ func ToDomainErrorFromS3(err error) error {
 			return WrapMutilError(domain.ErrNotFound, "s3 resource not found", err)
 
 		case "InvalidBucketName", "InvalidObjectState":
-			return WrapMutilError(domain.ErrInvalidFormat, "invalid s3 request", err)
+			return WrapMutilError(domain.ErrInvalid, "invalid s3 request", err)
 
 		case "BucketAlreadyExists", "BucketAlreadyOwnedByYou":
 			return WrapMutilError(domain.ErrExists, "bucket conflict", err)
@@ -139,7 +135,7 @@ func ToDomainErrorFromS3(err error) error {
 		if netErr.Timeout() {
 			return WrapMutilError(domain.ErrTimeout, "s3 network timeout", err)
 		}
-		return WrapMutilError(domain.ErrConnection, "s3 network failure", err)
+		return WrapMutilError(domain.ErrUnavailable, "s3 network failure", err)
 	}
 
 	return WrapMutilError(domain.ErrUnknown, "unexpected s3 error", err)
@@ -183,7 +179,7 @@ func ToDomainErrorFromGoCloak(err error) error {
 		if netErr.Timeout() {
 			return WrapMutilError(domain.ErrTimeout, "keycloak network timeout", err)
 		}
-		return WrapMutilError(domain.ErrConnection, "keycloak network error", err)
+		return WrapMutilError(domain.ErrUnavailable, "keycloak network error", err)
 	}
 
 	return WrapMutilError(domain.ErrUnknown, "unexpected keycloak error", err)
@@ -191,7 +187,6 @@ func ToDomainErrorFromGoCloak(err error) error {
 
 func WrapMutilError(domainErr error, msg string, original error) error {
 	return multierror.Append(
-		nil,
 		domainErr,
 		errors.New(msg),
 		original,

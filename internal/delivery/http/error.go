@@ -21,7 +21,7 @@ func SendError(ctx *gin.Context, err error) {
 	switch {
 	case errors.Is(err, domain.ErrNotFound):
 		httpErrCode = 404
-	case errors.Is(err, domain.ErrInvalid), errors.Is(err, domain.ErrInvalidFormat):
+	case errors.Is(err, domain.ErrInvalid):
 		httpErrCode = 400
 	case errors.Is(err, domain.ErrExists), errors.Is(err, domain.ErrConflict):
 		httpErrCode = 409
@@ -31,10 +31,6 @@ func SendError(ctx *gin.Context, err error) {
 		httpErrCode = 503
 	case errors.Is(err, domain.ErrTimeout):
 		httpErrCode = 504
-	case errors.Is(err, domain.ErrConnection):
-		httpErrCode = 502
-	case errors.Is(err, domain.ErrCanceled):
-		httpErrCode = 499
 	default:
 		httpErrCode = 500
 	}
