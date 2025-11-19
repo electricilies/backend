@@ -23,8 +23,6 @@ func SendError(ctx *gin.Context, err error) {
 		httpErrCode = 409
 	case errors.Is(err, domain.ErrForbidden):
 		httpErrCode = 403
-	case errors.Is(err, domain.ErrUnauthorized):
-		httpErrCode = 401
 	case errors.Is(err, domain.ErrUnavailable):
 		httpErrCode = 503
 	case errors.Is(err, domain.ErrTimeout):

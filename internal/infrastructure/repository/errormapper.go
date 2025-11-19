@@ -157,9 +157,6 @@ func ToDomainErrorFromGoCloak(err error) error {
 		case http.StatusBadRequest:
 			return WrapMutilError(domain.ErrInvalid, apiErr.Message, err)
 
-		case http.StatusUnauthorized:
-			return WrapMutilError(domain.ErrUnauthorized, "invalid credentials", err)
-
 		case http.StatusForbidden:
 			return WrapMutilError(domain.ErrForbidden, "access denied", err)
 

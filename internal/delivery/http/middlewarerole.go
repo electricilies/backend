@@ -59,6 +59,7 @@ func (m *RoleMiddlewareImpl) Handler(rolesAllowed []UserRole) gin.HandlerFunc {
 		allowed := false
 		for _, role := range userRoles {
 			if _, exists := set[UserRole(role)]; exists {
+				ctx.Set("user_role", role)
 				allowed = true
 				break
 			}

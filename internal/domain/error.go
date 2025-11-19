@@ -7,7 +7,6 @@ var (
 	ErrInvalid       = errors.New("invalid data")
 	ErrExists        = errors.New("already exists")
 	ErrForbidden     = errors.New("forbidden")
-	ErrUnauthorized  = errors.New("unauthorized")
 	ErrConflict      = errors.New("conflict")
 	ErrUnavailable   = errors.New("service unavailable")
 	ErrTimeout       = errors.New("timeout")
