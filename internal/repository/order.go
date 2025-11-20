@@ -7,7 +7,16 @@ import (
 )
 
 type Order interface {
+	Count(
+		tx pgx.Tx,
+		ids *[]int,
+		deleted string,
+		limit int,
+		offset int,
+	) (*[]domain.Order, error)
+
 	Get(
+
 		tx pgx.Tx,
 		id int,
 	) (*domain.Order, error)
@@ -25,6 +34,7 @@ type Order interface {
 		tx pgx.Tx,
 		userID int,
 		address string,
+		provider domain.OrderProvider,
 		productVariantIDs []int,
 		quantities []int,
 		prices []int64,

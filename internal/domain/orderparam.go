@@ -6,8 +6,9 @@ type CreateOrderParam struct {
 }
 
 type CreateOrderData struct {
-	Address string                `json:"address" binding:"required"`
-	Items   []CreateOrderItemData `json:"items"   binding:"required,dive"`
+	Address  string                `json:"address"  binding:"required"`
+	Provider OrderProvider         `json:"provider" binding:"required,oneof=COD VNPAY MOMO ZALOPAY"`
+	Items    []CreateOrderItemData `json:"items"    binding:"required,dive"`
 }
 
 type CreateOrderItemData struct {

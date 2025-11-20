@@ -2,6 +2,15 @@ package domain
 
 import "time"
 
+type OrderProvider string
+
+const (
+	PaymentProviderCOD     OrderProvider = "COD"
+	PaymentProviderVNPAY   OrderProvider = "VNPAY"
+	PaymentProviderMOMO    OrderProvider = "MOMO"
+	PaymentProviderZALOPAY OrderProvider = "ZALOPAY"
+)
+
 type OrderStatus string
 
 const (
@@ -13,14 +22,16 @@ const (
 )
 
 type Order struct {
-	ID          int          `json:"id"          binding:"required" validate:"required"`
-	User        *User        `json:"user"`
-	Address     string       `json:"address"     binding:"required" validate:"required"`
-	Status      OrderStatus  `json:"status"      binding:"required" validate:"required,oneof=Pending Processing Shipped Delivered Cancelled"`
-	CreatedAt   time.Time    `json:"createdAt"   binding:"required" validate:"required"`
-	UpdatedAt   time.Time    `json:"updatedAt"   binding:"required" validate:"required"`
-	Items       *[]OrderItem `json:"items"       binding:"omitnil"  validate:"omitnil,gte=1,dive"`
-	TotalAmount int64        `json:"totalAmount" binding:"required" validate:"required"`
+	ID          int           `json:"id"          binding:"required" validate:"required"`
+	User        *User         `json:"user"`
+	Address     string        `json:"address"     binding:"required" validate:"required"`
+	Status      OrderStatus   `json:"status"      binding:"required" validate:"required,oneof=Pending Processing Shipped Delivered Cancelled"`
+	IsPaid      bool          `json:"isPaid"      binding:"required" validate:"required"`
+	Provider    OrderProvider `json:"provider"    binding:"required" validate:"required,oneof=COD VNPAY MOMO ZALOPAY"`
+	CreatedAt   time.Time     `json:"createdAt"   binding:"required" validate:"required"`
+	UpdatedAt   time.Time     `json:"updatedAt"   binding:"required" validate:"required"`
+	Items       *[]OrderItem  `json:"items"       binding:"omitnil"  validate:"omitnil,gte=1,dive"`
+	TotalAmount int64         `json:"totalAmount" binding:"required" validate:"required"`
 }
 
 type OrderItem struct {
