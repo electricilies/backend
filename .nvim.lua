@@ -66,3 +66,22 @@ vim.filetype.add({
     tf = "terraform",
   },
 })
+
+vim.api.nvim_create_autocmd("BufWritePost", {
+  pattern = "*.go",
+  callback = function(args)
+    local filename = args.file
+    if g.dev_no_gen or filename:match("internal/repository/.*%.go") == nil then
+      return
+    end
+    vim.fn.jobstart("mockery", {
+      cwd = vim.fn.getcwd(),
+      on_exit = function(_, exit_code)
+        if exit_code ~= 0 then
+          vim.notify("Mockery: Failed to generate mocks", vim.log.levels.ERROR)
+        end
+      end,
+    })
+  end,
+  desc = "Generate mocks with mockery on save",
+})

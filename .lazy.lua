@@ -125,21 +125,12 @@ return {
             return filename:match("database/.*%.sql") ~= nil and filename:match("database/.*seed-fake%.sql") == nil
           end,
         },
-        mockery = {
-          command = "mockery",
-          condition = function(_, ctx)
-            local filename = ctx.filename
-            return not g.dev_no_gen and filename:match("internal/repository/.*%.go") ~= nil
-          end,
-        },
       },
       formatters_by_ft = {
         go = {
           "swag_fmt",
           "swag_gen",
           "wire",
-          "mockery",
-          lsp_format = "last",
         },
         yaml = {
           "sqlc",

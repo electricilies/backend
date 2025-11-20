@@ -16,13 +16,11 @@ type Product interface {
 	CreateOptions(
 		tx pgx.Tx,
 		productID int,
-		options [] struct {
-			name string
+		options []struct {
+			name   string
 			values []string
 		},
 	) (int, error)
 
-	CreateImages(
-
-	)
+	CreateImages()
 }
