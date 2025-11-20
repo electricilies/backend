@@ -1,6 +1,10 @@
 package serviceimpl
 
-import "backend/internal/domain"
+import (
+	"context"
+
+	"backend/internal/domain"
+)
 
 type Product struct{}
 
@@ -10,16 +14,42 @@ func ProvideProduct() *Product {
 
 var _ domain.ProductService = &Product{}
 
-func (p *Product) Create() {
+func (s *Product) Create(ctx context.Context, param domain.CreateProductParam) (*domain.Product, error) {
+	panic("implement me")
+}
 
-// 	Create(context.Context, CreateProductParam) (*Product, error)
-// 	Update(context.Context, UpdateProductParam) (*Product, error)
-// 	Get(context.Context, GetProductParam) (*Product, error)
-// 	Delete(context.Context, DeleteProductParam) error
-// 	AddImages(context.Context, AddProductImagesParam) ([]ProductImage, error)
-// 	DeleteImages(context.Context, DeleteProductImagesParam) error
-// 	AddVariants(context.Context, AddProductVariantsParam) (*ProductVariant, error)
-// 	UpdateVariant(context.Context, UpdateProductVariantParam) (*ProductVariant, error)
-// 	UpdateOptions(context.Context, UpdateProductOptionsParam) error
-// 	UpdateOptionValues(context.Context, UpdateProductOptionValuesParam) error
-// }
+func (s *Product) Update(ctx context.Context, param domain.UpdateProductParam) (*domain.Product, error) {
+	panic("implement me")
+}
+
+func (s *Product) Get(ctx context.Context, param domain.GetProductParam) (*domain.Product, error) {
+	panic("implement me")
+}
+
+func (s *Product) Delete(ctx context.Context, param domain.DeleteProductParam) error {
+	panic("implement me")
+}
+
+func (s *Product) AddImages(ctx context.Context, param domain.AddProductImagesParam) (*[]domain.ProductImage, error) {
+	panic("implement me")
+}
+
+func (s *Product) DeleteImages(ctx context.Context, param domain.DeleteProductImagesParam) error {
+	panic("implement me")
+}
+
+func (s *Product) AddVariants(ctx context.Context, param domain.AddProductVariantsParam) (*domain.ProductVariant, error) {
+	panic("implement me")
+}
+
+func (s *Product) UpdateVariant(ctx context.Context, param domain.UpdateProductVariantParam) (*domain.ProductVariant, error) {
+	panic("implement me")
+}
+
+func (s *Product) UpdateOptions(ctx context.Context, param domain.UpdateProductOptionsParam) error {
+	panic("implement me")
+}
+
+func (s *Product) UpdateOptionValues(ctx context.Context, param domain.UpdateProductOptionValuesParam) error {
+	panic("implement me")
+}
