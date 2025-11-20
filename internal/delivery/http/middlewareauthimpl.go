@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -9,11 +10,17 @@ import (
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/hashicorp/go-multierror"
 )
 
 type GinAuthMiddleware struct {
-	keycloakClient *gocloak.GoCloak
-	srvCfg         *config.Server
+	keycloakClient      *gocloak.GoCloak
+	srvCfg              *config.Server
+	missingJWTErr       string
+	invalidJWTErr       string
+	decodeJWTErr        string
+	failedIntrospectErr string
+	inactiveTokenErr    string
 }
 
 var _ AuthMiddleware = &GinAuthMiddleware{}
@@ -23,8 +30,13 @@ func ProvideAuthMiddleware(
 	srvCfg *config.Server,
 ) *GinAuthMiddleware {
 	return &GinAuthMiddleware{
-		keycloakClient: keycloakClient,
-		srvCfg:         srvCfg,
+		keycloakClient:      keycloakClient,
+		srvCfg:              srvCfg,
+		missingJWTErr:       "Missing Authorization header",
+		invalidJWTErr:       "Invalid Authorization header format",
+		decodeJWTErr:        "Cannot decode access token",
+		failedIntrospectErr: "Failed to introspect token",
+		inactiveTokenErr:    "Inactive or invalid token",
 	}
 }
 
@@ -32,14 +44,14 @@ func (m *GinAuthMiddleware) Handler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Missing Authorization header"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, NewError(m.missingJWTErr))
 			return
 		}
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
 			ctx.AbortWithStatusJSON(
 				http.StatusUnauthorized,
-				gin.H{"error": "Invalid Authorization header format"},
+				NewError(m.invalidJWTErr),
 			)
 			return
 		}
@@ -48,7 +60,11 @@ func (m *GinAuthMiddleware) Handler() gin.HandlerFunc {
 		if err != nil {
 			ctx.AbortWithStatusJSON(
 				http.StatusUnauthorized,
-				gin.H{"error": "Cannot decode access token", "detail": err.Error()},
+				NewError(multierror.Append(
+					nil,
+					errors.New(m.decodeJWTErr),
+					err,
+				).Error()),
 			)
 			return
 		}
@@ -62,14 +78,18 @@ func (m *GinAuthMiddleware) Handler() gin.HandlerFunc {
 		if err != nil {
 			ctx.AbortWithStatusJSON(
 				http.StatusUnauthorized,
-				gin.H{"error": "Failed to introspect token", "detail": err.Error()},
+				NewError(multierror.Append(
+					nil,
+					errors.New(m.failedIntrospectErr),
+					err,
+				).Error()),
 			)
 			return
 		}
 		if rptResult == nil || !*rptResult.Active {
 			ctx.AbortWithStatusJSON(
 				http.StatusUnauthorized,
-				gin.H{"error": "Inactive or invalid token"},
+				NewError(m.inactiveTokenErr),
 			)
 			return
 		}
