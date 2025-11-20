@@ -5,13 +5,13 @@ import (
 )
 
 type Review struct {
-	ID        int        `json:"id" binding:"required"`
-	Rating    int        `json:"rating" binding:"required"`
-	Content   *string    `json:"content" binding:"required"`
-	OrderItem *OrderItem `json:"orderItem" binding:"omitnil"`
-	ImageURL  *string    `json:"imageUrl" binding:"required,url"`
-	User      *User      `json:"user" binding:"omitnil"`
-	CreatedAt time.Time  `json:"createdAt" binding:"required"`
-	UpdatedAt time.Time  `json:"updatedAt" binding:"required"`
-	DeletedAt *time.Time `json:"deletedAt" binding:"required"`
+	ID        int        `json:"id" binding:"required" validate:"required"`
+	Rating    int        `json:"rating" binding:"required" validate:"required,gte=1,lte=5"`
+	Content   *string    `json:"content" binding:"required" validate:"required,min=10"`
+	OrderItem *OrderItem `json:"orderItem" binding:"omitnil" validate:"omitnil"`
+	ImageURL  *string    `json:"imageUrl" validate:"omitempty,url"`
+	User      *User      `json:"user" binding:"omitnil" validate:"omitnil"`
+	CreatedAt time.Time  `json:"createdAt" binding:"required" validate:"required"`
+	UpdatedAt time.Time  `json:"updatedAt" binding:"required" validate:"required,gtefield=CreatedAt"`
+	DeletedAt *time.Time `json:"deletedAt" validate:"omitempty,gtefield=CreatedAt"`
 }
