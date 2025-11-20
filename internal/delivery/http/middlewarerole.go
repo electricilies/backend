@@ -1,11 +1,10 @@
 package http
 
 import (
+	"backend/internal/application"
 	"github.com/gin-gonic/gin"
 )
 
-type UserRole string
-
 type RoleMiddleware interface {
-	Handler([]UserRole) gin.HandlerFunc
+	Handler([]application.UserRole) gin.HandlerFunc
 }

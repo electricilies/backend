@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"backend/config"
+	"backend/internal/application"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -29,8 +30,8 @@ func ProvideRoleMiddleware(srvCfg *config.Server) *RoleMiddlewareImpl {
 	}
 }
 
-func (m *RoleMiddlewareImpl) Handler(rolesAllowed []UserRole) gin.HandlerFunc {
-	set := make(map[UserRole]struct{})
+func (m *RoleMiddlewareImpl) Handler(rolesAllowed []application.UserRole) gin.HandlerFunc {
+	set := make(map[application.UserRole]struct{})
 	for _, requiredRole := range rolesAllowed {
 		set[requiredRole] = struct{}{}
 	}
@@ -57,7 +58,7 @@ func (m *RoleMiddlewareImpl) Handler(rolesAllowed []UserRole) gin.HandlerFunc {
 
 		allowed := false
 		for _, role := range userRoles {
-			if _, exists := set[UserRole(role)]; exists {
+			if _, exists := set[application.UserRole(role)]; exists {
 				ctx.Set("user_role", role)
 				allowed = true
 				break

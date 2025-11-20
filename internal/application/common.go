@@ -33,3 +33,11 @@ const (
 	DeletedOnlyParam    DeletedParam = "only"
 	DeletedAllParam     DeletedParam = "all"
 )
+
+type UserRole string
+
+const (
+	RoleAdmin    UserRole = "admin"
+	RoleStaff    UserRole = "staff"
+	RoleCustomer UserRole = "customer"
+)

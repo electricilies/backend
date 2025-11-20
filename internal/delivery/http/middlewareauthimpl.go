@@ -58,13 +58,10 @@ func (m *GinAuthMiddleware) Handler() gin.HandlerFunc {
 		token := parts[1]
 		tokens, _, err := m.keycloakClient.DecodeAccessToken(ctx, token, m.srvCfg.KCRealm)
 		if err != nil {
+			err = multierror.Append(err, errors.New(m.decodeJWTErr))
 			ctx.AbortWithStatusJSON(
 				http.StatusUnauthorized,
-				NewError(multierror.Append(
-					nil,
-					errors.New(m.decodeJWTErr),
-					err,
-				).Error()),
+				NewError(err.Error()),
 			)
 			return
 		}
@@ -76,13 +73,10 @@ func (m *GinAuthMiddleware) Handler() gin.HandlerFunc {
 			m.srvCfg.KCRealm,
 		)
 		if err != nil {
+			err := multierror.Append(err, errors.New(m.failedIntrospectErr))
 			ctx.AbortWithStatusJSON(
 				http.StatusUnauthorized,
-				NewError(multierror.Append(
-					nil,
-					errors.New(m.failedIntrospectErr),
-					err,
-				).Error()),
+				NewError(err.Error()),
 			)
 			return
 		}
