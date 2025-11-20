@@ -134,4 +134,3 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 		}
 	}
 }
-
