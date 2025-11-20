@@ -139,6 +139,7 @@ return {
           "swag_gen",
           "wire",
           "mockery",
+          lsp_format = "last",
         },
         yaml = {
           "sqlc",

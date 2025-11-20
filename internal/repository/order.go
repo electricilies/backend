@@ -16,7 +16,6 @@ type Order interface {
 	) (*[]domain.Order, error)
 
 	Get(
-
 		tx pgx.Tx,
 		id int,
 	) (*domain.Order, error)
@@ -35,9 +34,12 @@ type Order interface {
 		userID int,
 		address string,
 		provider domain.OrderProvider,
-		productVariantIDs []int,
-		quantities []int,
-		prices []int64,
+		totalAmount int64,
+		items []struct {
+			productVariantIDs int
+			quantities        int
+			prices            int64
+		},
 	) (*domain.Order, error)
 
 	Update(
