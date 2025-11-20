@@ -13,6 +13,6 @@ type ProductService interface {
 	DeleteImages(context.Context, DeleteProductImagesParam) error
 	AddVariants(context.Context, AddProductVariantsParam) (*ProductVariant, error)
 	UpdateVariant(context.Context, UpdateProductVariantParam) (*ProductVariant, error)
-	UpdateOptions(context.Context, UpdateProductOptionsParam) (*[]Option, error)
-	UpdateOptionValues(context.Context, UpdateProductOptionValuesParam) (*[]OptionValue, error)
+	UpdateOptions(context.Context, UpdateProductOptionsParam) error
+	UpdateOptionValues(context.Context, UpdateProductOptionValuesParam) error
 }
