@@ -11,7 +11,7 @@ type User struct {
 	Username    string    `json:"userName"    binding:"required" validate:"required"`
 	Email       string    `json:"email"       binding:"required" validate:"required,email"`
 	DateOfBirth time.Time `json:"dateOfBirth" binding:"required" validate:"required"`
-	PhoneNumber string    `json:"phoneNumber" binding:"required" validate:"required,startswith=0,min=10,max=11"`
+	PhoneNumber string    `json:"phoneNumber" binding:"required" validate:"required,startswith=0,gte=10,lte=11"`
 	Address     string    `json:"address"     binding:"required" validate:"required"`
 	CreatedAt   time.Time `json:"createdAt"   binding:"required" validate:"required"`
 }

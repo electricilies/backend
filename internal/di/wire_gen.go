@@ -14,7 +14,6 @@ import (
 	"backend/internal/serviceimpl"
 	"backend/pkg/logger"
 	"context"
-
 	"github.com/google/wire"
 )
 
@@ -128,4 +127,4 @@ var RouterSet = wire.NewSet(http.ProvideRouter, wire.Bind(
 ),
 )
 
-var ClientSet = wire.NewSet(client.NewRedis, client.NewS3, client.NewKeycloak, client.NewS3Presign)
+var ClientSet = wire.NewSet(client.NewRedis, client.NewS3, client.NewKeycloak, client.NewS3Presign, client.NewValidate)

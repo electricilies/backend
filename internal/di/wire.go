@@ -153,6 +153,7 @@ var ClientSet = wire.NewSet(
 	client.NewS3,
 	client.NewKeycloak,
 	client.NewS3Presign,
+	client.NewValidate,
 )
 
 func InitializeServer(ctx context.Context) *http.Server {

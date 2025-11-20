@@ -10,8 +10,8 @@ type UploadImageURL struct {
 }
 
 type PaginationParam struct {
-	Page  *int `binding:"omitnil,min=1,max=50"`
-	Limit *int `binding:"omitnil,min=1,max=100"`
+	Page  *int `binding:"omitnil,gte=1,lte=50"`
+	Limit *int `binding:"omitnil,gte=1,lte=100"`
 }
 
 type PaginationMeta struct {
