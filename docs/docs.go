@@ -1954,7 +1954,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "code",
-                "deletedAt",
                 "id",
                 "name"
             ],
@@ -2376,6 +2375,7 @@ const docTemplate = `{
                 "createdAt",
                 "id",
                 "status",
+                "totalAmount",
                 "updatedAt"
             ],
             "properties": {
@@ -2407,6 +2407,9 @@ const docTemplate = `{
                             "$ref": "#/definitions/OrderStatus"
                         }
                     ]
+                },
+                "totalAmount": {
+                    "type": "integer"
                 },
                 "updatedAt": {
                     "type": "string"
