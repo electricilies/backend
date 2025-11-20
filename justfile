@@ -54,7 +54,7 @@ lint: lint-golangci-lint lint-sqlfluff
 
 [doc("Generate DI wire file")]
 gen-wire:
-  wire gen internal/di/wire.go
+  wire gen ./internal/di/wire.go
 
 [doc("Generate swagger output to ./docs/")]
 gen-swag *args="":

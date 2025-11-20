@@ -159,4 +159,3 @@ func InitializeServer(ctx context.Context) *http.Server {
 	)
 	return nil
 }
-

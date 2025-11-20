@@ -1940,7 +1940,8 @@ const docTemplate = `{
             "required": [
                 "address",
                 "items",
-                "provider"
+                "provider",
+                "totalAmount"
             ],
             "properties": {
                 "address": {
@@ -1964,6 +1965,9 @@ const docTemplate = `{
                             "$ref": "#/definitions/OrderProvider"
                         }
                     ]
+                },
+                "totalAmount": {
+                    "type": "integer"
                 }
             }
         },
@@ -2743,44 +2747,10 @@ const docTemplate = `{
         "User": {
             "type": "object",
             "required": [
-                "address",
-                "createdAt",
-                "dateOfBirth",
-                "email",
-                "firstName",
-                "id",
-                "lastName",
-                "phoneNumber",
-                "userName"
+                "id"
             ],
             "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "dateOfBirth": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
                 "id": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "phoneNumber": {
-                    "type": "string",
-                    "maxLength": 11,
-                    "minLength": 10
-                },
-                "userName": {
                     "type": "string"
                 }
             }

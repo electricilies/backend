@@ -7,15 +7,13 @@
 package di
 
 import (
-	"context"
-
 	"backend/config"
 	"backend/internal/client"
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
 	"backend/internal/serviceimpl"
 	"backend/pkg/logger"
-
+	"context"
 	"github.com/google/wire"
 )
 

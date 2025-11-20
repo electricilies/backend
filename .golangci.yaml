@@ -27,8 +27,6 @@ formatters:
     generated: strict
     paths:
       - docs/docs.go
-      - internal/di/wire_gen.go
-      - internal/infrastructure/presistence/postgres/*.go
 run:
   build-tags:
     - integration
