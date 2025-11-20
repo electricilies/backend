@@ -61,11 +61,6 @@ var ServiceSet = wire.NewSet(
 		new(domain.CartService),
 		new(*serviceimpl.Cart),
 	),
-	serviceimpl.ProvidePayment,
-	wire.Bind(
-		new(domain.PaymentService),
-		new(*serviceimpl.Payment),
-	),
 )
 
 var MiddlewareSet = wire.NewSet(
@@ -117,12 +112,6 @@ var HandlerSet = wire.NewSet(
 		new(http.OrderHandler),
 		new(*http.GinOrderHandler),
 	),
-
-	http.ProvidePaymentHandler,
-	wire.Bind(
-		new(http.PaymentHandler),
-		new(*http.GinPaymentHandler),
-	),
 	http.ProvideProductHandler,
 	wire.Bind(
 		new(http.ProductHandler),
@@ -170,3 +159,4 @@ func InitializeServer(ctx context.Context) *http.Server {
 	)
 	return nil
 }
+

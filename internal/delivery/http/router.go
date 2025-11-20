@@ -13,7 +13,6 @@ type GinRouter struct {
 	categoryHandler  CategoryHandler
 	productHandler   ProductHandler
 	attributeHandler AttributeHandler
-	paymentHandler   PaymentHandler
 	orderHandler     OrderHandler
 	reviewHandler    ReviewHandler
 	cartHandler      CartHandler
@@ -32,7 +31,6 @@ func ProvideRouter(
 	categoryHandler CategoryHandler,
 	productHandler ProductHandler,
 	attributeHandler AttributeHandler,
-	paymentHandler PaymentHandler,
 	orderHandler OrderHandler,
 	reviewHandler ReviewHandler,
 	cartHandler CartHandler,
@@ -45,7 +43,6 @@ func ProvideRouter(
 		categoryHandler:   categoryHandler,
 		productHandler:    productHandler,
 		attributeHandler:  attributeHandler,
-		paymentHandler:    paymentHandler,
 		orderHandler:      orderHandler,
 		reviewHandler:     reviewHandler,
 		cartHandler:       cartHandler,
@@ -104,14 +101,6 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 			attributes.PUT("/:attribute_id/values", r.attributeHandler.UpdateValue)
 		}
 
-		payments := api.Group("/payments")
-		{
-			payments.POST("", r.paymentHandler.Create)
-			payments.GET("/:payment_id", r.paymentHandler.Get)
-			payments.GET("", r.paymentHandler.List)
-			payments.PATCH("/:payment_id", r.paymentHandler.Update)
-		}
-
 		orders := api.Group("/orders")
 		{
 			orders.GET("", r.orderHandler.List)
@@ -145,3 +134,4 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 		}
 	}
 }
+

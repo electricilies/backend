@@ -35,11 +35,10 @@ func InitializeServer(ctx context.Context) *http.Server {
 	ginCategoryHandler := http.ProvideCategoryHandler()
 	ginProductHandler := http.ProvideProductHandler()
 	ginAttributeHandler := http.ProvideAttributeHandler()
-	ginPaymentHandler := http.ProvidePaymentHandler()
 	ginOrderHandler := http.ProvideOrderHandler()
 	ginReviewHandler := http.ProvideReviewHandler()
 	ginCartHandler := http.ProvideCartHandler()
-	ginRouter := http.ProvideRouter(ginHealthHandler, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, ginCategoryHandler, ginProductHandler, ginAttributeHandler, ginPaymentHandler, ginOrderHandler, ginReviewHandler, ginCartHandler)
+	ginRouter := http.ProvideRouter(ginHealthHandler, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, ginCategoryHandler, ginProductHandler, ginAttributeHandler, ginOrderHandler, ginReviewHandler, ginCartHandler)
 	ginAuthHandler := http.ProvideAuthHandler(server)
 	httpServer := http.NewServer(engine, ginRouter, server, ginAuthHandler)
 	return httpServer
@@ -70,9 +69,6 @@ var ServiceSet = wire.NewSet(serviceimpl.ProvideAttribute, wire.Bind(
 ), serviceimpl.ProvideCart, wire.Bind(
 	new(domain.CartService),
 	new(*serviceimpl.Cart),
-), serviceimpl.ProvidePayment, wire.Bind(
-	new(domain.PaymentService),
-	new(*serviceimpl.Payment),
 ),
 )
 
@@ -106,9 +102,6 @@ var HandlerSet = wire.NewSet(http.ProvideAttributeHandler, wire.Bind(
 ), http.ProvideOrderHandler, wire.Bind(
 	new(http.OrderHandler),
 	new(*http.GinOrderHandler),
-), http.ProvidePaymentHandler, wire.Bind(
-	new(http.PaymentHandler),
-	new(*http.GinPaymentHandler),
 ), http.ProvideProductHandler, wire.Bind(
 	new(http.ProductHandler),
 	new(*http.GinProductHandler),
