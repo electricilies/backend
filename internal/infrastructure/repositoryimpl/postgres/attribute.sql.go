@@ -11,6 +11,36 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countAttributes = `-- name: CountAttributes :one
+SELECT
+  COUNT(*) AS count
+FROM
+  attributes
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN $2::text = 'only' THEN deleted_at IS NULL
+    WHEN $2::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
+`
+
+type CountAttributesParams struct {
+	IDs     []int32
+	Deleted string
+}
+
+func (q *Queries) CountAttributes(ctx context.Context, arg CountAttributesParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countAttributes, arg.IDs, arg.Deleted)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createAttribute = `-- name: CreateAttribute :one
 INSERT INTO attributes (
   code,
@@ -180,9 +210,7 @@ func (q *Queries) ListAttributeValues(ctx context.Context, arg ListAttributeValu
 
 const listAttributes = `-- name: ListAttributes :many
 SELECT
-  id, code, name, deleted_at,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  id, code, name, deleted_at
 FROM
   attributes
 WHERE
@@ -217,16 +245,7 @@ type ListAttributesParams struct {
 	Limit   pgtype.Int4
 }
 
-type ListAttributesRow struct {
-	ID           int32
-	Code         string
-	Name         string
-	DeletedAt    pgtype.Timestamp
-	CurrentCount int64
-	TotalCount   int64
-}
-
-func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) ([]ListAttributesRow, error) {
+func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) ([]Attribute, error) {
 	rows, err := q.db.Query(ctx, listAttributes,
 		arg.IDs,
 		arg.Search,
@@ -238,16 +257,14 @@ func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) 
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListAttributesRow
+	var items []Attribute
 	for rows.Next() {
-		var i ListAttributesRow
+		var i Attribute
 		if err := rows.Scan(
 			&i.ID,
 			&i.Code,
 			&i.Name,
 			&i.DeletedAt,
-			&i.CurrentCount,
-			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}

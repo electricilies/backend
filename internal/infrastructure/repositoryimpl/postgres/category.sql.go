@@ -11,6 +11,22 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countCategories = `-- name: CountCategories :one
+SELECT
+  COUNT(*) AS count
+FROM
+  categories
+WHERE
+  deleted_at IS NULL
+`
+
+func (q *Queries) CountCategories(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countCategories)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createCategory = `-- name: CreateCategory :one
 INSERT INTO categories (
   name
@@ -90,9 +106,7 @@ func (q *Queries) GetCategory(ctx context.Context, arg GetCategoryParams) (Categ
 
 const listCategories = `-- name: ListCategories :many
 SELECT
-  id, name, created_at, updated_at, deleted_at,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  id, name, created_at, updated_at, deleted_at
 FROM
   categories
 WHERE
@@ -113,33 +127,21 @@ type ListCategoriesParams struct {
 	Limit  pgtype.Int4
 }
 
-type ListCategoriesRow struct {
-	ID           int32
-	Name         string
-	CreatedAt    pgtype.Timestamp
-	UpdatedAt    pgtype.Timestamp
-	DeletedAt    pgtype.Timestamp
-	CurrentCount int64
-	TotalCount   int64
-}
-
-func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) ([]ListCategoriesRow, error) {
+func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) ([]Category, error) {
 	rows, err := q.db.Query(ctx, listCategories, arg.Search, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListCategoriesRow
+	var items []Category
 	for rows.Next() {
-		var i ListCategoriesRow
+		var i Category
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
-			&i.CurrentCount,
-			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
