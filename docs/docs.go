@@ -832,183 +832,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/payments": {
-            "get": {
-                "description": "Get all payments",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Payment"
-                ],
-                "summary": "List all payments",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Payment"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create a new payment",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Payment"
-                ],
-                "summary": "Create a new payment",
-                "parameters": [
-                    {
-                        "description": "Payment request",
-                        "name": "payment",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/CreatePaymentData"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/Payment"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/payments/{payment_id}": {
-            "get": {
-                "description": "Get payment details by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Payment"
-                ],
-                "summary": "Get payment by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Payment ID",
-                        "name": "payment_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/Payment"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Update payment details by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Payment"
-                ],
-                "summary": "Update payment by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Payment ID",
-                        "name": "payment_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Payment update request",
-                        "name": "payment",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/UpdatePaymentData"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/Payment"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            }
-        },
         "/products": {
             "get": {
                 "description": "Get all products, used for search and suggestions also",
@@ -1960,6 +1783,8 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2,
                     "example": "color"
                 },
                 "deletedAt": {
@@ -1971,6 +1796,8 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2,
                     "example": "Color"
                 },
                 "values": {
@@ -1988,12 +1815,17 @@ const docTemplate = `{
                 "value"
             ],
             "properties": {
+                "attribute": {
+                    "$ref": "#/definitions/Attribute"
+                },
                 "id": {
                     "type": "integer",
                     "example": 1
                 },
                 "value": {
                     "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1,
                     "example": "Red"
                 }
             }
@@ -2029,7 +1861,8 @@ const docTemplate = `{
                     "$ref": "#/definitions/ProductVariant"
                 },
                 "quantity": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 100
                 }
             }
         },
@@ -2037,7 +1870,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "createdAt",
-                "deletedAt",
                 "id",
                 "name",
                 "updatedAt"
@@ -2053,7 +1885,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
                 },
                 "updatedAt": {
                     "type": "string"
@@ -2105,7 +1939,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "address",
-                "items"
+                "items",
+                "provider"
             ],
             "properties": {
                 "address": {
@@ -2116,6 +1951,19 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/CreateOrderItemData"
                     }
+                },
+                "provider": {
+                    "enum": [
+                        "COD",
+                        "VNPAY",
+                        "MOMO",
+                        "ZALOPAY"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/OrderProvider"
+                        }
+                    ]
                 }
             }
         },
@@ -2135,31 +1983,6 @@ const docTemplate = `{
                 },
                 "quantity": {
                     "type": "integer"
-                }
-            }
-        },
-        "CreatePaymentData": {
-            "type": "object",
-            "required": [
-                "orderId",
-                "paymentProvider"
-            ],
-            "properties": {
-                "orderId": {
-                    "type": "integer"
-                },
-                "paymentProvider": {
-                    "enum": [
-                        "COD",
-                        "VNPAY",
-                        "MOMO",
-                        "ZALOPAY"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/PaymentProvider"
-                        }
-                    ]
                 }
             }
         },
@@ -2374,6 +2197,8 @@ const docTemplate = `{
                 "address",
                 "createdAt",
                 "id",
+                "isPaid",
+                "provider",
                 "status",
                 "totalAmount",
                 "updatedAt"
@@ -2388,11 +2213,28 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "isPaid": {
+                    "type": "boolean"
+                },
                 "items": {
                     "type": "array",
+                    "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/OrderItem"
                     }
+                },
+                "provider": {
+                    "enum": [
+                        "COD",
+                        "VNPAY",
+                        "MOMO",
+                        "ZALOPAY"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/OrderProvider"
+                        }
+                    ]
                 },
                 "status": {
                     "enum": [
@@ -2444,6 +2286,21 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "OrderProvider": {
+            "type": "string",
+            "enum": [
+                "COD",
+                "VNPAY",
+                "MOMO",
+                "ZALOPAY"
+            ],
+            "x-enum-varnames": [
+                "PaymentProviderCOD",
+                "PaymentProviderVNPAY",
+                "PaymentProviderMOMO",
+                "PaymentProviderZALOPAY"
+            ]
         },
         "OrderStatus": {
             "type": "string",
@@ -2556,88 +2413,10 @@ const docTemplate = `{
                 }
             }
         },
-        "Payment": {
-            "type": "object",
-            "required": [
-                "amount",
-                "id",
-                "provider",
-                "status",
-                "updatedAt"
-            ],
-            "properties": {
-                "amount": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "order": {
-                    "$ref": "#/definitions/Order"
-                },
-                "provider": {
-                    "enum": [
-                        "COD",
-                        "VNPAY",
-                        "MOMO",
-                        "ZALOPAY"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/PaymentProvider"
-                        }
-                    ]
-                },
-                "status": {
-                    "enum": [
-                        "Pending",
-                        "Completed",
-                        "Failed"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/PaymentStatus"
-                        }
-                    ]
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "PaymentProvider": {
-            "type": "string",
-            "enum": [
-                "COD",
-                "VNPAY",
-                "MOMO",
-                "ZALOPAY"
-            ],
-            "x-enum-varnames": [
-                "PaymentProviderCOD",
-                "PaymentProviderVNPAY",
-                "PaymentProviderMOMO",
-                "PaymentProviderZALOPAY"
-            ]
-        },
-        "PaymentStatus": {
-            "type": "string",
-            "enum": [
-                "Pending",
-                "Completed",
-                "Failed"
-            ],
-            "x-enum-varnames": [
-                "PaymentStatusPending",
-                "PaymentStatusCompleted",
-                "PaymentStatusFailed"
-            ]
-        },
         "Product": {
             "type": "object",
             "required": [
                 "createdAt",
-                "deletedAt",
                 "description",
                 "id",
                 "name",
@@ -2665,19 +2444,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 10
                 },
                 "id": {
                     "type": "integer"
                 },
                 "images": {
                     "type": "array",
+                    "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/ProductImage"
                     }
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 3
                 },
                 "options": {
                     "type": "array",
@@ -2694,22 +2477,26 @@ const docTemplate = `{
                     "minimum": 0
                 },
                 "totalPurchase": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "trendingScore": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "updatedAt": {
                     "type": "string"
                 },
                 "variants": {
                     "type": "array",
+                    "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/ProductVariant"
                     }
                 },
                 "viewsCount": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0
                 }
             }
         },
@@ -2729,7 +2516,8 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "order": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "url": {
                     "type": "string"
@@ -2740,7 +2528,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "createdAt",
-                "deletedAt",
                 "id",
                 "price",
                 "purchaseCount",
@@ -2765,6 +2552,7 @@ const docTemplate = `{
                 },
                 "optionValues": {
                     "type": "array",
+                    "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/OptionValue"
                     }
@@ -2776,10 +2564,12 @@ const docTemplate = `{
                     "$ref": "#/definitions/Product"
                 },
                 "purchaseCount": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "quantity": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0
                 },
                 "sku": {
                     "type": "string"
@@ -2791,15 +2581,14 @@ const docTemplate = `{
             "required": [
                 "content",
                 "createdAt",
-                "deletedAt",
                 "id",
-                "imageUrl",
                 "rating",
                 "updatedAt"
             ],
             "properties": {
                 "content": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 10
                 },
                 "createdAt": {
                     "type": "string"
@@ -2817,7 +2606,9 @@ const docTemplate = `{
                     "$ref": "#/definitions/OrderItem"
                 },
                 "rating": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 5,
+                    "minimum": 1
                 },
                 "updatedAt": {
                     "type": "string"
@@ -2875,19 +2666,6 @@ const docTemplate = `{
                         {
                             "$ref": "#/definitions/OrderStatus"
                         }
-                    ]
-                }
-            }
-        },
-        "UpdatePaymentData": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "type": "string",
-                    "enum": [
-                        "Pending",
-                        "Completed",
-                        "Failed"
                     ]
                 }
             }
@@ -2998,7 +2776,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phoneNumber": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 11,
+                    "minLength": 10
                 },
                 "userName": {
                     "type": "string"
