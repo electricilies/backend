@@ -18,9 +18,7 @@ RETURNING
 
 -- name: ListReviews :many
 SELECT
-  *,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  *
 FROM
   reviews
 WHERE
@@ -42,6 +40,27 @@ ORDER BY
   created_at DESC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 10);
+
+-- name: CountReviews :one
+SELECT
+  COUNT(*) AS count
+FROM
+  reviews
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.narg('order_item_ids')::integer[] IS NULL THEN TRUE
+    ELSE order_item_id = ANY (sqlc.narg('order_item_ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE FALSE
+  END;
 
 -- name: UpdateReview :one
 UPDATE reviews

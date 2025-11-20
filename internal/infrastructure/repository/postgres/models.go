@@ -62,42 +62,31 @@ type OptionValuesProductVariant struct {
 }
 
 type Order struct {
-	ID        int32
-	Address   string
-	CreatedAt pgtype.Timestamp
-	UpdatedAt pgtype.Timestamp
-	userID    uuid.UUID
-	StatusID  int32
+	ID          int32
+	Address     string
+	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
+	TotalAmount pgtype.Numeric
+	IsPaid      bool
+	userID      uuid.UUID
+	StatusID    int32
+	ProviderID  int32
 }
 
 type OrderItem struct {
 	ID               int32
 	Quantity         int32
 	OrderID          int32
-	PriceAtOrder     pgtype.Numeric
+	Price            pgtype.Numeric
 	ProductVariantID int32
 }
 
+type OrderProvider struct {
+	ID   int32
+	Name string
+}
+
 type OrderStatus struct {
-	ID   int32
-	Name string
-}
-
-type Payment struct {
-	ID         int32
-	Amount     pgtype.Numeric
-	UpdatedAt  pgtype.Timestamp
-	StatusID   int32
-	ProviderID int32
-	OrderID    int32
-}
-
-type PaymentProvider struct {
-	ID   int32
-	Name string
-}
-
-type PaymentStatus struct {
 	ID   int32
 	Name string
 }
@@ -148,7 +137,6 @@ type Refund struct {
 	CreatedAt       pgtype.Timestamp
 	UpdatedAt       pgtype.Timestamp
 	StatusID        int32
-	PaymentID       int32
 	OrderItemID     int32
 	ReturnRequestID int32
 }

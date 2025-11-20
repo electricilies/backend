@@ -12,81 +12,152 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countOrders = `-- name: CountOrders :one
+SELECT
+  COUNT(*) AS count
+FROM
+  orders
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    ELSE user_id = ANY ($2::uuid[])
+  END
+  AND CASE
+    WHEN $3::integer[] IS NULL THEN TRUE
+    ELSE status_id = ANY ($3::integer[])
+  END
+`
+
+type CountOrdersParams struct {
+	IDs       []int32
+	UserIds   []uuid.UUID
+	StatusIds []int32
+}
+
+func (q *Queries) CountOrders(ctx context.Context, arg CountOrdersParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countOrders, arg.IDs, arg.UserIds, arg.StatusIds)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createOrder = `-- name: CreateOrder :one
 INSERT INTO orders (
   user_id,
+  address,
+  total_amount,
+  provider_id,
   status_id
 ) VALUES (
   $1,
-  $2
+  $2,
+  $3,
+  $4,
+  $5
 )
 RETURNING
-  id, address, created_at, updated_at, user_id, status_id
+  id, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id
 `
 
 type CreateOrderParams struct {
-	userID   uuid.UUID
-	StatusID int32
+	userID      uuid.UUID
+	Address     string
+	TotalAmount pgtype.Numeric
+	ProviderID  int32
+	StatusID    int32
 }
 
 func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) (Order, error) {
-	row := q.db.QueryRow(ctx, createOrder, arg.userID, arg.StatusID)
+	row := q.db.QueryRow(ctx, createOrder,
+		arg.userID,
+		arg.Address,
+		arg.TotalAmount,
+		arg.ProviderID,
+		arg.StatusID,
+	)
 	var i Order
 	err := row.Scan(
 		&i.ID,
 		&i.Address,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.TotalAmount,
+		&i.IsPaid,
 		&i.userID,
 		&i.StatusID,
+		&i.ProviderID,
 	)
 	return i, err
 }
 
-const createOrderItem = `-- name: CreateOrderItem :one
+const createOrderItems = `-- name: CreateOrderItems :many
+WITH inserts AS (
+  SELECT
+    $1 AS quantity,
+    $2 AS order_id,
+    $3 AS price,
+    $4 AS product_variant_id
+)
 INSERT INTO order_items (
   quantity,
   order_id,
-  price_at_order,
+  price,
   product_variant_id
 ) VALUES (
-  $1,
-  $2,
-  $3,
-  $4
+  inserts.quantity,
+  inserts.order_id,
+  inserts.price,
+  inserts.product_variant_id
 )
 RETURNING
-  id, quantity, order_id, price_at_order, product_variant_id
+  id, quantity, order_id, price, product_variant_id
 `
 
-type CreateOrderItemParams struct {
+type CreateOrderItemsParams struct {
 	Quantity         int32
 	OrderID          int32
-	PriceAtOrder     pgtype.Numeric
+	Price            pgtype.Numeric
 	ProductVariantID int32
 }
 
-func (q *Queries) CreateOrderItem(ctx context.Context, arg CreateOrderItemParams) (OrderItem, error) {
-	row := q.db.QueryRow(ctx, createOrderItem,
+func (q *Queries) CreateOrderItems(ctx context.Context, arg CreateOrderItemsParams) ([]OrderItem, error) {
+	rows, err := q.db.Query(ctx, createOrderItems,
 		arg.Quantity,
 		arg.OrderID,
-		arg.PriceAtOrder,
+		arg.Price,
 		arg.ProductVariantID,
 	)
-	var i OrderItem
-	err := row.Scan(
-		&i.ID,
-		&i.Quantity,
-		&i.OrderID,
-		&i.PriceAtOrder,
-		&i.ProductVariantID,
-	)
-	return i, err
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []OrderItem
+	for rows.Next() {
+		var i OrderItem
+		if err := rows.Scan(
+			&i.ID,
+			&i.Quantity,
+			&i.OrderID,
+			&i.Price,
+			&i.ProductVariantID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getOrder = `-- name: GetOrder :one
 SELECT
-  id, address, created_at, updated_at, user_id, status_id
+  id, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id
 FROM
   orders
 WHERE
@@ -105,15 +176,18 @@ func (q *Queries) GetOrder(ctx context.Context, arg GetOrderParams) (Order, erro
 		&i.Address,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.TotalAmount,
+		&i.IsPaid,
 		&i.userID,
 		&i.StatusID,
+		&i.ProviderID,
 	)
 	return i, err
 }
 
 const getOrderItem = `-- name: GetOrderItem :one
 SELECT
-  id, quantity, order_id, price_at_order, product_variant_id
+  id, quantity, order_id, price, product_variant_id
 FROM
   order_items
 WHERE
@@ -131,9 +205,37 @@ func (q *Queries) GetOrderItem(ctx context.Context, arg GetOrderItemParams) (Ord
 		&i.ID,
 		&i.Quantity,
 		&i.OrderID,
-		&i.PriceAtOrder,
+		&i.Price,
 		&i.ProductVariantID,
 	)
+	return i, err
+}
+
+const getOrderProvider = `-- name: GetOrderProvider :one
+SELECT
+  id, name
+FROM
+  order_providers
+WHERE
+  CASE
+    WHEN $1::integer IS NULL THEN TRUE
+    ELSE id = $1::integer
+  END
+  AND CASE
+    WHEN $2::text IS NULL THEN TRUE
+    ELSE name = $2::text
+  END
+`
+
+type GetOrderProviderParams struct {
+	ID   pgtype.Int4
+	Name pgtype.Text
+}
+
+func (q *Queries) GetOrderProvider(ctx context.Context, arg GetOrderProviderParams) (OrderProvider, error) {
+	row := q.db.QueryRow(ctx, getOrderProvider, arg.ID, arg.Name)
+	var i OrderProvider
+	err := row.Scan(&i.ID, &i.Name)
 	return i, err
 }
 
@@ -167,7 +269,7 @@ func (q *Queries) GetOrderStatus(ctx context.Context, arg GetOrderStatusParams) 
 
 const listOrderItems = `-- name: ListOrderItems :many
 SELECT
-  id, quantity, order_id, price_at_order, product_variant_id
+  id, quantity, order_id, price, product_variant_id
 FROM
   order_items
 WHERE
@@ -201,7 +303,7 @@ func (q *Queries) ListOrderItems(ctx context.Context, arg ListOrderItemsParams) 
 			&i.ID,
 			&i.Quantity,
 			&i.OrderID,
-			&i.PriceAtOrder,
+			&i.Price,
 			&i.ProductVariantID,
 		); err != nil {
 			return nil, err
@@ -254,9 +356,7 @@ func (q *Queries) ListOrderStatuses(ctx context.Context, arg ListOrderStatusesPa
 
 const listOrders = `-- name: ListOrders :many
 SELECT
-  id, address, created_at, updated_at, user_id, status_id,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  id, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id
 FROM
   orders
 WHERE
@@ -286,18 +386,7 @@ type ListOrdersParams struct {
 	Limit     pgtype.Int4
 }
 
-type ListOrdersRow struct {
-	ID           int32
-	Address      string
-	CreatedAt    pgtype.Timestamp
-	UpdatedAt    pgtype.Timestamp
-	userID       uuid.UUID
-	StatusID     int32
-	CurrentCount int64
-	TotalCount   int64
-}
-
-func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]ListOrdersRow, error) {
+func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order, error) {
 	rows, err := q.db.Query(ctx, listOrders,
 		arg.IDs,
 		arg.UserIds,
@@ -309,18 +398,19 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]ListO
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListOrdersRow
+	var items []Order
 	for rows.Next() {
-		var i ListOrdersRow
+		var i Order
 		if err := rows.Scan(
 			&i.ID,
 			&i.Address,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.TotalAmount,
+			&i.IsPaid,
 			&i.userID,
 			&i.StatusID,
-			&i.CurrentCount,
-			&i.TotalCount,
+			&i.ProviderID,
 		); err != nil {
 			return nil, err
 		}
@@ -341,7 +431,7 @@ SET
 WHERE
   id = $4
 RETURNING
-  id, address, created_at, updated_at, user_id, status_id
+  id, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id
 `
 
 type UpdateOrderParams struct {
@@ -364,8 +454,11 @@ func (q *Queries) UpdateOrder(ctx context.Context, arg UpdateOrderParams) (Order
 		&i.Address,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.TotalAmount,
+		&i.IsPaid,
 		&i.userID,
 		&i.StatusID,
+		&i.ProviderID,
 	)
 	return i, err
 }

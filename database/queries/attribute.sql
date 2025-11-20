@@ -23,9 +23,7 @@ RETURNING
 
 -- name: ListAttributes :many
 SELECT
-  *,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  *
 FROM
   attributes
 WHERE
@@ -50,6 +48,23 @@ ORDER BY
   id ASC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
+
+-- name: CountAttributes :one
+SELECT
+  COUNT(*) AS count
+FROM
+  attributes
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE FALSE
+  END;
 
 -- name: GetAttribute :one
 SELECT

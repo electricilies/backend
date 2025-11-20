@@ -1,19 +1,11 @@
-INSERT INTO payment_providers (id, name) VALUES
+INSERT INTO order_providers (id, name) VALUES
 (1, 'COD'),
 (2, 'VNPAY'),
 (3, 'MOMO'),
 (4, 'ZALOPAY')
 ON CONFLICT (id) DO NOTHING;
 
-ALTER SEQUENCE payment_providers_id_seq RESTART WITH 5;
-
-INSERT INTO payment_statuses (id, name) VALUES
-(1, 'Pending'),
-(2, 'Completed'),
-(3, 'Failed')
-ON CONFLICT (id) DO NOTHING;
-
-ALTER SEQUENCE payment_statuses_id_seq RESTART WITH 4;
+ALTER SEQUENCE order_providers_id_seq RESTART WITH 5;
 
 INSERT INTO order_statuses (id, name) VALUES
 (1, 'Pending'),

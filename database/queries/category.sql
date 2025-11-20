@@ -10,9 +10,7 @@ RETURNING
 
 -- name: ListCategories :many
 SELECT
-  *,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  *
 FROM
   categories
 WHERE
@@ -25,6 +23,14 @@ ORDER BY
   id DESC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
+
+-- name: CountCategories :one
+SELECT
+  COUNT(*) AS count
+FROM
+  categories
+WHERE
+  deleted_at IS NULL;
 
 -- name: GetCategory :one
 SELECT

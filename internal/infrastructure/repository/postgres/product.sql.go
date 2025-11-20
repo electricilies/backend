@@ -11,6 +11,63 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countProducts = `-- name: CountProducts :one
+SELECT
+  COUNT(*) AS count
+FROM
+  products
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE products.id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::decimal IS NULL THEN TRUE
+    ELSE products.price >= $2::decimal
+  END
+  AND CASE
+    WHEN $3::decimal IS NULL THEN TRUE
+    ELSE products.price <= $3::decimal
+  END
+  AND CASE
+    WHEN $4::real IS NULL THEN TRUE
+    ELSE products.rating >= $4::real
+  END
+  AND CASE
+    WHEN $5::integer[] IS NULL THEN TRUE
+    ELSE products.category_id = ANY ($5::integer[])
+  END
+  AND CASE
+    WHEN $6::text = 'exclude' THEN products.deleted_at IS NOT NULL
+    WHEN $6::text = 'only' THEN products.deleted_at IS NULL
+    WHEN $6::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
+`
+
+type CountProductsParams struct {
+	IDs         []int32
+	MinPrice    pgtype.Numeric
+	MaxPrice    pgtype.Numeric
+	Rating      pgtype.Float4
+	CategoryIDs []int32
+	Deleted     string
+}
+
+func (q *Queries) CountProducts(ctx context.Context, arg CountProductsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countProducts,
+		arg.IDs,
+		arg.MinPrice,
+		arg.MaxPrice,
+		arg.Rating,
+		arg.CategoryIDs,
+		arg.Deleted,
+	)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createProduct = `-- name: CreateProduct :one
 INSERT INTO products (
   name,
@@ -455,9 +512,7 @@ func (q *Queries) ListProductVariants(ctx context.Context, arg ListProductVarian
 
 const listProducts = `-- name: ListProducts :many
 SELECT
-  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.category_id, products.created_at, products.updated_at, products.deleted_at,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.category_id, products.created_at, products.updated_at, products.deleted_at
 FROM
   products
 LEFT JOIN (
@@ -540,14 +595,8 @@ type ListProductsParams struct {
 	Limit       pgtype.Int4
 }
 
-type ListProductsRow struct {
-	Product      Product
-	CurrentCount int64
-	TotalCount   int64
-}
-
 // This is used for list, search (with filter, order), suggest
-func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]ListProductsRow, error) {
+func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]Product, error) {
 	rows, err := q.db.Query(ctx, listProducts,
 		arg.Search,
 		arg.IDs,
@@ -565,24 +614,22 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]L
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListProductsRow
+	var items []Product
 	for rows.Next() {
-		var i ListProductsRow
+		var i Product
 		if err := rows.Scan(
-			&i.Product.ID,
-			&i.Product.Name,
-			&i.Product.Description,
-			&i.Product.Price,
-			&i.Product.ViewsCount,
-			&i.Product.TotalPurchase,
-			&i.Product.Rating,
-			&i.Product.TrendingScore,
-			&i.Product.CategoryID,
-			&i.Product.CreatedAt,
-			&i.Product.UpdatedAt,
-			&i.Product.DeletedAt,
-			&i.CurrentCount,
-			&i.TotalCount,
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Price,
+			&i.ViewsCount,
+			&i.TotalPurchase,
+			&i.Rating,
+			&i.TrendingScore,
+			&i.CategoryID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}

@@ -1,34 +1,45 @@
 -- name: CreateOrder :one
 INSERT INTO orders (
   user_id,
+  address,
+  total_amount,
+  provider_id,
   status_id
 ) VALUES (
   sqlc.arg('user_id'),
+  sqlc.arg('address'),
+  sqlc.arg('total_amount'),
+  sqlc.arg('provider_id'),
   sqlc.arg('status_id')
 )
 RETURNING
   *;
 
--- name: CreateOrderItem :one
+-- name: CreateOrderItems :many
+WITH inserts AS (
+  SELECT
+    sqlc.arg('quantity') AS quantity,
+    sqlc.arg('order_id') AS order_id,
+    sqlc.arg('price') AS price,
+    sqlc.arg('product_variant_id') AS product_variant_id
+)
 INSERT INTO order_items (
   quantity,
   order_id,
-  price_at_order,
+  price,
   product_variant_id
 ) VALUES (
-  sqlc.arg('quantity'),
-  sqlc.arg('order_id'),
-  sqlc.arg('price_at_order'),
-  sqlc.arg('product_variant_id')
+  inserts.quantity,
+  inserts.order_id,
+  inserts.price,
+  inserts.product_variant_id
 )
 RETURNING
   *;
 
 -- name: ListOrders :many
 SELECT
-  *,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  *
 FROM
   orders
 WHERE
@@ -48,6 +59,25 @@ ORDER BY
   id ASC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
+
+-- name: CountOrders :one
+SELECT
+  COUNT(*) AS count
+FROM
+  orders
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.narg('user_ids')::uuid[] IS NULL THEN TRUE
+    ELSE user_id = ANY (sqlc.narg('user_ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.narg('status_ids')::integer[] IS NULL THEN TRUE
+    ELSE status_id = ANY (sqlc.narg('status_ids')::integer[])
+  END;
 
 -- name: GetOrder :one
 SELECT
@@ -109,6 +139,22 @@ WHERE
     WHEN sqlc.narg('name')::text IS NULL THEN TRUE
     ELSE name = sqlc.narg('name')::text
   END;
+
+-- name: GetOrderProvider :one
+SELECT
+  *
+FROM
+  order_providers
+WHERE
+  CASE
+    WHEN sqlc.narg('id')::integer IS NULL THEN TRUE
+    ELSE id = sqlc.narg('id')::integer
+  END
+  AND CASE
+    WHEN sqlc.narg('name')::text IS NULL THEN TRUE
+    ELSE name = sqlc.narg('name')::text
+  END;
+
 
 -- name: UpdateOrder :one
 UPDATE orders

@@ -12,6 +12,41 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countReviews = `-- name: CountReviews :one
+SELECT
+  COUNT(*) AS count
+FROM
+  reviews
+WHERE
+  CASE
+    WHEN $1::integer[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::integer[])
+  END
+  AND CASE
+    WHEN $2::integer[] IS NULL THEN TRUE
+    ELSE order_item_id = ANY ($2::integer[])
+  END
+  AND CASE
+    WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NULL
+    WHEN $3::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
+`
+
+type CountReviewsParams struct {
+	IDs          []int32
+	OrderItemIds []int32
+	Deleted      string
+}
+
+func (q *Queries) CountReviews(ctx context.Context, arg CountReviewsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countReviews, arg.IDs, arg.OrderItemIds, arg.Deleted)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createReview = `-- name: CreateReview :one
 INSERT INTO reviews (
   rating,
@@ -85,9 +120,7 @@ func (q *Queries) DeleteReviews(ctx context.Context, arg DeleteReviewsParams) (i
 
 const listReviews = `-- name: ListReviews :many
 SELECT
-  id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, order_item_id,
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, order_item_id
 FROM
   reviews
 WHERE
@@ -119,21 +152,7 @@ type ListReviewsParams struct {
 	Limit        pgtype.Int4
 }
 
-type ListReviewsRow struct {
-	ID           int32
-	Rating       int16
-	Content      pgtype.Text
-	ImageURL     string
-	CreatedAt    pgtype.Timestamp
-	UpdatedAt    pgtype.Timestamp
-	DeletedAt    pgtype.Timestamp
-	userID       uuid.UUID
-	OrderItemID  int32
-	CurrentCount int64
-	TotalCount   int64
-}
-
-func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]ListReviewsRow, error) {
+func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]Review, error) {
 	rows, err := q.db.Query(ctx, listReviews,
 		arg.IDs,
 		arg.OrderItemIds,
@@ -145,9 +164,9 @@ func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]Lis
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListReviewsRow
+	var items []Review
 	for rows.Next() {
-		var i ListReviewsRow
+		var i Review
 		if err := rows.Scan(
 			&i.ID,
 			&i.Rating,
@@ -158,8 +177,6 @@ func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]Lis
 			&i.DeletedAt,
 			&i.userID,
 			&i.OrderItemID,
-			&i.CurrentCount,
-			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}

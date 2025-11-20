@@ -61,9 +61,7 @@ SELECT
 -- This is used for list, search (with filter, order), suggest
 -- name: ListProducts :many
 SELECT
-  sqlc.embed(products),
-  COUNT(*) OVER() AS current_count,
-  COUNT(*) AS total_count
+  products.*
 FROM
   products
 LEFT JOIN (
@@ -130,6 +128,39 @@ ORDER BY
   END DESC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
+
+-- name: CountProducts :one
+SELECT
+  COUNT(*) AS count
+FROM
+  products
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
+    ELSE products.id = ANY (sqlc.narg('ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.narg('min_price')::decimal IS NULL THEN TRUE
+    ELSE products.price >= sqlc.narg('min_price')::decimal
+  END
+  AND CASE
+    WHEN sqlc.narg('max_price')::decimal IS NULL THEN TRUE
+    ELSE products.price <= sqlc.narg('max_price')::decimal
+  END
+  AND CASE
+    WHEN sqlc.narg('rating')::real IS NULL THEN TRUE
+    ELSE products.rating >= sqlc.narg('rating')::real
+  END
+  AND CASE
+    WHEN sqlc.narg('category_ids')::integer[] IS NULL THEN TRUE
+    ELSE products.category_id = ANY (sqlc.narg('category_ids')::integer[])
+  END
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN products.deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE FALSE
+  END;
 
 -- name: GetProduct :one
 SELECT

@@ -130,14 +130,8 @@ CREATE TABLE order_statuses (
 );
 
 
--- payment_statuses
-CREATE TABLE payment_statuses (
-  id SERIAL PRIMARY KEY,
-  name TEXT UNIQUE NOT NULL
-);
-
--- payment_providers
-CREATE TABLE payment_providers (
+-- order_providers
+CREATE TABLE order_providers (
   id SERIAL PRIMARY KEY,
   name TEXT UNIQUE NOT NULL
 );
@@ -148,27 +142,19 @@ CREATE TABLE orders (
   address TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  total_amount DECIMAL(12, 0) NOT NULL,
+  is_paid BOOLEAN NOT NULL DEFAULT FALSE,
   user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-  status_id INTEGER NOT NULL DEFAULT 1 REFERENCES order_statuses (id) ON UPDATE CASCADE
+  status_id INTEGER NOT NULL REFERENCES order_statuses (id) ON UPDATE CASCADE,
+  provider_id INTEGER NOT NULL REFERENCES order_providers (id) ON UPDATE CASCADE
 );
-
--- payments
-CREATE TABLE payments (
-  id SERIAL PRIMARY KEY,
-  amount DECIMAL(12, 0) NOT NULL,
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  status_id INTEGER NOT NULL DEFAULT 1 REFERENCES payment_statuses (id) ON UPDATE CASCADE,
-  provider_id INTEGER NOT NULL REFERENCES payment_providers (id) ON UPDATE CASCADE,
-  order_id INTEGER NOT NULL REFERENCES orders (id) ON UPDATE CASCADE
-);
-
 
 -- order_items
 CREATE TABLE order_items (
   id SERIAL PRIMARY KEY,
   quantity INTEGER NOT NULL,
   order_id INTEGER NOT NULL REFERENCES orders (id) ON UPDATE CASCADE,
-  price_at_order DECIMAL(12, 0) NOT NULL,
+  price DECIMAL(12, 0) NOT NULL,
   product_variant_id INTEGER NOT NULL REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 
@@ -201,7 +187,6 @@ CREATE TABLE refunds (
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   status_id INTEGER NOT NULL DEFAULT 1 REFERENCES refund_statuses (id) ON UPDATE CASCADE,
-  payment_id INTEGER NOT NULL REFERENCES payments (id) ON UPDATE CASCADE,
   order_item_id INTEGER NOT NULL REFERENCES order_items (id) ON UPDATE CASCADE,
   return_request_id INTEGER NOT NULL REFERENCES return_requests (id) ON UPDATE CASCADE
 );
