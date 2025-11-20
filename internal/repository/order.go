@@ -13,7 +13,7 @@ type Order interface {
 		deleted string,
 		limit int,
 		offset int,
-	) (*[]domain.Order, error)
+	) (*int, error)
 
 	Get(
 		tx pgx.Tx,
@@ -35,12 +35,17 @@ type Order interface {
 		address string,
 		provider domain.OrderProvider,
 		totalAmount int64,
+	) (*domain.Order, error)
+
+	CreateItems(
+		tx pgx.Tx,
+		orderID int,
 		items []struct {
 			productVariantIDs int
 			quantities        int
 			prices            int64
 		},
-	) (*domain.Order, error)
+	) (*[]domain.OrderItem, error)
 
 	Update(
 		tx pgx.Tx,

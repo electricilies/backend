@@ -22,6 +22,16 @@ type Review interface {
 		offset int,
 	) (*[]domain.Review, error)
 
+	Count(
+		tx pgx.Tx,
+		orderItemIDs *[]int,
+		productVariantID *int,
+		userIDs *[]int,
+		deleted string,
+		limit int,
+		offset int,
+	) (*int, error)
+
 	Create(
 		tx pgx.Tx,
 		orderItemID int,

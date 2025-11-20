@@ -39,23 +39,23 @@ func (_m *MockOrder) EXPECT() *MockOrder_Expecter {
 }
 
 // Count provides a mock function for the type MockOrder
-func (_mock *MockOrder) Count(tx pgx.Tx, ids *[]int, deleted string, limit int, offset int) (*[]domain.Order, error) {
+func (_mock *MockOrder) Count(tx pgx.Tx, ids *[]int, deleted string, limit int, offset int) (*int, error) {
 	ret := _mock.Called(tx, ids, deleted, limit, offset)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Count")
 	}
 
-	var r0 *[]domain.Order
+	var r0 *int
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, *[]int, string, int, int) (*[]domain.Order, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, *[]int, string, int, int) (*int, error)); ok {
 		return returnFunc(tx, ids, deleted, limit, offset)
 	}
-	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, *[]int, string, int, int) *[]domain.Order); ok {
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, *[]int, string, int, int) *int); ok {
 		r0 = returnFunc(tx, ids, deleted, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*[]domain.Order)
+			r0 = ret.Get(0).(*int)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(pgx.Tx, *[]int, string, int, int) error); ok {
@@ -114,23 +114,19 @@ func (_c *MockOrder_Count_Call) Run(run func(tx pgx.Tx, ids *[]int, deleted stri
 	return _c
 }
 
-func (_c *MockOrder_Count_Call) Return(orders *[]domain.Order, err error) *MockOrder_Count_Call {
-	_c.Call.Return(orders, err)
+func (_c *MockOrder_Count_Call) Return(n *int, err error) *MockOrder_Count_Call {
+	_c.Call.Return(n, err)
 	return _c
 }
 
-func (_c *MockOrder_Count_Call) RunAndReturn(run func(tx pgx.Tx, ids *[]int, deleted string, limit int, offset int) (*[]domain.Order, error)) *MockOrder_Count_Call {
+func (_c *MockOrder_Count_Call) RunAndReturn(run func(tx pgx.Tx, ids *[]int, deleted string, limit int, offset int) (*int, error)) *MockOrder_Count_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Create provides a mock function for the type MockOrder
-func (_mock *MockOrder) Create(tx pgx.Tx, userID int, address string, provider domain.OrderProvider, totalAmount int64, items []struct {
-	productVariantIDs int
-	quantities        int
-	prices            int64
-}) (*domain.Order, error) {
-	ret := _mock.Called(tx, userID, address, provider, totalAmount, items)
+func (_mock *MockOrder) Create(tx pgx.Tx, userID int, address string, provider domain.OrderProvider, totalAmount int64) (*domain.Order, error) {
+	ret := _mock.Called(tx, userID, address, provider, totalAmount)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -138,30 +134,18 @@ func (_mock *MockOrder) Create(tx pgx.Tx, userID int, address string, provider d
 
 	var r0 *domain.Order
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, int, string, domain.OrderProvider, int64, []struct {
-		productVariantIDs int
-		quantities        int
-		prices            int64
-	}) (*domain.Order, error)); ok {
-		return returnFunc(tx, userID, address, provider, totalAmount, items)
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, int, string, domain.OrderProvider, int64) (*domain.Order, error)); ok {
+		return returnFunc(tx, userID, address, provider, totalAmount)
 	}
-	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, int, string, domain.OrderProvider, int64, []struct {
-		productVariantIDs int
-		quantities        int
-		prices            int64
-	}) *domain.Order); ok {
-		r0 = returnFunc(tx, userID, address, provider, totalAmount, items)
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, int, string, domain.OrderProvider, int64) *domain.Order); ok {
+		r0 = returnFunc(tx, userID, address, provider, totalAmount)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.Order)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(pgx.Tx, int, string, domain.OrderProvider, int64, []struct {
-		productVariantIDs int
-		quantities        int
-		prices            int64
-	}) error); ok {
-		r1 = returnFunc(tx, userID, address, provider, totalAmount, items)
+	if returnFunc, ok := ret.Get(1).(func(pgx.Tx, int, string, domain.OrderProvider, int64) error); ok {
+		r1 = returnFunc(tx, userID, address, provider, totalAmount)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -179,16 +163,11 @@ type MockOrder_Create_Call struct {
 //   - address string
 //   - provider domain.OrderProvider
 //   - totalAmount int64
-//   - items []struct{productVariantIDs int; quantities int; prices int64}
-func (_e *MockOrder_Expecter) Create(tx interface{}, userID interface{}, address interface{}, provider interface{}, totalAmount interface{}, items interface{}) *MockOrder_Create_Call {
-	return &MockOrder_Create_Call{Call: _e.mock.On("Create", tx, userID, address, provider, totalAmount, items)}
+func (_e *MockOrder_Expecter) Create(tx interface{}, userID interface{}, address interface{}, provider interface{}, totalAmount interface{}) *MockOrder_Create_Call {
+	return &MockOrder_Create_Call{Call: _e.mock.On("Create", tx, userID, address, provider, totalAmount)}
 }
 
-func (_c *MockOrder_Create_Call) Run(run func(tx pgx.Tx, userID int, address string, provider domain.OrderProvider, totalAmount int64, items []struct {
-	productVariantIDs int
-	quantities        int
-	prices            int64
-})) *MockOrder_Create_Call {
+func (_c *MockOrder_Create_Call) Run(run func(tx pgx.Tx, userID int, address string, provider domain.OrderProvider, totalAmount int64)) *MockOrder_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 pgx.Tx
 		if args[0] != nil {
@@ -210,25 +189,12 @@ func (_c *MockOrder_Create_Call) Run(run func(tx pgx.Tx, userID int, address str
 		if args[4] != nil {
 			arg4 = args[4].(int64)
 		}
-		var arg5 []struct {
-			productVariantIDs int
-			quantities        int
-			prices            int64
-		}
-		if args[5] != nil {
-			arg5 = args[5].([]struct {
-				productVariantIDs int
-				quantities        int
-				prices            int64
-			})
-		}
 		run(
 			arg0,
 			arg1,
 			arg2,
 			arg3,
 			arg4,
-			arg5,
 		)
 	})
 	return _c
@@ -239,11 +205,113 @@ func (_c *MockOrder_Create_Call) Return(order *domain.Order, err error) *MockOrd
 	return _c
 }
 
-func (_c *MockOrder_Create_Call) RunAndReturn(run func(tx pgx.Tx, userID int, address string, provider domain.OrderProvider, totalAmount int64, items []struct {
+func (_c *MockOrder_Create_Call) RunAndReturn(run func(tx pgx.Tx, userID int, address string, provider domain.OrderProvider, totalAmount int64) (*domain.Order, error)) *MockOrder_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateItems provides a mock function for the type MockOrder
+func (_mock *MockOrder) CreateItems(tx pgx.Tx, orderID int, items []struct {
 	productVariantIDs int
 	quantities        int
 	prices            int64
-}) (*domain.Order, error)) *MockOrder_Create_Call {
+}) (*[]domain.OrderItem, error) {
+	ret := _mock.Called(tx, orderID, items)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateItems")
+	}
+
+	var r0 *[]domain.OrderItem
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, int, []struct {
+		productVariantIDs int
+		quantities        int
+		prices            int64
+	}) (*[]domain.OrderItem, error)); ok {
+		return returnFunc(tx, orderID, items)
+	}
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, int, []struct {
+		productVariantIDs int
+		quantities        int
+		prices            int64
+	}) *[]domain.OrderItem); ok {
+		r0 = returnFunc(tx, orderID, items)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*[]domain.OrderItem)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(pgx.Tx, int, []struct {
+		productVariantIDs int
+		quantities        int
+		prices            int64
+	}) error); ok {
+		r1 = returnFunc(tx, orderID, items)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockOrder_CreateItems_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateItems'
+type MockOrder_CreateItems_Call struct {
+	*mock.Call
+}
+
+// CreateItems is a helper method to define mock.On call
+//   - tx pgx.Tx
+//   - orderID int
+//   - items []struct{productVariantIDs int; quantities int; prices int64}
+func (_e *MockOrder_Expecter) CreateItems(tx interface{}, orderID interface{}, items interface{}) *MockOrder_CreateItems_Call {
+	return &MockOrder_CreateItems_Call{Call: _e.mock.On("CreateItems", tx, orderID, items)}
+}
+
+func (_c *MockOrder_CreateItems_Call) Run(run func(tx pgx.Tx, orderID int, items []struct {
+	productVariantIDs int
+	quantities        int
+	prices            int64
+})) *MockOrder_CreateItems_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 pgx.Tx
+		if args[0] != nil {
+			arg0 = args[0].(pgx.Tx)
+		}
+		var arg1 int
+		if args[1] != nil {
+			arg1 = args[1].(int)
+		}
+		var arg2 []struct {
+			productVariantIDs int
+			quantities        int
+			prices            int64
+		}
+		if args[2] != nil {
+			arg2 = args[2].([]struct {
+				productVariantIDs int
+				quantities        int
+				prices            int64
+			})
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockOrder_CreateItems_Call) Return(orderItems *[]domain.OrderItem, err error) *MockOrder_CreateItems_Call {
+	_c.Call.Return(orderItems, err)
+	return _c
+}
+
+func (_c *MockOrder_CreateItems_Call) RunAndReturn(run func(tx pgx.Tx, orderID int, items []struct {
+	productVariantIDs int
+	quantities        int
+	prices            int64
+}) (*[]domain.OrderItem, error)) *MockOrder_CreateItems_Call {
 	_c.Call.Return(run)
 	return _c
 }

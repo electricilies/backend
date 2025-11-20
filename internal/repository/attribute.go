@@ -7,10 +7,13 @@ import (
 )
 
 type Attribute interface {
-	Get(
+	Count(
 		tx pgx.Tx,
-		id int,
-	) (*domain.Attribute, error)
+		ids *[]int,
+		deleted string,
+		limit int,
+		offset int,
+	) (*int, error)
 
 	List(
 		tx pgx.Tx,
@@ -27,6 +30,11 @@ type Attribute interface {
 		name string,
 	) (*domain.Attribute, error)
 
+	Get(
+		tx pgx.Tx,
+		id int,
+	) (*domain.Attribute, error)
+
 	Update(
 		tx pgx.Tx,
 		id int,
@@ -40,11 +48,11 @@ type Attribute interface {
 		values []string,
 	) (*[]domain.AttributeValue, error)
 
-	UpdateValues(
+	UpdateValue(
 		tx pgx.Tx,
 		attributeValueID int,
 		value *string,
-	) (*[]domain.AttributeValue, error)
+	) (*domain.AttributeValue, error)
 
 	Delete(
 		tx pgx.Tx,

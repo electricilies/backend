@@ -38,6 +38,92 @@ func (_m *MockAttribute) EXPECT() *MockAttribute_Expecter {
 	return &MockAttribute_Expecter{mock: &_m.Mock}
 }
 
+// Count provides a mock function for the type MockAttribute
+func (_mock *MockAttribute) Count(tx pgx.Tx, ids *[]int, deleted string, limit int, offset int) (*int, error) {
+	ret := _mock.Called(tx, ids, deleted, limit, offset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Count")
+	}
+
+	var r0 *int
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, *[]int, string, int, int) (*int, error)); ok {
+		return returnFunc(tx, ids, deleted, limit, offset)
+	}
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, *[]int, string, int, int) *int); ok {
+		r0 = returnFunc(tx, ids, deleted, limit, offset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*int)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(pgx.Tx, *[]int, string, int, int) error); ok {
+		r1 = returnFunc(tx, ids, deleted, limit, offset)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAttribute_Count_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Count'
+type MockAttribute_Count_Call struct {
+	*mock.Call
+}
+
+// Count is a helper method to define mock.On call
+//   - tx pgx.Tx
+//   - ids *[]int
+//   - deleted string
+//   - limit int
+//   - offset int
+func (_e *MockAttribute_Expecter) Count(tx interface{}, ids interface{}, deleted interface{}, limit interface{}, offset interface{}) *MockAttribute_Count_Call {
+	return &MockAttribute_Count_Call{Call: _e.mock.On("Count", tx, ids, deleted, limit, offset)}
+}
+
+func (_c *MockAttribute_Count_Call) Run(run func(tx pgx.Tx, ids *[]int, deleted string, limit int, offset int)) *MockAttribute_Count_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 pgx.Tx
+		if args[0] != nil {
+			arg0 = args[0].(pgx.Tx)
+		}
+		var arg1 *[]int
+		if args[1] != nil {
+			arg1 = args[1].(*[]int)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 int
+		if args[3] != nil {
+			arg3 = args[3].(int)
+		}
+		var arg4 int
+		if args[4] != nil {
+			arg4 = args[4].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAttribute_Count_Call) Return(n *int, err error) *MockAttribute_Count_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockAttribute_Count_Call) RunAndReturn(run func(tx pgx.Tx, ids *[]int, deleted string, limit int, offset int) (*int, error)) *MockAttribute_Count_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Create provides a mock function for the type MockAttribute
 func (_mock *MockAttribute) Create(tx pgx.Tx, code string, name string) (*domain.Attribute, error) {
 	ret := _mock.Called(tx, code, name)
@@ -540,24 +626,24 @@ func (_c *MockAttribute_Update_Call) RunAndReturn(run func(tx pgx.Tx, id int, co
 	return _c
 }
 
-// UpdateValues provides a mock function for the type MockAttribute
-func (_mock *MockAttribute) UpdateValues(tx pgx.Tx, attributeValueID int, value *string) (*[]domain.AttributeValue, error) {
+// UpdateValue provides a mock function for the type MockAttribute
+func (_mock *MockAttribute) UpdateValue(tx pgx.Tx, attributeValueID int, value *string) (*domain.AttributeValue, error) {
 	ret := _mock.Called(tx, attributeValueID, value)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpdateValues")
+		panic("no return value specified for UpdateValue")
 	}
 
-	var r0 *[]domain.AttributeValue
+	var r0 *domain.AttributeValue
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, int, *string) (*[]domain.AttributeValue, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, int, *string) (*domain.AttributeValue, error)); ok {
 		return returnFunc(tx, attributeValueID, value)
 	}
-	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, int, *string) *[]domain.AttributeValue); ok {
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, int, *string) *domain.AttributeValue); ok {
 		r0 = returnFunc(tx, attributeValueID, value)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*[]domain.AttributeValue)
+			r0 = ret.Get(0).(*domain.AttributeValue)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(pgx.Tx, int, *string) error); ok {
@@ -568,20 +654,20 @@ func (_mock *MockAttribute) UpdateValues(tx pgx.Tx, attributeValueID int, value 
 	return r0, r1
 }
 
-// MockAttribute_UpdateValues_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateValues'
-type MockAttribute_UpdateValues_Call struct {
+// MockAttribute_UpdateValue_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateValue'
+type MockAttribute_UpdateValue_Call struct {
 	*mock.Call
 }
 
-// UpdateValues is a helper method to define mock.On call
+// UpdateValue is a helper method to define mock.On call
 //   - tx pgx.Tx
 //   - attributeValueID int
 //   - value *string
-func (_e *MockAttribute_Expecter) UpdateValues(tx interface{}, attributeValueID interface{}, value interface{}) *MockAttribute_UpdateValues_Call {
-	return &MockAttribute_UpdateValues_Call{Call: _e.mock.On("UpdateValues", tx, attributeValueID, value)}
+func (_e *MockAttribute_Expecter) UpdateValue(tx interface{}, attributeValueID interface{}, value interface{}) *MockAttribute_UpdateValue_Call {
+	return &MockAttribute_UpdateValue_Call{Call: _e.mock.On("UpdateValue", tx, attributeValueID, value)}
 }
 
-func (_c *MockAttribute_UpdateValues_Call) Run(run func(tx pgx.Tx, attributeValueID int, value *string)) *MockAttribute_UpdateValues_Call {
+func (_c *MockAttribute_UpdateValue_Call) Run(run func(tx pgx.Tx, attributeValueID int, value *string)) *MockAttribute_UpdateValue_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 pgx.Tx
 		if args[0] != nil {
@@ -604,12 +690,12 @@ func (_c *MockAttribute_UpdateValues_Call) Run(run func(tx pgx.Tx, attributeValu
 	return _c
 }
 
-func (_c *MockAttribute_UpdateValues_Call) Return(attributeValues *[]domain.AttributeValue, err error) *MockAttribute_UpdateValues_Call {
-	_c.Call.Return(attributeValues, err)
+func (_c *MockAttribute_UpdateValue_Call) Return(attributeValue *domain.AttributeValue, err error) *MockAttribute_UpdateValue_Call {
+	_c.Call.Return(attributeValue, err)
 	return _c
 }
 
-func (_c *MockAttribute_UpdateValues_Call) RunAndReturn(run func(tx pgx.Tx, attributeValueID int, value *string) (*[]domain.AttributeValue, error)) *MockAttribute_UpdateValues_Call {
+func (_c *MockAttribute_UpdateValue_Call) RunAndReturn(run func(tx pgx.Tx, attributeValueID int, value *string) (*domain.AttributeValue, error)) *MockAttribute_UpdateValue_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -14,6 +14,12 @@ type Category interface {
 		offset int,
 	) (*[]domain.Category, error)
 
+	Count(
+		tx pgx.Tx,
+		limit int,
+		offset int,
+	) (*int, error)
+
 	Get(
 		tx pgx.Tx,
 		id int,

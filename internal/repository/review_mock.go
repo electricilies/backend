@@ -38,6 +38,104 @@ func (_m *MockReview) EXPECT() *MockReview_Expecter {
 	return &MockReview_Expecter{mock: &_m.Mock}
 }
 
+// Count provides a mock function for the type MockReview
+func (_mock *MockReview) Count(tx pgx.Tx, orderItemIDs *[]int, productVariantID *int, userIDs *[]int, deleted string, limit int, offset int) (*int, error) {
+	ret := _mock.Called(tx, orderItemIDs, productVariantID, userIDs, deleted, limit, offset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Count")
+	}
+
+	var r0 *int
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, *[]int, *int, *[]int, string, int, int) (*int, error)); ok {
+		return returnFunc(tx, orderItemIDs, productVariantID, userIDs, deleted, limit, offset)
+	}
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, *[]int, *int, *[]int, string, int, int) *int); ok {
+		r0 = returnFunc(tx, orderItemIDs, productVariantID, userIDs, deleted, limit, offset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*int)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(pgx.Tx, *[]int, *int, *[]int, string, int, int) error); ok {
+		r1 = returnFunc(tx, orderItemIDs, productVariantID, userIDs, deleted, limit, offset)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockReview_Count_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Count'
+type MockReview_Count_Call struct {
+	*mock.Call
+}
+
+// Count is a helper method to define mock.On call
+//   - tx pgx.Tx
+//   - orderItemIDs *[]int
+//   - productVariantID *int
+//   - userIDs *[]int
+//   - deleted string
+//   - limit int
+//   - offset int
+func (_e *MockReview_Expecter) Count(tx interface{}, orderItemIDs interface{}, productVariantID interface{}, userIDs interface{}, deleted interface{}, limit interface{}, offset interface{}) *MockReview_Count_Call {
+	return &MockReview_Count_Call{Call: _e.mock.On("Count", tx, orderItemIDs, productVariantID, userIDs, deleted, limit, offset)}
+}
+
+func (_c *MockReview_Count_Call) Run(run func(tx pgx.Tx, orderItemIDs *[]int, productVariantID *int, userIDs *[]int, deleted string, limit int, offset int)) *MockReview_Count_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 pgx.Tx
+		if args[0] != nil {
+			arg0 = args[0].(pgx.Tx)
+		}
+		var arg1 *[]int
+		if args[1] != nil {
+			arg1 = args[1].(*[]int)
+		}
+		var arg2 *int
+		if args[2] != nil {
+			arg2 = args[2].(*int)
+		}
+		var arg3 *[]int
+		if args[3] != nil {
+			arg3 = args[3].(*[]int)
+		}
+		var arg4 string
+		if args[4] != nil {
+			arg4 = args[4].(string)
+		}
+		var arg5 int
+		if args[5] != nil {
+			arg5 = args[5].(int)
+		}
+		var arg6 int
+		if args[6] != nil {
+			arg6 = args[6].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+			arg5,
+			arg6,
+		)
+	})
+	return _c
+}
+
+func (_c *MockReview_Count_Call) Return(n *int, err error) *MockReview_Count_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockReview_Count_Call) RunAndReturn(run func(tx pgx.Tx, orderItemIDs *[]int, productVariantID *int, userIDs *[]int, deleted string, limit int, offset int) (*int, error)) *MockReview_Count_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Create provides a mock function for the type MockReview
 func (_mock *MockReview) Create(tx pgx.Tx, orderItemID int, userID int, rating int, content string, imageURL string) (*domain.Review, error) {
 	ret := _mock.Called(tx, orderItemID, userID, rating, content, imageURL)

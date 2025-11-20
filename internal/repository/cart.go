@@ -42,9 +42,4 @@ type Cart interface {
 		cartID int,
 		itemID string,
 	) (*domain.CartItem, error)
-
-	Delete(
-		tx pgx.Tx,
-		id int,
-	) error
 }

@@ -38,6 +38,80 @@ func (_m *MockCategory) EXPECT() *MockCategory_Expecter {
 	return &MockCategory_Expecter{mock: &_m.Mock}
 }
 
+// Count provides a mock function for the type MockCategory
+func (_mock *MockCategory) Count(tx pgx.Tx, limit int, offset int) (*int, error) {
+	ret := _mock.Called(tx, limit, offset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Count")
+	}
+
+	var r0 *int
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, int, int) (*int, error)); ok {
+		return returnFunc(tx, limit, offset)
+	}
+	if returnFunc, ok := ret.Get(0).(func(pgx.Tx, int, int) *int); ok {
+		r0 = returnFunc(tx, limit, offset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*int)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(pgx.Tx, int, int) error); ok {
+		r1 = returnFunc(tx, limit, offset)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockCategory_Count_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Count'
+type MockCategory_Count_Call struct {
+	*mock.Call
+}
+
+// Count is a helper method to define mock.On call
+//   - tx pgx.Tx
+//   - limit int
+//   - offset int
+func (_e *MockCategory_Expecter) Count(tx interface{}, limit interface{}, offset interface{}) *MockCategory_Count_Call {
+	return &MockCategory_Count_Call{Call: _e.mock.On("Count", tx, limit, offset)}
+}
+
+func (_c *MockCategory_Count_Call) Run(run func(tx pgx.Tx, limit int, offset int)) *MockCategory_Count_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 pgx.Tx
+		if args[0] != nil {
+			arg0 = args[0].(pgx.Tx)
+		}
+		var arg1 int
+		if args[1] != nil {
+			arg1 = args[1].(int)
+		}
+		var arg2 int
+		if args[2] != nil {
+			arg2 = args[2].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockCategory_Count_Call) Return(n *int, err error) *MockCategory_Count_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockCategory_Count_Call) RunAndReturn(run func(tx pgx.Tx, limit int, offset int) (*int, error)) *MockCategory_Count_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Create provides a mock function for the type MockCategory
 func (_mock *MockCategory) Create(tx pgx.Tx, name string) (*domain.Category, error) {
 	ret := _mock.Called(tx, name)
