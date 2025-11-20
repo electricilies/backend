@@ -6,7 +6,7 @@ type CreatePaymentParam struct {
 
 type CreatePaymentData struct {
 	Provider PaymentProvider `json:"paymentProvider" binding:"required,oneof=COD VNPAY MOMO ZALOPAY"`
-	OrderID  int             `json:"orderId" binding:"required"`
+	OrderID  int             `json:"orderId"         binding:"required"`
 }
 
 type UpdatePaymentParam struct {

@@ -7,8 +7,8 @@ type CreateReviewParam struct {
 }
 
 type CreateReviewData struct {
-	Rating   int    `json:"rating" binding:"required,min=1,max=5"`
-	Content  string `json:"content" binding:"omitnil"`
+	Rating   int    `json:"rating"   binding:"required,min=1,max=5"`
+	Content  string `json:"content"  binding:"omitnil"`
 	ImageURL string `json:"imageUrl" binding:"omitnil,url"`
 }
 
@@ -18,8 +18,8 @@ type UpdateReviewParam struct {
 }
 
 type UpdateReviewData struct {
-	Rating   *int    `json:"rating" binding:"omitnil,min=1,max=5"`
-	Content  *string `json:"content" binding:"omitnil"`
+	Rating   *int    `json:"rating"   binding:"omitnil,min=1,max=5"`
+	Content  *string `json:"content"  binding:"omitnil"`
 	ImageURL *string `json:"imageUrl" binding:"omitnil,url"`
 }
 

@@ -5,13 +5,13 @@ type CreateProductParam struct {
 }
 
 type CreateProductData struct {
-	Name              string                     `json:"name" binding:"required"`
-	Description       string                     `json:"description" binding:"required"`
+	Name              string                     `json:"name"              binding:"required"`
+	Description       string                     `json:"description"       binding:"required"`
 	AttributeValueIDs *[]int                     `json:"attributeValueIds" binding:"omitempty"`
-	Options           []CreateProductOptionData  `json:"options" binding:"required,dive"`
-	Category          int                        `json:"category" binding:"required"`
-	Images            []CreateProductImageData   `json:"images" binding:"required,dive"`
-	Variants          []CreateProductVariantData `json:"variants" binding:"required,dive"`
+	Options           []CreateProductOptionData  `json:"options"           binding:"required,dive"`
+	Category          int                        `json:"category"          binding:"required"`
+	Images            []CreateProductImageData   `json:"images"            binding:"required,dive"`
+	Variants          []CreateProductVariantData `json:"variants"          binding:"required,dive"`
 }
 
 type CreateProductOptionData struct {
@@ -19,20 +19,20 @@ type CreateProductOptionData struct {
 }
 
 type CreateProductImageData struct {
-	URL   string `json:"url" binding:"required,url"`
+	URL   string `json:"url"             binding:"required,url"`
 	Order int    `json:"order,omitempty"`
 }
 
 type CreateProductVariantData struct {
-	SKU          string                             `json:"sku" binding:"required"`
-	Price        int64                              `json:"price" binding:"required"`
-	Quantity     int                                `json:"quantity" binding:"required"`
+	SKU          string                             `json:"sku"          binding:"required"`
+	Price        int64                              `json:"price"        binding:"required"`
+	Quantity     int                                `json:"quantity"     binding:"required"`
 	OptionValues *[]CreateProductVariantOptionValue `json:"optionValues" binding:"omitempty,dive"`
-	Images       *[]CreateProductVariantImage       `json:"images" binding:"omitempty,dive"`
+	Images       *[]CreateProductVariantImage       `json:"images"       binding:"omitempty,dive"`
 }
 
 type CreateProductVariantOptionValue struct {
-	Name  string `json:"name" binding:"required"`
+	Name  string `json:"name"  binding:"required"`
 	Value string `json:"value" binding:"required"`
 }
 
@@ -40,7 +40,7 @@ type CreateProductVariantImage CreateProductImageData
 
 type UpdateProductParam struct {
 	ProductID int               `json:"productId" binding:"required"`
-	Data      UpdateProductData `json:"data" binding:"required"`
+	Data      UpdateProductData `json:"data"      binding:"required"`
 }
 
 type UpdateProductData struct {
@@ -62,7 +62,7 @@ type AddProductImagesParam struct {
 }
 
 type AddProductImageData struct {
-	URL              string `json:"url" binding:"required"`
+	URL              string `json:"url"                        binding:"required"`
 	Order            int    `json:"order,omitempty"`
 	ProductID        int    `json:"productId,omitempty"`
 	ProductVariantID *int   `json:"productVariantId,omitempty"`
@@ -74,18 +74,18 @@ type DeleteProductImagesParam struct {
 
 type AddProductVariantsParam struct {
 	ProductID int                      `json:"productId" binding:"required"`
-	Data      []AddProductVariantsData `json:"data" binding:"required,dive"`
+	Data      []AddProductVariantsData `json:"data"      binding:"required,dive"`
 }
 
 type AddProductVariantsData struct {
-	SKU            string `json:"sku" binding:"required"`
-	Price          int64  `json:"price" binding:"required"`
-	Quantity       int    `json:"quantity" binding:"required"`
+	SKU            string `json:"sku"                      binding:"required"`
+	Price          int64  `json:"price"                    binding:"required"`
+	Quantity       int    `json:"quantity"                 binding:"required"`
 	OptionValueIDs []int  `json:"optionValueIds,omitempty"`
 }
 
 type UpdateProductVariantParam struct {
-	ID   int                      `json:"id" binding:"required"`
+	ID   int                      `json:"id"   binding:"required"`
 	Data UpdateProductVariantData `json:"data" binding:"required"`
 }
 
@@ -99,7 +99,7 @@ type UpdateProductOptionsParam struct {
 }
 
 type UpdateProductOptionsData struct {
-	ID   int     `json:"id" binding:"required"`
+	ID   int     `json:"id"             binding:"required"`
 	Name *string `json:"name,omitempty"`
 }
 
@@ -108,6 +108,6 @@ type UpdateProductOptionValuesParam struct {
 }
 
 type UpdateProductOptionValuesData struct {
-	ID    int     `json:"id" binding:"required"`
+	ID    int     `json:"id"              binding:"required"`
 	Value *string `json:"value,omitempty"`
 }

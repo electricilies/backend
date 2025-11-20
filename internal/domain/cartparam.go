@@ -16,7 +16,7 @@ type CreateCartItemParam struct {
 
 type CreateCartItemData struct {
 	ProductVariantID int `json:"productVariantId" binding:"required"`
-	Quantity         int `json:"quantity" binding:"required"`
+	Quantity         int `json:"quantity"         binding:"required"`
 }
 
 type UpdateCartItemParam struct {
