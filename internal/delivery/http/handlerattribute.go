@@ -82,9 +82,8 @@ func (h *GinAttributeHandler) Get(ctx *gin.Context) {
 //		@Produce		json
 //		@Param			page		query		int		false	"Page for pagination"
 //		@Param			limit		query		int		false	"Limit for pagination"	default(20)
-//	 @Param 	  attribute_ids	query		[]string	false	"Attribute IDs"				collectionFormat(csv)
-//		@Param			product_id	query		string false	"Product ID"
-//		@Param			search		query		string	false	"Search term"
+//	        @Param 	  attribute_ids	query		[]string	false	"Attribute IDs"				collectionFormat(csv)
+//	          	@Param			search		query		string	false	"Search term"
 //		@Param			deleted		query		string	false	"Filter by deletion status"	Enums(exclude, only, all)
 //		@Success		200			{object}	application.Pagination[domain.Attribute]
 //		@Failure		500			{object}	Error
@@ -101,33 +100,36 @@ func (h *GinAttributeHandler) List(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(ErrInvalidLimit))
 	}
-	attributeIDsQuery := ctx.QueryArray("attribute_ids")
-	attributeIDs := make([]uuid.UUID, 0, len(attributeIDsQuery))
-	for _, idStr := range attributeIDsQuery {
-		id, err := uuid.Parse(idStr)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID+":"+idStr))
-			return
+
+	var attributeIDs *[]uuid.UUID
+	if attributeIDsQuery, ok := ctx.GetQueryArray("attribute_ids"); ok {
+		ids := make([]uuid.UUID, 0, len(attributeIDsQuery))
+		for _, idStr := range attributeIDsQuery {
+			id, err := uuid.Parse(idStr)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID+":"+idStr))
+				return
+			}
+			ids = append(ids, id)
 		}
-		attributeIDs = append(attributeIDs, id)
+		attributeIDs = &ids
 	}
-	productIDsQuery := ctx.Query("product_id")
-	productID, err := uuid.Parse(productIDsQuery)
-	if err != nil && productIDsQuery != "" {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidProductID))
-		return
+	var search *string
+	if searchQuery, ok := ctx.GetQuery("search"); ok {
+		search = &searchQuery
 	}
-	search := ctx.Query("search")
-	deleted := ctx.Query("deleted")
+	deleted := domain.DeletedExcludeParam
+	if deletedQuery, ok := ctx.GetQuery("deleted"); ok {
+		deleted = domain.DeletedParam(deletedQuery)
+	}
 	attributes, err := h.attributeApp.List(ctx, application.ListAttributesParam{
 		PaginationParam: application.PaginationParam{
 			Page:  &page,
 			Limit: &limit,
 		},
-		IDs:       &attributeIDs,
-		Search:    &search,
-		Deleted:   domain.DeletedParam(deleted),
-		ProductID: &productID,
+		AttributeIDs: attributeIDs,
+		Search:       search,
+		Deleted:      domain.DeletedParam(deleted),
 	})
 	if err != nil {
 		SendError(ctx, err)

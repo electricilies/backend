@@ -54,7 +54,7 @@ func (a *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeVa
 func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*Pagination[domain.Attribute], error) {
 	attributes, err := a.attributeRepo.List(
 		ctx,
-		param.IDs,
+		param.AttributeIDs,
 		param.Search,
 		param.Deleted,
 		*param.Limit,
@@ -65,7 +65,7 @@ func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*P
 	}
 	count, err := a.attributeRepo.Count(
 		ctx,
-		param.IDs,
+		param.AttributeIDs,
 		param.Deleted,
 	)
 	if err != nil {
