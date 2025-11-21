@@ -73,19 +73,6 @@ CREATE TABLE product_images (
   product_variant_id UUID REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 
--- reviews
-CREATE TABLE reviews (
-  id UUID PRIMARY KEY,
-  rating SMALLINT NOT NULL CHECK (rating >= 1 AND rating <= 5),
-  content TEXT,
-  image_url TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  deleted_at TIMESTAMP,
-  user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
-  order_item_id UUID NOT NULL REFERENCES order_items (id) ON UPDATE CASCADE
-);
-
 -- options
 CREATE TABLE options (
   id UUID PRIMARY KEY,
@@ -117,11 +104,12 @@ CREATE TABLE carts (
 
 -- cart_items
 CREATE TABLE cart_items (
-  id UUID PRIMARY KEY DEFAULT UUID_GENERATE_V4(),
+  id UUID PRIMARY KEY,
   quantity INTEGER NOT NULL,
   cart_id UUID NOT NULL REFERENCES carts (id) ON UPDATE CASCADE,
   product_variant_id UUID NOT NULL REFERENCES product_variants (id) ON UPDATE CASCADE
 );
+
 
 -- order_statuses
 CREATE TABLE order_statuses (
@@ -158,6 +146,19 @@ CREATE TABLE order_items (
   product_variant_id UUID NOT NULL REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 
+-- reviews
+CREATE TABLE reviews (
+  id UUID PRIMARY KEY,
+  rating SMALLINT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  content TEXT,
+  image_url TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  deleted_at TIMESTAMP,
+  user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+  order_item_id UUID NOT NULL REFERENCES order_items (id) ON UPDATE CASCADE
+);
+
 -- return_request_statuses
 CREATE TABLE return_request_statuses (
   id UUID PRIMARY KEY,
@@ -170,7 +171,7 @@ CREATE TABLE return_requests (
   reason VARCHAR(150) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  status_id UUID NOT NULL DEFAULT 1 REFERENCES return_request_statuses (id) ON UPDATE CASCADE,
+  status_id UUID NOT NULL REFERENCES return_request_statuses (id) ON UPDATE CASCADE,
   user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
   order_item_id UUID NOT NULL REFERENCES order_items (id) ON UPDATE CASCADE
 );
@@ -186,7 +187,7 @@ CREATE TABLE refunds (
   id UUID PRIMARY KEY,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  status_id UUID NOT NULL DEFAULT 1 REFERENCES refund_statuses (id) ON UPDATE CASCADE,
+  status_id UUID NOT NULL REFERENCES refund_statuses (id) ON UPDATE CASCADE,
   order_item_id UUID NOT NULL REFERENCES order_items (id) ON UPDATE CASCADE,
   return_request_id UUID NOT NULL REFERENCES return_requests (id) ON UPDATE CASCADE
 );

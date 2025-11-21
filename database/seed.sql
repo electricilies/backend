@@ -1,35 +1,27 @@
 INSERT INTO order_providers (id, name) VALUES
-(1, 'COD'),
-(2, 'VNPAY'),
-(3, 'MOMO'),
-(4, 'ZALOPAY')
+('00000000-0000-7000-0000-000000000001', 'COD'),
+('00000000-0000-7000-0000-000000000002', 'VNPAY'),
+('00000000-0000-7000-0000-000000000003', 'MOMO'),
+('00000000-0000-7000-0000-000000000004', 'ZALOPAY')
 ON CONFLICT (id) DO NOTHING;
-
-ALTER SEQUENCE order_providers_id_seq RESTART WITH 5;
 
 INSERT INTO order_statuses (id, name) VALUES
-(1, 'Pending'),
-(2, 'Processing'),
-(3, 'Shipped'),
-(4, 'Delivered'),
-(5, 'Cancelled')
+('00000000-0000-7000-0000-000000000001', 'Pending'),
+('00000000-0000-7000-0000-000000000002', 'Processing'),
+('00000000-0000-7000-0000-000000000003', 'Shipped'),
+('00000000-0000-7000-0000-000000000004', 'Delivered'),
+('00000000-0000-7000-0000-000000000005', 'Cancelled')
 ON CONFLICT (id) DO NOTHING;
-
-ALTER SEQUENCE order_statuses_id_seq RESTART WITH 6;
 
 INSERT INTO return_request_statuses (id, name) VALUES
-(1, 'Pending'),
-(2, 'Approved'),
-(3, 'Rejected'),
-(4, 'Completed')
+('00000000-0000-7000-0000-000000000001', 'Pending'),
+('00000000-0000-7000-0000-000000000002', 'Approved'),
+('00000000-0000-7000-0000-000000000003', 'Rejected'),
+('00000000-0000-7000-0000-000000000004', 'Completed')
 ON CONFLICT (id) DO NOTHING;
-
-ALTER SEQUENCE return_request_statuses_id_seq RESTART WITH 5;
 
 INSERT INTO refund_statuses (id, name) VALUES
-(1, 'Pending'),
-(2, 'Processed'),
-(3, 'Failed')
+('00000000-0000-7000-0000-000000000001', 'Pending'),
+('00000000-0000-7000-0000-000000000002', 'Processed'),
+('00000000-0000-7000-0000-000000000003', 'Failed')
 ON CONFLICT (id) DO NOTHING;
-
-ALTER SEQUENCE refund_statuses_id_seq RESTART WITH 4;
