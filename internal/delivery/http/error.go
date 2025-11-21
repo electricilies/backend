@@ -27,6 +27,8 @@ func SendError(ctx *gin.Context, err error) {
 		httpErrCode = 409
 	case errors.Is(err, domain.ErrForbidden):
 		httpErrCode = 403
+	case errors.Is(err, domain.ErrInternal):
+		httpErrCode = 500
 	case errors.Is(err, domain.ErrUnavailable):
 		httpErrCode = 503
 	case errors.Is(err, domain.ErrTimeout):

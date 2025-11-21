@@ -6,6 +6,7 @@ var (
 	ErrConflict     = errors.New("conflict")
 	ErrExists       = errors.New("already exists")
 	ErrForbidden    = errors.New("forbidden")
+	ErrInternal     = errors.New("internal error")
 	ErrInvalid      = errors.New("invalid data")
 	ErrNotFound     = errors.New("not found")
 	ErrServiceError = errors.New("service error")
