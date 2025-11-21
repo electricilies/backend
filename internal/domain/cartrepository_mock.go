@@ -7,6 +7,7 @@ package domain
 import (
 	"context"
 
+	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -38,7 +39,7 @@ func (_m *MockCartRepository) EXPECT() *MockCartRepository_Expecter {
 }
 
 // Get provides a mock function for the type MockCartRepository
-func (_mock *MockCartRepository) Get(ctx context.Context, id int) (*Cart, error) {
+func (_mock *MockCartRepository) Get(ctx context.Context, id uuid.UUID) (*Cart, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -47,17 +48,17 @@ func (_mock *MockCartRepository) Get(ctx context.Context, id int) (*Cart, error)
 
 	var r0 *Cart
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) (*Cart, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*Cart, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) *Cart); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *Cart); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Cart)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, int) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
 		r1 = returnFunc(ctx, id)
 	} else {
 		r1 = ret.Error(1)
@@ -72,20 +73,20 @@ type MockCartRepository_Get_Call struct {
 
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id int
+//   - id uuid.UUID
 func (_e *MockCartRepository_Expecter) Get(ctx interface{}, id interface{}) *MockCartRepository_Get_Call {
 	return &MockCartRepository_Get_Call{Call: _e.mock.On("Get", ctx, id)}
 }
 
-func (_c *MockCartRepository_Get_Call) Run(run func(ctx context.Context, id int)) *MockCartRepository_Get_Call {
+func (_c *MockCartRepository_Get_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockCartRepository_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 int
+		var arg1 uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(int)
+			arg1 = args[1].(uuid.UUID)
 		}
 		run(
 			arg0,
@@ -100,13 +101,13 @@ func (_c *MockCartRepository_Get_Call) Return(cart *Cart, err error) *MockCartRe
 	return _c
 }
 
-func (_c *MockCartRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id int) (*Cart, error)) *MockCartRepository_Get_Call {
+func (_c *MockCartRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (*Cart, error)) *MockCartRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Remove provides a mock function for the type MockCartRepository
-func (_mock *MockCartRepository) Remove(ctx context.Context, id int) error {
+func (_mock *MockCartRepository) Remove(ctx context.Context, id uuid.UUID) error {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -114,7 +115,7 @@ func (_mock *MockCartRepository) Remove(ctx context.Context, id int) error {
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		r0 = ret.Error(0)
@@ -129,20 +130,20 @@ type MockCartRepository_Remove_Call struct {
 
 // Remove is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id int
+//   - id uuid.UUID
 func (_e *MockCartRepository_Expecter) Remove(ctx interface{}, id interface{}) *MockCartRepository_Remove_Call {
 	return &MockCartRepository_Remove_Call{Call: _e.mock.On("Remove", ctx, id)}
 }
 
-func (_c *MockCartRepository_Remove_Call) Run(run func(ctx context.Context, id int)) *MockCartRepository_Remove_Call {
+func (_c *MockCartRepository_Remove_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockCartRepository_Remove_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 int
+		var arg1 uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(int)
+			arg1 = args[1].(uuid.UUID)
 		}
 		run(
 			arg0,
@@ -157,7 +158,7 @@ func (_c *MockCartRepository_Remove_Call) Return(err error) *MockCartRepository_
 	return _c
 }
 
-func (_c *MockCartRepository_Remove_Call) RunAndReturn(run func(ctx context.Context, id int) error) *MockCartRepository_Remove_Call {
+func (_c *MockCartRepository_Remove_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) error) *MockCartRepository_Remove_Call {
 	_c.Call.Return(run)
 	return _c
 }

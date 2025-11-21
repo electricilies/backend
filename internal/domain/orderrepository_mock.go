@@ -7,6 +7,7 @@ package domain
 import (
 	"context"
 
+	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -38,8 +39,8 @@ func (_m *MockOrderRepository) EXPECT() *MockOrderRepository_Expecter {
 }
 
 // Count provides a mock function for the type MockOrderRepository
-func (_mock *MockOrderRepository) Count(ctx context.Context, ids *[]int, deleted string, limit int, offset int) (*int, error) {
-	ret := _mock.Called(ctx, ids, deleted, limit, offset)
+func (_mock *MockOrderRepository) Count(ctx context.Context, ids *[]uuid.UUID, deleted DeletedParam) (*int, error) {
+	ret := _mock.Called(ctx, ids, deleted)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Count")
@@ -47,18 +48,18 @@ func (_mock *MockOrderRepository) Count(ctx context.Context, ids *[]int, deleted
 
 	var r0 *int
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]int, string, int, int) (*int, error)); ok {
-		return returnFunc(ctx, ids, deleted, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, DeletedParam) (*int, error)); ok {
+		return returnFunc(ctx, ids, deleted)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]int, string, int, int) *int); ok {
-		r0 = returnFunc(ctx, ids, deleted, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, DeletedParam) *int); ok {
+		r0 = returnFunc(ctx, ids, deleted)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*int)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]int, string, int, int) error); ok {
-		r1 = returnFunc(ctx, ids, deleted, limit, offset)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]uuid.UUID, DeletedParam) error); ok {
+		r1 = returnFunc(ctx, ids, deleted)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -72,42 +73,30 @@ type MockOrderRepository_Count_Call struct {
 
 // Count is a helper method to define mock.On call
 //   - ctx context.Context
-//   - ids *[]int
-//   - deleted string
-//   - limit int
-//   - offset int
-func (_e *MockOrderRepository_Expecter) Count(ctx interface{}, ids interface{}, deleted interface{}, limit interface{}, offset interface{}) *MockOrderRepository_Count_Call {
-	return &MockOrderRepository_Count_Call{Call: _e.mock.On("Count", ctx, ids, deleted, limit, offset)}
+//   - ids *[]uuid.UUID
+//   - deleted DeletedParam
+func (_e *MockOrderRepository_Expecter) Count(ctx interface{}, ids interface{}, deleted interface{}) *MockOrderRepository_Count_Call {
+	return &MockOrderRepository_Count_Call{Call: _e.mock.On("Count", ctx, ids, deleted)}
 }
 
-func (_c *MockOrderRepository_Count_Call) Run(run func(ctx context.Context, ids *[]int, deleted string, limit int, offset int)) *MockOrderRepository_Count_Call {
+func (_c *MockOrderRepository_Count_Call) Run(run func(ctx context.Context, ids *[]uuid.UUID, deleted DeletedParam)) *MockOrderRepository_Count_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *[]int
+		var arg1 *[]uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(*[]int)
+			arg1 = args[1].(*[]uuid.UUID)
 		}
-		var arg2 string
+		var arg2 DeletedParam
 		if args[2] != nil {
-			arg2 = args[2].(string)
-		}
-		var arg3 int
-		if args[3] != nil {
-			arg3 = args[3].(int)
-		}
-		var arg4 int
-		if args[4] != nil {
-			arg4 = args[4].(int)
+			arg2 = args[2].(DeletedParam)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
-			arg3,
-			arg4,
 		)
 	})
 	return _c
@@ -118,13 +107,13 @@ func (_c *MockOrderRepository_Count_Call) Return(n *int, err error) *MockOrderRe
 	return _c
 }
 
-func (_c *MockOrderRepository_Count_Call) RunAndReturn(run func(ctx context.Context, ids *[]int, deleted string, limit int, offset int) (*int, error)) *MockOrderRepository_Count_Call {
+func (_c *MockOrderRepository_Count_Call) RunAndReturn(run func(ctx context.Context, ids *[]uuid.UUID, deleted DeletedParam) (*int, error)) *MockOrderRepository_Count_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Get provides a mock function for the type MockOrderRepository
-func (_mock *MockOrderRepository) Get(ctx context.Context, id int) (*Order, error) {
+func (_mock *MockOrderRepository) Get(ctx context.Context, id uuid.UUID) (*Order, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -133,17 +122,17 @@ func (_mock *MockOrderRepository) Get(ctx context.Context, id int) (*Order, erro
 
 	var r0 *Order
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) (*Order, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*Order, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) *Order); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *Order); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Order)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, int) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
 		r1 = returnFunc(ctx, id)
 	} else {
 		r1 = ret.Error(1)
@@ -158,20 +147,20 @@ type MockOrderRepository_Get_Call struct {
 
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id int
+//   - id uuid.UUID
 func (_e *MockOrderRepository_Expecter) Get(ctx interface{}, id interface{}) *MockOrderRepository_Get_Call {
 	return &MockOrderRepository_Get_Call{Call: _e.mock.On("Get", ctx, id)}
 }
 
-func (_c *MockOrderRepository_Get_Call) Run(run func(ctx context.Context, id int)) *MockOrderRepository_Get_Call {
+func (_c *MockOrderRepository_Get_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockOrderRepository_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 int
+		var arg1 uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(int)
+			arg1 = args[1].(uuid.UUID)
 		}
 		run(
 			arg0,
@@ -186,13 +175,13 @@ func (_c *MockOrderRepository_Get_Call) Return(order *Order, err error) *MockOrd
 	return _c
 }
 
-func (_c *MockOrderRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id int) (*Order, error)) *MockOrderRepository_Get_Call {
+func (_c *MockOrderRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (*Order, error)) *MockOrderRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function for the type MockOrderRepository
-func (_mock *MockOrderRepository) List(ctx context.Context, ids *[]int, search *string, deleted string, limit int, offset int) (*[]Order, error) {
+func (_mock *MockOrderRepository) List(ctx context.Context, ids *[]uuid.UUID, search *string, deleted DeletedParam, limit int, offset int) (*[]Order, error) {
 	ret := _mock.Called(ctx, ids, search, deleted, limit, offset)
 
 	if len(ret) == 0 {
@@ -201,17 +190,17 @@ func (_mock *MockOrderRepository) List(ctx context.Context, ids *[]int, search *
 
 	var r0 *[]Order
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]int, *string, string, int, int) (*[]Order, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *string, DeletedParam, int, int) (*[]Order, error)); ok {
 		return returnFunc(ctx, ids, search, deleted, limit, offset)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]int, *string, string, int, int) *[]Order); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *string, DeletedParam, int, int) *[]Order); ok {
 		r0 = returnFunc(ctx, ids, search, deleted, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*[]Order)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]int, *string, string, int, int) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]uuid.UUID, *string, DeletedParam, int, int) error); ok {
 		r1 = returnFunc(ctx, ids, search, deleted, limit, offset)
 	} else {
 		r1 = ret.Error(1)
@@ -226,32 +215,32 @@ type MockOrderRepository_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - ids *[]int
+//   - ids *[]uuid.UUID
 //   - search *string
-//   - deleted string
+//   - deleted DeletedParam
 //   - limit int
 //   - offset int
 func (_e *MockOrderRepository_Expecter) List(ctx interface{}, ids interface{}, search interface{}, deleted interface{}, limit interface{}, offset interface{}) *MockOrderRepository_List_Call {
 	return &MockOrderRepository_List_Call{Call: _e.mock.On("List", ctx, ids, search, deleted, limit, offset)}
 }
 
-func (_c *MockOrderRepository_List_Call) Run(run func(ctx context.Context, ids *[]int, search *string, deleted string, limit int, offset int)) *MockOrderRepository_List_Call {
+func (_c *MockOrderRepository_List_Call) Run(run func(ctx context.Context, ids *[]uuid.UUID, search *string, deleted DeletedParam, limit int, offset int)) *MockOrderRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *[]int
+		var arg1 *[]uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(*[]int)
+			arg1 = args[1].(*[]uuid.UUID)
 		}
 		var arg2 *string
 		if args[2] != nil {
 			arg2 = args[2].(*string)
 		}
-		var arg3 string
+		var arg3 DeletedParam
 		if args[3] != nil {
-			arg3 = args[3].(string)
+			arg3 = args[3].(DeletedParam)
 		}
 		var arg4 int
 		if args[4] != nil {
@@ -278,13 +267,13 @@ func (_c *MockOrderRepository_List_Call) Return(orders *[]Order, err error) *Moc
 	return _c
 }
 
-func (_c *MockOrderRepository_List_Call) RunAndReturn(run func(ctx context.Context, ids *[]int, search *string, deleted string, limit int, offset int) (*[]Order, error)) *MockOrderRepository_List_Call {
+func (_c *MockOrderRepository_List_Call) RunAndReturn(run func(ctx context.Context, ids *[]uuid.UUID, search *string, deleted DeletedParam, limit int, offset int) (*[]Order, error)) *MockOrderRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Remove provides a mock function for the type MockOrderRepository
-func (_mock *MockOrderRepository) Remove(ctx context.Context, id int) error {
+func (_mock *MockOrderRepository) Remove(ctx context.Context, id uuid.UUID) error {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -292,7 +281,7 @@ func (_mock *MockOrderRepository) Remove(ctx context.Context, id int) error {
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		r0 = ret.Error(0)
@@ -307,20 +296,20 @@ type MockOrderRepository_Remove_Call struct {
 
 // Remove is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id int
+//   - id uuid.UUID
 func (_e *MockOrderRepository_Expecter) Remove(ctx interface{}, id interface{}) *MockOrderRepository_Remove_Call {
 	return &MockOrderRepository_Remove_Call{Call: _e.mock.On("Remove", ctx, id)}
 }
 
-func (_c *MockOrderRepository_Remove_Call) Run(run func(ctx context.Context, id int)) *MockOrderRepository_Remove_Call {
+func (_c *MockOrderRepository_Remove_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockOrderRepository_Remove_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 int
+		var arg1 uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(int)
+			arg1 = args[1].(uuid.UUID)
 		}
 		run(
 			arg0,
@@ -335,7 +324,7 @@ func (_c *MockOrderRepository_Remove_Call) Return(err error) *MockOrderRepositor
 	return _c
 }
 
-func (_c *MockOrderRepository_Remove_Call) RunAndReturn(run func(ctx context.Context, id int) error) *MockOrderRepository_Remove_Call {
+func (_c *MockOrderRepository_Remove_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) error) *MockOrderRepository_Remove_Call {
 	_c.Call.Return(run)
 	return _c
 }

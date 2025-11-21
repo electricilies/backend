@@ -71,7 +71,7 @@ vim.api.nvim_create_autocmd("BufWritePost", {
   pattern = "*.go",
   callback = function(args)
     local filename = args.file
-    if g.dev_no_gen or filename:match("internal/repository/.*%.go") == nil then
+    if g.dev_no_gen or filename:match("internal/domain/.*repository%.go") == nil then
       return
     end
     vim.fn.jobstart("mockery", {

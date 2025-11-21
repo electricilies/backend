@@ -7,6 +7,7 @@ package domain
 import (
 	"context"
 
+	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -38,8 +39,8 @@ func (_m *MockAttributeRepository) EXPECT() *MockAttributeRepository_Expecter {
 }
 
 // Count provides a mock function for the type MockAttributeRepository
-func (_mock *MockAttributeRepository) Count(ctx context.Context, ids *[]int, deleted string, limit int, offset int) (*int, error) {
-	ret := _mock.Called(ctx, ids, deleted, limit, offset)
+func (_mock *MockAttributeRepository) Count(ctx context.Context, ids *[]uuid.UUID, deleted DeletedParam) (*int, error) {
+	ret := _mock.Called(ctx, ids, deleted)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Count")
@@ -47,18 +48,18 @@ func (_mock *MockAttributeRepository) Count(ctx context.Context, ids *[]int, del
 
 	var r0 *int
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]int, string, int, int) (*int, error)); ok {
-		return returnFunc(ctx, ids, deleted, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, DeletedParam) (*int, error)); ok {
+		return returnFunc(ctx, ids, deleted)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]int, string, int, int) *int); ok {
-		r0 = returnFunc(ctx, ids, deleted, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, DeletedParam) *int); ok {
+		r0 = returnFunc(ctx, ids, deleted)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*int)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]int, string, int, int) error); ok {
-		r1 = returnFunc(ctx, ids, deleted, limit, offset)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]uuid.UUID, DeletedParam) error); ok {
+		r1 = returnFunc(ctx, ids, deleted)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -72,42 +73,30 @@ type MockAttributeRepository_Count_Call struct {
 
 // Count is a helper method to define mock.On call
 //   - ctx context.Context
-//   - ids *[]int
-//   - deleted string
-//   - limit int
-//   - offset int
-func (_e *MockAttributeRepository_Expecter) Count(ctx interface{}, ids interface{}, deleted interface{}, limit interface{}, offset interface{}) *MockAttributeRepository_Count_Call {
-	return &MockAttributeRepository_Count_Call{Call: _e.mock.On("Count", ctx, ids, deleted, limit, offset)}
+//   - ids *[]uuid.UUID
+//   - deleted DeletedParam
+func (_e *MockAttributeRepository_Expecter) Count(ctx interface{}, ids interface{}, deleted interface{}) *MockAttributeRepository_Count_Call {
+	return &MockAttributeRepository_Count_Call{Call: _e.mock.On("Count", ctx, ids, deleted)}
 }
 
-func (_c *MockAttributeRepository_Count_Call) Run(run func(ctx context.Context, ids *[]int, deleted string, limit int, offset int)) *MockAttributeRepository_Count_Call {
+func (_c *MockAttributeRepository_Count_Call) Run(run func(ctx context.Context, ids *[]uuid.UUID, deleted DeletedParam)) *MockAttributeRepository_Count_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *[]int
+		var arg1 *[]uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(*[]int)
+			arg1 = args[1].(*[]uuid.UUID)
 		}
-		var arg2 string
+		var arg2 DeletedParam
 		if args[2] != nil {
-			arg2 = args[2].(string)
-		}
-		var arg3 int
-		if args[3] != nil {
-			arg3 = args[3].(int)
-		}
-		var arg4 int
-		if args[4] != nil {
-			arg4 = args[4].(int)
+			arg2 = args[2].(DeletedParam)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
-			arg3,
-			arg4,
 		)
 	})
 	return _c
@@ -118,13 +107,13 @@ func (_c *MockAttributeRepository_Count_Call) Return(n *int, err error) *MockAtt
 	return _c
 }
 
-func (_c *MockAttributeRepository_Count_Call) RunAndReturn(run func(ctx context.Context, ids *[]int, deleted string, limit int, offset int) (*int, error)) *MockAttributeRepository_Count_Call {
+func (_c *MockAttributeRepository_Count_Call) RunAndReturn(run func(ctx context.Context, ids *[]uuid.UUID, deleted DeletedParam) (*int, error)) *MockAttributeRepository_Count_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Get provides a mock function for the type MockAttributeRepository
-func (_mock *MockAttributeRepository) Get(ctx context.Context, id int) (*Attribute, error) {
+func (_mock *MockAttributeRepository) Get(ctx context.Context, id uuid.UUID) (*Attribute, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -133,17 +122,17 @@ func (_mock *MockAttributeRepository) Get(ctx context.Context, id int) (*Attribu
 
 	var r0 *Attribute
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) (*Attribute, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*Attribute, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) *Attribute); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *Attribute); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Attribute)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, int) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
 		r1 = returnFunc(ctx, id)
 	} else {
 		r1 = ret.Error(1)
@@ -158,20 +147,20 @@ type MockAttributeRepository_Get_Call struct {
 
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id int
+//   - id uuid.UUID
 func (_e *MockAttributeRepository_Expecter) Get(ctx interface{}, id interface{}) *MockAttributeRepository_Get_Call {
 	return &MockAttributeRepository_Get_Call{Call: _e.mock.On("Get", ctx, id)}
 }
 
-func (_c *MockAttributeRepository_Get_Call) Run(run func(ctx context.Context, id int)) *MockAttributeRepository_Get_Call {
+func (_c *MockAttributeRepository_Get_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockAttributeRepository_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 int
+		var arg1 uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(int)
+			arg1 = args[1].(uuid.UUID)
 		}
 		run(
 			arg0,
@@ -186,13 +175,13 @@ func (_c *MockAttributeRepository_Get_Call) Return(attribute *Attribute, err err
 	return _c
 }
 
-func (_c *MockAttributeRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id int) (*Attribute, error)) *MockAttributeRepository_Get_Call {
+func (_c *MockAttributeRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (*Attribute, error)) *MockAttributeRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function for the type MockAttributeRepository
-func (_mock *MockAttributeRepository) List(ctx context.Context, ids *[]int, search *string, deleted string, limit int, offset int) (*[]Attribute, error) {
+func (_mock *MockAttributeRepository) List(ctx context.Context, ids *[]uuid.UUID, search *string, deleted DeletedParam, limit int, offset int) (*[]Attribute, error) {
 	ret := _mock.Called(ctx, ids, search, deleted, limit, offset)
 
 	if len(ret) == 0 {
@@ -201,17 +190,17 @@ func (_mock *MockAttributeRepository) List(ctx context.Context, ids *[]int, sear
 
 	var r0 *[]Attribute
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]int, *string, string, int, int) (*[]Attribute, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *string, DeletedParam, int, int) (*[]Attribute, error)); ok {
 		return returnFunc(ctx, ids, search, deleted, limit, offset)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]int, *string, string, int, int) *[]Attribute); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *string, DeletedParam, int, int) *[]Attribute); ok {
 		r0 = returnFunc(ctx, ids, search, deleted, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*[]Attribute)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]int, *string, string, int, int) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]uuid.UUID, *string, DeletedParam, int, int) error); ok {
 		r1 = returnFunc(ctx, ids, search, deleted, limit, offset)
 	} else {
 		r1 = ret.Error(1)
@@ -226,32 +215,32 @@ type MockAttributeRepository_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - ids *[]int
+//   - ids *[]uuid.UUID
 //   - search *string
-//   - deleted string
+//   - deleted DeletedParam
 //   - limit int
 //   - offset int
 func (_e *MockAttributeRepository_Expecter) List(ctx interface{}, ids interface{}, search interface{}, deleted interface{}, limit interface{}, offset interface{}) *MockAttributeRepository_List_Call {
 	return &MockAttributeRepository_List_Call{Call: _e.mock.On("List", ctx, ids, search, deleted, limit, offset)}
 }
 
-func (_c *MockAttributeRepository_List_Call) Run(run func(ctx context.Context, ids *[]int, search *string, deleted string, limit int, offset int)) *MockAttributeRepository_List_Call {
+func (_c *MockAttributeRepository_List_Call) Run(run func(ctx context.Context, ids *[]uuid.UUID, search *string, deleted DeletedParam, limit int, offset int)) *MockAttributeRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *[]int
+		var arg1 *[]uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(*[]int)
+			arg1 = args[1].(*[]uuid.UUID)
 		}
 		var arg2 *string
 		if args[2] != nil {
 			arg2 = args[2].(*string)
 		}
-		var arg3 string
+		var arg3 DeletedParam
 		if args[3] != nil {
-			arg3 = args[3].(string)
+			arg3 = args[3].(DeletedParam)
 		}
 		var arg4 int
 		if args[4] != nil {
@@ -278,13 +267,13 @@ func (_c *MockAttributeRepository_List_Call) Return(attributes *[]Attribute, err
 	return _c
 }
 
-func (_c *MockAttributeRepository_List_Call) RunAndReturn(run func(ctx context.Context, ids *[]int, search *string, deleted string, limit int, offset int) (*[]Attribute, error)) *MockAttributeRepository_List_Call {
+func (_c *MockAttributeRepository_List_Call) RunAndReturn(run func(ctx context.Context, ids *[]uuid.UUID, search *string, deleted DeletedParam, limit int, offset int) (*[]Attribute, error)) *MockAttributeRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Remove provides a mock function for the type MockAttributeRepository
-func (_mock *MockAttributeRepository) Remove(ctx context.Context, id int) error {
+func (_mock *MockAttributeRepository) Remove(ctx context.Context, id uuid.UUID) error {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -292,7 +281,7 @@ func (_mock *MockAttributeRepository) Remove(ctx context.Context, id int) error 
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		r0 = ret.Error(0)
@@ -307,20 +296,20 @@ type MockAttributeRepository_Remove_Call struct {
 
 // Remove is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id int
+//   - id uuid.UUID
 func (_e *MockAttributeRepository_Expecter) Remove(ctx interface{}, id interface{}) *MockAttributeRepository_Remove_Call {
 	return &MockAttributeRepository_Remove_Call{Call: _e.mock.On("Remove", ctx, id)}
 }
 
-func (_c *MockAttributeRepository_Remove_Call) Run(run func(ctx context.Context, id int)) *MockAttributeRepository_Remove_Call {
+func (_c *MockAttributeRepository_Remove_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockAttributeRepository_Remove_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 int
+		var arg1 uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(int)
+			arg1 = args[1].(uuid.UUID)
 		}
 		run(
 			arg0,
@@ -335,37 +324,26 @@ func (_c *MockAttributeRepository_Remove_Call) Return(err error) *MockAttributeR
 	return _c
 }
 
-func (_c *MockAttributeRepository_Remove_Call) RunAndReturn(run func(ctx context.Context, id int) error) *MockAttributeRepository_Remove_Call {
+func (_c *MockAttributeRepository_Remove_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) error) *MockAttributeRepository_Remove_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Save provides a mock function for the type MockAttributeRepository
-func (_mock *MockAttributeRepository) Save(ctx context.Context, attribute *Attribute) (*Attribute, error) {
+func (_mock *MockAttributeRepository) Save(ctx context.Context, attribute *Attribute) error {
 	ret := _mock.Called(ctx, attribute)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
-	var r0 *Attribute
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *Attribute) (*Attribute, error)); ok {
-		return returnFunc(ctx, attribute)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *Attribute) *Attribute); ok {
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *Attribute) error); ok {
 		r0 = returnFunc(ctx, attribute)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Attribute)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *Attribute) error); ok {
-		r1 = returnFunc(ctx, attribute)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // MockAttributeRepository_Save_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Save'
@@ -398,12 +376,12 @@ func (_c *MockAttributeRepository_Save_Call) Run(run func(ctx context.Context, a
 	return _c
 }
 
-func (_c *MockAttributeRepository_Save_Call) Return(attribute1 *Attribute, err error) *MockAttributeRepository_Save_Call {
-	_c.Call.Return(attribute1, err)
+func (_c *MockAttributeRepository_Save_Call) Return(err error) *MockAttributeRepository_Save_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockAttributeRepository_Save_Call) RunAndReturn(run func(ctx context.Context, attribute *Attribute) (*Attribute, error)) *MockAttributeRepository_Save_Call {
+func (_c *MockAttributeRepository_Save_Call) RunAndReturn(run func(ctx context.Context, attribute *Attribute) error) *MockAttributeRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

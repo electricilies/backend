@@ -7,6 +7,7 @@ package domain
 import (
 	"context"
 
+	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -38,8 +39,8 @@ func (_m *MockCategoryRepository) EXPECT() *MockCategoryRepository_Expecter {
 }
 
 // Count provides a mock function for the type MockCategoryRepository
-func (_mock *MockCategoryRepository) Count(ctx context.Context, limit int, offset int) (*int, error) {
-	ret := _mock.Called(ctx, limit, offset)
+func (_mock *MockCategoryRepository) Count(ctx context.Context) (*int, error) {
+	ret := _mock.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Count")
@@ -47,18 +48,18 @@ func (_mock *MockCategoryRepository) Count(ctx context.Context, limit int, offse
 
 	var r0 *int
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int, int) (*int, error)); ok {
-		return returnFunc(ctx, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*int, error)); ok {
+		return returnFunc(ctx)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int, int) *int); ok {
-		r0 = returnFunc(ctx, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *int); ok {
+		r0 = returnFunc(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*int)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, int, int) error); ok {
-		r1 = returnFunc(ctx, limit, offset)
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -72,30 +73,18 @@ type MockCategoryRepository_Count_Call struct {
 
 // Count is a helper method to define mock.On call
 //   - ctx context.Context
-//   - limit int
-//   - offset int
-func (_e *MockCategoryRepository_Expecter) Count(ctx interface{}, limit interface{}, offset interface{}) *MockCategoryRepository_Count_Call {
-	return &MockCategoryRepository_Count_Call{Call: _e.mock.On("Count", ctx, limit, offset)}
+func (_e *MockCategoryRepository_Expecter) Count(ctx interface{}) *MockCategoryRepository_Count_Call {
+	return &MockCategoryRepository_Count_Call{Call: _e.mock.On("Count", ctx)}
 }
 
-func (_c *MockCategoryRepository_Count_Call) Run(run func(ctx context.Context, limit int, offset int)) *MockCategoryRepository_Count_Call {
+func (_c *MockCategoryRepository_Count_Call) Run(run func(ctx context.Context)) *MockCategoryRepository_Count_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 int
-		if args[1] != nil {
-			arg1 = args[1].(int)
-		}
-		var arg2 int
-		if args[2] != nil {
-			arg2 = args[2].(int)
-		}
 		run(
 			arg0,
-			arg1,
-			arg2,
 		)
 	})
 	return _c
@@ -106,13 +95,13 @@ func (_c *MockCategoryRepository_Count_Call) Return(n *int, err error) *MockCate
 	return _c
 }
 
-func (_c *MockCategoryRepository_Count_Call) RunAndReturn(run func(ctx context.Context, limit int, offset int) (*int, error)) *MockCategoryRepository_Count_Call {
+func (_c *MockCategoryRepository_Count_Call) RunAndReturn(run func(ctx context.Context) (*int, error)) *MockCategoryRepository_Count_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Get provides a mock function for the type MockCategoryRepository
-func (_mock *MockCategoryRepository) Get(ctx context.Context, id int) (*Category, error) {
+func (_mock *MockCategoryRepository) Get(ctx context.Context, id uuid.UUID) (*Category, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -121,17 +110,17 @@ func (_mock *MockCategoryRepository) Get(ctx context.Context, id int) (*Category
 
 	var r0 *Category
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) (*Category, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*Category, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) *Category); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *Category); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Category)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, int) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
 		r1 = returnFunc(ctx, id)
 	} else {
 		r1 = ret.Error(1)
@@ -146,20 +135,20 @@ type MockCategoryRepository_Get_Call struct {
 
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id int
+//   - id uuid.UUID
 func (_e *MockCategoryRepository_Expecter) Get(ctx interface{}, id interface{}) *MockCategoryRepository_Get_Call {
 	return &MockCategoryRepository_Get_Call{Call: _e.mock.On("Get", ctx, id)}
 }
 
-func (_c *MockCategoryRepository_Get_Call) Run(run func(ctx context.Context, id int)) *MockCategoryRepository_Get_Call {
+func (_c *MockCategoryRepository_Get_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockCategoryRepository_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 int
+		var arg1 uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(int)
+			arg1 = args[1].(uuid.UUID)
 		}
 		run(
 			arg0,
@@ -174,7 +163,7 @@ func (_c *MockCategoryRepository_Get_Call) Return(category *Category, err error)
 	return _c
 }
 
-func (_c *MockCategoryRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id int) (*Category, error)) *MockCategoryRepository_Get_Call {
+func (_c *MockCategoryRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (*Category, error)) *MockCategoryRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -260,7 +249,7 @@ func (_c *MockCategoryRepository_List_Call) RunAndReturn(run func(ctx context.Co
 }
 
 // Remove provides a mock function for the type MockCategoryRepository
-func (_mock *MockCategoryRepository) Remove(ctx context.Context, id int) error {
+func (_mock *MockCategoryRepository) Remove(ctx context.Context, id uuid.UUID) error {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -268,7 +257,7 @@ func (_mock *MockCategoryRepository) Remove(ctx context.Context, id int) error {
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		r0 = ret.Error(0)
@@ -283,20 +272,20 @@ type MockCategoryRepository_Remove_Call struct {
 
 // Remove is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id int
+//   - id uuid.UUID
 func (_e *MockCategoryRepository_Expecter) Remove(ctx interface{}, id interface{}) *MockCategoryRepository_Remove_Call {
 	return &MockCategoryRepository_Remove_Call{Call: _e.mock.On("Remove", ctx, id)}
 }
 
-func (_c *MockCategoryRepository_Remove_Call) Run(run func(ctx context.Context, id int)) *MockCategoryRepository_Remove_Call {
+func (_c *MockCategoryRepository_Remove_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockCategoryRepository_Remove_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 int
+		var arg1 uuid.UUID
 		if args[1] != nil {
-			arg1 = args[1].(int)
+			arg1 = args[1].(uuid.UUID)
 		}
 		run(
 			arg0,
@@ -311,7 +300,7 @@ func (_c *MockCategoryRepository_Remove_Call) Return(err error) *MockCategoryRep
 	return _c
 }
 
-func (_c *MockCategoryRepository_Remove_Call) RunAndReturn(run func(ctx context.Context, id int) error) *MockCategoryRepository_Remove_Call {
+func (_c *MockCategoryRepository_Remove_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) error) *MockCategoryRepository_Remove_Call {
 	_c.Call.Return(run)
 	return _c
 }
