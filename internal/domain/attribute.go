@@ -14,11 +14,16 @@ type Attribute struct {
 	DeletedAt *time.Time        `json:"deletedAt"`
 }
 
-func (a *Attribute) AddValues(values ...AttributeValue) {
+func (a *Attribute) GetValueByID(id uuid.UUID) *AttributeValue {
 	if a.Values == nil {
-		a.Values = &[]AttributeValue{}
+		return nil
 	}
-	*a.Values = append(*a.Values, values...)
+	for _, value := range *a.Values {
+		if value.ID == id {
+			return &value
+		}
+	}
+	return nil
 }
 
 type AttributeValue struct {

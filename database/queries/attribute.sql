@@ -100,8 +100,8 @@ WHERE
     ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('attribute_ids')::uuid[] IS NULL THEN TRUE
-    ELSE attribute_id = ANY (sqlc.narg('attribute_ids')::uuid[])
+    WHEN sqlc.narg('attribute_id')::uuid IS NULL THEN TRUE
+    ELSE attribute_id = sqlc.narg('attribute_id')::uuid
   END
   AND CASE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE

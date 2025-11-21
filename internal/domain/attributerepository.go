@@ -22,6 +22,21 @@ type AttributeRepository interface {
 		offset int,
 	) (*[]Attribute, error)
 
+	ListValues(
+		ctx context.Context,
+		attributeID *uuid.UUID,
+		attributeValueIDs *[]uuid.UUID,
+		search *string,
+		limit int,
+		offset int,
+	) (*[]AttributeValue, error)
+
+	CountValues(
+		ctx context.Context,
+		attributeID *uuid.UUID,
+		attributeValueIDs *[]uuid.UUID,
+	) (*int, error)
+
 	Get(
 		ctx context.Context,
 		id uuid.UUID,

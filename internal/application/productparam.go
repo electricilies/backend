@@ -32,8 +32,8 @@ type CreateProductOptionData struct {
 }
 
 type CreateProductImageData struct {
-	URL   string `json:"url"             binding:"required,url"`
-	Order int    `json:"order,omitempty"`
+	URL   string `json:"url"   binding:"required,url"`
+	Order int    `json:"order" binding:"required"`
 }
 
 type CreateProductVariantData struct {

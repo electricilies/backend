@@ -172,8 +172,8 @@ WHERE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
-    ELSE attribute_id = ANY ($2::uuid[])
+    WHEN $2::uuid IS NULL THEN TRUE
+    ELSE attribute_id = $2::uuid
   END
   AND CASE
     WHEN $3::text IS NULL THEN TRUE
@@ -184,13 +184,13 @@ ORDER BY
 `
 
 type ListAttributeValuesParams struct {
-	IDs          []uuid.UUID
-	AttributeIDs []uuid.UUID
-	Search       pgtype.Text
+	IDs         []uuid.UUID
+	AttributeID pgtype.UUID
+	Search      pgtype.Text
 }
 
 func (q *Queries) ListAttributeValues(ctx context.Context, arg ListAttributeValuesParams) ([]AttributeValue, error) {
-	rows, err := q.db.Query(ctx, listAttributeValues, arg.IDs, arg.AttributeIDs, arg.Search)
+	rows, err := q.db.Query(ctx, listAttributeValues, arg.IDs, arg.AttributeID, arg.Search)
 	if err != nil {
 		return nil, err
 	}

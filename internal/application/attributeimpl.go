@@ -40,7 +40,10 @@ func (a *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeVa
 	if err != nil {
 		return nil, err
 	}
-	attribute.AddValues(*attributeValue)
+	err = a.attributeService.AddValues(*attribute, *attributeValue)
+	if err != nil {
+		return nil, err
+	}
 	err = a.attributeRepo.Save(ctx, attribute)
 	if err != nil {
 		return nil, err
@@ -81,7 +84,27 @@ func (a *AttributeImpl) Get(ctx context.Context, param GetAttributeParam) (*doma
 }
 
 func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValuesParam) (*Pagination[domain.AttributeValue], error) {
-	panic("implement me")
+	attribute, err := a.attributeRepo.ListValues(
+		ctx,
+		param.AttributeID,
+		param.AttributeValueIDs,
+		param.Search,
+		*param.Limit,
+		*param.Page,
+	)
+	if err != nil {
+		return nil, err
+	}
+	count, err := a.attributeRepo.CountValues(
+		ctx,
+		param.AttributeID,
+		param.AttributeValueIDs,
+	)
+	if err != nil {
+		return nil, err
+	}
+	pagination := newPagintion(*attribute, *count, *param.Page, *param.Limit)
+	return pagination, nil
 }
 
 func (a *AttributeImpl) Update(ctx context.Context, param UpdateAttributeParam) (*domain.Attribute, error) {
@@ -104,7 +127,27 @@ func (a *AttributeImpl) Update(ctx context.Context, param UpdateAttributeParam) 
 }
 
 func (a *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeValueParam) (*domain.AttributeValue, error) {
-	panic("implement me")
+	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
+	if err != nil {
+		return nil, err
+	}
+	err = a.attributeService.UpdateValue(
+		*attribute,
+		param.AttributeID,
+		param.Data.Value,
+	)
+	if err != nil {
+		return nil, err
+	}
+	err = a.attributeRepo.Save(ctx, attribute)
+	if err != nil {
+		return nil, err
+	}
+	attributeValue := attribute.GetValueByID(param.AttributeValueID)
+	if attributeValue == nil {
+		return nil, domain.ErrNotFound
+	}
+	return attributeValue, nil
 }
 
 func (a *AttributeImpl) Delete(ctx context.Context, param DeleteAttributeParam) error {
@@ -112,9 +155,13 @@ func (a *AttributeImpl) Delete(ctx context.Context, param DeleteAttributeParam) 
 }
 
 func (a *AttributeImpl) DeleteValue(ctx context.Context, param DeleteAttributeValueParam) error {
-	// attribute , err := a.attributeRepo.Get(ctx, param.AttributeID)
-	// if err != nil {
-	// 	return err
-	// }
-	panic("implement me")
+	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
+	if err != nil {
+		return err
+	}
+	err = a.attributeService.DeleteValue(*attribute, param.AttributeValueID)
+	if err != nil {
+		return err
+	}
+	return a.attributeRepo.Save(ctx, attribute)
 }

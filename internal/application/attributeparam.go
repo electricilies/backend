@@ -14,8 +14,8 @@ type ListAttributesParam struct {
 
 type ListAttributeValuesParam struct {
 	PaginationParam
+	AttributeID       *uuid.UUID
 	AttributeValueIDs *[]uuid.UUID `binding:"omitnil"`
-	AttributeIDs      *[]uuid.UUID `binding:"omitnil"`
 	Search            *string      `binding:"omitnil"`
 }
 
@@ -55,8 +55,9 @@ type CreateAttributeValueData struct {
 }
 
 type UpdateAttributeValueParam struct {
-	AttributeValueID uuid.UUID                  `binding:"required"`
-	Data             []UpdateAttributeValueData `binding:"required,dive"`
+	AttributeID      uuid.UUID                `binding:"required"`
+	AttributeValueID uuid.UUID                `binding:"required"`
+	Data             UpdateAttributeValueData `binding:"required,dive"`
 }
 
 type UpdateAttributeValueData struct {
@@ -64,5 +65,6 @@ type UpdateAttributeValueData struct {
 }
 
 type DeleteAttributeValueParam struct {
+	AttributeID      uuid.UUID `json:"attributeId"      binding:"required"`
 	AttributeValueID uuid.UUID `json:"attributeValueId" binding:"required"`
 }

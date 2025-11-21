@@ -54,6 +54,18 @@ func (a *Attribute) Update(
 	return nil
 }
 
+func (a *Attribute) AddValues(attribute domain.Attribute, attributeValues ...domain.AttributeValue) error {
+	if attribute.Values == nil {
+		attribute.Values = &[]domain.AttributeValue{}
+	}
+	*attribute.Values = append(*attribute.Values, attributeValues...)
+	err := a.validate.Struct(attribute)
+	if err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
 func (a *Attribute) CreateValue(
 	value string,
 ) (*domain.AttributeValue, error) {
@@ -69,4 +81,43 @@ func (a *Attribute) CreateValue(
 		return nil, multierror.Append(domain.ErrInvalid, err)
 	}
 	return &attributeValue, nil
+}
+
+func (a *Attribute) UpdateValue(
+	attribute domain.Attribute,
+	attributeValueID uuid.UUID,
+	value *string,
+) error {
+	for i, v := range *attribute.Values {
+		if v.ID == attributeValueID {
+			if value != nil {
+				(*attribute.Values)[i].Value = *value
+			}
+			break
+		}
+	}
+	if err := a.validate.Struct(attribute); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
+func (a *Attribute) DeleteValue(
+	attribute domain.Attribute,
+	attributeValueID uuid.UUID,
+) error {
+	if attribute.Values == nil {
+		return nil
+	}
+	newValues := []domain.AttributeValue{}
+	for _, v := range *attribute.Values {
+		if v.ID != attributeValueID {
+			newValues = append(newValues, v)
+		}
+	}
+	attribute.Values = &newValues
+	if err := a.validate.Struct(attribute); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
 }
