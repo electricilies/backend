@@ -20,7 +20,7 @@ type Product struct {
 	CreatedAt     time.Time         `json:"createdAt"     binding:"required"                      validate:"required"`
 	UpdatedAt     time.Time         `json:"updatedAt"     binding:"required"                      validate:"required,gtefield=CreatedAt"`
 	DeletedAt     *time.Time        `json:"deletedAt"     validate:"omitempty,gtefield=CreatedAt"`
-	Category      Category          `json:"category"      binding:"required"                      validate:"required"`
+	Category      *Category         `json:"category"`
 	Attributes    *[]Attribute      `json:"attributes"    validate:"omitnil,dive"`
 	Variants      *[]ProductVariant `json:"variants"      validate:"omitnil,gte=1,dive"`
 }

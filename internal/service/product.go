@@ -34,7 +34,7 @@ func (p *Product) Create(
 		ID:          id,
 		Name:        name,
 		Description: description,
-		Category:    category,
+		Category:    &category,
 	}
 	if err := p.validate.Struct(product); err != nil {
 		return nil, multierror.Append(domain.ErrInvalid, err)
@@ -59,6 +59,23 @@ func (p *Product) CreateOption(
 	return option, nil
 }
 
+func (p *Product) CreateOptionValue(
+	value string,
+) (*domain.OptionValue, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return nil, multierror.Append(domain.ErrInternal, err)
+	}
+	optionValue := &domain.OptionValue{
+		ID:    id,
+		Value: value,
+	}
+	if err := p.validate.Struct(optionValue); err != nil {
+		return nil, multierror.Append(domain.ErrInvalid, err)
+	}
+	return optionValue, nil
+}
+
 func (p *Product) CreateImage(
 	url string,
 	order int,
@@ -80,7 +97,7 @@ func (p *Product) CreateImage(
 
 func (p *Product) CreateVariant(
 	sku string,
-	price int,
+	price int64,
 	quantity int,
 ) (*domain.ProductVariant, error) {
 	id, err := uuid.NewV7()
@@ -90,7 +107,7 @@ func (p *Product) CreateVariant(
 	productVariant := &domain.ProductVariant{
 		ID:            id,
 		SKU:           sku,
-		Price:         int64(price),
+		Price:         price,
 		Quantity:      quantity,
 		PurchaseCount: 0,
 	}
@@ -98,21 +115,4 @@ func (p *Product) CreateVariant(
 		return nil, multierror.Append(domain.ErrInvalid, err)
 	}
 	return productVariant, nil
-}
-
-func (p *Product) CreateOptionValue(
-	value string,
-) (*domain.OptionValue, error) {
-	id, err := uuid.NewV7()
-	if err != nil {
-		return nil, multierror.Append(domain.ErrInternal, err)
-	}
-	optionValue := &domain.OptionValue{
-		ID:    id,
-		Value: value,
-	}
-	if err := p.validate.Struct(optionValue); err != nil {
-		return nil, multierror.Append(domain.ErrInvalid, err)
-	}
-	return optionValue, nil
 }

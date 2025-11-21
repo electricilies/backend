@@ -1,17 +1,17 @@
 package domain
 
 import (
-	"github.com/jackc/pgx/v5"
+	"context"
 )
 
 type ReviewRepository interface {
 	Get(
-		tx pgx.Tx,
+		ctx context.Context,
 		id int,
 	) (*Review, error)
 
 	List(
-		tx pgx.Tx,
+		ctx context.Context,
 		orderItemIDs *[]int,
 		productVariantID *int,
 		userIDs *[]int,
@@ -21,7 +21,7 @@ type ReviewRepository interface {
 	) (*[]Review, error)
 
 	Count(
-		tx pgx.Tx,
+		ctx context.Context,
 		orderItemIDs *[]int,
 		productVariantID *int,
 		userIDs *[]int,
@@ -30,25 +30,13 @@ type ReviewRepository interface {
 		offset int,
 	) (*int, error)
 
-	Create(
-		tx pgx.Tx,
-		orderItemID int,
-		userID int,
-		rating int,
-		content string,
-		imageURL string,
+	Save(
+		ctx context.Context,
+		review *Review,
 	) (*Review, error)
 
-	Update(
-		tx pgx.Tx,
-		id int,
-		rating *int,
-		content *string,
-		imageURL *string,
-	) (*Review, error)
-
-	Delete(
-		tx pgx.Tx,
+	Remove(
+		ctx context.Context,
 		id int,
 	) error
 }

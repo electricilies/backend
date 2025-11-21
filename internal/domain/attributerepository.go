@@ -1,12 +1,12 @@
 package domain
 
 import (
-	"github.com/jackc/pgx/v5"
+	"context"
 )
 
 type AttributeRepository interface {
 	Count(
-		tx pgx.Tx,
+		ctx context.Context,
 		ids *[]int,
 		deleted string,
 		limit int,
@@ -14,7 +14,7 @@ type AttributeRepository interface {
 	) (*int, error)
 
 	List(
-		tx pgx.Tx,
+		ctx context.Context,
 		ids *[]int,
 		search *string,
 		deleted string,
@@ -22,43 +22,18 @@ type AttributeRepository interface {
 		offset int,
 	) (*[]Attribute, error)
 
-	Create(
-		tx pgx.Tx,
-		code string,
-		name string,
-	) (*Attribute, error)
-
 	Get(
-		tx pgx.Tx,
+		ctx context.Context,
 		id int,
 	) (*Attribute, error)
 
-	Update(
-		tx pgx.Tx,
-		id int,
-		code *string,
-		name *string,
+	Save(
+		ctx context.Context,
+		attribute *Attribute,
 	) (*Attribute, error)
 
-	CreateValues(
-		tx pgx.Tx,
-		attributeID int,
-		values []string,
-	) (*[]AttributeValue, error)
-
-	UpdateValue(
-		tx pgx.Tx,
-		attributeValueID int,
-		value *string,
-	) (*AttributeValue, error)
-
-	Delete(
-		tx pgx.Tx,
+	Remove(
+		ctx context.Context,
 		id int,
-	) error
-
-	DeleteValue(
-		tx pgx.Tx,
-		attributeValueID int,
 	) error
 }

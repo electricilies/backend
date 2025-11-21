@@ -2,9 +2,9 @@ package domain
 
 type ReviewService interface {
 	Create(
-		rating int,
-		content string,
 		orderItem OrderItem,
-		ImageURL string,
+		rating int,
+		content *string,
+		ImageURL *string,
 	) (*Review, error)
 }

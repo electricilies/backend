@@ -18,7 +18,7 @@ type ProductService interface {
 
 	CreateVariant(
 		sku string,
-		price int,
+		price int64,
 		quantity int,
 	) (*ProductVariant, error)
 

@@ -22,11 +22,10 @@ func ProvideOrder(
 var _ domain.OrderService = &Order{}
 
 func (o *Order) Create(
-	Address string,
-	Provider domain.OrderProvider,
-	Status domain.OrderStatus,
-	IsPaid bool,
-	TotalAmount int64,
+	address string,
+	provider domain.OrderProvider,
+	isPaid bool,
+	totalAmount int64,
 ) (*domain.Order, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
@@ -34,11 +33,11 @@ func (o *Order) Create(
 	}
 	order := &domain.Order{
 		ID:          id,
-		Address:     Address,
-		Provider:    Provider,
-		Status:      Status,
-		IsPaid:      IsPaid,
-		TotalAmount: TotalAmount,
+		Address:     address,
+		Provider:    provider,
+		Status:      domain.OrderStatusPending,
+		IsPaid:      isPaid,
+		TotalAmount: totalAmount,
 	}
 	if err := o.validate.Struct(order); err != nil {
 		return nil, multierror.Append(domain.ErrInvalid, err)
@@ -57,7 +56,7 @@ func (o *Order) CreateItem(
 	}
 	orderItem := &domain.OrderItem{
 		ID:             id,
-		ProductVariant: productVariant,
+		ProductVariant: &productVariant,
 		Quantity:       quantity,
 		Price:          price,
 	}

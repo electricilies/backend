@@ -1,41 +1,35 @@
 package domain
 
 import (
-	"github.com/jackc/pgx/v5"
+	"context"
 )
 
 type CategoryRepository interface {
 	List(
-		tx pgx.Tx,
+		ctx context.Context,
 		search *string,
 		limit int,
 		offset int,
 	) (*[]Category, error)
 
 	Count(
-		tx pgx.Tx,
+		ctx context.Context,
 		limit int,
 		offset int,
 	) (*int, error)
 
 	Get(
-		tx pgx.Tx,
+		ctx context.Context,
 		id int,
 	) (*Category, error)
 
-	Create(
-		tx pgx.Tx,
-		name string,
+	Save(
+		ctx context.Context,
+		category *Category,
 	) (*Category, error)
 
-	Update(
-		tx pgx.Tx,
-		id int,
-		name *string,
-	) (*Category, error)
-
-	Delete(
-		tx pgx.Tx,
+	Remove(
+		ctx context.Context,
 		id int,
 	) error
 }

@@ -1,12 +1,12 @@
 package domain
 
 import (
-	"github.com/jackc/pgx/v5"
+	"context"
 )
 
 type OrderRepository interface {
 	Count(
-		tx pgx.Tx,
+		ctx context.Context,
 		ids *[]int,
 		deleted string,
 		limit int,
@@ -14,12 +14,12 @@ type OrderRepository interface {
 	) (*int, error)
 
 	Get(
-		tx pgx.Tx,
+		ctx context.Context,
 		id int,
 	) (*Order, error)
 
 	List(
-		tx pgx.Tx,
+		ctx context.Context,
 		ids *[]int,
 		search *string,
 		deleted string,
@@ -27,33 +27,13 @@ type OrderRepository interface {
 		offset int,
 	) (*[]Order, error)
 
-	Create(
-		tx pgx.Tx,
-		userID int,
-		address string,
-		provider OrderProvider,
-		totalAmount int64,
+	Save(
+		ctx context.Context,
+		order *Order,
 	) (*Order, error)
 
-	CreateItems(
-		tx pgx.Tx,
-		orderID int,
-		items []struct {
-			productVariantIDs int
-			quantities        int
-			prices            int64
-		},
-	) (*[]OrderItem, error)
-
-	Update(
-		tx pgx.Tx,
-		id int,
-		status *OrderStatus,
-		address *string,
-	) (*Order, error)
-
-	Delete(
-		tx pgx.Tx,
+	Remove(
+		ctx context.Context,
 		id int,
 	) error
 }

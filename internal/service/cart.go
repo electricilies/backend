@@ -22,6 +22,23 @@ func ProvideCart(
 
 var _ domain.CartService = &Cart{}
 
+func (c *Cart) Create(
+	userID uuid.UUID,
+) (*domain.Cart, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return nil, multierror.Append(domain.ErrInternal, err)
+	}
+	cart := &domain.Cart{
+		ID:     id,
+		UserID: userID,
+	}
+	if err := c.validate.Struct(cart); err != nil {
+		return nil, multierror.Append(domain.ErrInvalid, err)
+	}
+	return cart, nil
+}
+
 func (c *Cart) CreateItem(
 	productVariant domain.ProductVariant,
 	quantity int,
@@ -32,7 +49,7 @@ func (c *Cart) CreateItem(
 	}
 	cartItem := &domain.CartItem{
 		ID:             id,
-		ProductVariant: productVariant,
+		ProductVariant: &productVariant,
 		Quantity:       quantity,
 	}
 	if err := c.validate.Struct(cartItem); err != nil {

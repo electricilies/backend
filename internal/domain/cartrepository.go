@@ -1,43 +1,22 @@
 package domain
 
 import (
-	"github.com/jackc/pgx/v5"
+	"context"
 )
 
 type CartRepository interface {
 	Get(
-		tx pgx.Tx,
+		ctx context.Context,
 		id int,
 	) (*Cart, error)
 
-	Create(
-		tx pgx.Tx,
-		userID int,
+	Save(
+		ctx context.Context,
+		cart *Cart,
 	) (*Cart, error)
 
-	CreateItem(
-		tx pgx.Tx,
-		cartID int,
-		productVariantID int,
-		quantity int,
-	) (*CartItem, error)
-
-	UpdateItem(
-		tx pgx.Tx,
-		cartID int,
-		itemID string,
-		quantity *int,
-	) (*CartItem, error)
-
-	DeleteItem(
-		tx pgx.Tx,
-		cartID int,
-		itemID string,
+	Remove(
+		ctx context.Context,
+		id int,
 	) error
-
-	GetItem(
-		tx pgx.Tx,
-		cartID int,
-		itemID string,
-	) (*CartItem, error)
 }

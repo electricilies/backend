@@ -2,11 +2,10 @@ package domain
 
 type OrderService interface {
 	Create(
-		Address string,
-		Provider OrderProvider,
-		Status OrderStatus,
-		IsPaid bool,
-		TotalAmount int64,
+		address string,
+		provider OrderProvider,
+		isPaid bool,
+		totalAmount int64,
 	) (*Order, error)
 
 	CreateItem(
