@@ -1,19 +1,22 @@
 package application
 
-import "github.com/google/uuid"
+import (
+	"backend/internal/domain"
+	"github.com/google/uuid"
+)
 
 type ListAttributesParam struct {
 	PaginationParam
-	IDs     *[]int       `binding:"omitnil"`
-	Search  *string      `binding:"omitnil"`
-	Deleted DeletedParam `binding:"required,oneof=exclude only all"`
+	IDs     *[]uuid.UUID        `binding:"omitnil"`
+	Search  *string             `binding:"omitnil"`
+	Deleted domain.DeletedParam `binding:"required,oneof=exclude only all"`
 }
 
 type ListAttributeValuesParam struct {
 	PaginationParam
-	AttributeValueIDs *[]int  `binding:"omitnil"`
-	AttributeIDs      *[]int  `binding:"omitnil"`
-	Search            *string `binding:"omitnil"`
+	AttributeValueIDs *[]uuid.UUID `binding:"omitnil"`
+	AttributeIDs      *[]uuid.UUID `binding:"omitnil"`
+	Search            *string      `binding:"omitnil"`
 }
 
 type GetAttributeParam struct {

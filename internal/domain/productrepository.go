@@ -2,18 +2,20 @@ package domain
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type ProductRepository interface {
 	List(
 		ctx context.Context,
-		ids *[]int,
+		ids *[]uuid.UUID,
 		search *string,
 		min_price *int64,
 		max_price *int64,
 		rating *float64,
-		category_ids *[]int,
-		deleted string,
+		category_ids *[]uuid.UUID,
+		deleted DeletedParam,
 		sort_rating *string,
 		sort_price *string,
 		limit int,
@@ -22,21 +24,17 @@ type ProductRepository interface {
 
 	Count(
 		ctx context.Context,
-		ids *[]int,
+		ids *[]uuid.UUID,
 		min_price *int64,
 		max_price *int64,
 		rating *float64,
-		category_ids *[]int,
-		deleted string,
-		sort_rating *string,
-		sort_price *string,
-		limit int,
-		offset int,
+		category_ids *[]uuid.UUID,
+		deleted DeletedParam,
 	) (*int, error)
 
 	Get(
 		ctx context.Context,
-		productID int,
+		productID uuid.UUID,
 	) (*Product, error)
 
 	Save(
@@ -46,6 +44,6 @@ type ProductRepository interface {
 
 	Remove(
 		ctx context.Context,
-		productID int,
+		productID uuid.UUID,
 	) error
 }

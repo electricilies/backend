@@ -2,27 +2,27 @@ package domain
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type OrderRepository interface {
 	Count(
 		ctx context.Context,
-		ids *[]int,
-		deleted string,
-		limit int,
-		offset int,
+		ids *[]uuid.UUID,
+		deleted DeletedParam,
 	) (*int, error)
 
 	Get(
 		ctx context.Context,
-		id int,
+		id uuid.UUID,
 	) (*Order, error)
 
 	List(
 		ctx context.Context,
-		ids *[]int,
+		ids *[]uuid.UUID,
 		search *string,
-		deleted string,
+		deleted DeletedParam,
 		limit int,
 		offset int,
 	) (*[]Order, error)
@@ -34,6 +34,6 @@ type OrderRepository interface {
 
 	Remove(
 		ctx context.Context,
-		id int,
+		id uuid.UUID,
 	) error
 }

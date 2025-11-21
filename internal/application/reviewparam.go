@@ -1,13 +1,17 @@
 package application
 
-import "github.com/google/uuid"
+import (
+	"backend/internal/domain"
+
+	"github.com/google/uuid"
+)
 
 type ListReviewsParam struct {
 	PaginationParam
-	OrderItemIDs     *[]int       `binding:"omitnil"`
-	ProductVariantID *int         `binding:"omitnil"`
-	UserIDs          *[]int       `binding:"omitnil"`
-	Deleted          DeletedParam `binding:"required,oneof=exclude only all"`
+	OrderItemIDs     *[]uuid.UUID        `binding:"omitnil"`
+	ProductVariantID *uuid.UUID          `binding:"omitnil"`
+	UserIDs          *[]uuid.UUID        `binding:"omitnil"`
+	Deleted          domain.DeletedParam `binding:"required,oneof=exclude only all"`
 }
 
 type CreateReviewParam struct {

@@ -2,38 +2,38 @@ package domain
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type AttributeRepository interface {
 	Count(
 		ctx context.Context,
-		ids *[]int,
-		deleted string,
-		limit int,
-		offset int,
+		ids *[]uuid.UUID,
+		deleted DeletedParam,
 	) (*int, error)
 
 	List(
 		ctx context.Context,
-		ids *[]int,
+		ids *[]uuid.UUID,
 		search *string,
-		deleted string,
+		deleted DeletedParam,
 		limit int,
 		offset int,
 	) (*[]Attribute, error)
 
 	Get(
 		ctx context.Context,
-		id int,
+		id uuid.UUID,
 	) (*Attribute, error)
 
 	Save(
 		ctx context.Context,
 		attribute *Attribute,
-	) (*Attribute, error)
+	) error
 
 	Remove(
 		ctx context.Context,
-		id int,
+		id uuid.UUID,
 	) error
 }

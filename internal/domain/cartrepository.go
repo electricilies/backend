@@ -2,12 +2,14 @@ package domain
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type CartRepository interface {
 	Get(
 		ctx context.Context,
-		id int,
+		id uuid.UUID,
 	) (*Cart, error)
 
 	Save(
@@ -17,6 +19,6 @@ type CartRepository interface {
 
 	Remove(
 		ctx context.Context,
-		id int,
+		id uuid.UUID,
 	) error
 }

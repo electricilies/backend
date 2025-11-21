@@ -1,8 +1,9 @@
 package application
 
 import (
-	"backend/internal/domain"
 	"context"
+
+	"backend/internal/domain"
 )
 
 type Cart interface {

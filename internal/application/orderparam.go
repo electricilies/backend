@@ -8,13 +8,13 @@ import (
 
 type ListOrderParam struct {
 	PaginationParam
-	IDs       *[]int    `binding:"omitnil"`
-	UserIDs   *[]string `binding:"omitnil"`
-	StatusIDs *[]int    `binding:"omitnil"`
+	IDs       *[]uuid.UUID `binding:"omitnil"`
+	UserIDs   *[]uuid.UUID `binding:"omitnil"`
+	StatusIDs *[]uuid.UUID `binding:"omitnil"`
 }
 
 type CreateOrderParam struct {
-	UserID string          `binding:"required"`
+	UserID uuid.UUID       `binding:"required"`
 	Data   CreateOrderData `binding:"required"`
 }
 

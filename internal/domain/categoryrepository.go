@@ -2,6 +2,8 @@ package domain
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type CategoryRepository interface {
@@ -14,13 +16,11 @@ type CategoryRepository interface {
 
 	Count(
 		ctx context.Context,
-		limit int,
-		offset int,
 	) (*int, error)
 
 	Get(
 		ctx context.Context,
-		id int,
+		id uuid.UUID,
 	) (*Category, error)
 
 	Save(
@@ -30,6 +30,6 @@ type CategoryRepository interface {
 
 	Remove(
 		ctx context.Context,
-		id int,
+		id uuid.UUID,
 	) error
 }
