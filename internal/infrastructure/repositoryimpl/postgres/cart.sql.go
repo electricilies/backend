@@ -49,8 +49,8 @@ RETURNING
 
 type CreateCartItemParams struct {
 	Quantity         int32
-	CartID           int32
-	ProductVariantID int32
+	CartID           uuid.UUID
+	ProductVariantID uuid.UUID
 }
 
 func (q *Queries) CreateCartItem(ctx context.Context, arg CreateCartItemParams) (CartItem, error) {
@@ -68,7 +68,7 @@ func (q *Queries) CreateCartItem(ctx context.Context, arg CreateCartItemParams) 
 const deleteCartItemByIDs = `-- name: DeleteCartItemByIDs :execrows
 DELETE FROM cart_items
 WHERE
-  id = ANY ($1::UUID[])
+  id = ANY ($1::uuid[])
 `
 
 type DeleteCartItemByIDsParams struct {
@@ -90,17 +90,17 @@ FROM
   carts
 WHERE
   CASE
-    WHEN $1::integer IS NULL THEN TRUE
-    ELSE id = $1::integer
+    WHEN $1::uuid IS NULL THEN TRUE
+    ELSE id = $1::uuid
   END
   AND CASE
-    WHEN $2::UUID IS NULL THEN TRUE
-    ELSE user_id = $2::UUID
+    WHEN $2::uuid IS NULL THEN TRUE
+    ELSE user_id = $2::uuid
   END
 `
 
 type GetCartParams struct {
-	ID     pgtype.Int4
+	ID     pgtype.UUID
 	userID pgtype.UUID
 }
 
@@ -118,15 +118,15 @@ FROM
   cart_items
 WHERE
   CASE
-    WHEN $1::integer IS NULL THEN TRUE
-    ELSE cart_id = $1::integer
+    WHEN $1::uuid IS NULL THEN TRUE
+    ELSE cart_id = $1::uuid
   END
 ORDER BY
   id ASC
 `
 
 type GetCartItemsParams struct {
-	CartID pgtype.Int4
+	CartID pgtype.UUID
 }
 
 func (q *Queries) GetCartItems(ctx context.Context, arg GetCartItemsParams) ([]CartItem, error) {

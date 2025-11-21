@@ -16,7 +16,7 @@ INSERT INTO attribute_values (
   value
 )
 SELECT
-  UNNEST(sqlc.arg('attribute_id')::integer) AS attribute_id,
+  UNNEST(sqlc.arg('attribute_id')::uuid) AS attribute_id,
   UNNEST(sqlc.arg('value')::text) AS value
 RETURNING
   *;
@@ -28,8 +28,8 @@ FROM
   attributes
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE
@@ -56,8 +56,8 @@ FROM
   attributes
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
@@ -81,12 +81,12 @@ FROM
   products_attribute_values
 WHERE
   CASE
-    WHEN sqlc.narg('product_ids')::integer[] IS NULL THEN TRUE
-    ELSE product_id = ANY (sqlc.narg('product_ids')::integer[])
+    WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
+    ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('attribute_value_ids')::integer[] IS NULL THEN TRUE
-    ELSE attribute_value_id = ANY (sqlc.narg('attribute_value_ids')::integer[])
+    WHEN sqlc.narg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
+    ELSE attribute_value_id = ANY (sqlc.narg('attribute_value_ids')::uuid[])
   END;
 
 -- name: ListAttributeValues :many
@@ -96,12 +96,12 @@ FROM
   attribute_values
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('attribute_ids')::integer[] IS NULL THEN TRUE
-    ELSE attribute_id = ANY (sqlc.narg('attribute_ids')::integer[])
+    WHEN sqlc.narg('attribute_ids')::uuid[] IS NULL THEN TRUE
+    ELSE attribute_id = ANY (sqlc.narg('attribute_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE
@@ -124,7 +124,7 @@ RETURNING
 -- name: UpdateAttributeValues :many
 WITH updated_attribute_values AS (
   SELECT
-    UNNEST(sqlc.arg('ids')::integer[]) AS id,
+    UNNEST(sqlc.arg('ids')::uuid[]) AS id,
     UNNEST(sqlc.arg('values')::text[]) AS value
 )
 UPDATE
@@ -144,10 +144,10 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY (sqlc.arg('ids')::integer[]);
+  id = ANY (sqlc.arg('ids')::uuid[]);
 
 -- name: DeleteAttributeValues :execrows
 DELETE FROM
   attribute_values
 WHERE
-  id = ANY (sqlc.arg('ids')::integer[]);
+  id = ANY (sqlc.arg('ids')::uuid[]);

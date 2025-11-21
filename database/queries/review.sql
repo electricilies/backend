@@ -23,12 +23,12 @@ FROM
   reviews
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('order_item_ids')::integer[] IS NULL THEN TRUE
-    ELSE order_item_id = ANY (sqlc.narg('order_item_ids')::integer[])
+    WHEN sqlc.narg('order_item_ids')::uuid[] IS NULL THEN TRUE
+    ELSE order_item_id = ANY (sqlc.narg('order_item_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
@@ -48,12 +48,12 @@ FROM
   reviews
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('order_item_ids')::integer[] IS NULL THEN TRUE
-    ELSE order_item_id = ANY (sqlc.narg('order_item_ids')::integer[])
+    WHEN sqlc.narg('order_item_ids')::uuid[] IS NULL THEN TRUE
+    ELSE order_item_id = ANY (sqlc.narg('order_item_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
@@ -70,7 +70,7 @@ SET
   image_url = COALESCE(sqlc.narg('image_url')::text, image_url),
   updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 WHERE
-  id = sqlc.arg('id')::integer
+  id = sqlc.arg('id')::uuid
   AND deleted_at IS NULL
 RETURNING
   *;
@@ -80,5 +80,5 @@ UPDATE reviews
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY(sqlc.arg('ids')::integer[])
+  id = ANY(sqlc.arg('ids')::uuid[])
   AND deleted_at IS NULL;

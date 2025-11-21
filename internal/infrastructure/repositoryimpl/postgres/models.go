@@ -10,20 +10,20 @@ import (
 )
 
 type Attribute struct {
-	ID        int32
+	ID        uuid.UUID
 	Code      string
 	Name      string
 	DeletedAt pgtype.Timestamp
 }
 
 type AttributeValue struct {
-	ID          int32
-	AttributeID int32
+	ID          uuid.UUID
+	AttributeID uuid.UUID
 	Value       string
 }
 
 type Cart struct {
-	ID        int32
+	ID        uuid.UUID
 	userID    uuid.UUID
 	UpdatedAt pgtype.Timestamp
 }
@@ -31,12 +31,12 @@ type Cart struct {
 type CartItem struct {
 	ID               uuid.UUID
 	Quantity         int32
-	CartID           int32
-	ProductVariantID int32
+	CartID           uuid.UUID
+	ProductVariantID uuid.UUID
 }
 
 type Category struct {
-	ID        int32
+	ID        uuid.UUID
 	Name      string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
@@ -44,55 +44,55 @@ type Category struct {
 }
 
 type Option struct {
-	ID        int32
+	ID        uuid.UUID
 	Name      string
-	ProductID int32
+	ProductID uuid.UUID
 	DeletedAt pgtype.Timestamp
 }
 
 type OptionValue struct {
-	ID       int32
+	ID       uuid.UUID
 	Value    string
-	OptionID int32
+	OptionID uuid.UUID
 }
 
 type OptionValuesProductVariant struct {
-	ProductVariantID int32
-	OptionValueID    int32
+	ProductVariantID uuid.UUID
+	OptionValueID    uuid.UUID
 }
 
 type Order struct {
-	ID          int32
+	ID          uuid.UUID
 	Address     string
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
 	TotalAmount pgtype.Numeric
 	IsPaid      bool
 	userID      uuid.UUID
-	StatusID    int32
-	ProviderID  int32
+	StatusID    uuid.UUID
+	ProviderID  uuid.UUID
 }
 
 type OrderItem struct {
-	ID               int32
+	ID               uuid.UUID
 	Quantity         int32
-	OrderID          int32
+	OrderID          uuid.UUID
 	Price            pgtype.Numeric
-	ProductVariantID int32
+	ProductVariantID uuid.UUID
 }
 
 type OrderProvider struct {
-	ID   int32
+	ID   uuid.UUID
 	Name string
 }
 
 type OrderStatus struct {
-	ID   int32
+	ID   uuid.UUID
 	Name string
 }
 
 type Product struct {
-	ID            int32
+	ID            uuid.UUID
 	Name          string
 	Description   string
 	Price         pgtype.Numeric
@@ -100,69 +100,69 @@ type Product struct {
 	TotalPurchase int32
 	Rating        float32
 	TrendingScore float32
-	CategoryID    int32
+	CategoryID    uuid.UUID
 	CreatedAt     pgtype.Timestamp
 	UpdatedAt     pgtype.Timestamp
 	DeletedAt     pgtype.Timestamp
 }
 
 type ProductImage struct {
-	ID               int32
+	ID               uuid.UUID
 	URL              string
 	CreatedAt        pgtype.Timestamp
 	Order            int32
-	ProductID        pgtype.Int4
-	ProductVariantID pgtype.Int4
+	ProductID        pgtype.UUID
+	ProductVariantID pgtype.UUID
 }
 
 type ProductVariant struct {
-	ID            int32
+	ID            uuid.UUID
 	SKU           string
 	Price         pgtype.Numeric
 	Quantity      int32
 	PurchaseCount int32
-	ProductID     int32
+	ProductID     uuid.UUID
 	CreatedAt     pgtype.Timestamp
 	UpdatedAt     pgtype.Timestamp
 	DeletedAt     pgtype.Timestamp
 }
 
 type ProductsAttributeValue struct {
-	ProductID        int32
-	AttributeValueID int32
+	ProductID        uuid.UUID
+	AttributeValueID uuid.UUID
 }
 
 type Refund struct {
-	ID              int32
+	ID              uuid.UUID
 	CreatedAt       pgtype.Timestamp
 	UpdatedAt       pgtype.Timestamp
-	StatusID        int32
-	OrderItemID     int32
-	ReturnRequestID int32
+	StatusID        uuid.UUID
+	OrderItemID     uuid.UUID
+	ReturnRequestID uuid.UUID
 }
 
 type RefundStatus struct {
-	ID   int32
+	ID   uuid.UUID
 	Name string
 }
 
 type ReturnRequest struct {
-	ID          int32
+	ID          uuid.UUID
 	Reason      string
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
-	StatusID    int32
+	StatusID    uuid.UUID
 	userID      uuid.UUID
-	OrderItemID int32
+	OrderItemID uuid.UUID
 }
 
 type ReturnRequestStatus struct {
-	ID   int32
+	ID   uuid.UUID
 	Name string
 }
 
 type Review struct {
-	ID          int32
+	ID          uuid.UUID
 	Rating      int16
 	Content     pgtype.Text
 	ImageURL    string
@@ -170,7 +170,7 @@ type Review struct {
 	UpdatedAt   pgtype.Timestamp
 	DeletedAt   pgtype.Timestamp
 	userID      uuid.UUID
-	OrderItemID int32
+	OrderItemID uuid.UUID
 }
 
 type User struct {

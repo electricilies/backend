@@ -19,12 +19,12 @@ FROM
   reviews
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE order_item_id = ANY ($2::integer[])
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    ELSE order_item_id = ANY ($2::uuid[])
   END
   AND CASE
     WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
@@ -35,8 +35,8 @@ WHERE
 `
 
 type CountReviewsParams struct {
-	IDs          []int32
-	OrderItemIds []int32
+	IDs          []uuid.UUID
+	OrderItemIds []uuid.UUID
 	Deleted      string
 }
 
@@ -71,7 +71,7 @@ type CreateReviewParams struct {
 	Content     pgtype.Text
 	ImageURL    string
 	userID      uuid.UUID
-	OrderItemID int32
+	OrderItemID uuid.UUID
 }
 
 func (q *Queries) CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error) {
@@ -102,12 +102,12 @@ UPDATE reviews
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY($1::integer[])
+  id = ANY($1::uuid[])
   AND deleted_at IS NULL
 `
 
 type DeleteReviewsParams struct {
-	IDs []int32
+	IDs []uuid.UUID
 }
 
 func (q *Queries) DeleteReviews(ctx context.Context, arg DeleteReviewsParams) (int64, error) {
@@ -125,12 +125,12 @@ FROM
   reviews
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE order_item_id = ANY ($2::integer[])
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    ELSE order_item_id = ANY ($2::uuid[])
   END
   AND CASE
     WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
@@ -145,8 +145,8 @@ LIMIT COALESCE($5::integer, 10)
 `
 
 type ListReviewsParams struct {
-	IDs          []int32
-	OrderItemIds []int32
+	IDs          []uuid.UUID
+	OrderItemIds []uuid.UUID
 	Deleted      string
 	Offset       pgtype.Int4
 	Limit        pgtype.Int4
@@ -196,7 +196,7 @@ SET
   image_url = COALESCE($3::text, image_url),
   updated_at = COALESCE($4::timestamp, NOW())
 WHERE
-  id = $5::integer
+  id = $5::uuid
   AND deleted_at IS NULL
 RETURNING
   id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, order_item_id
@@ -207,7 +207,7 @@ type UpdateReviewParams struct {
 	Content   pgtype.Text
 	ImageURL  pgtype.Text
 	UpdatedAt pgtype.Timestamp
-	ID        int32
+	ID        uuid.UUID
 }
 
 func (q *Queries) UpdateReview(ctx context.Context, arg UpdateReviewParams) (Review, error) {

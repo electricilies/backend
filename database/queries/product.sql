@@ -35,7 +35,7 @@ INSERT INTO product_images (
 SELECT
   UNNEST(sqlc.arg('urls')::text[]) AS url,
   UNNEST(sqlc.arg('orders')::integer[]) AS "order",
-  UNNEST(sqlc.arg('product_variant_ids')::integer[]) AS product_variant_id,
+  UNNEST(sqlc.arg('product_variant_ids')::uuid[]) AS product_variant_id,
   sqlc.arg('product_id')
 RETURNING
   *;
@@ -47,7 +47,7 @@ INSERT INTO products_attribute_values (
 )
 SELECT
   sqlc.arg('product_id'),
-  UNNEST(sqlc.arg('attribute_value_ids')::integer[]) AS attribute_value_id;
+  UNNEST(sqlc.arg('attribute_value_ids')::uuid[]) AS attribute_value_id;
 
 -- name: LinkProductVariantsWithOptionValues :execrows
 INSERT INTO option_values_product_variants (
@@ -55,8 +55,8 @@ INSERT INTO option_values_product_variants (
   product_variant_id
 )
 SELECT
-  UNNEST(sqlc.arg('option_value_ids')::integer[]) AS option_value_id,
-  UNNEST(sqlc.arg('product_variant_ids')::integer[]) AS product_variant_id;
+  UNNEST(sqlc.arg('option_value_ids')::uuid[]) AS option_value_id,
+  UNNEST(sqlc.arg('product_variant_ids')::uuid[]) AS product_variant_id;
 
 -- This is used for list, search (with filter, order), suggest
 -- name: ListProducts :many
@@ -81,8 +81,8 @@ LEFT JOIN (
   ON products.id = category_scores.id
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE products.id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE products.id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE
@@ -101,8 +101,8 @@ WHERE
     ELSE products.rating >= sqlc.narg('rating')::real
   END
   AND CASE
-    WHEN sqlc.narg('category_ids')::integer[] IS NULL THEN TRUE
-    ELSE products.category_id = ANY (sqlc.narg('category_ids')::integer[])
+    WHEN sqlc.narg('category_ids')::uuid[] IS NULL THEN TRUE
+    ELSE products.category_id = ANY (sqlc.narg('category_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NOT NULL
@@ -136,8 +136,8 @@ FROM
   products
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE products.id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE products.id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('min_price')::decimal IS NULL THEN TRUE
@@ -152,8 +152,8 @@ WHERE
     ELSE products.rating >= sqlc.narg('rating')::real
   END
   AND CASE
-    WHEN sqlc.narg('category_ids')::integer[] IS NULL THEN TRUE
-    ELSE products.category_id = ANY (sqlc.narg('category_ids')::integer[])
+    WHEN sqlc.narg('category_ids')::uuid[] IS NULL THEN TRUE
+    ELSE products.category_id = ANY (sqlc.narg('category_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NOT NULL
@@ -183,12 +183,12 @@ FROM
   product_variants
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('product_ids')::integer[] IS NULL THEN TRUE
-    ELSE product_id = ANY (sqlc.narg('product_ids')::integer[])
+    WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
+    ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
@@ -206,16 +206,16 @@ FROM
   product_images
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('product_variant_ids')::integer[] IS NULL THEN TRUE
+    WHEN sqlc.narg('product_variant_ids')::uuid[] IS NULL THEN TRUE
     ELSE product_variant_id = ANY (sqlc.narg('product_variant_ids'))
   END
   AND CASE
-    WHEN sqlc.narg('product_ids')::integer[] IS NULL THEN TRUE
-    ELSE product_id = ANY (sqlc.narg('product_ids')::integer[])
+    WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
+    ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
   END
 ORDER BY
   id ASC;
@@ -229,7 +229,7 @@ SET
   views_count = COALESCE(sqlc.narg('views_count')::integer, views_count),
   total_purchase = COALESCE(sqlc.narg('total_purchase')::integer, purchase_count),
   trending_score = COALESCE(sqlc.narg('trending_score')::float, trending_score), -- TODO: Do we ever update this manually?
-  category_id = COALESCE(sqlc.narg('category_id')::integer, category_id),
+  category_id = COALESCE(sqlc.narg('category_id')::uuid, category_id),
   updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 WHERE
   id = sqlc.arg('id')
@@ -256,7 +256,7 @@ RETURNING
 -- name: UpdateProductVariants :many
 WITH updates AS (
   SELECT
-    UNNEST(sqlc.arg('ids')::integer[]) AS id,
+    UNNEST(sqlc.arg('ids')::uuid[]) AS id,
     UNNEST(sqlc.arg('skus')::text[]) AS sku,
     UNNEST(sqlc.arg('prices')::decimal[]) AS price,
     UNNEST(sqlc.arg('quantities')::integer[]) AS quantity,
@@ -285,7 +285,7 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY (sqlc.arg('ids')::integer[])
+  id = ANY (sqlc.arg('ids')::uuid[])
   AND deleted_at IS NULL;
 
 -- name: DeleteProductVariants :execrows
@@ -294,14 +294,14 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY (sqlc.arg('ids')::integer[])
+  id = ANY (sqlc.arg('ids')::uuid[])
   AND deleted_at IS NULL;
 
 -- name: DeleteProductImages :execrows
 DELETE FROM
   product_images
 WHERE
-  id = ANY (sqlc.arg('ids')::integer[]);
+  id = ANY (sqlc.arg('ids')::uuid[]);
 
 -- name: GetProductImage :one
 SELECT

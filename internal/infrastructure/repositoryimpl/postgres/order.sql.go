@@ -19,23 +19,23 @@ FROM
   orders
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
     ELSE user_id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::integer[] IS NULL THEN TRUE
-    ELSE status_id = ANY ($3::integer[])
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    ELSE status_id = ANY ($3::uuid[])
   END
 `
 
 type CountOrdersParams struct {
-	IDs       []int32
+	IDs       []uuid.UUID
 	UserIds   []uuid.UUID
-	StatusIds []int32
+	StatusIds []uuid.UUID
 }
 
 func (q *Queries) CountOrders(ctx context.Context, arg CountOrdersParams) (int64, error) {
@@ -67,8 +67,8 @@ type CreateOrderParams struct {
 	userID      uuid.UUID
 	Address     string
 	TotalAmount pgtype.Numeric
-	ProviderID  int32
-	StatusID    int32
+	ProviderID  uuid.UUID
+	StatusID    uuid.UUID
 }
 
 func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) (Order, error) {
@@ -119,9 +119,9 @@ RETURNING
 
 type CreateOrderItemsParams struct {
 	Quantity         int32
-	OrderID          int32
+	OrderID          uuid.UUID
 	Price            pgtype.Numeric
-	ProductVariantID int32
+	ProductVariantID uuid.UUID
 }
 
 func (q *Queries) CreateOrderItems(ctx context.Context, arg CreateOrderItemsParams) ([]OrderItem, error) {
@@ -165,7 +165,7 @@ WHERE
 `
 
 type GetOrderParams struct {
-	ID int32
+	ID uuid.UUID
 }
 
 func (q *Queries) GetOrder(ctx context.Context, arg GetOrderParams) (Order, error) {
@@ -195,7 +195,7 @@ WHERE
 `
 
 type GetOrderItemParams struct {
-	ID int32
+	ID uuid.UUID
 }
 
 func (q *Queries) GetOrderItem(ctx context.Context, arg GetOrderItemParams) (OrderItem, error) {
@@ -218,8 +218,8 @@ FROM
   order_providers
 WHERE
   CASE
-    WHEN $1::integer IS NULL THEN TRUE
-    ELSE id = $1::integer
+    WHEN $1::uuid IS NULL THEN TRUE
+    ELSE id = $1::uuid
   END
   AND CASE
     WHEN $2::text IS NULL THEN TRUE
@@ -228,7 +228,7 @@ WHERE
 `
 
 type GetOrderProviderParams struct {
-	ID   pgtype.Int4
+	ID   pgtype.UUID
 	Name pgtype.Text
 }
 
@@ -246,8 +246,8 @@ FROM
   order_statuses
 WHERE
   CASE
-    WHEN $1::integer IS NULL THEN TRUE
-    ELSE id = $1::integer
+    WHEN $1::uuid IS NULL THEN TRUE
+    ELSE id = $1::uuid
   END
   AND CASE
     WHEN $2::text IS NULL THEN TRUE
@@ -256,7 +256,7 @@ WHERE
 `
 
 type GetOrderStatusParams struct {
-	ID   pgtype.Int4
+	ID   pgtype.UUID
 	Name pgtype.Text
 }
 
@@ -274,20 +274,20 @@ FROM
   order_items
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE order_id = ANY ($2::integer[])
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    ELSE order_id = ANY ($2::uuid[])
   END
 ORDER BY
   id
 `
 
 type ListOrderItemsParams struct {
-	IDs      []int32
-	OrderIds []int32
+	IDs      []uuid.UUID
+	OrderIds []uuid.UUID
 }
 
 func (q *Queries) ListOrderItems(ctx context.Context, arg ListOrderItemsParams) ([]OrderItem, error) {
@@ -323,15 +323,15 @@ FROM
   order_statuses
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::uuid[])
   END
 ORDER BY
   id ASC
 `
 
 type ListOrderStatusesParams struct {
-	IDs []int32
+	IDs []uuid.UUID
 }
 
 func (q *Queries) ListOrderStatuses(ctx context.Context, arg ListOrderStatusesParams) ([]OrderStatus, error) {
@@ -361,16 +361,16 @@ FROM
   orders
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
     ELSE user_id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::integer[] IS NULL THEN TRUE
-    ELSE status_id = ANY ($3::integer[])
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    ELSE status_id = ANY ($3::uuid[])
   END
 ORDER BY
   id ASC
@@ -379,9 +379,9 @@ LIMIT COALESCE($5::integer, 20)
 `
 
 type ListOrdersParams struct {
-	IDs       []int32
+	IDs       []uuid.UUID
 	UserIds   []uuid.UUID
-	StatusIds []int32
+	StatusIds []uuid.UUID
 	Offset    pgtype.Int4
 	Limit     pgtype.Int4
 }
@@ -425,8 +425,8 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order
 const updateOrder = `-- name: UpdateOrder :one
 UPDATE orders
 SET
-  user_id = COALESCE($1, user_id),
-  status_id = COALESCE($2, status_id),
+  user_id = COALESCE($1::uuid, user_id),
+  status_id = COALESCE($2::uuid, status_id),
   updated_at = COALESCE($3::timestamp, NOW())
 WHERE
   id = $4
@@ -436,9 +436,9 @@ RETURNING
 
 type UpdateOrderParams struct {
 	userID    uuid.UUID
-	StatusID  int32
+	StatusID  uuid.UUID
 	UpdatedAt pgtype.Timestamp
-	ID        int32
+	ID        uuid.UUID
 }
 
 func (q *Queries) UpdateOrder(ctx context.Context, arg UpdateOrderParams) (Order, error) {

@@ -8,6 +8,7 @@ package postgres
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -26,7 +27,7 @@ RETURNING
 
 type CreateOptionParams struct {
 	Name      string
-	ProductID int32
+	ProductID uuid.UUID
 }
 
 func (q *Queries) CreateOption(ctx context.Context, arg CreateOptionParams) (Option, error) {
@@ -54,7 +55,7 @@ RETURNING
 `
 
 type CreateOptionValuesParams struct {
-	OptionID int32
+	OptionID uuid.UUID
 	Values   []string
 }
 
@@ -82,11 +83,11 @@ const deleteOptionValues = `-- name: DeleteOptionValues :execrows
 DELETE FROM
   option_values
 WHERE
-  id = ANY ($1::integer[])
+  id = ANY ($1::uuid[])
 `
 
 type DeleteOptionValuesParams struct {
-	IDs []int32
+	IDs []uuid.UUID
 }
 
 func (q *Queries) DeleteOptionValues(ctx context.Context, arg DeleteOptionValuesParams) (int64, error) {
@@ -103,12 +104,12 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY ($1::integer[])
+  id = ANY ($1::uuid[])
   AND deleted_at IS NULL
 `
 
 type DeleteOptionsParams struct {
-	IDs []int32
+	IDs []uuid.UUID
 }
 
 func (q *Queries) DeleteOptions(ctx context.Context, arg DeleteOptionsParams) (int64, error) {
@@ -125,7 +126,7 @@ SELECT
 FROM
   options
 WHERE
-  id = $1::integer
+  id = $1::uuid
   AND CASE
     WHEN $2::text = 'exclude' THEN deleted_at IS NOT NULL
     WHEN $2::text = 'only' THEN deleted_at IS NULL
@@ -135,7 +136,7 @@ WHERE
 `
 
 type GetOptionParams struct {
-	ID      int32
+	ID      uuid.UUID
 	Deleted string
 }
 
@@ -158,20 +159,20 @@ FROM
   option_values
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE option_values.id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE option_values.id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE option_values.option_id = ANY ($2::integer[])
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    ELSE option_values.option_id = ANY ($2::uuid[])
   END
 ORDER BY
   option_values.id
 `
 
 type ListOptionValuesParams struct {
-	IDs       []int32
-	OptionIds []int32
+	IDs       []uuid.UUID
+	OptionIds []uuid.UUID
 }
 
 func (q *Queries) ListOptionValues(ctx context.Context, arg ListOptionValuesParams) ([]OptionValue, error) {
@@ -201,18 +202,18 @@ FROM
   option_values_product_variants
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE option_values_product_variants.option_value_id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE option_values_product_variants.option_value_id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE option_values_product_variants.product_variant_id = ANY ($2::integer[])
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    ELSE option_values_product_variants.product_variant_id = ANY ($2::uuid[])
   END
 `
 
 type ListOptionValuesProductVariantsParams struct {
-	OptionValueIDs    []int32
-	ProductVariantIDs []int32
+	OptionValueIDs    []uuid.UUID
+	ProductVariantIDs []uuid.UUID
 }
 
 func (q *Queries) ListOptionValuesProductVariants(ctx context.Context, arg ListOptionValuesProductVariantsParams) ([]OptionValuesProductVariant, error) {
@@ -242,12 +243,12 @@ FROM
   options
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE options.id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE options.id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::integer IS NULL THEN TRUE
-    ELSE options.product_id = $2::integer
+    WHEN $2::uuid IS NULL THEN TRUE
+    ELSE options.product_id = $2::uuid
   END
   AND CASE
     WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
@@ -260,8 +261,8 @@ ORDER BY
 `
 
 type ListOptionsParams struct {
-	IDs       []int32
-	ProductID pgtype.Int4
+	IDs       []uuid.UUID
+	ProductID pgtype.UUID
 	Deleted   string
 }
 
@@ -293,7 +294,7 @@ func (q *Queries) ListOptions(ctx context.Context, arg ListOptionsParams) ([]Opt
 const updateOptionValues = `-- name: UpdateOptionValues :many
 WITH updated_option_values AS (
   SELECT
-    UNNEST($1::integer[]) AS id,
+    UNNEST($1::uuid[]) AS id,
     UNNEST($2::text[]) AS value
 )
 UPDATE option_values
@@ -308,7 +309,7 @@ RETURNING
 `
 
 type UpdateOptionValuesParams struct {
-	IDs    []int32
+	IDs    []uuid.UUID
 	Values []string
 }
 
@@ -335,7 +336,7 @@ func (q *Queries) UpdateOptionValues(ctx context.Context, arg UpdateOptionValues
 const updateOptions = `-- name: UpdateOptions :many
 WITH updated_options AS (
   SELECT
-    UNNEST($1::integer[]) AS id,
+    UNNEST($1::uuid[]) AS id,
     UNNEST($2::text[]) AS name
 )
 UPDATE options
@@ -351,7 +352,7 @@ RETURNING
 `
 
 type UpdateOptionsParams struct {
-	IDs   []int32
+	IDs   []uuid.UUID
 	Names []string
 }
 

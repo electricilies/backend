@@ -8,6 +8,7 @@ package postgres
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -18,8 +19,8 @@ FROM
   attributes
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::text = 'exclude' THEN deleted_at IS NOT NULL
@@ -30,7 +31,7 @@ WHERE
 `
 
 type CountAttributesParams struct {
-	IDs     []int32
+	IDs     []uuid.UUID
 	Deleted string
 }
 
@@ -77,14 +78,14 @@ INSERT INTO attribute_values (
   value
 )
 SELECT
-  UNNEST($1::integer) AS attribute_id,
+  UNNEST($1::uuid) AS attribute_id,
   UNNEST($2::text) AS value
 RETURNING
   id, attribute_id, value
 `
 
 type CreateAttributeValueParams struct {
-	AttributeID int32
+	AttributeID uuid.UUID
 	Value       string
 }
 
@@ -99,11 +100,11 @@ const deleteAttributeValues = `-- name: DeleteAttributeValues :execrows
 DELETE FROM
   attribute_values
 WHERE
-  id = ANY ($1::integer[])
+  id = ANY ($1::uuid[])
 `
 
 type DeleteAttributeValuesParams struct {
-	IDs []int32
+	IDs []uuid.UUID
 }
 
 func (q *Queries) DeleteAttributeValues(ctx context.Context, arg DeleteAttributeValuesParams) (int64, error) {
@@ -120,11 +121,11 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY ($1::integer[])
+  id = ANY ($1::uuid[])
 `
 
 type DeleteAttributesParams struct {
-	IDs []int32
+	IDs []uuid.UUID
 }
 
 func (q *Queries) DeleteAttributes(ctx context.Context, arg DeleteAttributesParams) (int64, error) {
@@ -145,7 +146,7 @@ WHERE
 `
 
 type GetAttributeParams struct {
-	ID int32
+	ID uuid.UUID
 }
 
 func (q *Queries) GetAttribute(ctx context.Context, arg GetAttributeParams) (Attribute, error) {
@@ -167,12 +168,12 @@ FROM
   attribute_values
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE attribute_id = ANY ($2::integer[])
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    ELSE attribute_id = ANY ($2::uuid[])
   END
   AND CASE
     WHEN $3::text IS NULL THEN TRUE
@@ -183,8 +184,8 @@ ORDER BY
 `
 
 type ListAttributeValuesParams struct {
-	IDs          []int32
-	AttributeIDs []int32
+	IDs          []uuid.UUID
+	AttributeIDs []uuid.UUID
 	Search       pgtype.Text
 }
 
@@ -215,8 +216,8 @@ FROM
   attributes
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::text IS NULL THEN TRUE
@@ -238,7 +239,7 @@ LIMIT COALESCE($5::integer, 20)
 `
 
 type ListAttributesParams struct {
-	IDs     []int32
+	IDs     []uuid.UUID
 	Search  pgtype.Text
 	Deleted string
 	Offset  pgtype.Int4
@@ -283,18 +284,18 @@ FROM
   products_attribute_values
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE product_id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE product_id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE attribute_value_id = ANY ($2::integer[])
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    ELSE attribute_value_id = ANY ($2::uuid[])
   END
 `
 
 type ListProductsAttributeValuesParams struct {
-	ProductIDs        []int32
-	AttributeValueIDs []int32
+	ProductIDs        []uuid.UUID
+	AttributeValueIDs []uuid.UUID
 }
 
 func (q *Queries) ListProductsAttributeValues(ctx context.Context, arg ListProductsAttributeValuesParams) ([]ProductsAttributeValue, error) {
@@ -332,7 +333,7 @@ RETURNING
 type UpdateAttributeParams struct {
 	Code pgtype.Text
 	Name pgtype.Text
-	ID   int32
+	ID   uuid.UUID
 }
 
 func (q *Queries) UpdateAttribute(ctx context.Context, arg UpdateAttributeParams) (Attribute, error) {
@@ -350,7 +351,7 @@ func (q *Queries) UpdateAttribute(ctx context.Context, arg UpdateAttributeParams
 const updateAttributeValues = `-- name: UpdateAttributeValues :many
 WITH updated_attribute_values AS (
   SELECT
-    UNNEST($1::integer[]) AS id,
+    UNNEST($1::uuid[]) AS id,
     UNNEST($2::text[]) AS value
 )
 UPDATE
@@ -366,7 +367,7 @@ RETURNING
 `
 
 type UpdateAttributeValuesParams struct {
-	IDs    []int32
+	IDs    []uuid.UUID
 	Values []string
 }
 

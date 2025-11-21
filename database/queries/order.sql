@@ -44,16 +44,16 @@ FROM
   orders
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('user_ids')::uuid[] IS NULL THEN TRUE
     ELSE user_id = ANY (sqlc.narg('user_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('status_ids')::integer[] IS NULL THEN TRUE
-    ELSE status_id = ANY (sqlc.narg('status_ids')::integer[])
+    WHEN sqlc.narg('status_ids')::uuid[] IS NULL THEN TRUE
+    ELSE status_id = ANY (sqlc.narg('status_ids')::uuid[])
   END
 ORDER BY
   id ASC
@@ -67,16 +67,16 @@ FROM
   orders
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('user_ids')::uuid[] IS NULL THEN TRUE
     ELSE user_id = ANY (sqlc.narg('user_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('status_ids')::integer[] IS NULL THEN TRUE
-    ELSE status_id = ANY (sqlc.narg('status_ids')::integer[])
+    WHEN sqlc.narg('status_ids')::uuid[] IS NULL THEN TRUE
+    ELSE status_id = ANY (sqlc.narg('status_ids')::uuid[])
   END;
 
 -- name: GetOrder :one
@@ -94,12 +94,12 @@ FROM
   order_items
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('order_ids')::integer[] IS NULL THEN TRUE
-    ELSE order_id = ANY (sqlc.narg('order_ids')::integer[])
+    WHEN sqlc.narg('order_ids')::uuid[] IS NULL THEN TRUE
+    ELSE order_id = ANY (sqlc.narg('order_ids')::uuid[])
   END
 ORDER BY
   id;
@@ -119,8 +119,8 @@ FROM
   order_statuses
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
 ORDER BY
   id ASC;
@@ -132,8 +132,8 @@ FROM
   order_statuses
 WHERE
   CASE
-    WHEN sqlc.narg('id')::integer IS NULL THEN TRUE
-    ELSE id = sqlc.narg('id')::integer
+    WHEN sqlc.narg('id')::uuid IS NULL THEN TRUE
+    ELSE id = sqlc.narg('id')::uuid
   END
   AND CASE
     WHEN sqlc.narg('name')::text IS NULL THEN TRUE
@@ -147,20 +147,19 @@ FROM
   order_providers
 WHERE
   CASE
-    WHEN sqlc.narg('id')::integer IS NULL THEN TRUE
-    ELSE id = sqlc.narg('id')::integer
+    WHEN sqlc.narg('id')::uuid IS NULL THEN TRUE
+    ELSE id = sqlc.narg('id')::uuid
   END
   AND CASE
     WHEN sqlc.narg('name')::text IS NULL THEN TRUE
     ELSE name = sqlc.narg('name')::text
   END;
 
-
 -- name: UpdateOrder :one
 UPDATE orders
 SET
-  user_id = COALESCE(sqlc.arg('user_id'), user_id),
-  status_id = COALESCE(sqlc.arg('status_id'), status_id),
+  user_id = COALESCE(sqlc.arg('user_id')::uuid, user_id),
+  status_id = COALESCE(sqlc.arg('status_id')::uuid, status_id),
   updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
 WHERE
   id = sqlc.arg('id')

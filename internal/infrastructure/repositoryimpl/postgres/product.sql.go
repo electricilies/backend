@@ -8,6 +8,7 @@ package postgres
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -18,8 +19,8 @@ FROM
   products
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE products.id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE products.id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::decimal IS NULL THEN TRUE
@@ -34,8 +35,8 @@ WHERE
     ELSE products.rating >= $4::real
   END
   AND CASE
-    WHEN $5::integer[] IS NULL THEN TRUE
-    ELSE products.category_id = ANY ($5::integer[])
+    WHEN $5::uuid[] IS NULL THEN TRUE
+    ELSE products.category_id = ANY ($5::uuid[])
   END
   AND CASE
     WHEN $6::text = 'exclude' THEN products.deleted_at IS NOT NULL
@@ -46,11 +47,11 @@ WHERE
 `
 
 type CountProductsParams struct {
-	IDs         []int32
+	IDs         []uuid.UUID
 	MinPrice    pgtype.Numeric
 	MaxPrice    pgtype.Numeric
 	Rating      pgtype.Float4
-	CategoryIDs []int32
+	CategoryIDs []uuid.UUID
 	Deleted     string
 }
 
@@ -116,7 +117,7 @@ INSERT INTO product_images (
 SELECT
   UNNEST($1::text[]) AS url,
   UNNEST($2::integer[]) AS "order",
-  UNNEST($3::integer[]) AS product_variant_id,
+  UNNEST($3::uuid[]) AS product_variant_id,
   $4
 RETURNING
   id, url, created_at, "order", product_id, product_variant_id
@@ -125,8 +126,8 @@ RETURNING
 type CreateProductImagesParams struct {
 	URLs              []string
 	Orders            []int32
-	ProductVariantIDs []int32
-	ProductID         pgtype.Int4
+	ProductVariantIDs []uuid.UUID
+	ProductID         pgtype.UUID
 }
 
 func (q *Queries) CreateProductImages(ctx context.Context, arg CreateProductImagesParams) ([]ProductImage, error) {
@@ -181,7 +182,7 @@ type CreateProductVariantsParams struct {
 	SKUs       []string
 	Prices     []pgtype.Numeric
 	Quantities []int32
-	ProductID  int32
+	ProductID  uuid.UUID
 }
 
 func (q *Queries) CreateProductVariants(ctx context.Context, arg CreateProductVariantsParams) ([]ProductVariant, error) {
@@ -223,11 +224,11 @@ const deleteProductImages = `-- name: DeleteProductImages :execrows
 DELETE FROM
   product_images
 WHERE
-  id = ANY ($1::integer[])
+  id = ANY ($1::uuid[])
 `
 
 type DeleteProductImagesParams struct {
-	IDs []int32
+	IDs []uuid.UUID
 }
 
 func (q *Queries) DeleteProductImages(ctx context.Context, arg DeleteProductImagesParams) (int64, error) {
@@ -244,12 +245,12 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY ($1::integer[])
+  id = ANY ($1::uuid[])
   AND deleted_at IS NULL
 `
 
 type DeleteProductVariantsParams struct {
-	IDs []int32
+	IDs []uuid.UUID
 }
 
 func (q *Queries) DeleteProductVariants(ctx context.Context, arg DeleteProductVariantsParams) (int64, error) {
@@ -266,12 +267,12 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY ($1::integer[])
+  id = ANY ($1::uuid[])
   AND deleted_at IS NULL
 `
 
 type DeleteProductsParams struct {
-	IDs []int32
+	IDs []uuid.UUID
 }
 
 func (q *Queries) DeleteProducts(ctx context.Context, arg DeleteProductsParams) (int64, error) {
@@ -298,7 +299,7 @@ WHERE
 `
 
 type GetProductParams struct {
-	ID      int32
+	ID      uuid.UUID
 	Deleted string
 }
 
@@ -332,7 +333,7 @@ WHERE
 `
 
 type GetProductImageParams struct {
-	ID int32
+	ID uuid.UUID
 }
 
 func (q *Queries) GetProductImage(ctx context.Context, arg GetProductImageParams) (ProductImage, error) {
@@ -356,12 +357,12 @@ INSERT INTO products_attribute_values (
 )
 SELECT
   $1,
-  UNNEST($2::integer[]) AS attribute_value_id
+  UNNEST($2::uuid[]) AS attribute_value_id
 `
 
 type LinkProductAttributeValuesParams struct {
-	ProductID         int32
-	AttributeValueIDs []int32
+	ProductID         uuid.UUID
+	AttributeValueIDs []uuid.UUID
 }
 
 func (q *Queries) LinkProductAttributeValues(ctx context.Context, arg LinkProductAttributeValuesParams) (int64, error) {
@@ -378,13 +379,13 @@ INSERT INTO option_values_product_variants (
   product_variant_id
 )
 SELECT
-  UNNEST($1::integer[]) AS option_value_id,
-  UNNEST($2::integer[]) AS product_variant_id
+  UNNEST($1::uuid[]) AS option_value_id,
+  UNNEST($2::uuid[]) AS product_variant_id
 `
 
 type LinkProductVariantsWithOptionValuesParams struct {
-	OptionValueIDs    []int32
-	ProductVariantIDs []int32
+	OptionValueIDs    []uuid.UUID
+	ProductVariantIDs []uuid.UUID
 }
 
 func (q *Queries) LinkProductVariantsWithOptionValues(ctx context.Context, arg LinkProductVariantsWithOptionValuesParams) (int64, error) {
@@ -402,25 +403,25 @@ FROM
   product_images
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::integer[] IS NULL THEN TRUE
+    WHEN $2::uuid[] IS NULL THEN TRUE
     ELSE product_variant_id = ANY ($2)
   END
   AND CASE
-    WHEN $3::integer[] IS NULL THEN TRUE
-    ELSE product_id = ANY ($3::integer[])
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    ELSE product_id = ANY ($3::uuid[])
   END
 ORDER BY
   id ASC
 `
 
 type ListProductImagesParams struct {
-	IDs               []int32
-	ProductVariantIDs []int32
-	ProductIDs        []int32
+	IDs               []uuid.UUID
+	ProductVariantIDs []uuid.UUID
+	ProductIDs        []uuid.UUID
 }
 
 func (q *Queries) ListProductImages(ctx context.Context, arg ListProductImagesParams) ([]ProductImage, error) {
@@ -457,12 +458,12 @@ FROM
   product_variants
 WHERE
   CASE
-    WHEN $1::integer[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::integer[])
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE product_id = ANY ($2::integer[])
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    ELSE product_id = ANY ($2::uuid[])
   END
   AND CASE
     WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
@@ -475,8 +476,8 @@ ORDER BY
 `
 
 type ListProductVariantsParams struct {
-	IDs        []int32
-	ProductIDs []int32
+	IDs        []uuid.UUID
+	ProductIDs []uuid.UUID
 	Deleted    string
 }
 
@@ -532,8 +533,8 @@ LEFT JOIN (
   ON products.id = category_scores.id
 WHERE
   CASE
-    WHEN $2::integer[] IS NULL THEN TRUE
-    ELSE products.id = ANY ($2::integer[])
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    ELSE products.id = ANY ($2::uuid[])
   END
   AND CASE
     WHEN $1::text IS NULL THEN TRUE
@@ -552,8 +553,8 @@ WHERE
     ELSE products.rating >= $5::real
   END
   AND CASE
-    WHEN $6::integer[] IS NULL THEN TRUE
-    ELSE products.category_id = ANY ($6::integer[])
+    WHEN $6::uuid[] IS NULL THEN TRUE
+    ELSE products.category_id = ANY ($6::uuid[])
   END
   AND CASE
     WHEN $7::text = 'exclude' THEN products.deleted_at IS NOT NULL
@@ -583,11 +584,11 @@ LIMIT COALESCE($11::integer, 20)
 
 type ListProductsParams struct {
 	Search      pgtype.Text
-	IDs         []int32
+	IDs         []uuid.UUID
 	MinPrice    pgtype.Numeric
 	MaxPrice    pgtype.Numeric
 	Rating      pgtype.Float4
-	CategoryIDs []int32
+	CategoryIDs []uuid.UUID
 	Deleted     string
 	SortRating  pgtype.Text
 	SortPrice   pgtype.Text
@@ -650,7 +651,7 @@ SET
   views_count = COALESCE($3::integer, views_count),
   total_purchase = COALESCE($4::integer, purchase_count),
   trending_score = COALESCE($5::float, trending_score), -- TODO: Do we ever update this manually?
-  category_id = COALESCE($6::integer, category_id),
+  category_id = COALESCE($6::uuid, category_id),
   updated_at = COALESCE($7::timestamp, NOW())
 WHERE
   id = $8
@@ -665,9 +666,9 @@ type UpdateProductParams struct {
 	ViewsCount    pgtype.Int4
 	TotalPurchase pgtype.Int4
 	TrendingScore pgtype.Float8
-	CategoryID    pgtype.Int4
+	CategoryID    pgtype.UUID
 	UpdatedAt     pgtype.Timestamp
-	ID            int32
+	ID            uuid.UUID
 }
 
 func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
@@ -721,7 +722,7 @@ type UpdateProductVariantParams struct {
 	Quantity      pgtype.Int4
 	PurchaseCount pgtype.Int4
 	UpdatedAt     pgtype.Timestamp
-	ID            int32
+	ID            uuid.UUID
 }
 
 func (q *Queries) UpdateProductVariant(ctx context.Context, arg UpdateProductVariantParams) (ProductVariant, error) {
@@ -751,7 +752,7 @@ func (q *Queries) UpdateProductVariant(ctx context.Context, arg UpdateProductVar
 const updateProductVariants = `-- name: UpdateProductVariants :many
 WITH updates AS (
   SELECT
-    UNNEST($1::integer[]) AS id,
+    UNNEST($1::uuid[]) AS id,
     UNNEST($2::text[]) AS sku,
     UNNEST($3::decimal[]) AS price,
     UNNEST($4::integer[]) AS quantity,
@@ -776,7 +777,7 @@ RETURNING
 `
 
 type UpdateProductVariantsParams struct {
-	IDs            []int32
+	IDs            []uuid.UUID
 	SKUs           []string
 	Prices         []pgtype.Numeric
 	Quantities     []int32

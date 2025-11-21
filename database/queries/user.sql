@@ -21,4 +21,4 @@ SELECT
 FROM
   users
 WHERE
-  id = sqlc.arg('id');
+  id = sqlc.arg('id')::uuid;

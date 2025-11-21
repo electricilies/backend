@@ -8,6 +8,7 @@ package postgres
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -66,7 +67,7 @@ WHERE
 `
 
 type DeleteCategoryParams struct {
-	ID int32
+	ID uuid.UUID
 }
 
 func (q *Queries) DeleteCategory(ctx context.Context, arg DeleteCategoryParams) (int64, error) {
@@ -88,7 +89,7 @@ WHERE
 `
 
 type GetCategoryParams struct {
-	ID int32
+	ID uuid.UUID
 }
 
 func (q *Queries) GetCategory(ctx context.Context, arg GetCategoryParams) (Category, error) {
@@ -169,7 +170,7 @@ RETURNING
 type UpdateCategoryParams struct {
 	Name      string
 	UpdatedAt pgtype.Timestamp
-	ID        int32
+	ID        uuid.UUID
 }
 
 func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error) {

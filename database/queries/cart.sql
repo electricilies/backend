@@ -27,12 +27,12 @@ FROM
   carts
 WHERE
   CASE
-    WHEN sqlc.narg('id')::integer IS NULL THEN TRUE
-    ELSE id = sqlc.narg('id')::integer
+    WHEN sqlc.narg('id')::uuid IS NULL THEN TRUE
+    ELSE id = sqlc.narg('id')::uuid
   END
   AND CASE
-    WHEN sqlc.narg('user_id')::UUID IS NULL THEN TRUE
-    ELSE user_id = sqlc.narg('user_id')::UUID
+    WHEN sqlc.narg('user_id')::uuid IS NULL THEN TRUE
+    ELSE user_id = sqlc.narg('user_id')::uuid
   END;
 
 -- name: GetCartItems :many
@@ -42,8 +42,8 @@ FROM
   cart_items
 WHERE
   CASE
-    WHEN sqlc.narg('cart_id')::integer IS NULL THEN TRUE
-    ELSE cart_id = sqlc.narg('cart_id')::integer
+    WHEN sqlc.narg('cart_id')::uuid IS NULL THEN TRUE
+    ELSE cart_id = sqlc.narg('cart_id')::uuid
   END
 ORDER BY
   id ASC;
@@ -60,4 +60,4 @@ RETURNING
 -- name: DeleteCartItemByIDs :execrows
 DELETE FROM cart_items
 WHERE
-  id = ANY (sqlc.arg('ids')::UUID[]);
+  id = ANY (sqlc.arg('ids')::uuid[]);

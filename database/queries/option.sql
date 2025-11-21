@@ -28,12 +28,12 @@ FROM
   options
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE options.id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE options.id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('product_id')::integer IS NULL THEN TRUE
-    ELSE options.product_id = sqlc.narg('product_id')::integer
+    WHEN sqlc.narg('product_id')::uuid IS NULL THEN TRUE
+    ELSE options.product_id = sqlc.narg('product_id')::uuid
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
@@ -50,7 +50,7 @@ SELECT
 FROM
   options
 WHERE
-  id = sqlc.arg('id')::integer
+  id = sqlc.arg('id')::uuid
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
@@ -65,12 +65,12 @@ FROM
   option_values_product_variants
 WHERE
   CASE
-    WHEN sqlc.narg('option_value_ids')::integer[] IS NULL THEN TRUE
-    ELSE option_values_product_variants.option_value_id = ANY (sqlc.narg('option_value_ids')::integer[])
+    WHEN sqlc.narg('option_value_ids')::uuid[] IS NULL THEN TRUE
+    ELSE option_values_product_variants.option_value_id = ANY (sqlc.narg('option_value_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('product_variant_ids')::integer[] IS NULL THEN TRUE
-    ELSE option_values_product_variants.product_variant_id = ANY (sqlc.narg('product_variant_ids')::integer[])
+    WHEN sqlc.narg('product_variant_ids')::uuid[] IS NULL THEN TRUE
+    ELSE option_values_product_variants.product_variant_id = ANY (sqlc.narg('product_variant_ids')::uuid[])
   END;
 
 -- name: ListOptionValues :many
@@ -80,12 +80,12 @@ FROM
   option_values
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::integer[] IS NULL THEN TRUE
-    ELSE option_values.id = ANY (sqlc.narg('ids')::integer[])
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    ELSE option_values.id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('option_ids')::integer[] IS NULL THEN TRUE
-    ELSE option_values.option_id = ANY (sqlc.narg('option_ids')::integer[])
+    WHEN sqlc.narg('option_ids')::uuid[] IS NULL THEN TRUE
+    ELSE option_values.option_id = ANY (sqlc.narg('option_ids')::uuid[])
   END
 ORDER BY
   option_values.id;
@@ -93,7 +93,7 @@ ORDER BY
 -- name: UpdateOptions :many
 WITH updated_options AS (
   SELECT
-    UNNEST(sqlc.arg('ids')::integer[]) AS id,
+    UNNEST(sqlc.arg('ids')::uuid[]) AS id,
     UNNEST(sqlc.arg('names')::text[]) AS name
 )
 UPDATE options
@@ -110,7 +110,7 @@ RETURNING
 -- name: UpdateOptionValues :many
 WITH updated_option_values AS (
   SELECT
-    UNNEST(sqlc.arg('ids')::integer[]) AS id,
+    UNNEST(sqlc.arg('ids')::uuid[]) AS id,
     UNNEST(sqlc.arg('values')::text[]) AS value
 )
 UPDATE option_values
@@ -129,11 +129,11 @@ UPDATE
 SET
   deleted_at = NOW()
 WHERE
-  id = ANY (sqlc.arg('ids')::integer[])
+  id = ANY (sqlc.arg('ids')::uuid[])
   AND deleted_at IS NULL;
 
 -- name: DeleteOptionValues :execrows
 DELETE FROM
   option_values
 WHERE
-  id = ANY (sqlc.arg('ids')::integer[]);
+  id = ANY (sqlc.arg('ids')::uuid[]);
