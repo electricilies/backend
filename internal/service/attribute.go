@@ -40,3 +40,20 @@ func (a *Attribute) Create(
 	}
 	return attribute, nil
 }
+
+func (a *Attribute) CreateValue(
+	value string,
+) (*domain.AttributeValue, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return nil, multierror.Append(domain.ErrInternal, err)
+	}
+	attributeValue := domain.AttributeValue{
+		ID:    id,
+		Value: value,
+	}
+	if err := a.validate.Struct(attributeValue); err != nil {
+		return nil, multierror.Append(domain.ErrInvalid, err)
+	}
+	return &attributeValue, nil
+}

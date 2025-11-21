@@ -5,4 +5,8 @@ type AttributeService interface {
 		code string,
 		name string,
 	) (*Attribute, error)
+
+	CreateValue(
+		value string,
+	) (*AttributeValue, error)
 }

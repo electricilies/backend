@@ -26,21 +26,24 @@ const (
 )
 
 type Order struct {
-	ID          uuid.UUID     `json:"id"          binding:"required" validate:"required"`
-	Address     string        `json:"address"     binding:"required" validate:"required"`
-	Provider    OrderProvider `json:"provider"    binding:"required" validate:"required,oneof=COD VNPAY MOMO ZALOPAY"`
-	Status      OrderStatus   `json:"status"      binding:"required" validate:"required,oneof=Pending Processing Shipped Delivered Cancelled"`
-	IsPaid      bool          `json:"isPaid"      binding:"required" validate:"required"`
-	CreatedAt   time.Time     `json:"createdAt"   binding:"required" validate:"required"`
-	UpdatedAt   time.Time     `json:"updatedAt"   binding:"required" validate:"required"`
-	Items       *[]OrderItem  `json:"items"       binding:"omitnil"  validate:"omitnil,gte=1,dive"`
-	TotalAmount int64         `json:"totalAmount" binding:"required" validate:"required"`
+	ID          uuid.UUID     `json:"id"          binding:"required"  validate:"required"`
+	Address     string        `json:"address"     binding:"required"  validate:"required"`
+	Provider    OrderProvider `json:"provider"    binding:"required"  validate:"required,oneof=COD VNPAY MOMO ZALOPAY"`
+	Status      OrderStatus   `json:"status"      binding:"required"  validate:"required,oneof=Pending Processing Shipped Delivered Cancelled"`
+	IsPaid      bool          `json:"isPaid"      binding:"required"  validate:"required"`
+	CreatedAt   time.Time     `json:"createdAt"   binding:"required"  validate:"required"`
+	UpdatedAt   time.Time     `json:"updatedAt"   binding:"required"  validate:"required"`
+	Items       []OrderItem   `json:"items"       binding:"omitempty" validate:"omitempty,gte=1,dive"`
+	TotalAmount int64         `json:"totalAmount" binding:"required"  validate:"required"`
+}
+
+func (o *Order) AddItems(items ...OrderItem) {
+	o.Items = append(o.Items, items...)
 }
 
 type OrderItem struct {
-	ID             uuid.UUID       `json:"id"             binding:"required" validate:"required"`
-	OrderID        uuid.UUID       `json:"orderId"        binding:"required" validate:"required"`
-	ProductVariant *ProductVariant `json:"productVariant" binding:"omitnil"`
-	Quantity       int             `json:"quantity"       binding:"required" validate:"required,gt=0"`
-	Price          int64           `json:"price"          binding:"required" validate:"required,gt=0"`
+	ID             uuid.UUID      `json:"id"             binding:"required" validate:"required"`
+	ProductVariant ProductVariant `json:"productVariant" binding:"required" validate:"required"`
+	Quantity       int            `json:"quantity"       binding:"required" validate:"required,gt=0"`
+	Price          int64          `json:"price"          binding:"required" validate:"required,gt=0"`
 }

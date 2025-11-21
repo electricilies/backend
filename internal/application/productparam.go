@@ -22,7 +22,7 @@ type CreateProductData struct {
 	Description       string                     `json:"description"       binding:"required"`
 	AttributeValueIDs *[]int                     `json:"attributeValueIds" binding:"omitempty"`
 	Options           []CreateProductOptionData  `json:"options"           binding:"required,dive"`
-	Category          int                        `json:"category"          binding:"required"`
+	CategoryID        int                        `json:"categoryId"        binding:"required"`
 	Images            []CreateProductImageData   `json:"images"            binding:"required,dive"`
 	Variants          []CreateProductVariantData `json:"variants"          binding:"required,dive"`
 }
