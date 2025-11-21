@@ -7,9 +7,10 @@ import (
 
 type ListAttributesParam struct {
 	PaginationParam
-	IDs     *[]uuid.UUID        `binding:"omitnil"`
-	Search  *string             `binding:"omitnil"`
-	Deleted domain.DeletedParam `binding:"required,oneof=exclude only all"`
+	IDs       *[]uuid.UUID        `binding:"omitnil"`
+	Search    *string             `binding:"omitnil"`
+	Deleted   domain.DeletedParam `binding:"required,oneof=exclude only all"`
+	ProductID *uuid.UUID          `binding:"omitnil"`
 }
 
 type ListAttributeValuesParam struct {

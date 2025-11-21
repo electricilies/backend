@@ -2,11 +2,13 @@ package http
 
 import (
 	"net/http"
+	"strconv"
 
-	_ "backend/internal/application"
-	_ "backend/internal/domain"
+	"backend/internal/application"
+	"backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type AttributeHandler interface {
@@ -21,12 +23,21 @@ type AttributeHandler interface {
 	UpdateValue(*gin.Context)
 }
 
-type GinAttributeHandler struct{}
+type GinAttributeHandler struct {
+	attributeApp           application.Attribute
+	ErrRequiredAttributeID string
+	ErrInvalidAttributeID  string
+	ErrInvalidProductID    string
+}
 
 var _ AttributeHandler = &GinAttributeHandler{}
 
-func ProvideAttributeHandler() *GinAttributeHandler {
-	return &GinAttributeHandler{}
+func ProvideAttributeHandler(attributeApp application.Attribute) *GinAttributeHandler {
+	return &GinAttributeHandler{
+		attributeApp:           attributeApp,
+		ErrRequiredAttributeID: "attribute_id is required",
+		ErrInvalidAttributeID:  "invalid attribute_id",
+	}
 }
 
 // GetAttribute godoc
@@ -42,26 +53,87 @@ func ProvideAttributeHandler() *GinAttributeHandler {
 //	@Failure		500				{object}	Error
 //	@Router			/attributes/{attribute_id} [get]
 func (h *GinAttributeHandler) Get(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
+	attributeIDString := ctx.Param("attribute_id")
+	if attributeIDString == "" {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
+		return
+	}
+	attributeID, err := uuid.Parse(attributeIDString)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
+		return
+	}
+	attribute, err := h.attributeApp.Get(ctx, application.GetAttributeParam{
+		AttributeID: attributeID,
+	})
+	if err != nil {
+		SendError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, attribute)
 }
 
 // ListAttributes godoc
 //
-//	@Summary		List all attributes
-//	@Description	Get all attributes
-//	@Tags			Attribute
-//	@Accept			json
-//	@Produce		json
-//	@Param			page		query		int		false	"Page for pagination"
-//	@Param			limit		query		int		false	"Limit for pagination"	default(20)
-//	@Param			product_id	query		int		false	"Product ID"
-//	@Param			search		query		string	false	"Search term"
-//	@Param			deleted		query		string	false	"Filter by deletion status"	Enums(exclude, only, all)
-//	@Success		200			{object}	application.Pagination[domain.Attribute]
-//	@Failure		500			{object}	Error
-//	@Router			/attributes [get]
+//		@Summary		List all attributes
+//		@Description	Get all attributes
+//		@Tags			Attribute
+//		@Accept			json
+//		@Produce		json
+//		@Param			page		query		int		false	"Page for pagination"
+//		@Param			limit		query		int		false	"Limit for pagination"	default(20)
+//	 @Param 	  attribute_ids	query		[]string	false	"Attribute IDs"				collectionFormat(csv)
+//		@Param			product_id	query		string false	"Product ID"
+//		@Param			search		query		string	false	"Search term"
+//		@Param			deleted		query		string	false	"Filter by deletion status"	Enums(exclude, only, all)
+//		@Success		200			{object}	application.Pagination[domain.Attribute]
+//		@Failure		500			{object}	Error
+//		@Router			/attributes [get]
 func (h *GinAttributeHandler) List(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
+	pageQuery := ctx.Query("page")
+	page, err := strconv.Atoi(pageQuery)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, NewError(ErrInvalidPage))
+	}
+
+	limitQuery := ctx.Query("limit")
+	limit, err := strconv.Atoi(limitQuery)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, NewError(ErrInvalidLimit))
+	}
+	attributeIDsQuery := ctx.QueryArray("attribute_ids")
+	attributeIDs := make([]uuid.UUID, 0, len(attributeIDsQuery))
+	for _, idStr := range attributeIDsQuery {
+		id, err := uuid.Parse(idStr)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID+":"+idStr))
+			return
+		}
+		attributeIDs = append(attributeIDs, id)
+	}
+	productIDsQuery := ctx.Query("product_id")
+	productID, err := uuid.Parse(productIDsQuery)
+	if err != nil && productIDsQuery != "" {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidProductID))
+		return
+	}
+	search := ctx.Query("search")
+	deleted := ctx.Query("deleted")
+	attributes, err := h.attributeApp.List(ctx, application.ListAttributesParam{
+		PaginationParam: application.PaginationParam{
+			Page:  &page,
+			Limit: &limit,
+		},
+		IDs:       &attributeIDs,
+		Search:    &search,
+		Deleted:   domain.DeletedParam(deleted),
+		ProductID: &productID,
+	})
+	if err != nil {
+		SendError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, attributes)
 }
 
 // ListAttributeValues godoc

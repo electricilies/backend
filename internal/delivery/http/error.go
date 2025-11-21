@@ -8,6 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	ErrInvalidLimit = "invalid limit"
+	ErrInvalidPage  = "invalid offset"
+)
+
 type Error struct {
 	Message string `json:"message"`
 }
