@@ -1,6 +1,6 @@
 template: testify
 filename: "{{ .InterfaceName | lower }}_mock.go"
 packages:
-  backend/internal/repository:
+  backend/internal/domain:
     config:
-      all: true
+      include-interface-regex: "Repository$"
