@@ -73,7 +73,7 @@ func (h *GinAttributeHandler) List(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			page		query		int		false	"Page for pagination"
 //	@Param			limit		query		int		false	"Limit for pagination"	default(20)
-//	@Param			attribute_id	query		string false	"Attribute ID"
+//	@Param			attribute_id	path string false	"Attribute ID"
 //	@Param 			attribute_value_id	query		string false	"Product ID"
 //	@Param			search		query		string	false	"Search term"
 //	@Param			deleted		query		string	false	"Filter by deletion status"	Enums(exclude, only, all)

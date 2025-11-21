@@ -39,7 +39,7 @@ func ProvideProductHandler() *GinProductHandler {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			produdt_id	path		int	true	"Product ID"
+//	@Param			product_id	path		int	true	"Product ID"
 //	@Success		200			{object}	domain.Product
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error

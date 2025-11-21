@@ -95,7 +95,7 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 		attributes := api.Group("/attributes")
 		{
 			attributes.GET("", r.attributeHandler.List)
-			attributes.GET("/values", r.attributeHandler.ListValues)
+			attributes.GET("/:attribute_id/values", r.attributeHandler.ListValues)
 			attributes.POST("", r.attributeHandler.Create)
 			attributes.POST("/:attribute_id/values", r.attributeHandler.CreateValue)
 			attributes.GET("/:attribute_id", r.attributeHandler.Get)
