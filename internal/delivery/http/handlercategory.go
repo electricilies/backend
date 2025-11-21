@@ -11,6 +11,7 @@ import (
 
 type CategoryHandler interface {
 	List(*gin.Context)
+	Get(*gin.Context)
 	Create(*gin.Context)
 	Update(*gin.Context)
 }
@@ -38,6 +39,22 @@ func ProvideCategoryHandler() *GinCategoryHandler {
 func (h *GinCategoryHandler) List(ctx *gin.Context) {
 }
 
+// GetCategory godoc
+//
+//	@Summary		Get category by ID
+//	@Description	Get category details by ID
+//	@Tags			Category
+//	@Accept			json
+//	@Produce		json
+//	@Param			category_id	path		int	true	"Category ID"
+//	@Success		200			{object}	domain.Category
+//	@Failure		404			{object}	Error
+//	@Failure		500			{object}	Error
+//	@Router			/categories/{category_id} [get]
+func (h *GinCategoryHandler) Get(ctx *gin.Context) {
+	ctx.Status(http.StatusNoContent)
+}
+
 // CreateCategory godoc
 //
 //	@Summary		Create a new category
@@ -45,7 +62,7 @@ func (h *GinCategoryHandler) List(ctx *gin.Context) {
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Param			category	body		domain.CreateCategoryData	true	"Category request"
+//	@Param			category	body		application.CreateCategoryData	true	"Category request"
 //	@Success		201			{object}	domain.Category
 //	@Failure		400			{object}	Error
 //	@Failure		409			{object}	Error
@@ -63,7 +80,7 @@ func (h *GinCategoryHandler) Create(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			category_id	path		int							true	"Category ID"
-//	@Param			category	body		domain.UpdateCategoryData	true	"Update category request"
+//	@Param			category	body		application.UpdateCategoryData	true	"Update category request"
 //	@Success		200			{object}	domain.Category
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error

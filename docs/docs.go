@@ -132,6 +132,120 @@ const docTemplate = `{
                 }
             }
         },
+        "/attributes/values": {
+            "get": {
+                "description": "Get all attribute values",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attribute"
+                ],
+                "summary": "List all attribute values",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page for pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Limit for pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attribute ID",
+                        "name": "attribute_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "attribute_value_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "exclude",
+                            "only",
+                            "all"
+                        ],
+                        "type": "string",
+                        "description": "Filter by deletion status",
+                        "name": "deleted",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Pagination-AttributeValue"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/attributes/values/{value_id}": {
+            "delete": {
+                "description": "Delete attribute value by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attribute"
+                ],
+                "summary": "Delete an attribute value",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Attribute Value ID",
+                        "name": "value_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
         "/attributes/{attribute_id}": {
             "get": {
                 "description": "Get attribute details by ID",
@@ -279,7 +393,70 @@ const docTemplate = `{
             }
         },
         "/attributes/{attribute_id}/values": {
-            "put": {
+            "post": {
+                "description": "Create a new attribute value for a given attribute",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attribute"
+                ],
+                "summary": "Create a new attribute value",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Attribute ID",
+                        "name": "attribute_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Attribute value request",
+                        "name": "value",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateAttributeValueData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/AttributeValue"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "patch": {
                 "description": "Update attribute values for a given attribute",
                 "consumes": [
                     "application/json"
@@ -443,6 +620,102 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Remove an item from the cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Remove cart item",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update quantity of a cart item",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Update cart item",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Cart Item ID",
+                        "name": "cart_item_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update cart item request",
+                        "name": "item",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateCartItemData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CartItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
             }
         },
         "/categories": {
@@ -540,6 +813,48 @@ const docTemplate = `{
             }
         },
         "/categories/{category_id}": {
+            "get": {
+                "description": "Get category details by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Get category by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "category_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Category"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "description": "Update category by ID",
                 "consumes": [
@@ -1791,8 +2106,8 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer",
-                    "example": 123
+                    "type": "string",
+                    "example": "123"
                 },
                 "name": {
                     "type": "string",
@@ -1819,8 +2134,8 @@ const docTemplate = `{
                     "$ref": "#/definitions/Attribute"
                 },
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string",
+                    "example": "1"
                 },
                 "value": {
                     "type": "string",
@@ -1833,17 +2148,21 @@ const docTemplate = `{
         "Cart": {
             "type": "object",
             "required": [
-                "id"
+                "id",
+                "userId"
             ],
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "items": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/CartItem"
                     }
+                },
+                "userId": {
+                    "type": "string"
                 }
             }
         },
@@ -1882,7 +2201,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "name": {
                     "type": "string",
@@ -1905,6 +2224,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "CreateAttributeValueData": {
+            "type": "object",
+            "required": [
+                "value"
+            ],
+            "properties": {
+                "value": {
                     "type": "string"
                 }
             }
@@ -1983,7 +2313,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "productVariantId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "quantity": {
                     "type": "integer"
@@ -1993,7 +2323,7 @@ const docTemplate = `{
         "CreateProductData": {
             "type": "object",
             "required": [
-                "category",
+                "categoryId",
                 "description",
                 "images",
                 "name",
@@ -2007,7 +2337,7 @@ const docTemplate = `{
                         "type": "integer"
                     }
                 },
-                "category": {
+                "categoryId": {
                     "type": "integer"
                 },
                 "description": {
@@ -2167,7 +2497,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -2188,7 +2518,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "value": {
                     "type": "string"
@@ -2205,7 +2535,8 @@ const docTemplate = `{
                 "provider",
                 "status",
                 "totalAmount",
-                "updatedAt"
+                "updatedAt",
+                "userId"
             ],
             "properties": {
                 "address": {
@@ -2215,7 +2546,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "isPaid": {
                     "type": "boolean"
@@ -2260,8 +2591,8 @@ const docTemplate = `{
                 "updatedAt": {
                     "type": "string"
                 },
-                "user": {
-                    "$ref": "#/definitions/User"
+                "userId": {
+                    "type": "string"
                 }
             }
         },
@@ -2269,16 +2600,12 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "id",
-                "orderId",
                 "price",
                 "quantity"
             ],
             "properties": {
                 "id": {
-                    "type": "integer"
-                },
-                "orderId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "price": {
                     "type": "integer"
@@ -2334,6 +2661,24 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/Attribute"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/PaginationMeta"
+                }
+            }
+        },
+        "Pagination-AttributeValue": {
+            "type": "object",
+            "required": [
+                "data",
+                "meta"
+            ],
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AttributeValue"
                     }
                 },
                 "meta": {
@@ -2452,7 +2797,7 @@ const docTemplate = `{
                     "minLength": 10
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "images": {
                     "type": "array",
@@ -2517,7 +2862,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "order": {
                     "type": "integer",
@@ -2546,7 +2891,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "images": {
                     "type": "array",
@@ -2583,9 +2928,9 @@ const docTemplate = `{
         "Review": {
             "type": "object",
             "required": [
-                "content",
                 "createdAt",
                 "id",
+                "orderItem",
                 "rating",
                 "updatedAt"
             ],
@@ -2601,7 +2946,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "imageUrl": {
                     "type": "string"
@@ -2616,9 +2961,6 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/User"
                 }
             }
         },
@@ -2695,7 +3037,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -2740,17 +3082,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "User": {
-            "type": "object",
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
                     "type": "string"
                 }
             }

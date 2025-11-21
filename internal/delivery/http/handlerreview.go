@@ -65,7 +65,7 @@ func (h *GinReviewHandler) ListReviewsByProducts(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			review	body		domain.CreateReviewData	true	"Review request"
+//	@Param			review	body		application.CreateReviewData	true	"Review request"
 //	@Success		201		{object}	domain.Review
 //	@Failure		400		{object}	Error
 //	@Failure		409		{object}	Error
@@ -83,7 +83,7 @@ func (h *GinReviewHandler) Create(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			review_id	path		int						true	"Review ID"
-//	@Param			review		body		domain.UpdateReviewData	true	"Update review request"
+//	@Param			review		body		application.UpdateReviewData	true	"Update review request"
 //	@Success		204			{object}	domain.Review
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error

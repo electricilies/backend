@@ -71,6 +71,7 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 		categories := api.Group("/categories")
 		{
 			categories.GET("", r.categoryHandler.List)
+			categories.GET("/:category_id", r.categoryHandler.Get)
 			categories.POST("", r.categoryHandler.Create)
 			categories.PATCH("/:category_id", r.categoryHandler.Update)
 		}
@@ -94,11 +95,14 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 		attributes := api.Group("/attributes")
 		{
 			attributes.GET("", r.attributeHandler.List)
+			attributes.GET("/values", r.attributeHandler.ListValues)
 			attributes.POST("", r.attributeHandler.Create)
+			attributes.POST("/:attribute_id/values", r.attributeHandler.CreateValue)
 			attributes.GET("/:attribute_id", r.attributeHandler.Get)
 			attributes.PATCH("/:attribute_id", r.attributeHandler.Update)
 			attributes.DELETE("/:id", r.attributeHandler.Delete)
-			attributes.PUT("/:attribute_id/values", r.attributeHandler.UpdateValue)
+			attributes.DELETE("/values/:value_id", r.attributeHandler.DeleteValue)
+			attributes.PATCH("/:attribute_id/values", r.attributeHandler.UpdateValue)
 		}
 
 		orders := api.Group("/orders")

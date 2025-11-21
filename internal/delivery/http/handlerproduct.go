@@ -76,7 +76,7 @@ func (h *GinProductHandler) List(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product	body		domain.CreateProductData	true	"Product request"
+//	@Param			product	body		application.CreateProductData	true	"Product request"
 //	@Success		201		{object}	domain.Product
 //	@Failure		400		{object}	Error
 //	@Failure		409		{object}	Error
@@ -94,7 +94,7 @@ func (h *GinProductHandler) Create(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			product_id	path		int							true	"Product ID"
-//	@Param			product		body		domain.UpdateProductData	true	"Update product request"
+//	@Param			product		body		application.UpdateProductData	true	"Update product request"
 //	@Success		200			{object}	domain.Product
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
@@ -128,7 +128,7 @@ func (h *GinProductHandler) Delete(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			productImages	body		[]domain.CreateProductImageData	true	"Product images request"
+//	@Param			productImages	body		[]application.CreateProductImageData	true	"Product images request"
 //	@Success		201				{array}		domain.ProductImage
 //	@Failure		400				{object}	Error
 //	@Failure		409				{object}	Error
@@ -162,7 +162,7 @@ func (h *GinProductHandler) DeleteImages(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			product_id		path		int									true	"Product ID"``
-//	@Param			productVariant	body		[]domain.CreateProductVariantData	true	"Product variant request"
+//	@Param			productVariant	body		[]application.CreateProductVariantData	true	"Product variant request"
 //	@Success		201				{object}	domain.ProductVariant
 //	@Failure		400				{object}	Error
 //	@Failure		409				{object}	Error
@@ -180,7 +180,7 @@ func (h *GinProductHandler) AddVariants(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			variant_id		path		int								true	"Product Variant ID"
-//	@Param			productVariant	body		domain.UpdateProductVariantData	true	"Update product variant request"
+//	@Param			productVariant	body		application.UpdateProductVariantData	true	"Update product variant request"
 //	@Success		200				{object}	[]domain.ProductVariant
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
@@ -200,7 +200,7 @@ func (h *GinProductHandler) UpdateVariant(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			product_id	path		int									true	"Product ID"
 //	@Param			option_id	path		int									true	"Product Option ID"
-//	@Param			option		body		[]domain.UpdateProductOptionsData	true	"Update product option request"
+//	@Param			option		body		[]application.UpdateProductOptionsData	true	"Update product option request"
 //	@Success		200			{object}	domain.Option
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
