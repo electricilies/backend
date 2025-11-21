@@ -10,7 +10,7 @@ import (
 	"backend/internal/client"
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
-	"backend/internal/serviceimpl"
+	"backend/internal/service"
 	"backend/pkg/logger"
 
 	"github.com/google/wire"

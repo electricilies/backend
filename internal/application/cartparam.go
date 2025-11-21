@@ -1,4 +1,4 @@
-package domain
+package application
 
 type GetCartParam struct {
 	CartID int `binding:"required"`
