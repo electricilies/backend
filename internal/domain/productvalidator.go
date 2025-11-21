@@ -1,6 +1,9 @@
 package domain
 
-import "github.com/go-playground/validator/v10"
+import (
+	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
+)
 
 // LICENSE to Claude sonet 4.5 hehehe
 func ProductVariantStructLevel(sl validator.StructLevel) {
@@ -26,13 +29,13 @@ func ProductVariantStructLevel(sl validator.StructLevel) {
 	}
 
 	// Validate: each option value must belong to a different option
-	optionIDsSeen := make(map[int]bool)
+	optionIDsSeen := make(map[uuid.UUID]bool)
 
 	for _, optionValue := range optionValues {
 		// Find which option this option value belongs to
 		optionID := findOptionIDForValue(productOptions, optionValue.ID)
 
-		if optionID == 0 {
+		if optionID == uuid.Nil {
 			sl.ReportError(variant.OptionValues, "OptionValues", "OptionValues", "invalidoptionvalue", "")
 			return
 		}
@@ -48,7 +51,7 @@ func ProductVariantStructLevel(sl validator.StructLevel) {
 }
 
 // findOptionIDForValue finds which option contains the given option value ID
-func findOptionIDForValue(options []Option, optionValueID int) int {
+func findOptionIDForValue(options []Option, optionValueID uuid.UUID) uuid.UUID {
 	for _, option := range options {
 		if option.Values == nil {
 			continue
@@ -60,5 +63,5 @@ func findOptionIDForValue(options []Option, optionValueID int) int {
 			}
 		}
 	}
-	return 0
+	return uuid.Nil
 }

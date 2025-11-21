@@ -36,30 +36,30 @@ var EngineSet = wire.NewSet(
 )
 
 var ServiceSet = wire.NewSet(
-	serviceimpl.ProvideAttribute,
+	service.ProvideAttribute,
 	wire.Bind(
 		new(domain.AttributeService),
-		new(*serviceimpl.Attribute),
+		new(*service.Attribute),
 	),
-	serviceimpl.ProvideCategory,
+	service.ProvideCategory,
 	wire.Bind(
 		new(domain.CategoryService),
-		new(*serviceimpl.Category),
+		new(*service.Category),
 	),
-	serviceimpl.ProvideProduct,
+	service.ProvideProduct,
 	wire.Bind(
 		new(domain.ProductService),
-		new(*serviceimpl.Product),
+		new(*service.Product),
 	),
-	serviceimpl.ProvideReview,
+	service.ProvideReview,
 	wire.Bind(
 		new(domain.ReviewService),
-		new(*serviceimpl.Review),
+		new(*service.Review),
 	),
-	serviceimpl.ProvideCart,
+	service.ProvideCart,
 	wire.Bind(
 		new(domain.CartService),
-		new(*serviceimpl.Cart),
+		new(*service.Cart),
 	),
 )
 

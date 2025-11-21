@@ -11,7 +11,7 @@ import (
 	"backend/internal/client"
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
-	"backend/internal/serviceimpl"
+	"backend/internal/service"
 	"backend/pkg/logger"
 	"context"
 	"github.com/google/wire"
@@ -54,21 +54,21 @@ var DbSet = wire.NewSet(client.NewDBConnection, client.NewDBQueries, client.NewD
 
 var EngineSet = wire.NewSet(client.NewGin)
 
-var ServiceSet = wire.NewSet(serviceimpl.ProvideAttribute, wire.Bind(
+var ServiceSet = wire.NewSet(service.ProvideAttribute, wire.Bind(
 	new(domain.AttributeService),
-	new(*serviceimpl.Attribute),
-), serviceimpl.ProvideCategory, wire.Bind(
+	new(*service.Attribute),
+), service.ProvideCategory, wire.Bind(
 	new(domain.CategoryService),
-	new(*serviceimpl.Category),
-), serviceimpl.ProvideProduct, wire.Bind(
+	new(*service.Category),
+), service.ProvideProduct, wire.Bind(
 	new(domain.ProductService),
-	new(*serviceimpl.Product),
-), serviceimpl.ProvideReview, wire.Bind(
+	new(*service.Product),
+), service.ProvideReview, wire.Bind(
 	new(domain.ReviewService),
-	new(*serviceimpl.Review),
-), serviceimpl.ProvideCart, wire.Bind(
+	new(*service.Review),
+), service.ProvideCart, wire.Bind(
 	new(domain.CartService),
-	new(*serviceimpl.Cart),
+	new(*service.Cart),
 ),
 )
 
