@@ -6,6 +6,11 @@ type AttributeService interface {
 		name string,
 	) (*Attribute, error)
 
+	Update(
+		attribute *Attribute,
+		name *string,
+	) error
+
 	CreateValue(
 		value string,
 	) (*AttributeValue, error)

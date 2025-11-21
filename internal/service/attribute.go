@@ -41,6 +41,19 @@ func (a *Attribute) Create(
 	return attribute, nil
 }
 
+func (a *Attribute) Update(
+	attribute *domain.Attribute,
+	name *string,
+) error {
+	if name != nil {
+		attribute.Name = *name
+	}
+	if err := a.validate.Struct(attribute); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
 func (a *Attribute) CreateValue(
 	value string,
 ) (*domain.AttributeValue, error) {

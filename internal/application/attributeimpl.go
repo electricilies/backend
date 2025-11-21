@@ -89,6 +89,18 @@ func (a *AttributeImpl) Update(ctx context.Context, param UpdateAttributeParam) 
 	if err != nil {
 		return nil, err
 	}
+	err = a.attributeService.Update(
+		attribute,
+		param.Data.Name,
+	)
+	if err != nil {
+		return nil, err
+	}
+	err = a.attributeRepo.Save(ctx, attribute)
+	if err != nil {
+		return nil, err
+	}
+	return attribute, nil
 }
 
 func (a *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeValueParam) (*domain.AttributeValue, error) {
@@ -96,9 +108,13 @@ func (a *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeVa
 }
 
 func (a *AttributeImpl) Delete(ctx context.Context, param DeleteAttributeParam) error {
-	panic("implement me")
+	return a.attributeRepo.Remove(ctx, param.AttributeID)
 }
 
 func (a *AttributeImpl) DeleteValue(ctx context.Context, param DeleteAttributeValueParam) error {
+	// attribute , err := a.attributeRepo.Get(ctx, param.AttributeID)
+	// if err != nil {
+	// 	return err
+	// }
 	panic("implement me")
 }
