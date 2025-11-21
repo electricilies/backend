@@ -125,15 +125,16 @@ func (h *GinProductHandler) Delete(ctx *gin.Context) {
 //
 //	@Summary		Add product images
 //	@Description	Create new images for an existing product
-//	@Tags			Product
-//	@Accept			json
+//	@Tags		Product
+//	@Accept		json
 //	@Produce		json
-//	@Param			productImages	body		[]application.CreateProductImageData	true	"Product images request"
-//	@Success		201				{array}		domain.ProductImage
-//	@Failure		400				{object}	Error
-//	@Failure		409				{object}	Error
-//	@Failure		500				{object}	Error
-//	@Router			/products/images/bulk [post]
+//	@Param		product_id	path	int	true	"Product ID"
+//	@Param		productImages	body		[]application.CreateProductImageData	true	"Product images request"
+//	@Success		201			{array}		domain.ProductImage
+//	@Failure		400			{object} Error
+//	@Failure		409			{object} Error
+//	@Failure		500			{object} Error
+//	@Router		/products/{product_id}/images [post]
 func (h *GinProductHandler) AddImages(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -142,14 +143,15 @@ func (h *GinProductHandler) AddImages(ctx *gin.Context) {
 //
 //	@Summary		Delete product images
 //	@Description	Delete images for an existing product
-//	@Tags			Product
-//	@Accept			json
+//	@Tags		Product
+//	@Accept		json
 //	@Produce		json
-//	@Param			ids	query	[]int	true	"Product Image IDs"
+//	@Param		product_id	path	int	true	"Product ID"
+//	@Param		ids	query	[]int	true	"Product Image IDs"
 //	@Success		204
-//	@Failure		400	{object}	Error
-//	@Failure		500	{object}	Error
-//	@Router			/products/images [delete]
+//	@Failure		400	{object} Error
+//	@Failure		500	{object} Error
+//	@Router		/products/{product_id}/images [delete]
 func (h *GinProductHandler) DeleteImages(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -158,16 +160,16 @@ func (h *GinProductHandler) DeleteImages(ctx *gin.Context) {
 //
 //	@Summary		Add a new product variant
 //	@Description	Add a new variant for a existing product
-//	@Tags			Product
-//	@Accept			json
+//	@Tags		Product
+//	@Accept		json
 //	@Produce		json
-//	@Param			product_id		path		int									true	"Product ID"``
-//	@Param			productVariant	body		[]application.CreateProductVariantData	true	"Product variant request"
-//	@Success		201				{object}	domain.ProductVariant
-//	@Failure		400				{object}	Error
-//	@Failure		409				{object}	Error
-//	@Failure		500				{object}	Error
-//	@Router			/products/{product_id}/variants/bulk [post]
+//	@Param		product_id	path	int	true	"Product ID"
+//	@Param		productVariant	body	[]application.CreateProductVariantData	true	"Product variant request"
+//	@Success		201			{object}	domain.ProductVariant
+//	@Failure		400			{object} Error
+//	@Failure		409			{object} Error
+//	@Failure		500			{object} Error
+//	@Router		/products/{product_id}/variants [post]
 func (h *GinProductHandler) AddVariants(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -176,17 +178,18 @@ func (h *GinProductHandler) AddVariants(ctx *gin.Context) {
 //
 //	@Summary		Update a product variant
 //	@Description	Update a product variant by ID
-//	@Tags			Product
-//	@Accept			json
+//	@Tags		Product
+//	@Accept		json
 //	@Produce		json
-//	@Param			variant_id		path		int								true	"Product Variant ID"
-//	@Param			productVariant	body		application.UpdateProductVariantData	true	"Update product variant request"
-//	@Success		200				{object}	[]domain.ProductVariant
-//	@Failure		400				{object}	Error
-//	@Failure		404				{object}	Error
-//	@Failure		409				{object}	Error
-//	@Failure		500				{object}	Error
-//	@Router			/products/variants/{variant_id} [patch]
+//	@Param		product_id	path	int	true	"Product ID"
+//	@Param		variant_id	path	int	true	"Product Variant ID"
+//	@Param		productVariant	body	application.UpdateProductVariantData	true	"Update product variant request"
+//	@Success		200			{object}	[]domain.ProductVariant
+//	@Failure		400			{object} Error
+//	@Failure		404			{object} Error
+//	@Failure		409			{object} Error
+//	@Failure		500			{object} Error
+//	@Router		/products/{product_id}/variants/{variant_id} [patch]
 func (h *GinProductHandler) UpdateVariant(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -195,18 +198,17 @@ func (h *GinProductHandler) UpdateVariant(ctx *gin.Context) {
 //
 //	@Summary		Update options
 //	@Description	Update a product options
-//	@Tags			Product
-//	@Accept			json
+//	@Tags		Product
+//	@Accept		json
 //	@Produce		json
-//	@Param			product_id	path		int									true	"Product ID"
-//	@Param			option_id	path		int									true	"Product Option ID"
-//	@Param			option		body		[]application.UpdateProductOptionsData	true	"Update product option request"
+//	@Param		product_id	path	int	true	"Product ID"
+//	@Param		option	body	[]application.UpdateProductOptionsData	true	"Update product option request"
 //	@Success		200			{object}	domain.Option
-//	@Failure		400			{object}	Error
-//	@Failure		404			{object}	Error
-//	@Failure		409			{object}	Error
-//	@Failure		500			{object}	Error
-//	@Router			/products/options/bulk  [put]
+//	@Failure		400			{object} Error
+//	@Failure		404			{object} Error
+//	@Failure		409			{object} Error
+//	@Failure		500			{object} Error
+//	@Router		/products/{product_id}/options [put]
 func (h *GinProductHandler) UpdateOptions(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -220,7 +222,6 @@ func (h *GinProductHandler) UpdateOptions(ctx *gin.Context) {
 //	@Success		200	{object}	application.UploadImageURL
 //	@Failure		500	{object}	Error
 //	@Router			/products/images/upload-url [get]
-//
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *GinProductHandler) GetUploadImageURL(ctx *gin.Context) {
@@ -230,15 +231,12 @@ func (h *GinProductHandler) GetUploadImageURL(ctx *gin.Context) {
 //
 //	@Summary		Get presigned URL for image deletion
 //	@Description	Get a presigned URL to delete product images
-//	@Tags			Product
+//	@Tags		Product
 //	@Produce		json
-//
-//	@Param			image_id	query		int	true	"Product Image ID"
-//
+//	@Param		image_id	path	int	true	"Product Image ID"
 //	@Success		204			{object}	application.DeleteImageURL
-//	@Failure		500			{object}	Error
-//	@Router			/products/images/delete-url [get]
-//
+//	@Failure		500			{object} Error
+//	@Router		/products/images/delete-url/{image_id} [get]
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *GinProductHandler) GetDeleteImageURL(ctx *gin.Context) {

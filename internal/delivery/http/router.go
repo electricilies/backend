@@ -82,14 +82,14 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 			products.GET("", r.productHandler.List)
 			products.GET("/:product_id", r.productHandler.Get)
 			products.DELETE("/:product_id", r.productHandler.Delete)
-			products.POST("/images/bulk", r.productHandler.AddImages)
-			products.DELETE("images", r.productHandler.DeleteImages)
+			products.POST("/:product_id/images", r.productHandler.AddImages)
+			products.DELETE("/:product_id/images", r.productHandler.DeleteImages)
 			products.PATCH("/:product_id", r.productHandler.Update)
 			products.GET("/images/upload-url", r.productHandler.GetUploadImageURL)
 			products.GET("/images/delete-url/:image_id", r.productHandler.GetDeleteImageURL)
 			products.POST("/:product_id/variants", r.productHandler.AddVariants)
-			products.PATCH("/variants/:variant_id", r.productHandler.UpdateVariant)
-			products.PUT("/options/bulk", r.productHandler.UpdateOptions)
+			products.PATCH("/:product_id/variants/:variant_id", r.productHandler.UpdateVariant)
+			products.PUT("/:product_id/options", r.productHandler.UpdateOptions)
 		}
 
 		attributes := api.Group("/attributes")
