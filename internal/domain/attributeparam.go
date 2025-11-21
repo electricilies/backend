@@ -1,7 +1,9 @@
 package domain
 
+import "github.com/google/uuid"
+
 type GetAttributeParam struct {
-	AttributeID int `json:"attributeId" binding:"required"`
+	AttributeID uuid.UUID `json:"attributeId" binding:"required"`
 }
 
 type CreateAttributeParam struct {
@@ -14,7 +16,7 @@ type CreateAttributeData struct {
 }
 
 type UpdateAttributeParam struct {
-	AttributeID int                 `binding:"required"`
+	AttributeID uuid.UUID           `binding:"required"`
 	Data        UpdateAttributeData `binding:"required"`
 }
 
@@ -23,11 +25,11 @@ type UpdateAttributeData struct {
 }
 
 type DeleteAttributeParam struct {
-	AttributeID int `json:"attributeId" binding:"required"`
+	AttributeID uuid.UUID `json:"attributeId" binding:"required"`
 }
 
 type CreateAttributeValueParam struct {
-	AttributeID int                      `binding:"required"`
+	AttributeID uuid.UUID                `binding:"required"`
 	Data        CreateAttributeValueData `binding:"required"`
 }
 
@@ -36,7 +38,7 @@ type CreateAttributeValueData struct {
 }
 
 type UpdateAttributeValueParam struct {
-	AttributeValueID int                        `binding:"required"`
+	AttributeValueID uuid.UUID                  `binding:"required"`
 	Data             []UpdateAttributeValueData `binding:"required,dive"`
 }
 
@@ -45,5 +47,5 @@ type UpdateAttributeValueData struct {
 }
 
 type DeleteAttributeValueParam struct {
-	AttributeValueID int `json:"attributeValueId" binding:"required"`
+	AttributeValueID uuid.UUID `json:"attributeValueId" binding:"required"`
 }

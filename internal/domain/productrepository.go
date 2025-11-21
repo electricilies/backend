@@ -1,12 +1,10 @@
-package repository
+package domain
 
 import (
-	"backend/internal/domain"
-
 	"github.com/jackc/pgx/v5"
 )
 
-type Product interface {
+type ProductRepository interface {
 	List(
 		tx pgx.Tx,
 		ids *[]int,
@@ -20,7 +18,7 @@ type Product interface {
 		sort_price *string,
 		limit int,
 		offset int,
-	) (*[]domain.Product, error)
+	) (*[]Product, error)
 
 	Count(
 		tx pgx.Tx,
@@ -42,7 +40,7 @@ type Product interface {
 		description string,
 		attributeValueIDs []int,
 		categoryID int,
-	) (*domain.Product, error)
+	) (*Product, error)
 
 	CreateOptions(
 		tx pgx.Tx,
@@ -51,7 +49,7 @@ type Product interface {
 			name   string
 			values []string
 		},
-	) (*[]domain.Option, error)
+	) (*[]Option, error)
 
 	CreateOptionValues(
 		tx pgx.Tx,
@@ -59,7 +57,7 @@ type Product interface {
 		values []struct {
 			value string
 		},
-	) (*[]domain.OptionValue, error)
+	) (*[]OptionValue, error)
 
 	CreateVariants(
 		tx pgx.Tx,
@@ -70,7 +68,7 @@ type Product interface {
 			quantity       int
 			optionValueIDs []int
 		},
-	) (*[]domain.ProductVariant, error)
+	) (*[]ProductVariant, error)
 
 	CreateImages(
 		tx pgx.Tx,
@@ -79,7 +77,7 @@ type Product interface {
 			url   string
 			order int
 		},
-	) (*[]domain.ProductImage, error)
+	) (*[]ProductImage, error)
 
 	CreateVariantImages(
 		tx pgx.Tx,
@@ -88,12 +86,12 @@ type Product interface {
 			url   string
 			order int
 		},
-	) (*[]domain.ProductImage, error)
+	) (*[]ProductImage, error)
 
 	Get(
 		tx pgx.Tx,
 		productID int,
-	) (*domain.Product, error)
+	) (*Product, error)
 
 	Update(
 		tx pgx.Tx,
@@ -101,7 +99,7 @@ type Product interface {
 		name *string,
 		description *string,
 		categoryID *int,
-	) (*domain.Product, error)
+	) (*Product, error)
 
 	Delete(
 		tx pgx.Tx,
@@ -113,7 +111,7 @@ type Product interface {
 		variantID int,
 		price *int64,
 		quantity *int,
-	) (*domain.ProductVariant, error)
+	) (*ProductVariant, error)
 
 	UpdateOptions(
 		tx pgx.Tx,

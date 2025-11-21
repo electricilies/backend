@@ -1,16 +1,14 @@
-package repository
+package domain
 
 import (
-	"backend/internal/domain"
-
 	"github.com/jackc/pgx/v5"
 )
 
-type Review interface {
+type ReviewRepository interface {
 	Get(
 		tx pgx.Tx,
 		id int,
-	) (*domain.Review, error)
+	) (*Review, error)
 
 	List(
 		tx pgx.Tx,
@@ -20,7 +18,7 @@ type Review interface {
 		deleted string,
 		limit int,
 		offset int,
-	) (*[]domain.Review, error)
+	) (*[]Review, error)
 
 	Count(
 		tx pgx.Tx,
@@ -39,7 +37,7 @@ type Review interface {
 		rating int,
 		content string,
 		imageURL string,
-	) (*domain.Review, error)
+	) (*Review, error)
 
 	Update(
 		tx pgx.Tx,
@@ -47,7 +45,7 @@ type Review interface {
 		rating *int,
 		content *string,
 		imageURL *string,
-	) (*domain.Review, error)
+	) (*Review, error)
 
 	Delete(
 		tx pgx.Tx,

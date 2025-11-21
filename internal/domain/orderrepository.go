@@ -1,12 +1,10 @@
-package repository
+package domain
 
 import (
-	"backend/internal/domain"
-
 	"github.com/jackc/pgx/v5"
 )
 
-type Order interface {
+type OrderRepository interface {
 	Count(
 		tx pgx.Tx,
 		ids *[]int,
@@ -18,7 +16,7 @@ type Order interface {
 	Get(
 		tx pgx.Tx,
 		id int,
-	) (*domain.Order, error)
+	) (*Order, error)
 
 	List(
 		tx pgx.Tx,
@@ -27,15 +25,15 @@ type Order interface {
 		deleted string,
 		limit int,
 		offset int,
-	) (*[]domain.Order, error)
+	) (*[]Order, error)
 
 	Create(
 		tx pgx.Tx,
 		userID int,
 		address string,
-		provider domain.OrderProvider,
+		provider OrderProvider,
 		totalAmount int64,
-	) (*domain.Order, error)
+	) (*Order, error)
 
 	CreateItems(
 		tx pgx.Tx,
@@ -45,14 +43,14 @@ type Order interface {
 			quantities        int
 			prices            int64
 		},
-	) (*[]domain.OrderItem, error)
+	) (*[]OrderItem, error)
 
 	Update(
 		tx pgx.Tx,
 		id int,
-		status *domain.OrderStatus,
+		status *OrderStatus,
 		address *string,
-	) (*domain.Order, error)
+	) (*Order, error)
 
 	Delete(
 		tx pgx.Tx,

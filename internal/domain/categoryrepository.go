@@ -1,18 +1,16 @@
-package repository
+package domain
 
 import (
-	"backend/internal/domain"
-
 	"github.com/jackc/pgx/v5"
 )
 
-type Category interface {
+type CategoryRepository interface {
 	List(
 		tx pgx.Tx,
 		search *string,
 		limit int,
 		offset int,
-	) (*[]domain.Category, error)
+	) (*[]Category, error)
 
 	Count(
 		tx pgx.Tx,
@@ -23,18 +21,18 @@ type Category interface {
 	Get(
 		tx pgx.Tx,
 		id int,
-	) (*domain.Category, error)
+	) (*Category, error)
 
 	Create(
 		tx pgx.Tx,
 		name string,
-	) (*domain.Category, error)
+	) (*Category, error)
 
 	Update(
 		tx pgx.Tx,
 		id int,
 		name *string,
-	) (*domain.Category, error)
+	) (*Category, error)
 
 	Delete(
 		tx pgx.Tx,

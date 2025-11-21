@@ -1,5 +1,7 @@
 package domain
 
+import "github.com/google/uuid"
+
 type CreateOrderParam struct {
 	UserID string          `binding:"required"`
 	Data   CreateOrderData `binding:"required"`
@@ -13,13 +15,13 @@ type CreateOrderData struct {
 }
 
 type CreateOrderItemData struct {
-	ProductVariantID int   `json:"productVariantId" binding:"required"`
-	Quantity         int   `json:"quantity"         binding:"required"`
-	Price            int64 `json:"price"            binding:"required"`
+	ProductVariantID uuid.UUID `json:"productVariantId" binding:"required"`
+	Quantity         int       `json:"quantity"         binding:"required"`
+	Price            int64     `json:"price"            binding:"required"`
 }
 
 type UpdateOrderParam struct {
-	OrderID int             `binding:"required"`
+	OrderID uuid.UUID       `binding:"required"`
 	Data    UpdateOrderData `binding:"required"`
 }
 
@@ -29,9 +31,9 @@ type UpdateOrderData struct {
 }
 
 type GetOrderParam struct {
-	OrderID int `binding:"required"`
+	OrderID uuid.UUID `binding:"required"`
 }
 
 type DeleteOrderParam struct {
-	OrderID int `binding:"required"`
+	OrderID uuid.UUID `binding:"required"`
 }

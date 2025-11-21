@@ -1,5 +1,7 @@
 package domain
 
+import "github.com/google/uuid"
+
 type CreateCategoryParam struct {
 	Data CreateCategoryData `binding:"required"`
 }
@@ -9,11 +11,11 @@ type CreateCategoryData struct {
 }
 
 type GetCategoryParam struct {
-	CategoryID int `binding:"required"`
+	CategoryID uuid.UUID `binding:"required"`
 }
 
 type UpdateCategoryParam struct {
-	CategoryID int                `binding:"required"`
+	CategoryID uuid.UUID          `binding:"required"`
 	Data       UpdateCategoryData `binding:"required"`
 }
 

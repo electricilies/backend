@@ -2,10 +2,12 @@ package domain
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Product struct {
-	ID            int               `json:"id"            binding:"required"                      validate:"required"`
+	ID            uuid.UUID         `json:"id"            binding:"required"                      validate:"required"`
 	Name          string            `json:"name"          binding:"required"                      validate:"required,gte=3,lte=200"`
 	Description   string            `json:"description"   binding:"required"                      validate:"required,gte=10"`
 	ViewsCount    int               `json:"viewsCount"    binding:"required"                      validate:"required,gte=0"`
@@ -24,18 +26,18 @@ type Product struct {
 }
 
 type Option struct {
-	ID     int            `json:"id"     binding:"required"           validate:"required"`
+	ID     uuid.UUID      `json:"id"     binding:"required"           validate:"required"`
 	Name   string         `json:"name"   binding:"required"           validate:"required"`
 	Values *[]OptionValue `json:"values" validate:"omitnil,gt=0,dive"`
 }
 
 type OptionValue struct {
-	ID    int    `json:"id"    binding:"required" validate:"required"`
-	Value string `json:"value" binding:"required" validate:"required"`
+	ID    uuid.UUID `json:"id"    binding:"required" validate:"required"`
+	Value string    `json:"value" binding:"required" validate:"required"`
 }
 
 type ProductVariant struct {
-	ID            int             `json:"id"            binding:"required"                      validate:"required"`
+	ID            uuid.UUID       `json:"id"            binding:"required"                      validate:"required"`
 	SKU           string          `json:"sku"           binding:"required"                      validate:"required"`
 	Price         int64           `json:"price"         binding:"required"                      validate:"required,gt=0"`
 	Quantity      int             `json:"quantity"      binding:"required"                      validate:"required,gte=0"`
@@ -48,7 +50,7 @@ type ProductVariant struct {
 }
 
 type ProductImage struct {
-	ID        int       `json:"id"        binding:"required" validate:"required"`
+	ID        uuid.UUID `json:"id"        binding:"required" validate:"required"`
 	URL       string    `json:"url"       binding:"required" validate:"required,url"`
 	Order     int       `json:"order"     binding:"required" validate:"required,gte=0"`
 	CreatedAt time.Time `json:"createdAt" binding:"required" validate:"required"`

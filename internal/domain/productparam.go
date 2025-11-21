@@ -1,5 +1,7 @@
 package domain
 
+import "github.com/google/uuid"
+
 type CreateProductParam struct {
 	Data CreateProductData `binding:"required"`
 }
@@ -39,7 +41,7 @@ type CreateProductVariantOptionValue struct {
 type CreateProductVariantImage CreateProductImageData
 
 type UpdateProductParam struct {
-	ProductID int               `json:"productId" binding:"required"`
+	ProductID uuid.UUID         `json:"productId" binding:"required"`
 	Data      UpdateProductData `json:"data"      binding:"required"`
 }
 
@@ -50,11 +52,11 @@ type UpdateProductData struct {
 }
 
 type GetProductParam struct {
-	ProductID int `binding:"required"`
+	ProductID uuid.UUID `binding:"required"`
 }
 
 type DeleteProductParam struct {
-	ProductID int `binding:"required"`
+	ProductID uuid.UUID `binding:"required"`
 }
 
 type AddProductImagesParam struct {
@@ -62,10 +64,10 @@ type AddProductImagesParam struct {
 }
 
 type AddProductImageData struct {
-	URL              string `json:"url"                        binding:"required"`
-	Order            int    `json:"order,omitempty"`
-	ProductID        int    `json:"productId,omitempty"`
-	ProductVariantID *int   `json:"productVariantId,omitempty"`
+	URL              string    `json:"url"                        binding:"required"`
+	Order            int       `json:"order,omitempty"`
+	ProductID        uuid.UUID `json:"productId,omitempty"`
+	ProductVariantID *int      `json:"productVariantId,omitempty"`
 }
 
 type DeleteProductImagesParam struct {
@@ -73,7 +75,7 @@ type DeleteProductImagesParam struct {
 }
 
 type AddProductVariantsParam struct {
-	ProductID int                      `json:"productId" binding:"required"`
+	ProductID uuid.UUID                `json:"productId" binding:"required"`
 	Data      []AddProductVariantsData `json:"data"      binding:"required,dive"`
 }
 
@@ -85,7 +87,7 @@ type AddProductVariantsData struct {
 }
 
 type UpdateProductVariantParam struct {
-	ID   int                      `json:"id"   binding:"required"`
+	ID   uuid.UUID                `json:"id"   binding:"required"`
 	Data UpdateProductVariantData `json:"data" binding:"required"`
 }
 
@@ -99,8 +101,8 @@ type UpdateProductOptionsParam struct {
 }
 
 type UpdateProductOptionsData struct {
-	ID   int     `json:"id"             binding:"required"`
-	Name *string `json:"name,omitempty"`
+	ID   uuid.UUID `json:"id"             binding:"required"`
+	Name *string   `json:"name,omitempty"`
 }
 
 type UpdateProductOptionValuesParam struct {
@@ -108,6 +110,6 @@ type UpdateProductOptionValuesParam struct {
 }
 
 type UpdateProductOptionValuesData struct {
-	ID    int     `json:"id"              binding:"required"`
-	Value *string `json:"value,omitempty"`
+	ID    uuid.UUID `json:"id"              binding:"required"`
+	Value *string   `json:"value,omitempty"`
 }

@@ -1,8 +1,10 @@
 package domain
 
+import "github.com/google/uuid"
+
 type CreateReviewParam struct {
-	OrderItemID int              `binding:"required"`
-	UserID      int              `binding:"required"`
+	OrderItemID uuid.UUID        `binding:"required"`
+	UserID      uuid.UUID        `binding:"required"`
 	Data        CreateReviewData `binding:"required"`
 }
 
@@ -13,7 +15,7 @@ type CreateReviewData struct {
 }
 
 type UpdateReviewParam struct {
-	ReviewID int              `binding:"required"`
+	ReviewID uuid.UUID        `binding:"required"`
 	Data     UpdateReviewData `binding:"required"`
 }
 
@@ -24,9 +26,9 @@ type UpdateReviewData struct {
 }
 
 type GetReviewParam struct {
-	ReviewID int `binding:"required"`
+	ReviewID uuid.UUID `binding:"required"`
 }
 
 type DeleteReviewParam struct {
-	ReviewID int `binding:"required"`
+	ReviewID uuid.UUID `binding:"required"`
 }

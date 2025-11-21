@@ -1,6 +1,10 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type OrderProvider string
 
@@ -22,8 +26,7 @@ const (
 )
 
 type Order struct {
-	ID          int           `json:"id"          binding:"required" validate:"required"`
-	User        *User         `json:"user"`
+	ID          uuid.UUID     `json:"id"          binding:"required" validate:"required"`
 	Address     string        `json:"address"     binding:"required" validate:"required"`
 	Provider    OrderProvider `json:"provider"    binding:"required" validate:"required,oneof=COD VNPAY MOMO ZALOPAY"`
 	Status      OrderStatus   `json:"status"      binding:"required" validate:"required,oneof=Pending Processing Shipped Delivered Cancelled"`
@@ -35,8 +38,8 @@ type Order struct {
 }
 
 type OrderItem struct {
-	ID             int             `json:"id"             binding:"required" validate:"required"`
-	OrderID        int             `json:"orderId"        binding:"required" validate:"required"`
+	ID             uuid.UUID       `json:"id"             binding:"required" validate:"required"`
+	OrderID        uuid.UUID       `json:"orderId"        binding:"required" validate:"required"`
 	ProductVariant *ProductVariant `json:"productVariant" binding:"omitnil"`
 	Quantity       int             `json:"quantity"       binding:"required" validate:"required,gt=0"`
 	Price          int64           `json:"price"          binding:"required" validate:"required,gt=0"`

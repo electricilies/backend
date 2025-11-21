@@ -1,12 +1,10 @@
-package repository
+package domain
 
 import (
-	"backend/internal/domain"
-
 	"github.com/jackc/pgx/v5"
 )
 
-type Attribute interface {
+type AttributeRepository interface {
 	Count(
 		tx pgx.Tx,
 		ids *[]int,
@@ -22,37 +20,37 @@ type Attribute interface {
 		deleted string,
 		limit int,
 		offset int,
-	) (*[]domain.Attribute, error)
+	) (*[]Attribute, error)
 
 	Create(
 		tx pgx.Tx,
 		code string,
 		name string,
-	) (*domain.Attribute, error)
+	) (*Attribute, error)
 
 	Get(
 		tx pgx.Tx,
 		id int,
-	) (*domain.Attribute, error)
+	) (*Attribute, error)
 
 	Update(
 		tx pgx.Tx,
 		id int,
 		code *string,
 		name *string,
-	) (*domain.Attribute, error)
+	) (*Attribute, error)
 
 	CreateValues(
 		tx pgx.Tx,
 		attributeID int,
 		values []string,
-	) (*[]domain.AttributeValue, error)
+	) (*[]AttributeValue, error)
 
 	UpdateValue(
 		tx pgx.Tx,
 		attributeValueID int,
 		value *string,
-	) (*domain.AttributeValue, error)
+	) (*AttributeValue, error)
 
 	Delete(
 		tx pgx.Tx,
