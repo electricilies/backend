@@ -1,11 +1,10 @@
--- name: CreateUser :one
+-- name: UpsertUser :exec
 INSERT INTO users (
   id
 ) VALUES (
   sqlc.arg('id')
 )
-RETURNING
-  *;
+ON CONFLICT (id) DO NOTHING;
 
 -- name: ListUsers :many
 SELECT
@@ -22,3 +21,4 @@ FROM
   users
 WHERE
   id = sqlc.arg('id')::uuid;
+

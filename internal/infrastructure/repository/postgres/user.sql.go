@@ -11,27 +11,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const createUser = `-- name: CreateUser :one
-INSERT INTO users (
-  id
-) VALUES (
-  $1
-)
-RETURNING
-  id
-`
-
-type CreateUserParams struct {
-	ID uuid.UUID
-}
-
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.ID)
-	var id uuid.UUID
-	err := row.Scan(&id)
-	return id, err
-}
-
 const getUserByID = `-- name: GetUserByID :one
 SELECT
   id
@@ -79,4 +58,22 @@ func (q *Queries) ListUsers(ctx context.Context) ([]uuid.UUID, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const upsertUser = `-- name: UpsertUser :exec
+INSERT INTO users (
+  id
+) VALUES (
+  $1
+)
+ON CONFLICT (id) DO NOTHING
+`
+
+type UpsertUserParams struct {
+	ID uuid.UUID
+}
+
+func (q *Queries) UpsertUser(ctx context.Context, arg UpsertUserParams) error {
+	_, err := q.db.Exec(ctx, upsertUser, arg.ID)
+	return err
 }

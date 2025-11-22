@@ -45,116 +45,6 @@ func (q *Queries) CountOrders(ctx context.Context, arg CountOrdersParams) (int64
 	return count, err
 }
 
-const createOrder = `-- name: CreateOrder :one
-INSERT INTO orders (
-  user_id,
-  address,
-  total_amount,
-  provider_id,
-  status_id
-) VALUES (
-  $1,
-  $2,
-  $3,
-  $4,
-  $5
-)
-RETURNING
-  id, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id
-`
-
-type CreateOrderParams struct {
-	userID      uuid.UUID
-	Address     string
-	TotalAmount pgtype.Numeric
-	ProviderID  uuid.UUID
-	StatusID    uuid.UUID
-}
-
-func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) (Order, error) {
-	row := q.db.QueryRow(ctx, createOrder,
-		arg.userID,
-		arg.Address,
-		arg.TotalAmount,
-		arg.ProviderID,
-		arg.StatusID,
-	)
-	var i Order
-	err := row.Scan(
-		&i.ID,
-		&i.Address,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.TotalAmount,
-		&i.IsPaid,
-		&i.userID,
-		&i.StatusID,
-		&i.ProviderID,
-	)
-	return i, err
-}
-
-const createOrderItems = `-- name: CreateOrderItems :many
-WITH inserts AS (
-  SELECT
-    $1 AS quantity,
-    $2 AS order_id,
-    $3 AS price,
-    $4 AS product_variant_id
-)
-INSERT INTO order_items (
-  quantity,
-  order_id,
-  price,
-  product_variant_id
-) VALUES (
-  inserts.quantity,
-  inserts.order_id,
-  inserts.price,
-  inserts.product_variant_id
-)
-RETURNING
-  id, quantity, order_id, price, product_variant_id
-`
-
-type CreateOrderItemsParams struct {
-	Quantity         int32
-	OrderID          uuid.UUID
-	Price            pgtype.Numeric
-	ProductVariantID uuid.UUID
-}
-
-func (q *Queries) CreateOrderItems(ctx context.Context, arg CreateOrderItemsParams) ([]OrderItem, error) {
-	rows, err := q.db.Query(ctx, createOrderItems,
-		arg.Quantity,
-		arg.OrderID,
-		arg.Price,
-		arg.ProductVariantID,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []OrderItem
-	for rows.Next() {
-		var i OrderItem
-		if err := rows.Scan(
-			&i.ID,
-			&i.Quantity,
-			&i.OrderID,
-			&i.Price,
-			&i.ProductVariantID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getOrder = `-- name: GetOrder :one
 SELECT
   id, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id
@@ -178,7 +68,7 @@ func (q *Queries) GetOrder(ctx context.Context, arg GetOrderParams) (Order, erro
 		&i.UpdatedAt,
 		&i.TotalAmount,
 		&i.IsPaid,
-		&i.userID,
+		&i.UserID,
 		&i.StatusID,
 		&i.ProviderID,
 	)
@@ -229,7 +119,7 @@ WHERE
 
 type GetOrderProviderParams struct {
 	ID   pgtype.UUID
-	Name pgtype.Text
+	Name *string
 }
 
 func (q *Queries) GetOrderProvider(ctx context.Context, arg GetOrderProviderParams) (OrderProvider, error) {
@@ -257,7 +147,7 @@ WHERE
 
 type GetOrderStatusParams struct {
 	ID   pgtype.UUID
-	Name pgtype.Text
+	Name *string
 }
 
 func (q *Queries) GetOrderStatus(ctx context.Context, arg GetOrderStatusParams) (OrderStatus, error) {
@@ -382,8 +272,8 @@ type ListOrdersParams struct {
 	IDs       []uuid.UUID
 	UserIds   []uuid.UUID
 	StatusIds []uuid.UUID
-	Offset    pgtype.Int4
-	Limit     pgtype.Int4
+	Offset    *int32
+	Limit     *int32
 }
 
 func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order, error) {
@@ -408,7 +298,7 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order
 			&i.UpdatedAt,
 			&i.TotalAmount,
 			&i.IsPaid,
-			&i.userID,
+			&i.UserID,
 			&i.StatusID,
 			&i.ProviderID,
 		); err != nil {
@@ -422,43 +312,62 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order
 	return items, nil
 }
 
-const updateOrder = `-- name: UpdateOrder :one
-UPDATE orders
-SET
-  user_id = COALESCE($1::uuid, user_id),
-  status_id = COALESCE($2::uuid, status_id),
-  updated_at = COALESCE($3::timestamp, NOW())
-WHERE
-  id = $4
-RETURNING
-  id, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id
+const upsertOrder = `-- name: UpsertOrder :exec
+INSERT INTO orders (
+  id,
+  user_id,
+  address,
+  total_amount,
+  is_paid,
+  provider_id,
+  status_id,
+  created_at,
+  updated_at
+) VALUES (
+  $1,
+  $2,
+  $3,
+  $4,
+  $5,
+  $6,
+  $7,
+  $8,
+  $9
+)
+ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
+  address = EXCLUDED.address,
+  total_amount = EXCLUDED.total_amount,
+  is_paid = EXCLUDED.is_paid,
+  provider_id = EXCLUDED.provider_id,
+  status_id = EXCLUDED.status_id,
+  created_at = EXCLUDED.created_at,
+  updated_at = EXCLUDED.updated_at
 `
 
-type UpdateOrderParams struct {
-	userID    uuid.UUID
-	StatusID  uuid.UUID
-	UpdatedAt pgtype.Timestamp
-	ID        uuid.UUID
+type UpsertOrderParams struct {
+	ID          uuid.UUID
+	UserID      uuid.UUID
+	Address     string
+	TotalAmount pgtype.Numeric
+	IsPaid      bool
+	ProviderID  uuid.UUID
+	StatusID    uuid.UUID
+	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
 }
 
-func (q *Queries) UpdateOrder(ctx context.Context, arg UpdateOrderParams) (Order, error) {
-	row := q.db.QueryRow(ctx, updateOrder,
-		arg.userID,
-		arg.StatusID,
-		arg.UpdatedAt,
+func (q *Queries) UpsertOrder(ctx context.Context, arg UpsertOrderParams) error {
+	_, err := q.db.Exec(ctx, upsertOrder,
 		arg.ID,
+		arg.UserID,
+		arg.Address,
+		arg.TotalAmount,
+		arg.IsPaid,
+		arg.ProviderID,
+		arg.StatusID,
+		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
-	var i Order
-	err := row.Scan(
-		&i.ID,
-		&i.Address,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.TotalAmount,
-		&i.IsPaid,
-		&i.userID,
-		&i.StatusID,
-		&i.ProviderID,
-	)
-	return i, err
+	return err
 }

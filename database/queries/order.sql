@@ -1,41 +1,34 @@
--- name: CreateOrder :one
+-- name: UpsertOrder :exec
 INSERT INTO orders (
+  id,
   user_id,
   address,
   total_amount,
+  is_paid,
   provider_id,
-  status_id
+  status_id,
+  created_at,
+  updated_at
 ) VALUES (
+  sqlc.arg('id'),
   sqlc.arg('user_id'),
   sqlc.arg('address'),
   sqlc.arg('total_amount'),
+  sqlc.arg('is_paid'),
   sqlc.arg('provider_id'),
-  sqlc.arg('status_id')
+  sqlc.arg('status_id'),
+  sqlc.arg('created_at'),
+  sqlc.arg('updated_at')
 )
-RETURNING
-  *;
-
--- name: CreateOrderItems :many
-WITH inserts AS (
-  SELECT
-    sqlc.arg('quantity') AS quantity,
-    sqlc.arg('order_id') AS order_id,
-    sqlc.arg('price') AS price,
-    sqlc.arg('product_variant_id') AS product_variant_id
-)
-INSERT INTO order_items (
-  quantity,
-  order_id,
-  price,
-  product_variant_id
-) VALUES (
-  inserts.quantity,
-  inserts.order_id,
-  inserts.price,
-  inserts.product_variant_id
-)
-RETURNING
-  *;
+ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
+  address = EXCLUDED.address,
+  total_amount = EXCLUDED.total_amount,
+  is_paid = EXCLUDED.is_paid,
+  provider_id = EXCLUDED.provider_id,
+  status_id = EXCLUDED.status_id,
+  created_at = EXCLUDED.created_at,
+  updated_at = EXCLUDED.updated_at;
 
 -- name: ListOrders :many
 SELECT
@@ -154,14 +147,3 @@ WHERE
     WHEN sqlc.narg('name')::text IS NULL THEN TRUE
     ELSE name = sqlc.narg('name')::text
   END;
-
--- name: UpdateOrder :one
-UPDATE orders
-SET
-  user_id = COALESCE(sqlc.arg('user_id')::uuid, user_id),
-  status_id = COALESCE(sqlc.arg('status_id')::uuid, status_id),
-  updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
-WHERE
-  id = sqlc.arg('id')
-RETURNING
-  *;

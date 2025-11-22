@@ -23,8 +23,8 @@ WHERE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN $2::text = 'only' THEN deleted_at IS NULL
+    WHEN $2::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $2::text = 'all' THEN TRUE
     ELSE FALSE
   END
@@ -42,98 +42,18 @@ func (q *Queries) CountAttributes(ctx context.Context, arg CountAttributesParams
 	return count, err
 }
 
-const createAttribute = `-- name: CreateAttribute :one
-INSERT INTO attributes (
-  code,
-  name
-)
-VALUES (
-  $1,
-  $2
-)
-RETURNING
-  id, code, name, deleted_at
+const createTempTableAttributeValues = `-- name: CreateTempTableAttributeValues :exec
+CREATE TEMPORARY TABLE temp_attribute_values (
+  id UUID PRIMARY KEY,
+  attribute_id UUID NOT NULL,
+  value TEXT NOT NULL,
+  deleted_at TIMESTAMP
+) ON COMMIT DROP
 `
 
-type CreateAttributeParams struct {
-	Code string
-	Name string
-}
-
-func (q *Queries) CreateAttribute(ctx context.Context, arg CreateAttributeParams) (Attribute, error) {
-	row := q.db.QueryRow(ctx, createAttribute, arg.Code, arg.Name)
-	var i Attribute
-	err := row.Scan(
-		&i.ID,
-		&i.Code,
-		&i.Name,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
-const createAttributeValue = `-- name: CreateAttributeValue :one
-INSERT INTO attribute_values (
-  attribute_id,
-  value
-)
-SELECT
-  UNNEST($1::uuid) AS attribute_id,
-  UNNEST($2::text) AS value
-RETURNING
-  id, attribute_id, value
-`
-
-type CreateAttributeValueParams struct {
-	AttributeID uuid.UUID
-	Value       string
-}
-
-func (q *Queries) CreateAttributeValue(ctx context.Context, arg CreateAttributeValueParams) (AttributeValue, error) {
-	row := q.db.QueryRow(ctx, createAttributeValue, arg.AttributeID, arg.Value)
-	var i AttributeValue
-	err := row.Scan(&i.ID, &i.AttributeID, &i.Value)
-	return i, err
-}
-
-const deleteAttributeValues = `-- name: DeleteAttributeValues :execrows
-DELETE FROM
-  attribute_values
-WHERE
-  id = ANY ($1::uuid[])
-`
-
-type DeleteAttributeValuesParams struct {
-	IDs []uuid.UUID
-}
-
-func (q *Queries) DeleteAttributeValues(ctx context.Context, arg DeleteAttributeValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteAttributeValues, arg.IDs)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
-const deleteAttributes = `-- name: DeleteAttributes :execrows
-UPDATE
-  attributes
-SET
-  deleted_at = NOW()
-WHERE
-  id = ANY ($1::uuid[])
-`
-
-type DeleteAttributesParams struct {
-	IDs []uuid.UUID
-}
-
-func (q *Queries) DeleteAttributes(ctx context.Context, arg DeleteAttributesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteAttributes, arg.IDs)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) CreateTempTableAttributeValues(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, createTempTableAttributeValues)
+	return err
 }
 
 const getAttribute = `-- name: GetAttribute :one
@@ -143,14 +63,21 @@ FROM
   attributes
 WHERE
   id = $1
+  AND CASE
+    WHEN $2::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $2::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
 `
 
 type GetAttributeParams struct {
-	ID uuid.UUID
+	ID      uuid.UUID
+	Deleted string
 }
 
 func (q *Queries) GetAttribute(ctx context.Context, arg GetAttributeParams) (Attribute, error) {
-	row := q.db.QueryRow(ctx, getAttribute, arg.ID)
+	row := q.db.QueryRow(ctx, getAttribute, arg.ID, arg.Deleted)
 	var i Attribute
 	err := row.Scan(
 		&i.ID,
@@ -161,9 +88,16 @@ func (q *Queries) GetAttribute(ctx context.Context, arg GetAttributeParams) (Att
 	return i, err
 }
 
+type InsertTempTableAttributeValuesParams struct {
+	ID          uuid.UUID
+	AttributeID uuid.UUID
+	Value       string
+	DeletedAt   pgtype.Timestamp
+}
+
 const listAttributeValues = `-- name: ListAttributeValues :many
 SELECT
-  id, attribute_id, value
+  id, attribute_id, value, deleted_at
 FROM
   attribute_values
 WHERE
@@ -179,18 +113,31 @@ WHERE
     WHEN $3::text IS NULL THEN TRUE
     ELSE value ||| ($3::text)::pdb.fuzzy(2)
   END
+  AND CASE
+    WHEN $4::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $4::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $4::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
 ORDER BY
+  CASE WHEN $3::text IS NOT NULL THEN pdb.score(id) END DESC,
   id ASC
 `
 
 type ListAttributeValuesParams struct {
 	IDs         []uuid.UUID
 	AttributeID pgtype.UUID
-	Search      pgtype.Text
+	Search      *string
+	Deleted     string
 }
 
 func (q *Queries) ListAttributeValues(ctx context.Context, arg ListAttributeValuesParams) ([]AttributeValue, error) {
-	rows, err := q.db.Query(ctx, listAttributeValues, arg.IDs, arg.AttributeID, arg.Search)
+	rows, err := q.db.Query(ctx, listAttributeValues,
+		arg.IDs,
+		arg.AttributeID,
+		arg.Search,
+		arg.Deleted,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +145,12 @@ func (q *Queries) ListAttributeValues(ctx context.Context, arg ListAttributeValu
 	var items []AttributeValue
 	for rows.Next() {
 		var i AttributeValue
-		if err := rows.Scan(&i.ID, &i.AttributeID, &i.Value); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.AttributeID,
+			&i.Value,
+			&i.DeletedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -226,8 +178,8 @@ WHERE
       OR name ||| ($2::text)::pdb.fuzzy(2)
   END
   AND CASE
-    WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN $3::text = 'only' THEN deleted_at IS NULL
+    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $3::text = 'all' THEN TRUE
     ELSE FALSE
   END
@@ -240,10 +192,10 @@ LIMIT COALESCE($5::integer, 20)
 
 type ListAttributesParams struct {
 	IDs     []uuid.UUID
-	Search  pgtype.Text
+	Search  *string
 	Deleted string
-	Offset  pgtype.Int4
-	Limit   pgtype.Int4
+	Offset  *int32
+	Limit   *int32
 }
 
 func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) ([]Attribute, error) {
@@ -318,75 +270,69 @@ func (q *Queries) ListProductsAttributeValues(ctx context.Context, arg ListProdu
 	return items, nil
 }
 
-const updateAttribute = `-- name: UpdateAttribute :one
-UPDATE
-  attributes
-SET
-  code = COALESCE($1::varchar(100), code),
-  name = COALESCE($2::text, name)
-WHERE
-  id = $3
-RETURNING
-  id, code, name, deleted_at
+const mergeAttributeValuesFromTemp = `-- name: MergeAttributeValuesFromTemp :exec
+MERGE INTO attribute_values AS target
+USING temp_attribute_values AS source
+  ON target.id = source.id
+WHEN MATCHED THEN
+  UPDATE SET
+    attribute_id = source.attribute_id,
+    value = source.value,
+    deleted_at = source.deleted_at
+WHEN NOT MATCHED THEN
+  INSERT (
+    id,
+    attribute_id,
+    value,
+    deleted_at
+  )
+  VALUES (
+    source.id,
+    source.attribute_id,
+    source.value,
+    source.deleted_at
+  )
+WHEN NOT MATCHED BY SOURCE AND target.attribute_id = sqlc.arg('attribute_id')::uuid THEN
+  DELETE
 `
 
-type UpdateAttributeParams struct {
-	Code pgtype.Text
-	Name pgtype.Text
-	ID   uuid.UUID
+func (q *Queries) MergeAttributeValuesFromTemp(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, mergeAttributeValuesFromTemp)
+	return err
 }
 
-func (q *Queries) UpdateAttribute(ctx context.Context, arg UpdateAttributeParams) (Attribute, error) {
-	row := q.db.QueryRow(ctx, updateAttribute, arg.Code, arg.Name, arg.ID)
-	var i Attribute
-	err := row.Scan(
-		&i.ID,
-		&i.Code,
-		&i.Name,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
-const updateAttributeValues = `-- name: UpdateAttributeValues :many
-WITH updated_attribute_values AS (
-  SELECT
-    UNNEST($1::uuid[]) AS id,
-    UNNEST($2::text[]) AS value
+const upsertAttribute = `-- name: UpsertAttribute :exec
+INSERT INTO attributes (
+  id,
+  code,
+  name,
+  deleted_at
 )
-UPDATE
-  attribute_values
-SET
-  value = COALESCE(updated_attribute_values.value, attribute_values.value)
-FROM
-  updated_attribute_values
-WHERE
-  attribute_values.id = updated_attribute_values.id
-RETURNING
-  attribute_values.id, attribute_values.attribute_id, attribute_values.value
+VALUES (
+  $1,
+  $2,
+  $3,
+  $4
+)
+ON CONFLICT (id) DO UPDATE SET
+  code = EXCLUDED.code,
+  name = EXCLUDED.name,
+  deleted_at = EXCLUDED.deleted_at
 `
 
-type UpdateAttributeValuesParams struct {
-	IDs    []uuid.UUID
-	Values []string
+type UpsertAttributeParams struct {
+	ID        uuid.UUID
+	Code      string
+	Name      string
+	DeletedAt pgtype.Timestamp
 }
 
-func (q *Queries) UpdateAttributeValues(ctx context.Context, arg UpdateAttributeValuesParams) ([]AttributeValue, error) {
-	rows, err := q.db.Query(ctx, updateAttributeValues, arg.IDs, arg.Values)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []AttributeValue
-	for rows.Next() {
-		var i AttributeValue
-		if err := rows.Scan(&i.ID, &i.AttributeID, &i.Value); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) UpsertAttribute(ctx context.Context, arg UpsertAttributeParams) error {
+	_, err := q.db.Exec(ctx, upsertAttribute,
+		arg.ID,
+		arg.Code,
+		arg.Name,
+		arg.DeletedAt,
+	)
+	return err
 }

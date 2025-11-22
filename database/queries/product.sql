@@ -1,62 +1,44 @@
--- name: CreateProduct :one
+-- name: UpsertProduct :exec
 INSERT INTO products (
+  id,
   name,
-  description
+  description,
+  price,
+  views_count,
+  total_purchase,
+  rating,
+  trending_score,
+  category_id,
+  created_at,
+  updated_at,
+  deleted_at
 )
 VALUES (
+  sqlc.arg('id'),
   sqlc.arg('name'),
-  sqlc.arg('description')
+  sqlc.arg('description'),
+  sqlc.arg('price'),
+  sqlc.arg('views_count'),
+  sqlc.arg('total_purchase'),
+  sqlc.arg('rating'),
+  sqlc.arg('trending_score'),
+  sqlc.arg('category_id'),
+  sqlc.arg('created_at'),
+  sqlc.arg('updated_at'),
+  sqlc.narg('deleted_at')
 )
-RETURNING
-  *;
-
--- name: CreateProductVariants :many
-INSERT INTO product_variants (
-  sku,
-  price,
-  quantity,
-  product_id
-)
-SELECT
-  UNNEST(sqlc.arg('skus')::text[]) AS sku,
-  UNNEST(sqlc.arg('prices')::decimal[]) AS price,
-  UNNEST(sqlc.arg('quantities')::integer[]) AS quantity,
-  sqlc.arg('product_id')
-RETURNING
-  *;
-
--- name: CreateProductImages :many
-INSERT INTO product_images (
-  url,
-  "order",
-  product_variant_id,
-  product_id
-)
-SELECT
-  UNNEST(sqlc.arg('urls')::text[]) AS url,
-  UNNEST(sqlc.arg('orders')::integer[]) AS "order",
-  UNNEST(sqlc.arg('product_variant_ids')::uuid[]) AS product_variant_id,
-  sqlc.arg('product_id')
-RETURNING
-  *;
-
--- name: LinkProductAttributeValues :execrows
-INSERT INTO products_attribute_values (
-  product_id,
-  attribute_value_id
-)
-SELECT
-  sqlc.arg('product_id'),
-  UNNEST(sqlc.arg('attribute_value_ids')::uuid[]) AS attribute_value_id;
-
--- name: LinkProductVariantsWithOptionValues :execrows
-INSERT INTO option_values_product_variants (
-  option_value_id,
-  product_variant_id
-)
-SELECT
-  UNNEST(sqlc.arg('option_value_ids')::uuid[]) AS option_value_id,
-  UNNEST(sqlc.arg('product_variant_ids')::uuid[]) AS product_variant_id;
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  price = EXCLUDED.price,
+  views_count = EXCLUDED.views_count,
+  total_purchase = EXCLUDED.total_purchase,
+  rating = EXCLUDED.rating,
+  trending_score = EXCLUDED.trending_score,
+  category_id = EXCLUDED.category_id,
+  created_at = EXCLUDED.created_at,
+  updated_at = EXCLUDED.updated_at,
+  deleted_at = EXCLUDED.deleted_at;
 
 -- This is used for list, search (with filter, order), suggest
 -- name: ListProducts :many
@@ -67,7 +49,7 @@ FROM
 LEFT JOIN (
   SELECT
     products.id,
-    pdb.score(product.id) AS category_score
+    pdb.score(products.id) AS category_score
   FROM products
   INNER JOIN categories
     ON products.category_id = categories.id
@@ -105,14 +87,14 @@ WHERE
     ELSE products.category_id = ANY (sqlc.narg('category_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NOT NULL
-    WHEN sqlc.arg('deleted')::text = 'only' THEN products.deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN products.deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END
 ORDER BY
   CASE WHEN
-    sqlc.narg('search') IS NOT NULL THEN pdb.score(products.id) + category_scores
+    sqlc.narg('search') IS NOT NULL THEN pdb.score(products.id) + category_scores.category_score
   END DESC,
   CASE WHEN
     sqlc.narg('sort_rating')::text = 'asc' THEN products.rating
@@ -156,8 +138,8 @@ WHERE
     ELSE products.category_id = ANY (sqlc.narg('category_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NOT NULL
-    WHEN sqlc.arg('deleted')::text = 'only' THEN products.deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN products.deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END;
@@ -170,8 +152,8 @@ FROM
 WHERE
   products.id = sqlc.arg('id')
   AND CASE
-    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END;
@@ -191,13 +173,27 @@ WHERE
     ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END
 ORDER BY
   id;
+
+-- name: GetProductVariant :one
+SELECT
+  *
+FROM
+  product_variants
+WHERE
+  id = sqlc.arg('id')
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE FALSE
+  END;
 
 -- name: ListProductImages :many
 SELECT
@@ -211,7 +207,7 @@ WHERE
   END
   AND CASE
     WHEN sqlc.narg('product_variant_ids')::uuid[] IS NULL THEN TRUE
-    ELSE product_variant_id = ANY (sqlc.narg('product_variant_ids'))
+    ELSE product_variant_id = ANY (sqlc.narg('product_variant_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
@@ -220,89 +216,6 @@ WHERE
 ORDER BY
   id ASC;
 
--- name: UpdateProduct :one
-UPDATE
-  products
-SET
-  name = COALESCE(sqlc.narg('name')::text, name),
-  description = COALESCE(sqlc.narg('description')::text, description),
-  views_count = COALESCE(sqlc.narg('views_count')::integer, views_count),
-  total_purchase = COALESCE(sqlc.narg('total_purchase')::integer, purchase_count),
-  trending_score = COALESCE(sqlc.narg('trending_score')::float, trending_score), -- TODO: Do we ever update this manually?
-  category_id = COALESCE(sqlc.narg('category_id')::uuid, category_id),
-  updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
-WHERE
-  id = sqlc.arg('id')
-  AND deleted_at IS NULL
-RETURNING
-  *;
-
--- name: UpdateProductVariant :one
-UPDATE
-  product_variants
-SET
-  sku = COALESCE(sqlc.narg('sku')::text, sku),
-  price = COALESCE(sqlc.narg('price')::decimal, price),
-  quantity = COALESCE(sqlc.narg('quantity')::integer, quantity),
-  purchase_count = COALESCE(sqlc.narg('purchase_count')::integer, purchase_count),
-  updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
-WHERE
-  product_variants.id = sqlc.arg('id')
-  AND product_variants.deleted_at IS NULL
-RETURNING
-  *;
-
--- TODO: this is not ...
--- name: UpdateProductVariants :many
-WITH updates AS (
-  SELECT
-    UNNEST(sqlc.arg('ids')::uuid[]) AS id,
-    UNNEST(sqlc.arg('skus')::text[]) AS sku,
-    UNNEST(sqlc.arg('prices')::decimal[]) AS price,
-    UNNEST(sqlc.arg('quantities')::integer[]) AS quantity,
-    UNNEST(sqlc.arg('purchase_counts')::integer[]) AS purchase_count,
-    UNNEST(sqlc.arg('updated_ats')::timestamp[]) AS updated_at
-)
-UPDATE
-  product_variants
-SET
-  sku = COALESCE(updates.sku, product_variants.sku),
-  price = COALESCE(updates.price, product_variants.price),
-  quantity = COALESCE(updates.quantity, product_variants.quantity),
-  purchase_count = COALESCE(updates.purchase_count, product_variants.purchase_count),
-  updated_at = COALESCE(updates.updated_at, NOW())
-FROM
-  updates
-WHERE
-  product_variants.id = updates.id
-  AND product_variants.deleted_at IS NULL
-RETURNING
-  product_variants.*;
-
--- name: DeleteProducts :execrows
-UPDATE
-  products
-SET
-  deleted_at = NOW()
-WHERE
-  id = ANY (sqlc.arg('ids')::uuid[])
-  AND deleted_at IS NULL;
-
--- name: DeleteProductVariants :execrows
-UPDATE
-  product_variants
-SET
-  deleted_at = NOW()
-WHERE
-  id = ANY (sqlc.arg('ids')::uuid[])
-  AND deleted_at IS NULL;
-
--- name: DeleteProductImages :execrows
-DELETE FROM
-  product_images
-WHERE
-  id = ANY (sqlc.arg('ids')::uuid[]);
-
 -- name: GetProductImage :one
 SELECT
   *
@@ -310,3 +223,94 @@ FROM
   product_images
 WHERE
   id = sqlc.arg('id');
+
+-- name: MergeProductVariantsFromTemp :exec
+MERGE INTO product_variants AS target
+USING temp_product_variants AS source
+  ON target.id = source.id
+WHEN MATCHED THEN
+  UPDATE SET
+    sku = source.sku,
+    price = source.price,
+    quantity = source.quantity,
+    purchase_count = source.purchase_count,
+    product_id = source.product_id,
+    created_at = source.created_at,
+    updated_at = source.updated_at,
+    deleted_at = source.deleted_at
+WHEN NOT MATCHED THEN
+  INSERT (
+    id,
+    sku,
+    price,
+    quantity,
+    purchase_count,
+    product_id,
+    created_at,
+    updated_at,
+    deleted_at
+  )
+  VALUES (
+    source.id,
+    source.sku,
+    source.price,
+    source.quantity,
+    source.purchase_count,
+    source.product_id,
+    source.created_at,
+    source.updated_at,
+    source.deleted_at
+  )
+WHEN NOT MATCHED BY SOURCE AND target.product_id = sqlc.arg('product_id')::uuid THEN
+  DELETE;
+
+-- name: MergeProductImagesFromTemp :exec
+MERGE INTO product_images AS target
+USING temp_product_images AS source
+  ON target.id = source.id
+WHEN MATCHED THEN
+  UPDATE SET
+    url = source.url,
+    "order" = source."order",
+    product_id = source.product_id,
+    product_variant_id = source.product_variant_id,
+    created_at = source.created_at,
+    deleted_at = source.deleted_at
+WHEN NOT MATCHED THEN
+  INSERT (
+    id,
+    url,
+    "order",
+    product_id,
+    product_variant_id,
+    created_at,
+    deleted_at
+  )
+  VALUES (
+    source.id,
+    source.url,
+    source."order",
+    source.product_id,
+    source.product_variant_id,
+    source.created_at,
+    source.deleted_at
+  )
+WHEN NOT MATCHED BY SOURCE AND target.product_id = sqlc.arg('product_id')::uuid THEN
+  DELETE;
+
+-- name: MergeProductsAttributeValuesFromTemp :exec
+MERGE INTO products_attribute_values AS target
+USING temp_products_attribute_values AS source
+  ON target.product_id = source.product_id AND target.attribute_value_id = source.attribute_value_id
+WHEN NOT MATCHED THEN
+  INSERT (
+    product_id,
+    attribute_value_id
+  )
+  VALUES (
+    source.product_id,
+    source.attribute_value_id
+  )
+WHEN NOT MATCHED BY SOURCE AND target.product_id = sqlc.arg('product_id')::uuid THEN
+  DELETE;
+

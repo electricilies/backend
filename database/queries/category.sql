@@ -1,12 +1,23 @@
--- name: CreateCategory :one
+-- name: UpsertCategory :exec
 INSERT INTO categories (
-  name
+  id,
+  name,
+  created_at,
+  updated_at,
+  deleted_at
 )
 VALUES (
-  sqlc.arg('name')
+  sqlc.arg('id'),
+  sqlc.arg('name'),
+  sqlc.arg('created_at'),
+  sqlc.arg('updated_at'),
+  sqlc.narg('deleted_at')
 )
-RETURNING
-  *;
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  created_at = EXCLUDED.created_at,
+  updated_at = EXCLUDED.updated_at,
+  deleted_at = EXCLUDED.deleted_at;
 
 -- name: ListCategories :many
 SELECT
@@ -18,7 +29,12 @@ WHERE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE
     ELSE name ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
   END
-  AND deleted_at IS NULL
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
 ORDER BY
   id DESC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
@@ -30,7 +46,12 @@ SELECT
 FROM
   categories
 WHERE
-  deleted_at IS NULL;
+  CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE FALSE
+  END;
 
 -- name: GetCategory :one
 SELECT
@@ -38,26 +59,11 @@ SELECT
 FROM
   categories
 WHERE
-  deleted_at IS NULL
-  AND id = sqlc.arg('id');
+  id = sqlc.arg('id')
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE FALSE
+  END;
 
--- name: UpdateCategory :one
-UPDATE
-  categories
-SET
-  name = sqlc.arg('name'),
-  updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
-WHERE
-  deleted_at IS NULL
-  AND id = sqlc.arg('id')
-RETURNING
-  *;
-
--- name: DeleteCategory :execrows
-UPDATE
-  categories
-SET
-  deleted_at = NOW()
-WHERE
-  deleted_at IS NULL
-  AND id = sqlc.arg('id');

@@ -1,8 +1,12 @@
 version: "2"
 sql:
   - engine: postgresql
-    queries: database/queries
-    schema: database/schema.sql
+    queries:
+      - database/queries
+      - database/temporary-table
+    schema:
+      - database/schema.sql
+      - database/schema-temporary.sql
     # database:
     #   uri: postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable
     rules:
@@ -22,15 +26,16 @@ sql:
             go_type:
               import: github.com/google/uuid
               type: "UUID"
+        emit_pointers_for_null_types: true
+        initialisms:
+          - id
+          - url
+          - sku
         rename:
           ids: IDs
-          url: URL
           urls: URLs
-          sku: SKU
           skus: SKUs
-          image_url: ImageURL
           image_urls: ImageURLs
-          user_id: userID
           product_ids: ProductIDs
           product_variant_ids: ProductVariantIDs
           options_ids: OptionsIDs
@@ -38,8 +43,8 @@ sql:
           attribute_ids: AttributeIDs
           attribute_value_ids: AttributeValueIDs
           category_ids: CategoryIDs
-          cart_ids : CartIDs
-          cart_items_ids : CartItemIDs
+          cart_ids: CartIDs
+          cart_items_ids: CartItemIDs
 rules:
   - name: postgresql-query-too-costly
     message: "Query cost estimate is too high"

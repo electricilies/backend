@@ -27,8 +27,8 @@ WHERE
     ELSE order_item_id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN $3::text = 'only' THEN deleted_at IS NULL
+    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $3::text = 'all' THEN TRUE
     ELSE FALSE
   END
@@ -47,41 +47,28 @@ func (q *Queries) CountReviews(ctx context.Context, arg CountReviewsParams) (int
 	return count, err
 }
 
-const createReview = `-- name: CreateReview :one
-INSERT INTO reviews (
-  rating,
-  content,
-  image_url,
-  user_id,
-  order_item_id
-)
-VALUES (
-  $1,
-  $2,
-  $3,
-  $4,
-  $5
-)
-RETURNING
+const getReview = `-- name: GetReview :one
+SELECT
   id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, order_item_id
+FROM
+  reviews
+WHERE
+  id = $1
+  AND CASE
+    WHEN $2::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $2::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
 `
 
-type CreateReviewParams struct {
-	Rating      int16
-	Content     pgtype.Text
-	ImageURL    string
-	userID      uuid.UUID
-	OrderItemID uuid.UUID
+type GetReviewParams struct {
+	ID      uuid.UUID
+	Deleted string
 }
 
-func (q *Queries) CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error) {
-	row := q.db.QueryRow(ctx, createReview,
-		arg.Rating,
-		arg.Content,
-		arg.ImageURL,
-		arg.userID,
-		arg.OrderItemID,
-	)
+func (q *Queries) GetReview(ctx context.Context, arg GetReviewParams) (Review, error) {
+	row := q.db.QueryRow(ctx, getReview, arg.ID, arg.Deleted)
 	var i Review
 	err := row.Scan(
 		&i.ID,
@@ -91,31 +78,10 @@ func (q *Queries) CreateReview(ctx context.Context, arg CreateReviewParams) (Rev
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
-		&i.userID,
+		&i.UserID,
 		&i.OrderItemID,
 	)
 	return i, err
-}
-
-const deleteReviews = `-- name: DeleteReviews :execrows
-UPDATE reviews
-SET
-  deleted_at = NOW()
-WHERE
-  id = ANY($1::uuid[])
-  AND deleted_at IS NULL
-`
-
-type DeleteReviewsParams struct {
-	IDs []uuid.UUID
-}
-
-func (q *Queries) DeleteReviews(ctx context.Context, arg DeleteReviewsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteReviews, arg.IDs)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
 }
 
 const listReviews = `-- name: ListReviews :many
@@ -133,8 +99,8 @@ WHERE
     ELSE order_item_id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN $3::text = 'only' THEN deleted_at IS NULL
+    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $3::text = 'all' THEN TRUE
     ELSE FALSE
   END
@@ -148,8 +114,8 @@ type ListReviewsParams struct {
 	IDs          []uuid.UUID
 	OrderItemIds []uuid.UUID
 	Deleted      string
-	Offset       pgtype.Int4
-	Limit        pgtype.Int4
+	Offset       *int32
+	Limit        *int32
 }
 
 func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]Review, error) {
@@ -175,7 +141,7 @@ func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]Rev
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
-			&i.userID,
+			&i.UserID,
 			&i.OrderItemID,
 		); err != nil {
 			return nil, err
@@ -188,47 +154,63 @@ func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]Rev
 	return items, nil
 }
 
-const updateReview = `-- name: UpdateReview :one
-UPDATE reviews
-SET
-  rating = COALESCE($1::integer, rating),
-  content = COALESCE($2::text, content),
-  image_url = COALESCE($3::text, image_url),
-  updated_at = COALESCE($4::timestamp, NOW())
-WHERE
-  id = $5::uuid
-  AND deleted_at IS NULL
-RETURNING
-  id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, order_item_id
+const upsertReview = `-- name: UpsertReview :exec
+INSERT INTO reviews (
+  id,
+  rating,
+  content,
+  image_url,
+  user_id,
+  order_item_id,
+  created_at,
+  updated_at,
+  deleted_at
+)
+VALUES (
+  $1,
+  $2,
+  $3,
+  $4,
+  $5,
+  $6,
+  $7,
+  $8,
+  $9
+)
+ON CONFLICT (id) DO UPDATE SET
+  rating = EXCLUDED.rating,
+  content = EXCLUDED.content,
+  image_url = EXCLUDED.image_url,
+  user_id = EXCLUDED.user_id,
+  order_item_id = EXCLUDED.order_item_id,
+  created_at = EXCLUDED.created_at,
+  updated_at = EXCLUDED.updated_at,
+  deleted_at = EXCLUDED.deleted_at
 `
 
-type UpdateReviewParams struct {
-	Rating    pgtype.Int4
-	Content   pgtype.Text
-	ImageURL  pgtype.Text
-	UpdatedAt pgtype.Timestamp
-	ID        uuid.UUID
+type UpsertReviewParams struct {
+	ID          uuid.UUID
+	Rating      int16
+	Content     *string
+	ImageURL    string
+	UserID      uuid.UUID
+	OrderItemID uuid.UUID
+	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
+	DeletedAt   pgtype.Timestamp
 }
 
-func (q *Queries) UpdateReview(ctx context.Context, arg UpdateReviewParams) (Review, error) {
-	row := q.db.QueryRow(ctx, updateReview,
+func (q *Queries) UpsertReview(ctx context.Context, arg UpsertReviewParams) error {
+	_, err := q.db.Exec(ctx, upsertReview,
+		arg.ID,
 		arg.Rating,
 		arg.Content,
 		arg.ImageURL,
+		arg.UserID,
+		arg.OrderItemID,
+		arg.CreatedAt,
 		arg.UpdatedAt,
-		arg.ID,
+		arg.DeletedAt,
 	)
-	var i Review
-	err := row.Scan(
-		&i.ID,
-		&i.Rating,
-		&i.Content,
-		&i.ImageURL,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
-		&i.userID,
-		&i.OrderItemID,
-	)
-	return i, err
+	return err
 }

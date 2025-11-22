@@ -40,7 +40,8 @@ CREATE TABLE attributes (
 CREATE TABLE attribute_values (
   id UUID PRIMARY KEY,
   attribute_id UUID NOT NULL REFERENCES attributes (id) ON UPDATE CASCADE ON DELETE CASCADE,
-  value TEXT NOT NULL
+  value TEXT NOT NULL,
+  deleted_at TIMESTAMP
 );
 
 -- products_attribute_values
@@ -67,8 +68,9 @@ CREATE TABLE product_variants (
 CREATE TABLE product_images (
   id UUID PRIMARY KEY,
   url TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   "order" INTEGER NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  deleted_at TIMESTAMP,
   product_id UUID REFERENCES products (id) ON UPDATE CASCADE,
   product_variant_id UUID REFERENCES product_variants (id) ON UPDATE CASCADE
 );
@@ -85,6 +87,7 @@ CREATE TABLE options (
 CREATE TABLE option_values (
   id UUID PRIMARY KEY,
   value TEXT NOT NULL,
+  deleted_at TIMESTAMP,
   option_id UUID NOT NULL REFERENCES options (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 

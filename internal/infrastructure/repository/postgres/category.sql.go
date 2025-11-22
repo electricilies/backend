@@ -18,64 +18,23 @@ SELECT
 FROM
   categories
 WHERE
-  deleted_at IS NULL
+  CASE
+    WHEN $1::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $1::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $1::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
 `
 
-func (q *Queries) CountCategories(ctx context.Context) (int64, error) {
-	row := q.db.QueryRow(ctx, countCategories)
+type CountCategoriesParams struct {
+	Deleted string
+}
+
+func (q *Queries) CountCategories(ctx context.Context, arg CountCategoriesParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countCategories, arg.Deleted)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
-}
-
-const createCategory = `-- name: CreateCategory :one
-INSERT INTO categories (
-  name
-)
-VALUES (
-  $1
-)
-RETURNING
-  id, name, created_at, updated_at, deleted_at
-`
-
-type CreateCategoryParams struct {
-	Name string
-}
-
-func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error) {
-	row := q.db.QueryRow(ctx, createCategory, arg.Name)
-	var i Category
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
-const deleteCategory = `-- name: DeleteCategory :execrows
-UPDATE
-  categories
-SET
-  deleted_at = NOW()
-WHERE
-  deleted_at IS NULL
-  AND id = $1
-`
-
-type DeleteCategoryParams struct {
-	ID uuid.UUID
-}
-
-func (q *Queries) DeleteCategory(ctx context.Context, arg DeleteCategoryParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteCategory, arg.ID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
 }
 
 const getCategory = `-- name: GetCategory :one
@@ -84,16 +43,22 @@ SELECT
 FROM
   categories
 WHERE
-  deleted_at IS NULL
-  AND id = $1
+  id = $1
+  AND CASE
+    WHEN $2::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $2::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
 `
 
 type GetCategoryParams struct {
-	ID uuid.UUID
+	ID      uuid.UUID
+	Deleted string
 }
 
 func (q *Queries) GetCategory(ctx context.Context, arg GetCategoryParams) (Category, error) {
-	row := q.db.QueryRow(ctx, getCategory, arg.ID)
+	row := q.db.QueryRow(ctx, getCategory, arg.ID, arg.Deleted)
 	var i Category
 	err := row.Scan(
 		&i.ID,
@@ -115,21 +80,32 @@ WHERE
     WHEN $1::text IS NULL THEN TRUE
     ELSE name ||| ($1::text)::pdb.fuzzy(2)
   END
-  AND deleted_at IS NULL
+  AND CASE
+    WHEN $2::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $2::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
 ORDER BY
   id DESC
-OFFSET COALESCE($2::integer, 0)
-LIMIT COALESCE($3::integer, 20)
+OFFSET COALESCE($3::integer, 0)
+LIMIT COALESCE($4::integer, 20)
 `
 
 type ListCategoriesParams struct {
-	Search pgtype.Text
-	Offset pgtype.Int4
-	Limit  pgtype.Int4
+	Search  *string
+	Deleted string
+	Offset  *int32
+	Limit   *int32
 }
 
 func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) ([]Category, error) {
-	rows, err := q.db.Query(ctx, listCategories, arg.Search, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, listCategories,
+		arg.Search,
+		arg.Deleted,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -154,34 +130,43 @@ func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) 
 	return items, nil
 }
 
-const updateCategory = `-- name: UpdateCategory :one
-UPDATE
-  categories
-SET
-  name = $1,
-  updated_at = COALESCE($2::timestamp, NOW())
-WHERE
-  deleted_at IS NULL
-  AND id = $3
-RETURNING
-  id, name, created_at, updated_at, deleted_at
+const upsertCategory = `-- name: UpsertCategory :exec
+INSERT INTO categories (
+  id,
+  name,
+  created_at,
+  updated_at,
+  deleted_at
+)
+VALUES (
+  $1,
+  $2,
+  $3,
+  $4,
+  $5
+)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  created_at = EXCLUDED.created_at,
+  updated_at = EXCLUDED.updated_at,
+  deleted_at = EXCLUDED.deleted_at
 `
 
-type UpdateCategoryParams struct {
-	Name      string
-	UpdatedAt pgtype.Timestamp
+type UpsertCategoryParams struct {
 	ID        uuid.UUID
+	Name      string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamp
 }
 
-func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error) {
-	row := q.db.QueryRow(ctx, updateCategory, arg.Name, arg.UpdatedAt, arg.ID)
-	var i Category
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
+func (q *Queries) UpsertCategory(ctx context.Context, arg UpsertCategoryParams) error {
+	_, err := q.db.Exec(ctx, upsertCategory,
+		arg.ID,
+		arg.Name,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
 	)
-	return i, err
+	return err
 }

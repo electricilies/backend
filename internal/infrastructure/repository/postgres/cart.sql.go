@@ -12,75 +12,18 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createCart = `-- name: CreateCart :one
-INSERT INTO carts (
-  user_id
-) VALUES (
-  $1
-)
-RETURNING
-  id, user_id, updated_at
+const createTempTableCartItems = `-- name: CreateTempTableCartItems :exec
+CREATE TEMPORARY TABLE temp_cart_items (
+  id UUID PRIMARY KEY,
+  quantity INTEGER NOT NULL,
+  cart_id UUID NOT NULL,
+  product_variant_id UUID NOT NULL
+) ON COMMIT DROP
 `
 
-type CreateCartParams struct {
-	userID uuid.UUID
-}
-
-func (q *Queries) CreateCart(ctx context.Context, arg CreateCartParams) (Cart, error) {
-	row := q.db.QueryRow(ctx, createCart, arg.userID)
-	var i Cart
-	err := row.Scan(&i.ID, &i.userID, &i.UpdatedAt)
-	return i, err
-}
-
-const createCartItem = `-- name: CreateCartItem :one
-INSERT INTO cart_items (
-  quantity,
-  cart_id,
-  product_variant_id
-) VALUES (
-  $1,
-  $2,
-  $3
-)
-RETURNING
-  id, quantity, cart_id, product_variant_id
-`
-
-type CreateCartItemParams struct {
-	Quantity         int32
-	CartID           uuid.UUID
-	ProductVariantID uuid.UUID
-}
-
-func (q *Queries) CreateCartItem(ctx context.Context, arg CreateCartItemParams) (CartItem, error) {
-	row := q.db.QueryRow(ctx, createCartItem, arg.Quantity, arg.CartID, arg.ProductVariantID)
-	var i CartItem
-	err := row.Scan(
-		&i.ID,
-		&i.Quantity,
-		&i.CartID,
-		&i.ProductVariantID,
-	)
-	return i, err
-}
-
-const deleteCartItemByIDs = `-- name: DeleteCartItemByIDs :execrows
-DELETE FROM cart_items
-WHERE
-  id = ANY ($1::uuid[])
-`
-
-type DeleteCartItemByIDsParams struct {
-	IDs []uuid.UUID
-}
-
-func (q *Queries) DeleteCartItemByIDs(ctx context.Context, arg DeleteCartItemByIDsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteCartItemByIDs, arg.IDs)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) CreateTempTableCartItems(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, createTempTableCartItems)
+	return err
 }
 
 const getCart = `-- name: GetCart :one
@@ -101,17 +44,24 @@ WHERE
 
 type GetCartParams struct {
 	ID     pgtype.UUID
-	userID pgtype.UUID
+	UserID pgtype.UUID
 }
 
 func (q *Queries) GetCart(ctx context.Context, arg GetCartParams) (Cart, error) {
-	row := q.db.QueryRow(ctx, getCart, arg.ID, arg.userID)
+	row := q.db.QueryRow(ctx, getCart, arg.ID, arg.UserID)
 	var i Cart
-	err := row.Scan(&i.ID, &i.userID, &i.UpdatedAt)
+	err := row.Scan(&i.ID, &i.UserID, &i.UpdatedAt)
 	return i, err
 }
 
-const getCartItems = `-- name: GetCartItems :many
+type InsertTempTableCartItemsParams struct {
+	ID               uuid.UUID
+	Quantity         int32
+	CartID           uuid.UUID
+	ProductVariantID uuid.UUID
+}
+
+const listCartItems = `-- name: ListCartItems :many
 SELECT
   id, quantity, cart_id, product_variant_id
 FROM
@@ -121,16 +71,14 @@ WHERE
     WHEN $1::uuid IS NULL THEN TRUE
     ELSE cart_id = $1::uuid
   END
-ORDER BY
-  id ASC
 `
 
-type GetCartItemsParams struct {
+type ListCartItemsParams struct {
 	CartID pgtype.UUID
 }
 
-func (q *Queries) GetCartItems(ctx context.Context, arg GetCartItemsParams) ([]CartItem, error) {
-	rows, err := q.db.Query(ctx, getCartItems, arg.CartID)
+func (q *Queries) ListCartItems(ctx context.Context, arg ListCartItemsParams) ([]CartItem, error) {
+	rows, err := q.db.Query(ctx, listCartItems, arg.CartID)
 	if err != nil {
 		return nil, err
 	}
@@ -154,29 +102,59 @@ func (q *Queries) GetCartItems(ctx context.Context, arg GetCartItemsParams) ([]C
 	return items, nil
 }
 
-const updateCartItem = `-- name: UpdateCartItem :one
-UPDATE cart_items
-SET
-  quantity = COALESCE($1::integer, quantity)
-WHERE
-  id = $2
-RETURNING
-  id, quantity, cart_id, product_variant_id
+const mergeCartItemsFromTemp = `-- name: MergeCartItemsFromTemp :exec
+MERGE INTO cart_items AS target
+USING temp_cart_items AS source
+  ON target.id = source.id
+WHEN MATCHED THEN
+  UPDATE SET
+    quantity = source.quantity,
+    cart_id = source.cart_id,
+    product_variant_id = source.product_variant_id
+WHEN NOT MATCHED THEN
+  INSERT (
+    id,
+    quantity,
+    cart_id,
+    product_variant_id
+  )
+  VALUES (
+    source.id,
+    source.quantity,
+    source.cart_id,
+    source.product_variant_id
+  )
+WHEN NOT MATCHED BY SOURCE AND target.cart_id = sqlc.arg('cart_id')::uuid THEN
+  DELETE
 `
 
-type UpdateCartItemParams struct {
-	Quantity pgtype.Int4
-	ID       uuid.UUID
+func (q *Queries) MergeCartItemsFromTemp(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, mergeCartItemsFromTemp)
+	return err
 }
 
-func (q *Queries) UpdateCartItem(ctx context.Context, arg UpdateCartItemParams) (CartItem, error) {
-	row := q.db.QueryRow(ctx, updateCartItem, arg.Quantity, arg.ID)
-	var i CartItem
-	err := row.Scan(
-		&i.ID,
-		&i.Quantity,
-		&i.CartID,
-		&i.ProductVariantID,
-	)
-	return i, err
+const upsertCart = `-- name: UpsertCart :exec
+INSERT INTO carts (
+  id,
+  user_id,
+  updated_at
+) VALUES (
+  $1,
+  $2,
+  $3
+)
+ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
+  updated_at = EXCLUDED.updated_at
+`
+
+type UpsertCartParams struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	UpdatedAt pgtype.Timestamp
+}
+
+func (q *Queries) UpsertCart(ctx context.Context, arg UpsertCartParams) error {
+	_, err := q.db.Exec(ctx, upsertCart, arg.ID, arg.UserID, arg.UpdatedAt)
+	return err
 }

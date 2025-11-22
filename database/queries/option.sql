@@ -1,25 +1,20 @@
--- name: CreateOption :one
+-- name: UpsertOption :exec
 INSERT INTO options (
+  id,
   name,
-  product_id
+  product_id,
+  deleted_at
 )
 VALUES (
-   sqlc.arg('name'),
-   sqlc.arg('product_id')
+  sqlc.arg('id'),
+  sqlc.arg('name'),
+  sqlc.arg('product_id'),
+  sqlc.narg('deleted_at')
 )
-RETURNING
-  *;
-
--- name: CreateOptionValues :many
-INSERT INTO option_values (
-  option_id,
-  value
-)
-SELECT
-  sqlc.arg('option_id'),
-  UNNEST(sqlc.arg('values')::text[]) AS value
-RETURNING
-  *;
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  product_id = EXCLUDED.product_id,
+  deleted_at = EXCLUDED.deleted_at;
 
 -- name: ListOptions :many
 SELECT
@@ -36,8 +31,8 @@ WHERE
     ELSE options.product_id = sqlc.narg('product_id')::uuid
   END
   AND CASE
-    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END
@@ -52,8 +47,8 @@ FROM
 WHERE
   id = sqlc.arg('id')::uuid
   AND CASE
-    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END;
@@ -87,53 +82,54 @@ WHERE
     WHEN sqlc.narg('option_ids')::uuid[] IS NULL THEN TRUE
     ELSE option_values.option_id = ANY (sqlc.narg('option_ids')::uuid[])
   END
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
 ORDER BY
   option_values.id;
 
--- name: UpdateOptions :many
-WITH updated_options AS (
-  SELECT
-    UNNEST(sqlc.arg('ids')::uuid[]) AS id,
-    UNNEST(sqlc.arg('names')::text[]) AS name
-)
-UPDATE options
-SET
-  name = COALESCE(updated_options.name, options.name)
-FROM
-  updated_options
-WHERE
-  options.id = updated_options.id
-  AND options.deleted_at IS NULL
-RETURNING
-  options.*;
+-- name: MergeOptionValuesFromTemp :exec
+MERGE INTO option_values AS target
+USING temp_option_values AS source
+  ON target.id = source.id
+WHEN MATCHED THEN
+  UPDATE SET
+    value = source.value,
+    option_id = source.option_id,
+    deleted_at = source.deleted_at
+WHEN NOT MATCHED THEN
+  INSERT (
+    id,
+    value,
+    option_id,
+    deleted_at
+  )
+  VALUES (
+    source.id,
+    source.value,
+    source.option_id,
+    source.deleted_at
+  )
+WHEN NOT MATCHED BY SOURCE AND target.option_id = sqlc.arg('option_id')::uuid THEN
+  DELETE;
 
--- name: UpdateOptionValues :many
-WITH updated_option_values AS (
-  SELECT
-    UNNEST(sqlc.arg('ids')::uuid[]) AS id,
-    UNNEST(sqlc.arg('values')::text[]) AS value
-)
-UPDATE option_values
-SET
-  value = COALESCE(updated_option_values.value, option_values.value)
-FROM
-  updated_option_values
-WHERE
-  option_values.id = updated_option_values.id
-RETURNING
-  option_values.*;
-
--- name: DeleteOptions :execrows
-UPDATE
-  options
-SET
-  deleted_at = NOW()
-WHERE
-  id = ANY (sqlc.arg('ids')::uuid[])
-  AND deleted_at IS NULL;
-
--- name: DeleteOptionValues :execrows
-DELETE FROM
-  option_values
-WHERE
-  id = ANY (sqlc.arg('ids')::uuid[]);
+-- name: MergeOptionValuesProductVariantsFromTemp :exec
+MERGE INTO option_values_product_variants AS target
+USING temp_option_values_product_variants AS source
+  ON target.product_variant_id = source.product_variant_id AND target.option_value_id = source.option_value_id
+WHEN NOT MATCHED THEN
+  INSERT (
+    product_variant_id,
+    option_value_id
+  )
+  VALUES (
+    source.product_variant_id,
+    source.option_value_id
+  )
+WHEN NOT MATCHED BY SOURCE AND target.option_value_id IN (
+  SELECT id FROM option_values WHERE option_id = sqlc.arg('option_id')::uuid
+) THEN
+  DELETE;

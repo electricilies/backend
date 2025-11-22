@@ -1,25 +1,20 @@
--- name: CreateAttribute :one
+-- name: UpsertAttribute :exec
 INSERT INTO attributes (
+  id,
   code,
-  name
+  name,
+  deleted_at
 )
 VALUES (
+  sqlc.arg('id'),
   sqlc.arg('code'),
-  sqlc.arg('name')
+  sqlc.arg('name'),
+  sqlc.narg('deleted_at')
 )
-RETURNING
-  *;
-
--- name: CreateAttributeValue :one
-INSERT INTO attribute_values (
-  attribute_id,
-  value
-)
-SELECT
-  UNNEST(sqlc.arg('attribute_id')::uuid) AS attribute_id,
-  UNNEST(sqlc.arg('value')::text) AS value
-RETURNING
-  *;
+ON CONFLICT (id) DO UPDATE SET
+  code = EXCLUDED.code,
+  name = EXCLUDED.name,
+  deleted_at = EXCLUDED.deleted_at;
 
 -- name: ListAttributes :many
 SELECT
@@ -38,8 +33,8 @@ WHERE
       OR name ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
   END
   AND CASE
-    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END
@@ -60,8 +55,8 @@ WHERE
     ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END;
@@ -72,7 +67,13 @@ SELECT
 FROM
   attributes
 WHERE
-  id = sqlc.arg('id');
+  id = sqlc.arg('id')
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE FALSE
+  END;
 
 -- name: ListProductsAttributeValues :many
 SELECT
@@ -107,47 +108,38 @@ WHERE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE
     ELSE value ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
   END
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
 ORDER BY
+  CASE WHEN sqlc.narg('search')::text IS NOT NULL THEN pdb.score(id) END DESC,
   id ASC;
 
--- name: UpdateAttribute :one
-UPDATE
-  attributes
-SET
-  code = COALESCE(sqlc.narg('code')::varchar(100), code),
-  name = COALESCE(sqlc.narg('name')::text, name)
-WHERE
-  id = sqlc.arg('id')
-RETURNING
-  *;
+-- name: MergeAttributeValuesFromTemp :exec
+MERGE INTO attribute_values AS target
+USING temp_attribute_values AS source
+  ON target.id = source.id
+WHEN MATCHED THEN
+  UPDATE SET
+    attribute_id = source.attribute_id,
+    value = source.value,
+    deleted_at = source.deleted_at
+WHEN NOT MATCHED THEN
+  INSERT (
+    id,
+    attribute_id,
+    value,
+    deleted_at
+  )
+  VALUES (
+    source.id,
+    source.attribute_id,
+    source.value,
+    source.deleted_at
+  )
+WHEN NOT MATCHED BY SOURCE AND target.attribute_id = sqlc.arg('attribute_id')::uuid THEN
+  DELETE;
 
--- name: UpdateAttributeValues :many
-WITH updated_attribute_values AS (
-  SELECT
-    UNNEST(sqlc.arg('ids')::uuid[]) AS id,
-    UNNEST(sqlc.arg('values')::text[]) AS value
-)
-UPDATE
-  attribute_values
-SET
-  value = COALESCE(updated_attribute_values.value, attribute_values.value)
-FROM
-  updated_attribute_values
-WHERE
-  attribute_values.id = updated_attribute_values.id
-RETURNING
-  attribute_values.*;
-
--- name: DeleteAttributes :execrows
-UPDATE
-  attributes
-SET
-  deleted_at = NOW()
-WHERE
-  id = ANY (sqlc.arg('ids')::uuid[]);
-
--- name: DeleteAttributeValues :execrows
-DELETE FROM
-  attribute_values
-WHERE
-  id = ANY (sqlc.arg('ids')::uuid[]);

@@ -1,4 +1,5 @@
 database/queries/*.sql
+database/temporary-table/*.sql
 database/seed-fake.sql
 docker/volume/init.sql
 docker/volume/paradedb-index.sql

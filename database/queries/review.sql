@@ -1,20 +1,35 @@
--- name: CreateReview :one
+-- name: UpsertReview :exec
 INSERT INTO reviews (
+  id,
   rating,
   content,
   image_url,
   user_id,
-  order_item_id
+  order_item_id,
+  created_at,
+  updated_at,
+  deleted_at
 )
 VALUES (
+  sqlc.arg('id'),
   sqlc.arg('rating'),
   sqlc.arg('content'),
   sqlc.arg('image_url'),
   sqlc.arg('user_id'),
-  sqlc.arg('order_item_id')
+  sqlc.arg('order_item_id'),
+  sqlc.arg('created_at'),
+  sqlc.arg('updated_at'),
+  sqlc.narg('deleted_at')
 )
-RETURNING
-  *;
+ON CONFLICT (id) DO UPDATE SET
+  rating = EXCLUDED.rating,
+  content = EXCLUDED.content,
+  image_url = EXCLUDED.image_url,
+  user_id = EXCLUDED.user_id,
+  order_item_id = EXCLUDED.order_item_id,
+  created_at = EXCLUDED.created_at,
+  updated_at = EXCLUDED.updated_at,
+  deleted_at = EXCLUDED.deleted_at;
 
 -- name: ListReviews :many
 SELECT
@@ -31,8 +46,8 @@ WHERE
     ELSE order_item_id = ANY (sqlc.narg('order_item_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END
@@ -56,29 +71,23 @@ WHERE
     ELSE order_item_id = ANY (sqlc.narg('order_item_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END;
 
--- name: UpdateReview :one
-UPDATE reviews
-SET
-  rating = COALESCE(sqlc.narg('rating')::integer, rating),
-  content = COALESCE(sqlc.narg('content')::text, content),
-  image_url = COALESCE(sqlc.narg('image_url')::text, image_url),
-  updated_at = COALESCE(sqlc.narg('updated_at')::timestamp, NOW())
+-- name: GetReview :one
+SELECT
+  *
+FROM
+  reviews
 WHERE
-  id = sqlc.arg('id')::uuid
-  AND deleted_at IS NULL
-RETURNING
-  *;
+  id = sqlc.arg('id')
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE FALSE
+  END;
 
--- name: DeleteReviews :execrows
-UPDATE reviews
-SET
-  deleted_at = NOW()
-WHERE
-  id = ANY(sqlc.arg('ids')::uuid[])
-  AND deleted_at IS NULL;

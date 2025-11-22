@@ -1,24 +1,16 @@
--- name: CreateCart :one
+-- name: UpsertCart :exec
 INSERT INTO carts (
-  user_id
+  id,
+  user_id,
+  updated_at
 ) VALUES (
-  sqlc.arg('user_id')
+  sqlc.arg('id'),
+  sqlc.arg('user_id'),
+  sqlc.arg('updated_at')
 )
-RETURNING
-  *;
-
--- name: CreateCartItem :one
-INSERT INTO cart_items (
-  quantity,
-  cart_id,
-  product_variant_id
-) VALUES (
-  sqlc.arg('quantity'),
-  sqlc.arg('cart_id'),
-  sqlc.arg('product_variant_id')
-)
-RETURNING
-  *;
+ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
+  updated_at = EXCLUDED.updated_at;
 
 -- name: GetCart :one
 SELECT
@@ -35,7 +27,7 @@ WHERE
     ELSE user_id = sqlc.narg('user_id')::uuid
   END;
 
--- name: GetCartItems :many
+-- name: ListCartItems :many
 SELECT
   *
 FROM
@@ -44,20 +36,30 @@ WHERE
   CASE
     WHEN sqlc.narg('cart_id')::uuid IS NULL THEN TRUE
     ELSE cart_id = sqlc.narg('cart_id')::uuid
-  END
-ORDER BY
-  id ASC;
+  END;
 
--- name: UpdateCartItem :one
-UPDATE cart_items
-SET
-  quantity = COALESCE(sqlc.narg('quantity')::integer, quantity)
-WHERE
-  id = sqlc.arg('id')
-RETURNING
-  *;
+-- name: MergeCartItemsFromTemp :exec
+MERGE INTO cart_items AS target
+USING temp_cart_items AS source
+  ON target.id = source.id
+WHEN MATCHED THEN
+  UPDATE SET
+    quantity = source.quantity,
+    cart_id = source.cart_id,
+    product_variant_id = source.product_variant_id
+WHEN NOT MATCHED THEN
+  INSERT (
+    id,
+    quantity,
+    cart_id,
+    product_variant_id
+  )
+  VALUES (
+    source.id,
+    source.quantity,
+    source.cart_id,
+    source.product_variant_id
+  )
+WHEN NOT MATCHED BY SOURCE AND target.cart_id = sqlc.arg('cart_id')::uuid THEN
+  DELETE;
 
--- name: DeleteCartItemByIDs :execrows
-DELETE FROM cart_items
-WHERE
-  id = ANY (sqlc.arg('ids')::uuid[]);

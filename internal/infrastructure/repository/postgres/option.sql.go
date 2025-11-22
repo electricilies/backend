@@ -12,112 +12,31 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createOption = `-- name: CreateOption :one
-INSERT INTO options (
-  name,
-  product_id
-)
-VALUES (
-   $1,
-   $2
-)
-RETURNING
-  id, name, product_id, deleted_at
+const createTempTableOptionValues = `-- name: CreateTempTableOptionValues :exec
+CREATE TEMPORARY TABLE temp_option_values (
+  id UUID PRIMARY KEY,
+  value TEXT NOT NULL,
+  option_id UUID NOT NULL,
+  deleted_at TIMESTAMP
+) ON COMMIT DROP
 `
 
-type CreateOptionParams struct {
-	Name      string
-	ProductID uuid.UUID
+func (q *Queries) CreateTempTableOptionValues(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, createTempTableOptionValues)
+	return err
 }
 
-func (q *Queries) CreateOption(ctx context.Context, arg CreateOptionParams) (Option, error) {
-	row := q.db.QueryRow(ctx, createOption, arg.Name, arg.ProductID)
-	var i Option
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.ProductID,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
-const createOptionValues = `-- name: CreateOptionValues :many
-INSERT INTO option_values (
-  option_id,
-  value
-)
-SELECT
-  $1,
-  UNNEST($2::text[]) AS value
-RETURNING
-  id, value, option_id
+const createTempTableOptionValuesProductVariants = `-- name: CreateTempTableOptionValuesProductVariants :exec
+CREATE TEMPORARY TABLE temp_option_values_product_variants (
+  product_variant_id UUID NOT NULL,
+  option_value_id UUID NOT NULL,
+  PRIMARY KEY (product_variant_id, option_value_id)
+) ON COMMIT DROP
 `
 
-type CreateOptionValuesParams struct {
-	OptionID uuid.UUID
-	Values   []string
-}
-
-func (q *Queries) CreateOptionValues(ctx context.Context, arg CreateOptionValuesParams) ([]OptionValue, error) {
-	rows, err := q.db.Query(ctx, createOptionValues, arg.OptionID, arg.Values)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []OptionValue
-	for rows.Next() {
-		var i OptionValue
-		if err := rows.Scan(&i.ID, &i.Value, &i.OptionID); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const deleteOptionValues = `-- name: DeleteOptionValues :execrows
-DELETE FROM
-  option_values
-WHERE
-  id = ANY ($1::uuid[])
-`
-
-type DeleteOptionValuesParams struct {
-	IDs []uuid.UUID
-}
-
-func (q *Queries) DeleteOptionValues(ctx context.Context, arg DeleteOptionValuesParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteOptionValues, arg.IDs)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
-const deleteOptions = `-- name: DeleteOptions :execrows
-UPDATE
-  options
-SET
-  deleted_at = NOW()
-WHERE
-  id = ANY ($1::uuid[])
-  AND deleted_at IS NULL
-`
-
-type DeleteOptionsParams struct {
-	IDs []uuid.UUID
-}
-
-func (q *Queries) DeleteOptions(ctx context.Context, arg DeleteOptionsParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteOptions, arg.IDs)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) CreateTempTableOptionValuesProductVariants(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, createTempTableOptionValuesProductVariants)
+	return err
 }
 
 const getOption = `-- name: GetOption :one
@@ -128,8 +47,8 @@ FROM
 WHERE
   id = $1::uuid
   AND CASE
-    WHEN $2::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN $2::text = 'only' THEN deleted_at IS NULL
+    WHEN $2::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $2::text = 'all' THEN TRUE
     ELSE FALSE
   END
@@ -152,9 +71,21 @@ func (q *Queries) GetOption(ctx context.Context, arg GetOptionParams) (Option, e
 	return i, err
 }
 
+type InsertTempTableOptionValuesParams struct {
+	ID        uuid.UUID
+	Value     string
+	OptionID  uuid.UUID
+	DeletedAt pgtype.Timestamp
+}
+
+type InsertTempTableOptionValuesProductVariantsParams struct {
+	ProductVariantID uuid.UUID
+	OptionValueID    uuid.UUID
+}
+
 const listOptionValues = `-- name: ListOptionValues :many
 SELECT
-  id, value, option_id
+  id, value, deleted_at, option_id
 FROM
   option_values
 WHERE
@@ -166,6 +97,12 @@ WHERE
     WHEN $2::uuid[] IS NULL THEN TRUE
     ELSE option_values.option_id = ANY ($2::uuid[])
   END
+  AND CASE
+    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $3::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
 ORDER BY
   option_values.id
 `
@@ -173,10 +110,11 @@ ORDER BY
 type ListOptionValuesParams struct {
 	IDs       []uuid.UUID
 	OptionIds []uuid.UUID
+	Deleted   string
 }
 
 func (q *Queries) ListOptionValues(ctx context.Context, arg ListOptionValuesParams) ([]OptionValue, error) {
-	rows, err := q.db.Query(ctx, listOptionValues, arg.IDs, arg.OptionIds)
+	rows, err := q.db.Query(ctx, listOptionValues, arg.IDs, arg.OptionIds, arg.Deleted)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +122,12 @@ func (q *Queries) ListOptionValues(ctx context.Context, arg ListOptionValuesPara
 	var items []OptionValue
 	for rows.Next() {
 		var i OptionValue
-		if err := rows.Scan(&i.ID, &i.Value, &i.OptionID); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Value,
+			&i.DeletedAt,
+			&i.OptionID,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -251,8 +194,8 @@ WHERE
     ELSE options.product_id = $2::uuid
   END
   AND CASE
-    WHEN $3::text = 'exclude' THEN deleted_at IS NOT NULL
-    WHEN $3::text = 'only' THEN deleted_at IS NULL
+    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $3::text = 'all' THEN TRUE
     ELSE FALSE
   END
@@ -291,92 +234,93 @@ func (q *Queries) ListOptions(ctx context.Context, arg ListOptionsParams) ([]Opt
 	return items, nil
 }
 
-const updateOptionValues = `-- name: UpdateOptionValues :many
-WITH updated_option_values AS (
-  SELECT
-    UNNEST($1::uuid[]) AS id,
-    UNNEST($2::text[]) AS value
-)
-UPDATE option_values
-SET
-  value = COALESCE(updated_option_values.value, option_values.value)
-FROM
-  updated_option_values
-WHERE
-  option_values.id = updated_option_values.id
-RETURNING
-  option_values.id, option_values.value, option_values.option_id
+const mergeOptionValuesFromTemp = `-- name: MergeOptionValuesFromTemp :exec
+MERGE INTO option_values AS target
+USING temp_option_values AS source
+  ON target.id = source.id
+WHEN MATCHED THEN
+  UPDATE SET
+    value = source.value,
+    option_id = source.option_id,
+    deleted_at = source.deleted_at
+WHEN NOT MATCHED THEN
+  INSERT (
+    id,
+    value,
+    option_id,
+    deleted_at
+  )
+  VALUES (
+    source.id,
+    source.value,
+    source.option_id,
+    source.deleted_at
+  )
+WHEN NOT MATCHED BY SOURCE AND target.option_id = sqlc.arg('option_id')::uuid THEN
+  DELETE
 `
 
-type UpdateOptionValuesParams struct {
-	IDs    []uuid.UUID
-	Values []string
+func (q *Queries) MergeOptionValuesFromTemp(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, mergeOptionValuesFromTemp)
+	return err
 }
 
-func (q *Queries) UpdateOptionValues(ctx context.Context, arg UpdateOptionValuesParams) ([]OptionValue, error) {
-	rows, err := q.db.Query(ctx, updateOptionValues, arg.IDs, arg.Values)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []OptionValue
-	for rows.Next() {
-		var i OptionValue
-		if err := rows.Scan(&i.ID, &i.Value, &i.OptionID); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const updateOptions = `-- name: UpdateOptions :many
-WITH updated_options AS (
-  SELECT
-    UNNEST($1::uuid[]) AS id,
-    UNNEST($2::text[]) AS name
-)
-UPDATE options
-SET
-  name = COALESCE(updated_options.name, options.name)
-FROM
-  updated_options
-WHERE
-  options.id = updated_options.id
-  AND options.deleted_at IS NULL
-RETURNING
-  options.id, options.name, options.product_id, options.deleted_at
+const mergeOptionValuesProductVariantsFromTemp = `-- name: MergeOptionValuesProductVariantsFromTemp :exec
+MERGE INTO option_values_product_variants AS target
+USING temp_option_values_product_variants AS source
+  ON target.product_variant_id = source.product_variant_id AND target.option_value_id = source.option_value_id
+WHEN NOT MATCHED THEN
+  INSERT (
+    product_variant_id,
+    option_value_id
+  )
+  VALUES (
+    source.product_variant_id,
+    source.option_value_id
+  )
+WHEN NOT MATCHED BY SOURCE AND target.option_value_id IN (
+  SELECT id FROM option_values WHERE option_id = sqlc.arg('option_id')::uuid
+) THEN
+  DELETE
 `
 
-type UpdateOptionsParams struct {
-	IDs   []uuid.UUID
-	Names []string
+func (q *Queries) MergeOptionValuesProductVariantsFromTemp(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, mergeOptionValuesProductVariantsFromTemp)
+	return err
 }
 
-func (q *Queries) UpdateOptions(ctx context.Context, arg UpdateOptionsParams) ([]Option, error) {
-	rows, err := q.db.Query(ctx, updateOptions, arg.IDs, arg.Names)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Option
-	for rows.Next() {
-		var i Option
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.ProductID,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+const upsertOption = `-- name: UpsertOption :exec
+INSERT INTO options (
+  id,
+  name,
+  product_id,
+  deleted_at
+)
+VALUES (
+  $1,
+  $2,
+  $3,
+  $4
+)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  product_id = EXCLUDED.product_id,
+  deleted_at = EXCLUDED.deleted_at
+`
+
+type UpsertOptionParams struct {
+	ID        uuid.UUID
+	Name      string
+	ProductID uuid.UUID
+	DeletedAt pgtype.Timestamp
+}
+
+func (q *Queries) UpsertOption(ctx context.Context, arg UpsertOptionParams) error {
+	_, err := q.db.Exec(ctx, upsertOption,
+		arg.ID,
+		arg.Name,
+		arg.ProductID,
+		arg.DeletedAt,
+	)
+	return err
 }
