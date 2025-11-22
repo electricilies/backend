@@ -39,12 +39,12 @@ func InitializeServer(ctx context.Context) *http.Server {
 	postgresCategory := repository.ProvidePostgresCategory(queries)
 	validate := client.NewValidate()
 	category := service.ProvideCategory(validate)
-	categoryImpl := application.ProvideCategory(postgresCategory, category)
+	categoryImpl := application.ProvideCategory(postgresCategory, category, redisClient)
 	ginCategoryHandler := http.ProvideCategoryHandler(categoryImpl)
 	ginProductHandler := http.ProvideProductHandler()
 	postgresAttribute := repository.ProvidePostgresAttribute(queries)
 	attribute := service.ProvideAttribute(validate)
-	attributeImpl := application.ProvideAttribute(postgresAttribute, attribute)
+	attributeImpl := application.ProvideAttribute(postgresAttribute, attribute, redisClient)
 	ginAttributeHandler := http.ProvideAttributeHandler(attributeImpl)
 	postgresOrder := repository.ProvidePostgresOrder(queries)
 	order := service.ProvideOrder(validate)
@@ -52,7 +52,7 @@ func InitializeServer(ctx context.Context) *http.Server {
 	ginOrderHandler := http.ProvideOrderHandler(orderImpl)
 	postgresReview := repository.ProvidePostgresReview(queries)
 	review := service.ProvideReview(validate)
-	reviewImpl := application.ProvideReview(postgresReview, review)
+	reviewImpl := application.ProvideReview(postgresReview, review, redisClient)
 	ginReviewHandler := http.ProvideReviewHandler(reviewImpl)
 	postgresCart := repository.ProvidePostgresCart(queries)
 	cart := service.ProvideCart(validate)
@@ -153,6 +153,9 @@ var ApplicationSet = wire.NewSet(application.ProvideAttribute, wire.Bind(
 ), application.ProvideOrder, wire.Bind(
 	new(application.Order),
 	new(*application.OrderImpl),
+), application.ProvideProduct, wire.Bind(
+	new(application.Product),
+	new(*application.ProductImpl),
 ), application.ProvideReview, wire.Bind(
 	new(application.Review),
 	new(*application.ReviewImpl),

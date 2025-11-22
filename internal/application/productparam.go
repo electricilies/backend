@@ -4,9 +4,11 @@ import "github.com/google/uuid"
 
 type ListProductParam struct {
 	PaginationParam
+	ProductIDs  *[]uuid.UUID `binding:"omitempty"`
 	CategoryIDs *[]uuid.UUID `binding:"omitempty"`
 	MinPrice    *int64       `binding:"omitempty"`
 	MaxPrice    *int64       `binding:"omitempty"`
+	Rating      *float64     `binding:"omitempty"`
 	SortPrice   *string      `binding:"omitempty,oneof=asc desc"`
 	SortRating  *string      `binding:"omitempty,oneof=asc desc"`
 	Search      *string      `binding:"omitempty"`

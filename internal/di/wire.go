@@ -163,11 +163,11 @@ var ApplicationSet = wire.NewSet(
 		new(application.Order),
 		new(*application.OrderImpl),
 	),
-	// application.ProvideProduct,
-	// wire.Bind(
-	// 	new(application.Product),
-	// 	new(*application.ProductImp),
-	// 	),
+	application.ProvideProduct,
+	wire.Bind(
+		new(application.Product),
+		new(*application.ProductImpl),
+	),
 	application.ProvideReview,
 	wire.Bind(
 		new(application.Review),
