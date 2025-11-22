@@ -74,8 +74,15 @@ gen: gen-wire gen-swag gen-sqlc gen-mockery
 format-gofumpt *args="":
   gofumpt -w . {{args}}
 
+[unix]
 format-swag *args="":
-  swag fmt {{args}}
+  #!/usr/bin/env bash
+  swag fmt \
+    -d ./internal/delivery/http/ \
+    -d ./cmd/ \
+    ./internal/delivery/http/handler*.go \
+    ./cmd/main.go \
+    {{args}}
 
 format-sqlfluff:
   sqlfluff fix --dialect postgres \
