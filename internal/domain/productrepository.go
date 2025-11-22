@@ -39,11 +39,6 @@ type ProductRepository interface {
 
 	Save(
 		ctx context.Context,
-		product *Product,
+		product Product,
 	) (*Product, error)
-
-	Remove(
-		ctx context.Context,
-		productID uuid.UUID,
-	) error
 }

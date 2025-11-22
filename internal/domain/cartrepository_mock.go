@@ -106,65 +106,8 @@ func (_c *MockCartRepository_Get_Call) RunAndReturn(run func(ctx context.Context
 	return _c
 }
 
-// Remove provides a mock function for the type MockCartRepository
-func (_mock *MockCartRepository) Remove(ctx context.Context, id uuid.UUID) error {
-	ret := _mock.Called(ctx, id)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Remove")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
-		r0 = returnFunc(ctx, id)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// MockCartRepository_Remove_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Remove'
-type MockCartRepository_Remove_Call struct {
-	*mock.Call
-}
-
-// Remove is a helper method to define mock.On call
-//   - ctx context.Context
-//   - id uuid.UUID
-func (_e *MockCartRepository_Expecter) Remove(ctx interface{}, id interface{}) *MockCartRepository_Remove_Call {
-	return &MockCartRepository_Remove_Call{Call: _e.mock.On("Remove", ctx, id)}
-}
-
-func (_c *MockCartRepository_Remove_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockCartRepository_Remove_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 uuid.UUID
-		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *MockCartRepository_Remove_Call) Return(err error) *MockCartRepository_Remove_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *MockCartRepository_Remove_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) error) *MockCartRepository_Remove_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Save provides a mock function for the type MockCartRepository
-func (_mock *MockCartRepository) Save(ctx context.Context, cart *Cart) (*Cart, error) {
+func (_mock *MockCartRepository) Save(ctx context.Context, cart Cart) (*Cart, error) {
 	ret := _mock.Called(ctx, cart)
 
 	if len(ret) == 0 {
@@ -173,17 +116,17 @@ func (_mock *MockCartRepository) Save(ctx context.Context, cart *Cart) (*Cart, e
 
 	var r0 *Cart
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *Cart) (*Cart, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, Cart) (*Cart, error)); ok {
 		return returnFunc(ctx, cart)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *Cart) *Cart); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, Cart) *Cart); ok {
 		r0 = returnFunc(ctx, cart)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Cart)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *Cart) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, Cart) error); ok {
 		r1 = returnFunc(ctx, cart)
 	} else {
 		r1 = ret.Error(1)
@@ -198,20 +141,20 @@ type MockCartRepository_Save_Call struct {
 
 // Save is a helper method to define mock.On call
 //   - ctx context.Context
-//   - cart *Cart
+//   - cart Cart
 func (_e *MockCartRepository_Expecter) Save(ctx interface{}, cart interface{}) *MockCartRepository_Save_Call {
 	return &MockCartRepository_Save_Call{Call: _e.mock.On("Save", ctx, cart)}
 }
 
-func (_c *MockCartRepository_Save_Call) Run(run func(ctx context.Context, cart *Cart)) *MockCartRepository_Save_Call {
+func (_c *MockCartRepository_Save_Call) Run(run func(ctx context.Context, cart Cart)) *MockCartRepository_Save_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *Cart
+		var arg1 Cart
 		if args[1] != nil {
-			arg1 = args[1].(*Cart)
+			arg1 = args[1].(Cart)
 		}
 		run(
 			arg0,
@@ -226,7 +169,7 @@ func (_c *MockCartRepository_Save_Call) Return(cart1 *Cart, err error) *MockCart
 	return _c
 }
 
-func (_c *MockCartRepository_Save_Call) RunAndReturn(run func(ctx context.Context, cart *Cart) (*Cart, error)) *MockCartRepository_Save_Call {
+func (_c *MockCartRepository_Save_Call) RunAndReturn(run func(ctx context.Context, cart Cart) (*Cart, error)) *MockCartRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

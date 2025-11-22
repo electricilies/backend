@@ -14,11 +14,6 @@ type CartRepository interface {
 
 	Save(
 		ctx context.Context,
-		cart *Cart,
+		cart Cart,
 	) (*Cart, error)
-
-	Remove(
-		ctx context.Context,
-		id uuid.UUID,
-	) error
 }

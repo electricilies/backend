@@ -7,11 +7,6 @@ import (
 )
 
 type ReviewRepository interface {
-	Get(
-		ctx context.Context,
-		id uuid.UUID,
-	) (*Review, error)
-
 	List(
 		ctx context.Context,
 		orderItemIDs *[]uuid.UUID,
@@ -30,13 +25,13 @@ type ReviewRepository interface {
 		deleted DeletedParam,
 	) (*int, error)
 
-	Save(
-		ctx context.Context,
-		review *Review,
-	) (*Review, error)
-
-	Remove(
+	Get(
 		ctx context.Context,
 		id uuid.UUID,
-	) error
+	) (*Review, error)
+
+	Save(
+		ctx context.Context,
+		review Review,
+	) (*Review, error)
 }

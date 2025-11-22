@@ -25,11 +25,6 @@ type CategoryRepository interface {
 
 	Save(
 		ctx context.Context,
-		category *Category,
+		category Category,
 	) (*Category, error)
-
-	Remove(
-		ctx context.Context,
-		id uuid.UUID,
-	) error
 }

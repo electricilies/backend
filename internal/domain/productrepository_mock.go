@@ -332,65 +332,8 @@ func (_c *MockProductRepository_List_Call) RunAndReturn(run func(ctx context.Con
 	return _c
 }
 
-// Remove provides a mock function for the type MockProductRepository
-func (_mock *MockProductRepository) Remove(ctx context.Context, productID uuid.UUID) error {
-	ret := _mock.Called(ctx, productID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Remove")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
-		r0 = returnFunc(ctx, productID)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// MockProductRepository_Remove_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Remove'
-type MockProductRepository_Remove_Call struct {
-	*mock.Call
-}
-
-// Remove is a helper method to define mock.On call
-//   - ctx context.Context
-//   - productID uuid.UUID
-func (_e *MockProductRepository_Expecter) Remove(ctx interface{}, productID interface{}) *MockProductRepository_Remove_Call {
-	return &MockProductRepository_Remove_Call{Call: _e.mock.On("Remove", ctx, productID)}
-}
-
-func (_c *MockProductRepository_Remove_Call) Run(run func(ctx context.Context, productID uuid.UUID)) *MockProductRepository_Remove_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 uuid.UUID
-		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *MockProductRepository_Remove_Call) Return(err error) *MockProductRepository_Remove_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *MockProductRepository_Remove_Call) RunAndReturn(run func(ctx context.Context, productID uuid.UUID) error) *MockProductRepository_Remove_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Save provides a mock function for the type MockProductRepository
-func (_mock *MockProductRepository) Save(ctx context.Context, product *Product) (*Product, error) {
+func (_mock *MockProductRepository) Save(ctx context.Context, product Product) (*Product, error) {
 	ret := _mock.Called(ctx, product)
 
 	if len(ret) == 0 {
@@ -399,17 +342,17 @@ func (_mock *MockProductRepository) Save(ctx context.Context, product *Product) 
 
 	var r0 *Product
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *Product) (*Product, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, Product) (*Product, error)); ok {
 		return returnFunc(ctx, product)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *Product) *Product); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, Product) *Product); ok {
 		r0 = returnFunc(ctx, product)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Product)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *Product) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, Product) error); ok {
 		r1 = returnFunc(ctx, product)
 	} else {
 		r1 = ret.Error(1)
@@ -424,20 +367,20 @@ type MockProductRepository_Save_Call struct {
 
 // Save is a helper method to define mock.On call
 //   - ctx context.Context
-//   - product *Product
+//   - product Product
 func (_e *MockProductRepository_Expecter) Save(ctx interface{}, product interface{}) *MockProductRepository_Save_Call {
 	return &MockProductRepository_Save_Call{Call: _e.mock.On("Save", ctx, product)}
 }
 
-func (_c *MockProductRepository_Save_Call) Run(run func(ctx context.Context, product *Product)) *MockProductRepository_Save_Call {
+func (_c *MockProductRepository_Save_Call) Run(run func(ctx context.Context, product Product)) *MockProductRepository_Save_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *Product
+		var arg1 Product
 		if args[1] != nil {
-			arg1 = args[1].(*Product)
+			arg1 = args[1].(Product)
 		}
 		run(
 			arg0,
@@ -452,7 +395,7 @@ func (_c *MockProductRepository_Save_Call) Return(product1 *Product, err error) 
 	return _c
 }
 
-func (_c *MockProductRepository_Save_Call) RunAndReturn(run func(ctx context.Context, product *Product) (*Product, error)) *MockProductRepository_Save_Call {
+func (_c *MockProductRepository_Save_Call) RunAndReturn(run func(ctx context.Context, product Product) (*Product, error)) *MockProductRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

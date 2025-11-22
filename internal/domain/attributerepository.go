@@ -44,11 +44,6 @@ type AttributeRepository interface {
 
 	Save(
 		ctx context.Context,
-		attribute *Attribute,
-	) error
-
-	Remove(
-		ctx context.Context,
-		id uuid.UUID,
+		attribute Attribute,
 	) error
 }

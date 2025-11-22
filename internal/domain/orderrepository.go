@@ -7,6 +7,15 @@ import (
 )
 
 type OrderRepository interface {
+	List(
+		ctx context.Context,
+		ids *[]uuid.UUID,
+		search *string,
+		deleted DeletedParam,
+		limit int,
+		offset int,
+	) (*[]Order, error)
+
 	Count(
 		ctx context.Context,
 		ids *[]uuid.UUID,
@@ -18,22 +27,8 @@ type OrderRepository interface {
 		id uuid.UUID,
 	) (*Order, error)
 
-	List(
-		ctx context.Context,
-		ids *[]uuid.UUID,
-		search *string,
-		deleted DeletedParam,
-		limit int,
-		offset int,
-	) (*[]Order, error)
-
 	Save(
 		ctx context.Context,
-		order *Order,
+		order Order,
 	) (*Order, error)
-
-	Remove(
-		ctx context.Context,
-		id uuid.UUID,
-	) error
 }
