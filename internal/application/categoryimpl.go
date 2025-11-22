@@ -33,7 +33,7 @@ func (c *CategoryImpl) Create(ctx context.Context, param CreateCategoryParam) (*
 		return nil, err
 	}
 
-	savedCategory, err := c.categoryRepo.Save(ctx, *category)
+	err = c.categoryRepo.Save(ctx, *category)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *CategoryImpl) Create(ctx context.Context, param CreateCategoryParam) (*
 		}
 	}
 
-	return savedCategory, nil
+	return category, nil
 }
 
 func (c *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*Pagination[domain.Category], error) {
@@ -137,7 +137,7 @@ func (c *CategoryImpl) Update(ctx context.Context, param UpdateCategoryParam) (*
 		return nil, err
 	}
 
-	savedCategory, err := c.categoryRepo.Save(ctx, *category)
+	err = c.categoryRepo.Save(ctx, *category)
 	if err != nil {
 		return nil, err
 	}
@@ -153,5 +153,5 @@ func (c *CategoryImpl) Update(ctx context.Context, param UpdateCategoryParam) (*
 		}
 	}
 
-	return savedCategory, nil
+	return category, nil
 }

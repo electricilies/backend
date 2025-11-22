@@ -15,7 +15,6 @@ type PostgresCategory struct {
 
 var _ domain.CategoryRepository = (*PostgresCategory)(nil)
 
-
 func ProvidePostgresCategory(q postgres.Querier) *PostgresCategory {
 	return &PostgresCategory{querier: q}
 }
@@ -32,6 +31,6 @@ func (r *PostgresCategory) Get(ctx context.Context, id uuid.UUID) (*domain.Categ
 	panic("implement me")
 }
 
-func (r *PostgresCategory) Save(ctx context.Context, category domain.Category) (*domain.Category, error) {
+func (r *PostgresCategory) Save(ctx context.Context, category domain.Category) error {
 	panic("implement me")
 }

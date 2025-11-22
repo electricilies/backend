@@ -15,5 +15,5 @@ type CartRepository interface {
 	Save(
 		ctx context.Context,
 		cart Cart,
-	) (*Cart, error)
+	) error
 }

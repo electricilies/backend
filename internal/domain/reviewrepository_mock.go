@@ -291,31 +291,20 @@ func (_c *MockReviewRepository_List_Call) RunAndReturn(run func(ctx context.Cont
 }
 
 // Save provides a mock function for the type MockReviewRepository
-func (_mock *MockReviewRepository) Save(ctx context.Context, review Review) (*Review, error) {
+func (_mock *MockReviewRepository) Save(ctx context.Context, review Review) error {
 	ret := _mock.Called(ctx, review)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
-	var r0 *Review
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, Review) (*Review, error)); ok {
-		return returnFunc(ctx, review)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, Review) *Review); ok {
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, Review) error); ok {
 		r0 = returnFunc(ctx, review)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Review)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, Review) error); ok {
-		r1 = returnFunc(ctx, review)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // MockReviewRepository_Save_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Save'
@@ -348,12 +337,12 @@ func (_c *MockReviewRepository_Save_Call) Run(run func(ctx context.Context, revi
 	return _c
 }
 
-func (_c *MockReviewRepository_Save_Call) Return(review1 *Review, err error) *MockReviewRepository_Save_Call {
-	_c.Call.Return(review1, err)
+func (_c *MockReviewRepository_Save_Call) Return(err error) *MockReviewRepository_Save_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockReviewRepository_Save_Call) RunAndReturn(run func(ctx context.Context, review Review) (*Review, error)) *MockReviewRepository_Save_Call {
+func (_c *MockReviewRepository_Save_Call) RunAndReturn(run func(ctx context.Context, review Review) error) *MockReviewRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

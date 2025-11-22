@@ -107,31 +107,20 @@ func (_c *MockCartRepository_Get_Call) RunAndReturn(run func(ctx context.Context
 }
 
 // Save provides a mock function for the type MockCartRepository
-func (_mock *MockCartRepository) Save(ctx context.Context, cart Cart) (*Cart, error) {
+func (_mock *MockCartRepository) Save(ctx context.Context, cart Cart) error {
 	ret := _mock.Called(ctx, cart)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
-	var r0 *Cart
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, Cart) (*Cart, error)); ok {
-		return returnFunc(ctx, cart)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, Cart) *Cart); ok {
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, Cart) error); ok {
 		r0 = returnFunc(ctx, cart)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Cart)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, Cart) error); ok {
-		r1 = returnFunc(ctx, cart)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // MockCartRepository_Save_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Save'
@@ -164,12 +153,12 @@ func (_c *MockCartRepository_Save_Call) Run(run func(ctx context.Context, cart C
 	return _c
 }
 
-func (_c *MockCartRepository_Save_Call) Return(cart1 *Cart, err error) *MockCartRepository_Save_Call {
-	_c.Call.Return(cart1, err)
+func (_c *MockCartRepository_Save_Call) Return(err error) *MockCartRepository_Save_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockCartRepository_Save_Call) RunAndReturn(run func(ctx context.Context, cart Cart) (*Cart, error)) *MockCartRepository_Save_Call {
+func (_c *MockCartRepository_Save_Call) RunAndReturn(run func(ctx context.Context, cart Cart) error) *MockCartRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

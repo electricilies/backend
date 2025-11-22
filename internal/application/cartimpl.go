@@ -33,11 +33,11 @@ func (c *CartImpl) Create(ctx context.Context, param CreateCartParam) (*domain.C
 	if err != nil {
 		return nil, err
 	}
-	savedCart, err := c.cartRepo.Save(ctx, *cart)
+	err = c.cartRepo.Save(ctx, *cart)
 	if err != nil {
 		return nil, err
 	}
-	return savedCart, nil
+	return cart, nil
 }
 
 func (c *CartImpl) CreateItem(ctx context.Context, param CreateCartItemParam) (*domain.CartItem, error) {
@@ -61,7 +61,7 @@ func (c *CartImpl) CreateItem(ctx context.Context, param CreateCartItemParam) (*
 		return nil, err
 	}
 
-	_, err = c.cartRepo.Save(ctx, *cart)
+	err = c.cartRepo.Save(ctx, *cart)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (c *CartImpl) UpdateItem(ctx context.Context, param UpdateCartItemParam) (*
 		return nil, err
 	}
 
-	_, err = c.cartRepo.Save(ctx, *cart)
+	err = c.cartRepo.Save(ctx, *cart)
 	if err != nil {
 		return nil, err
 	}
@@ -118,6 +118,6 @@ func (c *CartImpl) DeleteItem(ctx context.Context, param DeleteCartItemParam) er
 		return err
 	}
 
-	_, err = c.cartRepo.Save(ctx, *cart)
+	err = c.cartRepo.Save(ctx, *cart)
 	return err
 }

@@ -72,6 +72,9 @@ return {
             "./cmd/main.go",
             "-ot",
             "go",
+            "--parseDependency",
+            "--parseInternal",
+            "--useStructName",
           },
           condition = function(_, ctx)
             local filename = ctx.filename

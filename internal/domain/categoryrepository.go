@@ -26,5 +26,5 @@ type CategoryRepository interface {
 	Save(
 		ctx context.Context,
 		category Category,
-	) (*Category, error)
+	) error
 }

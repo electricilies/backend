@@ -249,31 +249,20 @@ func (_c *MockCategoryRepository_List_Call) RunAndReturn(run func(ctx context.Co
 }
 
 // Save provides a mock function for the type MockCategoryRepository
-func (_mock *MockCategoryRepository) Save(ctx context.Context, category Category) (*Category, error) {
+func (_mock *MockCategoryRepository) Save(ctx context.Context, category Category) error {
 	ret := _mock.Called(ctx, category)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
-	var r0 *Category
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, Category) (*Category, error)); ok {
-		return returnFunc(ctx, category)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, Category) *Category); ok {
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, Category) error); ok {
 		r0 = returnFunc(ctx, category)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Category)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, Category) error); ok {
-		r1 = returnFunc(ctx, category)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // MockCategoryRepository_Save_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Save'
@@ -306,12 +295,12 @@ func (_c *MockCategoryRepository_Save_Call) Run(run func(ctx context.Context, ca
 	return _c
 }
 
-func (_c *MockCategoryRepository_Save_Call) Return(category1 *Category, err error) *MockCategoryRepository_Save_Call {
-	_c.Call.Return(category1, err)
+func (_c *MockCategoryRepository_Save_Call) Return(err error) *MockCategoryRepository_Save_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockCategoryRepository_Save_Call) RunAndReturn(run func(ctx context.Context, category Category) (*Category, error)) *MockCategoryRepository_Save_Call {
+func (_c *MockCategoryRepository_Save_Call) RunAndReturn(run func(ctx context.Context, category Category) error) *MockCategoryRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -33,5 +33,5 @@ type ReviewRepository interface {
 	Save(
 		ctx context.Context,
 		review Review,
-	) (*Review, error)
+	) error
 }

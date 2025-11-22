@@ -134,7 +134,7 @@ func (h *GinAttributeHandler) List(ctx *gin.Context) {
 //	@Param			deleted				query		string	false	"Filter by deletion status"	Enums(exclude, only, all)
 //	@Success		200					{object}	application.Pagination[domain.AttributeValue]
 //	@Failure		500					{object}	Error
-//	@Router			/attributes/values [get]
+//	@Router			/attributes/{attribute_id}/values [get]
 func (h *GinAttributeHandler) ListValues(ctx *gin.Context) {
 	paginateParam, err := createPaginationParamsFromQuery(ctx)
 	if err != nil {
@@ -336,7 +336,7 @@ func (h *GinAttributeHandler) Delete(ctx *gin.Context) {
 //	@Success		204
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
-//	@Router			/attributes/values/{value_id} [delete]
+//	@Router			/attributes/{attribute_id}/values/{value_id} [delete]
 func (h *GinAttributeHandler) DeleteValue(ctx *gin.Context) {
 	valueIDString := ctx.Param("value_id")
 	if valueIDString == "" {

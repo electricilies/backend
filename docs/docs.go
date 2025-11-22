@@ -43,9 +43,23 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "type": "integer",
-                        "description": "Product ID",
-                        "name": "product_id",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Attribute IDs",
+                        "name": "attribute_ids",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Product IDs",
+                        "name": "product_ids",
                         "in": "query"
                     },
                     {
@@ -119,120 +133,6 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/attributes/values": {
-            "get": {
-                "description": "Get all attribute values",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Attribute"
-                ],
-                "summary": "List all attribute values",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page for pagination",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 20,
-                        "description": "Limit for pagination",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Attribute ID",
-                        "name": "attribute_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Product ID",
-                        "name": "attribute_value_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Search term",
-                        "name": "search",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "exclude",
-                            "only",
-                            "all"
-                        ],
-                        "type": "string",
-                        "description": "Filter by deletion status",
-                        "name": "deleted",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/Pagination-AttributeValue"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/attributes/values/{value_id}": {
-            "delete": {
-                "description": "Delete attribute value by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Attribute"
-                ],
-                "summary": "Delete an attribute value",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Attribute Value ID",
-                        "name": "value_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/Error"
                         }
@@ -393,6 +293,77 @@ const docTemplate = `{
             }
         },
         "/attributes/{attribute_id}/values": {
+            "get": {
+                "description": "Get all attribute values",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attribute"
+                ],
+                "summary": "List all attribute values",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page for pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Limit for pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attribute ID",
+                        "name": "attribute_id",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Product ID",
+                        "name": "attribute_value_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "exclude",
+                            "only",
+                            "all"
+                        ],
+                        "type": "string",
+                        "description": "Filter by deletion status",
+                        "name": "deleted",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Pagination-AttributeValue"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a new attribute value for a given attribute",
                 "consumes": [
@@ -513,6 +484,47 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/attributes/{attribute_id}/values/{value_id}": {
+            "delete": {
+                "description": "Delete attribute value by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attribute"
+                ],
+                "summary": "Delete an attribute value",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Attribute Value ID",
+                        "name": "value_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/Error"
                         }
@@ -1388,7 +1400,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Product ID",
-                        "name": "produdt_id",
+                        "name": "product_id",
                         "in": "path",
                         "required": true
                     }
@@ -2145,6 +2157,9 @@ const docTemplate = `{
                 "attribute": {
                     "$ref": "#/definitions/Attribute"
                 },
+                "deletedAt": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string",
                     "example": "1"
@@ -2381,6 +2396,7 @@ const docTemplate = `{
         "CreateProductImageData": {
             "type": "object",
             "required": [
+                "order",
                 "url"
             ],
             "properties": {
@@ -2437,6 +2453,7 @@ const docTemplate = `{
         "CreateProductVariantImage": {
             "type": "object",
             "required": [
+                "order",
                 "url"
             ],
             "properties": {
@@ -2529,6 +2546,9 @@ const docTemplate = `{
                 "value"
             ],
             "properties": {
+                "deletedAt": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -2871,6 +2891,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
                     "type": "string"
                 },
                 "id": {

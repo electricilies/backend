@@ -31,6 +31,6 @@ func (r *PostgresReview) Get(ctx context.Context, id uuid.UUID) (*domain.Review,
 	panic("implement me")
 }
 
-func (r *PostgresReview) Save(ctx context.Context, review domain.Review) (*domain.Review, error) {
+func (r *PostgresReview) Save(ctx context.Context, review domain.Review) error {
 	panic("implement me")
 }

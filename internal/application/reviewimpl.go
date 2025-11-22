@@ -130,7 +130,7 @@ func (r *ReviewImpl) Update(ctx context.Context, param UpdateReviewParam) (*doma
 		return nil, err
 	}
 
-	savedReview, err := r.reviewRepo.Save(ctx, *review)
+	err = r.reviewRepo.Save(ctx, *review)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (r *ReviewImpl) Delete(ctx context.Context, param DeleteReviewParam) error 
 
 	// Mark as deleted by saving with DeletedAt set
 	// This assumes the domain model handles soft delete
-	_, err = r.reviewRepo.Save(ctx, *review)
+	err = r.reviewRepo.Save(ctx, *review)
 	if err != nil {
 		return err
 	}

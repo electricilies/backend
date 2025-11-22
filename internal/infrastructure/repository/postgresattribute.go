@@ -15,7 +15,6 @@ type PostgresAttribute struct {
 
 var _ domain.AttributeRepository = (*PostgresAttribute)(nil)
 
-
 func ProvidePostgresAttribute(q postgres.Querier) *PostgresAttribute {
 	return &PostgresAttribute{querier: q}
 }
