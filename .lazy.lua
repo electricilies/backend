@@ -59,7 +59,9 @@ return {
           },
           condition = function(_, ctx)
             local filename = ctx.filename
-            return filename:match("internal/delivery/http/handler.*%.go") ~= nil or filename:match("cmd") ~= nil
+            vim.print(filename)
+            return filename:match("internal/delivery/http/%.conform%.%d+%.handler%w*%.go") ~= nil
+              or filename:match("cmd") ~= nil
           end,
           stdin = false,
         },
@@ -75,7 +77,10 @@ return {
           condition = function(_, ctx)
             local filename = ctx.filename
             return not g.dev_no_gen
-              and (filename:match("internal/delivery/http/handler.*%.go") ~= nil or filename:match("cmd") ~= nil)
+              and (
+                filename:match("internal/delivery/http/%.conform%.%d+%.handler%w*%.go") ~= nil
+                or filename:match("cmd") ~= nil
+              )
           end,
           stdin = false,
         },
