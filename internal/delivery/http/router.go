@@ -60,9 +60,9 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 	api := e.Group("/api")
 	{
 		api.Use(r.loggingMiddleware.Handler())
-		api.Use(r.authMiddleware.Handler())
 		cart := api.Group("/carts")
 		{
+			cart.Use(r.authMiddleware.Handler())
 			cart.GET("/:cart_id", r.cartHandler.Get)
 			cart.POST("/:cart_id/item", r.cartHandler.CreateItem)
 			cart.PATCH("/:cart_id/item", r.cartHandler.UpdateItem)
@@ -107,6 +107,7 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 
 		orders := api.Group("/orders")
 		{
+			orders.Use(r.authMiddleware.Handler())
 			orders.GET("", r.orderHandler.List)
 			orders.POST("", r.orderHandler.Create)
 			orders.GET("/:order_id", r.orderHandler.Get)

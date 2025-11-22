@@ -15,7 +15,6 @@ type PostgresCart struct {
 
 var _ domain.CartRepository = (*PostgresCart)(nil)
 
-
 func ProvidePostgresCart(q postgres.Querier) *PostgresCart {
 	return &PostgresCart{querier: q}
 }
@@ -24,6 +23,6 @@ func (r *PostgresCart) Get(ctx context.Context, id uuid.UUID) (*domain.Cart, err
 	panic("implement me")
 }
 
-func (r *PostgresCart) Save(ctx context.Context, cart domain.Cart) (*domain.Cart, error) {
+func (r *PostgresCart) Save(ctx context.Context, cart domain.Cart) error {
 	panic("implement me")
 }

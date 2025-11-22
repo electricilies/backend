@@ -79,7 +79,7 @@ func (h *GinAttributeHandler) Get(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			page			query		int			false	"Page for pagination"
+//	@Param			page			query		int			false	"Page for pagination"	default(1)
 //	@Param			limit			query		int			false	"Limit for pagination"	default(20)
 //	@Param			attribute_ids	query		[]string	false	"Attribute IDs"			collectionFormat(csv)
 //	@Param			product_ids		query		[]string	false	"Product IDs"			collectionFormat(csv)
@@ -126,7 +126,7 @@ func (h *GinAttributeHandler) List(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			page				query		int		false	"Page for pagination"
+//	@Param			page				query		int		false	"Page for pagination"	default(1)
 //	@Param			limit				query		int		false	"Limit for pagination"	default(20)
 //	@Param			attribute_id		path		string	false	"Attribute ID"
 //	@Param			attribute_value_id	query		string	false	"Product ID"

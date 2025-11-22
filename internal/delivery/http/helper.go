@@ -27,16 +27,24 @@ func queryArrayToUUIDSlice(ctx *gin.Context, key string) (*[]uuid.UUID, bool) {
 }
 
 func createPaginationParamsFromQuery(ctx *gin.Context) (*application.PaginationParam, error) {
+	page := 1
+	limit := 20
+	var err error
+
 	pageQuery := ctx.Query("page")
-	page, err := strconv.Atoi(pageQuery)
-	if err != nil {
-		return nil, domain.ErrInvalid
+	if pageQuery != "" {
+		page, err = strconv.Atoi(pageQuery)
+		if err != nil {
+			return nil, domain.ErrInvalid
+		}
 	}
 
 	limitQuery := ctx.Query("limit")
-	limit, err := strconv.Atoi(limitQuery)
-	if err != nil {
-		return nil, domain.ErrInvalid
+	if limitQuery != "" {
+		limit, err = strconv.Atoi(limitQuery)
+		if err != nil {
+			return nil, domain.ErrInvalid
+		}
 	}
 	return &application.PaginationParam{
 		Page:  &page,

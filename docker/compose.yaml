@@ -6,18 +6,17 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME:-electricilies}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-electricilies}
-      POSTGRES_DB: ${DB_DATABASE:-electricilies}
+      POSTGRES_DB: ${DB_DATABASE:-postgres}
       PGDATA: /data/postgres
     ports:
       - ${DB_PORT:-5432}:5432
     volumes:
       - db:/data/postgres
       - ./volume/init.sql:/docker-entrypoint-initdb.d/00-init.sql
-      - ./volume/post-init.sql:/docker-entrypoint-initdb.d/09-post-init.sql
       - ./volume/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql
       - ./volume/trigger.sql:/docker-entrypoint-initdb.d/11-trigger.sql
       - ./volume/seed.sql:/docker-entrypoint-initdb.d/20-seed.sql
-      # - ./volume/seed-fake.sql:/docker-entrypoint-initdb.d/21-seed-fake.sql
+      - ./volume/seed-fake.sql:/docker-entrypoint-initdb.d/21-seed-fake.sql
       - ./volume/paradedb-index.sql:/docker-entrypoint-initdb.d/30-paradedb-index.sql
     healthcheck:
       test: [CMD, pg_isready, -U, postgres, -h, localhost]

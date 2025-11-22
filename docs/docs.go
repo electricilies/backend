@@ -31,6 +31,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Page for pagination",
                         "name": "page",
                         "in": "query"
@@ -308,6 +309,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Page for pagination",
                         "name": "page",
                         "in": "query"
@@ -554,15 +556,16 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "default": 20,
-                        "description": "Limit",
-                        "name": "limit",
+                        "default": 1,
+                        "description": "Page for pagination",
+                        "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Page",
-                        "name": "page",
+                        "default": 20,
+                        "description": "Limit",
+                        "name": "limit",
                         "in": "query"
                     }
                 ],
@@ -746,6 +749,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Page for pagination",
                         "name": "page",
                         "in": "query"
@@ -1207,6 +1211,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Page for pagination",
                         "name": "page",
                         "in": "query"
@@ -1918,13 +1923,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Page for pagination",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "default": 10,
+                        "default": 20,
                         "description": "Limit for pagination",
                         "name": "limit",
                         "in": "query"

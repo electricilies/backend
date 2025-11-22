@@ -44,8 +44,8 @@ func ProvideCartHandler(cartApp application.Cart) *GinCartHandler {
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
-//	@Param			limit	query		int	false	"Limit"	default(20)
-//	@Param			page	query		int	false	"Page"
+//	@Param			page	query		int	false	"Page for pagination"	default(1)
+//	@Param			limit	query		int	false	"Limit"					default(20)
 //	@Success		200		{object}	domain.Cart
 //	@Failure		404		{object}	Error
 //	@Failure		500		{object}	Error
