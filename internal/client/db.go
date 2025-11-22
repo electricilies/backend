@@ -24,6 +24,7 @@ func NewDBConnection(ctx context.Context, srvCfg *config.Server) *pgxpool.Pool {
 			srvCfg.DBName,
 		)
 	}
+	log.Printf("Connecting to Db: %s", url)
 
 	conn, err := pgxpool.New(ctx, url)
 	if err != nil {

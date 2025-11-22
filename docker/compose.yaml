@@ -2,7 +2,7 @@ name: electricilies-backend
 
 services:
   db:
-    image: paradedb/paradedb:17-v0.18.11
+    image: paradedb/paradedb:17-v0.20.0
     environment:
       POSTGRES_USER: ${DB_USERNAME:-electricilies}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-electricilies}

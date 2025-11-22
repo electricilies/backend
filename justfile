@@ -1,6 +1,6 @@
 set dotenv-load
 
-db-connection := x'postgresql://${DB_USERNAME:-electricilies}:${DB_PASSWORD:-electricilies}@${DB_HOST:-localhost}:${DB_PORT:-5432}/${DB_DATABASE:-electricilies}?sslmode=disable'
+db-connection := x'postgresql://${DB_USERNAME:-electricilies}:${DB_PASSWORD:-electricilies}@${DB_HOST:-localhost}:${DB_PORT:-5432}/${DB_DATABASE:-postgres}?sslmode=disable'
 
 main-go := "./cmd/main.go"
 bin-out := "./backend"

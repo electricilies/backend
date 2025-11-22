@@ -7,11 +7,11 @@
 DB_USERNAME = "electricilies"
 DB_PASSWORD = "electricilies"
 DB_DATABASE = "postgres"
-DB_PORT = 5432                                                                                   # optional
+DB_PORT = 5432                                                                              # optional
 DB_HOST = "localhost"
-DB_URL = "postgresql://electricilies:electricilies@localhost:5432/electricilies?sslmode=disable"
-PORT = 8080                                                                                      # optional
-TIMEZONE = "Asia/Ho_Chi_Minh"                                                                    # optional
+DB_URL = "postgresql://electricilies:electricilies@localhost:5432/postgres?sslmode=disable"
+PORT = 8080                                                                                 # optional
+TIMEZONE = "Asia/Ho_Chi_Minh"                                                               # optional
 
 # Keycloak
 KC_CLIENT_ID = "backend"
