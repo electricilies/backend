@@ -42,8 +42,8 @@ WHERE
 ORDER BY
   CASE WHEN sqlc.narg('search')::text IS NOT NULL THEN pdb.score(id) END DESC,
   id ASC
-OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
-LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
+OFFSET sqlc.arg('offset')::integer
+LIMIT sqlc.arg('limit')::integer;
 
 -- name: CountAttributes :one
 SELECT

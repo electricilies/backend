@@ -189,16 +189,16 @@ WHERE
 ORDER BY
   CASE WHEN $2::text IS NOT NULL THEN pdb.score(id) END DESC,
   id ASC
-OFFSET COALESCE($4::integer, 0)
-LIMIT COALESCE($5::integer, 20)
+OFFSET $4::integer
+LIMIT $5::integer
 `
 
 type ListAttributesParams struct {
 	IDs     []uuid.UUID
 	Search  *string
 	Deleted string
-	Offset  *int32
-	Limit   *int32
+	Offset  int32
+	Limit   int32
 }
 
 func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) ([]Attribute, error) {
