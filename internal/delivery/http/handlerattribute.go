@@ -83,6 +83,7 @@ func (h *GinAttributeHandler) Get(ctx *gin.Context) {
 //		@Param			page		query		int		false	"Page for pagination"
 //		@Param			limit		query		int		false	"Limit for pagination"	default(20)
 //	        @Param 	  attribute_ids	query		[]string	false	"Attribute IDs"				collectionFormat(csv)
+//	@Param product_ids query []string false "Product IDs" collectionFormat(csv)
 //	          	@Param			search		query		string	false	"Search term"
 //		@Param			deleted		query		string	false	"Filter by deletion status"	Enums(exclude, only, all)
 //		@Success		200			{object}	application.Pagination[domain.Attribute]
