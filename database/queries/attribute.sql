@@ -43,7 +43,7 @@ ORDER BY
   CASE WHEN sqlc.narg('search')::text IS NOT NULL THEN pdb.score(id) END DESC,
   id ASC
 OFFSET sqlc.arg('offset')::integer
-LIMIT sqlc.arg('limit')::integer;
+LIMIT NULLIF(sqlc.arg('limit')::integer, 0);
 
 -- name: CountAttributes :one
 SELECT
@@ -97,7 +97,7 @@ ORDER BY
   product_id ASC,
   attribute_value_id ASC
 OFFSET sqlc.arg('offset')::integer
-LIMIT sqlc.arg('limit')::integer;
+LIMIT NULLIF(sqlc.arg('limit')::integer, 0);
 
 -- name: ListAttributeValues :many
 SELECT

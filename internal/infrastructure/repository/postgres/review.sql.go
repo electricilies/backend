@@ -124,8 +124,8 @@ WHERE
   END
 ORDER BY
   reviews.created_at DESC
-OFFSET COALESCE($5::integer, 0)
-LIMIT COALESCE($6::integer, 10)
+OFFSET $5::integer
+LIMIT NULLIF($6::integer, 0)
 `
 
 type ListReviewsParams struct {
@@ -133,8 +133,8 @@ type ListReviewsParams struct {
 	OrderItemIds []uuid.UUID
 	ProductIDs   []uuid.UUID
 	Deleted      string
-	Offset       *int32
-	Limit        *int32
+	Offset       int32
+	Limit        int32
 }
 
 func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]Review, error) {

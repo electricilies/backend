@@ -59,8 +59,8 @@ WHERE
   END
 ORDER BY
   reviews.created_at DESC
-OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
-LIMIT COALESCE(sqlc.narg('limit')::integer, 10);
+OFFSET sqlc.arg('offset')::integer
+LIMIT NULLIF(sqlc.arg('limit')::integer, 0);
 
 -- name: CountReviews :one
 SELECT

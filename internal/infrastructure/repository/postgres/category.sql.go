@@ -89,7 +89,7 @@ WHERE
 ORDER BY
   id DESC
 OFFSET $3::integer
-LIMIT $4::integer
+LIMIT NULLIF($4::integer, 0)
 `
 
 type ListCategoriesParams struct {

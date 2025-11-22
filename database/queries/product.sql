@@ -108,8 +108,8 @@ ORDER BY
   CASE WHEN
    sqlc.narg('sort_price')::text = 'desc' THEN products.price
   END DESC
-OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
-LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
+OFFSET sqlc.arg('offset')::integer
+LIMIT NULLIF(sqlc.arg('limit')::integer, 0);
 
 -- name: CountProducts :one
 SELECT

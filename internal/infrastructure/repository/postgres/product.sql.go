@@ -433,8 +433,8 @@ ORDER BY
   CASE WHEN
    $9::text = 'desc' THEN products.price
   END DESC
-OFFSET COALESCE($10::integer, 0)
-LIMIT COALESCE($11::integer, 20)
+OFFSET $10::integer
+LIMIT NULLIF($11::integer, 0)
 `
 
 type ListProductsParams struct {
@@ -447,8 +447,8 @@ type ListProductsParams struct {
 	Deleted     string
 	SortRating  *string
 	SortPrice   *string
-	Offset      *int32
-	Limit       *int32
+	Offset      int32
+	Limit       int32
 }
 
 // This is used for list, search (with filter, order), suggest

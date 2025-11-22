@@ -226,7 +226,7 @@ ORDER BY
   CASE WHEN $2::text IS NOT NULL THEN pdb.score(id) END DESC,
   id ASC
 OFFSET $4::integer
-LIMIT $5::integer
+LIMIT NULLIF($5::integer, 0)
 `
 
 type ListAttributesParams struct {
@@ -288,7 +288,7 @@ ORDER BY
   product_id ASC,
   attribute_value_id ASC
 OFFSET $3::integer
-LIMIT $4::integer
+LIMIT NULLIF($4::integer, 0)
 `
 
 type ListProductsAttributeValuesParams struct {

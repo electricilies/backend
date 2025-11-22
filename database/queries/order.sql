@@ -54,7 +54,7 @@ WHERE
 ORDER BY
   id ASC
 OFFSET sqlc.arg('offset')::integer
-LIMIT sqlc.arg('limit')::integer;
+LIMIT NULLIF(sqlc.arg('limit')::integer, 0);
 
 -- name: CountOrders :one
 SELECT

@@ -275,7 +275,7 @@ WHERE
 ORDER BY
   id ASC
 OFFSET $4::integer
-LIMIT $5::integer
+LIMIT NULLIF($5::integer, 0)
 `
 
 type ListOrdersParams struct {
