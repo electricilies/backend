@@ -160,6 +160,8 @@ WHERE
 ORDER BY
   CASE WHEN $3::text IS NOT NULL THEN pdb.score(id) END DESC,
   id ASC
+OFFSET $5::integer
+LIMIT NULLIF($6::integer, 0)
 `
 
 type ListAttributeValuesParams struct {
@@ -167,6 +169,8 @@ type ListAttributeValuesParams struct {
 	AttributeID pgtype.UUID
 	Search      *string
 	Deleted     string
+	Offset      int32
+	Limit       int32
 }
 
 func (q *Queries) ListAttributeValues(ctx context.Context, arg ListAttributeValuesParams) ([]AttributeValue, error) {
@@ -175,6 +179,8 @@ func (q *Queries) ListAttributeValues(ctx context.Context, arg ListAttributeValu
 		arg.AttributeID,
 		arg.Search,
 		arg.Deleted,
+		arg.Offset,
+		arg.Limit,
 	)
 	if err != nil {
 		return nil, err

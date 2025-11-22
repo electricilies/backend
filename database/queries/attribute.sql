@@ -126,7 +126,9 @@ WHERE
   END
 ORDER BY
   CASE WHEN sqlc.narg('search')::text IS NOT NULL THEN pdb.score(id) END DESC,
-  id ASC;
+  id ASC
+OFFSET sqlc.arg('offset')::integer
+LIMIT NULLIF(sqlc.arg('limit')::integer, 0);
 
 -- name: CountAttributeValues :one
 SELECT
