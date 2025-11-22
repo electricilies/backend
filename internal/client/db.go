@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"backend/config"
@@ -13,7 +14,18 @@ import (
 )
 
 func NewDBConnection(ctx context.Context, srvCfg *config.Server) *pgxpool.Pool {
-	conn, err := pgxpool.New(ctx, srvCfg.DBURL)
+	url := srvCfg.DBURL
+	if url == "" {
+		url = fmt.Sprintf("postgres://%s:%s@%s:%d/%s",
+			srvCfg.DBUsername,
+			srvCfg.DBPassword,
+			srvCfg.DBHost,
+			srvCfg.DBPort,
+			srvCfg.DBName,
+		)
+	}
+
+	conn, err := pgxpool.New(ctx, url)
 	if err != nil {
 		log.Printf("Cannot connect to Db: %v", err)
 		return nil
