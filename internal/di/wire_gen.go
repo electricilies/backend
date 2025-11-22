@@ -8,9 +8,12 @@ package di
 
 import (
 	"backend/config"
+	"backend/internal/application"
 	"backend/internal/client"
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
+	"backend/internal/infrastructure/repository"
+	"backend/internal/infrastructure/repository/postgres"
 	"backend/internal/service"
 	"backend/pkg/logger"
 	"context"
@@ -32,12 +35,29 @@ func InitializeServer(ctx context.Context) *http.Server {
 	zapLogger := logger.New(loggerConfig)
 	loggingMiddlewareImpl := http.ProvideLoggingMiddleware(zapLogger)
 	ginAuthMiddleware := http.ProvideAuthMiddleware(goCloak, server)
-	ginCategoryHandler := http.ProvideCategoryHandler()
+	queries := postgres.ProvideQueries(pool)
+	postgresCategory := repository.ProvidePostgresCategory(queries)
+	validate := client.NewValidate()
+	category := service.ProvideCategory(validate)
+	categoryImpl := application.ProvideCategory(postgresCategory, category)
+	ginCategoryHandler := http.ProvideCategoryHandler(categoryImpl)
 	ginProductHandler := http.ProvideProductHandler()
-	ginAttributeHandler := http.ProvideAttributeHandler()
-	ginOrderHandler := http.ProvideOrderHandler()
-	ginReviewHandler := http.ProvideReviewHandler()
-	ginCartHandler := http.ProvideCartHandler()
+	postgresAttribute := repository.ProvidePostgresAttribute(queries)
+	attribute := service.ProvideAttribute(validate)
+	attributeImpl := application.ProvideAttribute(postgresAttribute, attribute)
+	ginAttributeHandler := http.ProvideAttributeHandler(attributeImpl)
+	postgresOrder := repository.ProvidePostgresOrder(queries)
+	order := service.ProvideOrder(validate)
+	orderImpl := application.ProvideOrder(postgresOrder, order)
+	ginOrderHandler := http.ProvideOrderHandler(orderImpl)
+	postgresReview := repository.ProvidePostgresReview(queries)
+	review := service.ProvideReview(validate)
+	reviewImpl := application.ProvideReview(postgresReview, review)
+	ginReviewHandler := http.ProvideReviewHandler(reviewImpl)
+	postgresCart := repository.ProvidePostgresCart(queries)
+	cart := service.ProvideCart(validate)
+	cartImpl := application.ProvideCart(postgresCart, cart)
+	ginCartHandler := http.ProvideCartHandler(cartImpl)
 	ginRouter := http.ProvideRouter(ginHealthHandler, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, ginCategoryHandler, ginProductHandler, ginAttributeHandler, ginOrderHandler, ginReviewHandler, ginCartHandler)
 	ginAuthHandler := http.ProvideAuthHandler(server)
 	httpServer := http.NewServer(engine, ginRouter, server, ginAuthHandler)
@@ -50,25 +70,32 @@ var ConfigSet = wire.NewSet(config.NewServer, logger.NewConfig)
 
 var LoggerSet = wire.NewSet(logger.New)
 
-var DbSet = wire.NewSet(client.NewDBConnection, client.NewDBQueries, client.NewDBTransactor)
+var DbSet = wire.NewSet(client.NewDBConnection, postgres.ProvideQueries, wire.Bind(
+	new(postgres.Querier),
+	new(*postgres.Queries),
+), client.NewDBTransactor,
+)
 
 var EngineSet = wire.NewSet(client.NewGin)
 
 var ServiceSet = wire.NewSet(service.ProvideAttribute, wire.Bind(
 	new(domain.AttributeService),
 	new(*service.Attribute),
+), service.ProvideCart, wire.Bind(
+	new(domain.CartService),
+	new(*service.Cart),
 ), service.ProvideCategory, wire.Bind(
 	new(domain.CategoryService),
 	new(*service.Category),
+), service.ProvideOrder, wire.Bind(
+	new(domain.OrderService),
+	new(*service.Order),
 ), service.ProvideProduct, wire.Bind(
 	new(domain.ProductService),
 	new(*service.Product),
 ), service.ProvideReview, wire.Bind(
 	new(domain.ReviewService),
 	new(*service.Review),
-), service.ProvideCart, wire.Bind(
-	new(domain.CartService),
-	new(*service.Cart),
 ),
 )
 
@@ -111,6 +138,45 @@ var HandlerSet = wire.NewSet(http.ProvideAttributeHandler, wire.Bind(
 ), http.ProvideCartHandler, wire.Bind(
 	new(http.CartHandler),
 	new(*http.GinCartHandler),
+),
+)
+
+var ApplicationSet = wire.NewSet(application.ProvideAttribute, wire.Bind(
+	new(application.Attribute),
+	new(*application.AttributeImpl),
+), application.ProvideCart, wire.Bind(
+	new(application.Cart),
+	new(*application.CartImpl),
+), application.ProvideCategory, wire.Bind(
+	new(application.Category),
+	new(*application.CategoryImpl),
+), application.ProvideOrder, wire.Bind(
+	new(application.Order),
+	new(*application.OrderImpl),
+), application.ProvideReview, wire.Bind(
+	new(application.Review),
+	new(*application.ReviewImpl),
+),
+)
+
+var RepositorySet = wire.NewSet(repository.ProvidePostgresAttribute, wire.Bind(
+	new(domain.AttributeRepository),
+	new(*repository.PostgresAttribute),
+), repository.ProvidePostgresCart, wire.Bind(
+	new(domain.CartRepository),
+	new(*repository.PostgresCart),
+), repository.ProvidePostgresCategory, wire.Bind(
+	new(domain.CategoryRepository),
+	new(*repository.PostgresCategory),
+), repository.ProvidePostgresOrder, wire.Bind(
+	new(domain.OrderRepository),
+	new(*repository.PostgresOrder),
+), repository.ProvidePostgresProduct, wire.Bind(
+	new(domain.ProductRepository),
+	new(*repository.PostgresProduct),
+), repository.ProvidePostgresReview, wire.Bind(
+	new(domain.ReviewRepository),
+	new(*repository.PostgresReview),
 ),
 )
 

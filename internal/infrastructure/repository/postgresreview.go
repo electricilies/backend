@@ -9,28 +9,28 @@ import (
 	"github.com/google/uuid"
 )
 
-type PostgresReviews struct {
+type PostgresReview struct {
 	querier postgres.Querier
 }
 
-var _ domain.ReviewRepository = (*PostgresReviews)(nil)
+var _ domain.ReviewRepository = (*PostgresReview)(nil)
 
-func ProvidePostgresReview(q postgres.Querier) *PostgresReviews {
-	return &PostgresReviews{querier: q}
+func ProvidePostgresReview(q postgres.Querier) *PostgresReview {
+	return &PostgresReview{querier: q}
 }
 
-func (r *PostgresReviews) List(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted domain.DeletedParam, limit int, offset int) (*[]domain.Review, error) {
+func (r *PostgresReview) List(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted domain.DeletedParam, limit int, offset int) (*[]domain.Review, error) {
 	panic("implement me")
 }
 
-func (r *PostgresReviews) Count(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted domain.DeletedParam) (*int, error) {
+func (r *PostgresReview) Count(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted domain.DeletedParam) (*int, error) {
 	panic("implement me")
 }
 
-func (r *PostgresReviews) Get(ctx context.Context, id uuid.UUID) (*domain.Review, error) {
+func (r *PostgresReview) Get(ctx context.Context, id uuid.UUID) (*domain.Review, error) {
 	panic("implement me")
 }
 
-func (r *PostgresReviews) Save(ctx context.Context, review domain.Review) (*domain.Review, error) {
+func (r *PostgresReview) Save(ctx context.Context, review domain.Review) (*domain.Review, error) {
 	panic("implement me")
 }

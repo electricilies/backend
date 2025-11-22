@@ -11,6 +11,7 @@ import (
 	"backend/internal/client"
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
+	"backend/internal/infrastructure/repository"
 	"backend/internal/infrastructure/repository/postgres"
 	"backend/internal/service"
 	"backend/pkg/logger"
@@ -47,10 +48,21 @@ var ServiceSet = wire.NewSet(
 		new(domain.AttributeService),
 		new(*service.Attribute),
 	),
+	service.ProvideCart,
+	wire.Bind(
+		new(domain.CartService),
+		new(*service.Cart),
+	),
+
 	service.ProvideCategory,
 	wire.Bind(
 		new(domain.CategoryService),
 		new(*service.Category),
+	),
+	service.ProvideOrder,
+	wire.Bind(
+		new(domain.OrderService),
+		new(*service.Order),
 	),
 	service.ProvideProduct,
 	wire.Bind(
@@ -61,11 +73,6 @@ var ServiceSet = wire.NewSet(
 	wire.Bind(
 		new(domain.ReviewService),
 		new(*service.Review),
-	),
-	service.ProvideCart,
-	wire.Bind(
-		new(domain.CartService),
-		new(*service.Cart),
 	),
 )
 
@@ -168,6 +175,39 @@ var ApplicationSet = wire.NewSet(
 	),
 )
 
+var RepositorySet = wire.NewSet(
+	repository.ProvidePostgresAttribute,
+	wire.Bind(
+		new(domain.AttributeRepository),
+		new(*repository.PostgresAttribute),
+	),
+	repository.ProvidePostgresCart,
+	wire.Bind(
+		new(domain.CartRepository),
+		new(*repository.PostgresCart),
+	),
+	repository.ProvidePostgresCategory,
+	wire.Bind(
+		new(domain.CategoryRepository),
+		new(*repository.PostgresCategory),
+	),
+	repository.ProvidePostgresOrder,
+	wire.Bind(
+		new(domain.OrderRepository),
+		new(*repository.PostgresOrder),
+	),
+	repository.ProvidePostgresProduct,
+	wire.Bind(
+		new(domain.ProductRepository),
+		new(*repository.PostgresProduct),
+	),
+	repository.ProvidePostgresReview,
+	wire.Bind(
+		new(domain.ReviewRepository),
+		new(*repository.PostgresReview),
+	),
+)
+
 var RouterSet = wire.NewSet(
 	http.ProvideRouter,
 	wire.Bind(
@@ -196,6 +236,7 @@ func InitializeServer(ctx context.Context) *http.Server {
 		MiddlewareSet,
 		RouterSet,
 		ServiceSet,
+		RepositorySet,
 		http.NewServer,
 	)
 	return nil
