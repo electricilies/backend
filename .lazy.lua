@@ -59,7 +59,6 @@ return {
           },
           condition = function(_, ctx)
             local filename = ctx.filename
-            vim.print(filename)
             return filename:match("internal/delivery/http/%.conform%.%d+%.handler%w*%.go") ~= nil
               or filename:match("cmd") ~= nil
           end,

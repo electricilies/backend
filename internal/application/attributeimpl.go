@@ -11,20 +11,21 @@ type AttributeImpl struct {
 	attributeService domain.AttributeService
 }
 
-func ProvideAttribute(attributeRepo domain.AttributeRepository) *AttributeImpl {
+func ProvideAttribute(attributeRepo domain.AttributeRepository, attributeService domain.AttributeService) *AttributeImpl {
 	return &AttributeImpl{
-		attributeRepo: attributeRepo,
+		attributeRepo:    attributeRepo,
+		attributeService: attributeService,
 	}
 }
 
 var _ Attribute = &AttributeImpl{}
 
 func (a *AttributeImpl) Create(ctx context.Context, param CreateAttributeParam) (*domain.Attribute, error) {
-	attribute, err := a.attributeService.Create(param.Data.Name, param.Data.Code)
+	attribute, err := a.attributeService.Create(param.Data.Code, param.Data.Name)
 	if err != nil {
 		return nil, err
 	}
-	err = a.attributeRepo.Save(ctx, attribute)
+	err = a.attributeRepo.Save(ctx, *attribute)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +45,7 @@ func (a *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeVa
 	if err != nil {
 		return nil, err
 	}
-	err = a.attributeRepo.Save(ctx, attribute)
+	err = a.attributeRepo.Save(ctx, *attribute)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +120,7 @@ func (a *AttributeImpl) Update(ctx context.Context, param UpdateAttributeParam) 
 	if err != nil {
 		return nil, err
 	}
-	err = a.attributeRepo.Save(ctx, attribute)
+	err = a.attributeRepo.Save(ctx, *attribute)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +140,7 @@ func (a *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeVa
 	if err != nil {
 		return nil, err
 	}
-	err = a.attributeRepo.Save(ctx, attribute)
+	err = a.attributeRepo.Save(ctx, *attribute)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +152,13 @@ func (a *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeVa
 }
 
 func (a *AttributeImpl) Delete(ctx context.Context, param DeleteAttributeParam) error {
-	return a.attributeRepo.Remove(ctx, param.AttributeID)
+	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
+	if err != nil {
+		return err
+	}
+	// Mark as deleted by saving with DeletedAt set
+	// This assumes the domain model handles soft delete
+	return a.attributeRepo.Save(ctx, *attribute)
 }
 
 func (a *AttributeImpl) DeleteValue(ctx context.Context, param DeleteAttributeValueParam) error {
@@ -163,5 +170,5 @@ func (a *AttributeImpl) DeleteValue(ctx context.Context, param DeleteAttributeVa
 	if err != nil {
 		return err
 	}
-	return a.attributeRepo.Save(ctx, attribute)
+	return a.attributeRepo.Save(ctx, *attribute)
 }

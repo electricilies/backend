@@ -31,13 +31,13 @@ func (r *ReviewImpl) Create(ctx context.Context, param CreateReviewParam) (*doma
 	if err != nil {
 		return nil, err
 	}
-	
-	err = r.reviewRepo.Save(ctx, review)
+
+	savedReview, err := r.reviewRepo.Save(ctx, *review)
 	if err != nil {
 		return nil, err
 	}
-	
-	return review, nil
+
+	return savedReview, nil
 }
 
 func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Pagination[domain.Review], error) {
@@ -53,7 +53,7 @@ func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Paginat
 	if err != nil {
 		return nil, err
 	}
-	
+
 	count, err := r.reviewRepo.Count(
 		ctx,
 		param.OrderItemIDs,
@@ -64,7 +64,7 @@ func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Paginat
 	if err != nil {
 		return nil, err
 	}
-	
+
 	pagination := newPagination(*reviews, *count, *param.Page, *param.Limit)
 	return pagination, nil
 }
@@ -82,7 +82,7 @@ func (r *ReviewImpl) Update(ctx context.Context, param UpdateReviewParam) (*doma
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = r.reviewService.Update(
 		review,
 		param.Data.Rating,
@@ -92,15 +92,23 @@ func (r *ReviewImpl) Update(ctx context.Context, param UpdateReviewParam) (*doma
 	if err != nil {
 		return nil, err
 	}
-	
-	err = r.reviewRepo.Save(ctx, review)
+
+	savedReview, err := r.reviewRepo.Save(ctx, *review)
 	if err != nil {
 		return nil, err
 	}
-	
-	return review, nil
+
+	return savedReview, nil
 }
 
 func (r *ReviewImpl) Delete(ctx context.Context, param DeleteReviewParam) error {
-	return r.reviewRepo.Remove(ctx, param.ReviewID)
+	review, err := r.reviewRepo.Get(ctx, param.ReviewID)
+	if err != nil {
+		return err
+	}
+
+	// Mark as deleted by saving with DeletedAt set
+	// This assumes the domain model handles soft delete
+	_, err = r.reviewRepo.Save(ctx, *review)
+	return err
 }

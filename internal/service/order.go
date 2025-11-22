@@ -22,10 +22,11 @@ func ProvideOrder(
 var _ domain.OrderService = &Order{}
 
 func (o *Order) Create(
+	userID uuid.UUID,
 	address string,
 	provider domain.OrderProvider,
-	isPaid bool,
 	totalAmount int64,
+	items []domain.OrderItem,
 ) (*domain.Order, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
@@ -33,11 +34,13 @@ func (o *Order) Create(
 	}
 	order := &domain.Order{
 		ID:          id,
+		UserID:      userID,
 		Address:     address,
 		Provider:    provider,
 		Status:      domain.OrderStatusPending,
-		IsPaid:      isPaid,
+		IsPaid:      false,
 		TotalAmount: totalAmount,
+		Items:       &items,
 	}
 	if err := o.validate.Struct(order); err != nil {
 		return nil, multierror.Append(domain.ErrInvalid, err)
@@ -45,11 +48,13 @@ func (o *Order) Create(
 	return order, nil
 }
 
+
 func (o *Order) CreateItem(
-	productVariant domain.ProductVariant,
+	productVariantID uuid.UUID,
 	quantity int,
 	price int64,
 ) (*domain.OrderItem, error) {
+	productVariant := domain.ProductVariant{ID: productVariantID}
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, multierror.Append(domain.ErrInternal, err)
@@ -65,3 +70,21 @@ func (o *Order) CreateItem(
 	}
 	return orderItem, nil
 }
+
+func (o *Order) Update(
+	order *domain.Order,
+	status *domain.OrderStatus,
+	address *string,
+) error {
+	if status != nil {
+		order.Status = *status
+	}
+	if address != nil {
+		order.Address = *address
+	}
+	if err := o.validate.Struct(order); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+

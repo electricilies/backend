@@ -26,12 +26,12 @@ func (c *CategoryImpl) Create(ctx context.Context, param CreateCategoryParam) (*
 		return nil, err
 	}
 	
-	err = c.categoryRepo.Save(ctx, category)
+	savedCategory, err := c.categoryRepo.Save(ctx, *category)
 	if err != nil {
 		return nil, err
 	}
 	
-	return category, nil
+	return savedCategory, nil
 }
 
 func (c *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*Pagination[domain.Category], error) {
@@ -45,10 +45,8 @@ func (c *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*Pagi
 		return nil, err
 	}
 	
-	count, err := c.categoryRepo.Count(
-		ctx,
-		param.Search,
-	)
+	// CategoryRepository.Count doesn't take search parameter
+	count, err := c.categoryRepo.Count(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -76,10 +74,10 @@ func (c *CategoryImpl) Update(ctx context.Context, param UpdateCategoryParam) (*
 		return nil, err
 	}
 	
-	err = c.categoryRepo.Save(ctx, category)
+	savedCategory, err := c.categoryRepo.Save(ctx, *category)
 	if err != nil {
 		return nil, err
 	}
 	
-	return category, nil
+	return savedCategory, nil
 }

@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"backend/config"
+	"backend/internal/application"
 	"backend/internal/client"
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
@@ -129,6 +130,39 @@ var HandlerSet = wire.NewSet(
 	),
 )
 
+var ApplicationSet = wire.NewSet(
+	application.ProvideAttribute,
+	wire.Bind(
+		new(application.Attribute),
+		new(*application.AttributeImpl),
+	),
+	application.ProvideCart,
+	wire.Bind(
+		new(application.Cart),
+		new(*application.CartImpl),
+	),
+	application.ProvideCategory,
+	wire.Bind(
+		new(application.Category),
+		new(*application.CategoryImpl),
+	),
+	application.ProvideOrder,
+	wire.Bind(
+		new(application.Order),
+		new(*application.OrderImpl),
+	),
+	// application.ProvideProduct,
+	// wire.Bind(
+	// 	new(application.Product),
+	// 	new(*application.ProductImp),
+	// 	),
+	application.ProvideReview,
+	wire.Bind(
+		new(application.Review),
+		new(*application.ReviewImpl),
+	),
+)
+
 var RouterSet = wire.NewSet(
 	http.ProvideRouter,
 	wire.Bind(
@@ -147,6 +181,7 @@ var ClientSet = wire.NewSet(
 
 func InitializeServer(ctx context.Context) *http.Server {
 	wire.Build(
+		ApplicationSet,
 		ClientSet,
 		ConfigSet,
 		DbSet,
@@ -155,6 +190,7 @@ func InitializeServer(ctx context.Context) *http.Server {
 		LoggerSet,
 		MiddlewareSet,
 		RouterSet,
+		ServiceSet,
 		http.NewServer,
 	)
 	return nil

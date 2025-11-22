@@ -38,3 +38,17 @@ func (c *Category) Create(
 	}
 	return category, nil
 }
+
+func (c *Category) Update(
+	category *domain.Category,
+	name *string,
+) error {
+	if name != nil {
+		category.Name = *name
+	}
+	if err := c.validate.Struct(category); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
