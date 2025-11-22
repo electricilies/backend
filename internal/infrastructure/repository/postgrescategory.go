@@ -9,26 +9,29 @@ import (
 	"github.com/google/uuid"
 )
 
-type PostgresCategories struct {
+type PostgresCategory struct {
 	querier postgres.Querier
 }
 
-func NewPostgresCategories(q postgres.Querier) *PostgresCategories {
-	return &PostgresCategories{querier: q}
+var _ domain.CategoryRepository = (*PostgresCategory)(nil)
+
+
+func ProvidePostgresCategory(q postgres.Querier) *PostgresCategory {
+	return &PostgresCategory{querier: q}
 }
 
-func (r *PostgresCategories) List(ctx context.Context, search *string, limit int, offset int) (*[]domain.Category, error) {
+func (r *PostgresCategory) List(ctx context.Context, search *string, limit int, offset int) (*[]domain.Category, error) {
 	panic("implement me")
 }
 
-func (r *PostgresCategories) Count(ctx context.Context) (*int, error) {
+func (r *PostgresCategory) Count(ctx context.Context) (*int, error) {
 	panic("implement me")
 }
 
-func (r *PostgresCategories) Get(ctx context.Context, id uuid.UUID) (*domain.Category, error) {
+func (r *PostgresCategory) Get(ctx context.Context, id uuid.UUID) (*domain.Category, error) {
 	panic("implement me")
 }
 
-func (r *PostgresCategories) Save(ctx context.Context, category domain.Category) (*domain.Category, error) {
+func (r *PostgresCategory) Save(ctx context.Context, category domain.Category) (*domain.Category, error) {
 	panic("implement me")
 }

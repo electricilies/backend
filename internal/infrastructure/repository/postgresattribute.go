@@ -9,34 +9,37 @@ import (
 	"github.com/google/uuid"
 )
 
-type PostgresAttributes struct {
+type PostgresAttribute struct {
 	querier postgres.Querier
 }
 
-func NewPostgresAttributes(q postgres.Querier) *PostgresAttributes {
-	return &PostgresAttributes{querier: q}
+var _ domain.AttributeRepository = (*PostgresAttribute)(nil)
+
+
+func ProvidePostgresAttribute(q postgres.Querier) *PostgresAttribute {
+	return &PostgresAttribute{querier: q}
 }
 
-func (r *PostgresAttributes) Count(ctx context.Context, ids *[]uuid.UUID, deleted domain.DeletedParam) (*int, error) {
+func (r *PostgresAttribute) Count(ctx context.Context, ids *[]uuid.UUID, deleted domain.DeletedParam) (*int, error) {
 	panic("implement me")
 }
 
-func (r *PostgresAttributes) List(ctx context.Context, ids *[]uuid.UUID, search *string, deleted domain.DeletedParam, limit int, offset int) (*[]domain.Attribute, error) {
+func (r *PostgresAttribute) List(ctx context.Context, ids *[]uuid.UUID, search *string, deleted domain.DeletedParam, limit int, offset int) (*[]domain.Attribute, error) {
 	panic("implement me")
 }
 
-func (r *PostgresAttributes) ListValues(ctx context.Context, attributeID *uuid.UUID, attributeValueIDs *[]uuid.UUID, search *string, limit int, offset int) (*[]domain.AttributeValue, error) {
+func (r *PostgresAttribute) ListValues(ctx context.Context, attributeID *uuid.UUID, attributeValueIDs *[]uuid.UUID, search *string, limit int, offset int) (*[]domain.AttributeValue, error) {
 	panic("implement me")
 }
 
-func (r *PostgresAttributes) CountValues(ctx context.Context, attributeID *uuid.UUID, attributeValueIDs *[]uuid.UUID) (*int, error) {
+func (r *PostgresAttribute) CountValues(ctx context.Context, attributeID *uuid.UUID, attributeValueIDs *[]uuid.UUID) (*int, error) {
 	panic("implement me")
 }
 
-func (r *PostgresAttributes) Get(ctx context.Context, id uuid.UUID) (*domain.Attribute, error) {
+func (r *PostgresAttribute) Get(ctx context.Context, id uuid.UUID) (*domain.Attribute, error) {
 	panic("implement me")
 }
 
-func (r *PostgresAttributes) Save(ctx context.Context, attribute domain.Attribute) error {
+func (r *PostgresAttribute) Save(ctx context.Context, attribute domain.Attribute) error {
 	panic("implement me")
 }

@@ -13,7 +13,9 @@ type PostgresReviews struct {
 	querier postgres.Querier
 }
 
-func NewPostgresReviews(q postgres.Querier) *PostgresReviews {
+var _ domain.ReviewRepository = (*PostgresReviews)(nil)
+
+func ProvidePostgresReview(q postgres.Querier) *PostgresReviews {
 	return &PostgresReviews{querier: q}
 }
 
