@@ -17,7 +17,7 @@ type CategoryHandler interface {
 	Update(*gin.Context)
 }
 
-type GinCategoryHandler struct{
+type GinCategoryHandler struct {
 	categoryApp           application.Category
 	ErrRequiredCategoryID string
 	ErrInvalidCategoryID  string
@@ -51,12 +51,12 @@ func (h *GinCategoryHandler) List(ctx *gin.Context) {
 		SendError(ctx, err)
 		return
 	}
-	
+
 	var search *string
 	if searchQuery, ok := ctx.GetQuery("search"); ok {
 		search = &searchQuery
 	}
-	
+
 	categories, err := h.categoryApp.List(ctx, application.ListCategoryParam{
 		PaginationParam: *paginateParam,
 		Search:          search,
@@ -120,7 +120,7 @@ func (h *GinCategoryHandler) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
-	
+
 	category, err := h.categoryApp.Create(ctx, application.CreateCategoryParam{
 		Data: data,
 	})
@@ -157,13 +157,13 @@ func (h *GinCategoryHandler) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidCategoryID))
 		return
 	}
-	
+
 	var data application.UpdateCategoryData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
-	
+
 	category, err := h.categoryApp.Update(ctx, application.UpdateCategoryParam{
 		CategoryID: categoryID,
 		Data:       data,

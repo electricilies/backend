@@ -45,27 +45,27 @@ func (c *CartImpl) CreateItem(ctx context.Context, param CreateCartItemParam) (*
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Verify cart belongs to user
 	if cart.UserID != param.UserID {
 		return nil, domain.ErrForbidden
 	}
-	
+
 	cartItem, err := c.cartService.CreateItem(param.Data.ProductVariantID, param.Data.Quantity)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = c.cartService.AddItem(cart, *cartItem)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	_, err = c.cartRepo.Save(ctx, *cart)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return cartItem, nil
 }
 
@@ -74,22 +74,22 @@ func (c *CartImpl) UpdateItem(ctx context.Context, param UpdateCartItemParam) (*
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Verify cart belongs to user
 	if cart.UserID != param.UserID {
 		return nil, domain.ErrForbidden
 	}
-	
+
 	err = c.cartService.UpdateItem(cart, param.ItemID, param.Data.Quantity)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	_, err = c.cartRepo.Save(ctx, *cart)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Find and return updated item
 	if cart.Items != nil {
 		for _, item := range *cart.Items {
@@ -98,7 +98,7 @@ func (c *CartImpl) UpdateItem(ctx context.Context, param UpdateCartItemParam) (*
 			}
 		}
 	}
-	
+
 	return nil, domain.ErrNotFound
 }
 
@@ -107,17 +107,17 @@ func (c *CartImpl) DeleteItem(ctx context.Context, param DeleteCartItemParam) er
 	if err != nil {
 		return err
 	}
-	
+
 	// Verify cart belongs to user
 	if cart.UserID != param.UserID {
 		return domain.ErrForbidden
 	}
-	
+
 	err = c.cartService.RemoveItem(cart, param.ItemID)
 	if err != nil {
 		return err
 	}
-	
+
 	_, err = c.cartRepo.Save(ctx, *cart)
 	return err
 }

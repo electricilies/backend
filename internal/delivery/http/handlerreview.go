@@ -18,7 +18,7 @@ type ReviewHandler interface {
 	Delete(*gin.Context)
 }
 
-type GinReviewHandler struct{
+type GinReviewHandler struct {
 	reviewApp           application.Review
 	ErrRequiredReviewID string
 	ErrInvalidReviewID  string
@@ -87,12 +87,12 @@ func (h *GinReviewHandler) List(ctx *gin.Context) {
 		SendError(ctx, err)
 		return
 	}
-	
+
 	var orderItemIDs *[]uuid.UUID
 	if orderItemIDsQuery, ok := queryArrayToUUIDSlice(ctx, "order_item_ids"); ok {
 		orderItemIDs = orderItemIDsQuery
 	}
-	
+
 	var productVariantID *uuid.UUID
 	if productVariantIDQuery, ok := ctx.GetQuery("product_variant_id"); ok {
 		parsedID, err := uuid.Parse(productVariantIDQuery)
@@ -100,17 +100,17 @@ func (h *GinReviewHandler) List(ctx *gin.Context) {
 			productVariantID = &parsedID
 		}
 	}
-	
+
 	var userIDs *[]uuid.UUID
 	if userIDsQuery, ok := queryArrayToUUIDSlice(ctx, "user_ids"); ok {
 		userIDs = userIDsQuery
 	}
-	
+
 	deleted := domain.DeletedExcludeParam
 	if deletedQuery, ok := ctx.GetQuery("deleted"); ok {
 		deleted = domain.DeletedParam(deletedQuery)
 	}
-	
+
 	reviews, err := h.reviewApp.List(ctx, application.ListReviewsParam{
 		PaginationParam:  *paginateParam,
 		OrderItemIDs:     orderItemIDs,
@@ -144,11 +144,11 @@ func (h *GinReviewHandler) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
-	
+
 	// TODO: Get orderItemID and userID from request/context
 	orderItemID := uuid.New() // Placeholder
 	userID := uuid.New()      // Placeholder
-	
+
 	review, err := h.reviewApp.Create(ctx, application.CreateReviewParam{
 		OrderItemID: orderItemID,
 		UserID:      userID,
@@ -187,13 +187,13 @@ func (h *GinReviewHandler) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidReviewID))
 		return
 	}
-	
+
 	var data application.UpdateReviewData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
-	
+
 	review, err := h.reviewApp.Update(ctx, application.UpdateReviewParam{
 		ReviewID: reviewID,
 		Data:     data,
@@ -228,7 +228,7 @@ func (h *GinReviewHandler) Delete(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidReviewID))
 		return
 	}
-	
+
 	err = h.reviewApp.Delete(ctx, application.DeleteReviewParam{
 		ReviewID: reviewID,
 	})

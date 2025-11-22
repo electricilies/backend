@@ -25,12 +25,12 @@ func (c *CategoryImpl) Create(ctx context.Context, param CreateCategoryParam) (*
 	if err != nil {
 		return nil, err
 	}
-	
+
 	savedCategory, err := c.categoryRepo.Save(ctx, *category)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return savedCategory, nil
 }
 
@@ -44,13 +44,13 @@ func (c *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*Pagi
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// CategoryRepository.Count doesn't take search parameter
 	count, err := c.categoryRepo.Count(ctx)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	pagination := newPagination(*categories, *count, *param.Page, *param.Limit)
 	return pagination, nil
 }
@@ -68,16 +68,16 @@ func (c *CategoryImpl) Update(ctx context.Context, param UpdateCategoryParam) (*
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = c.categoryService.Update(category, param.Data.Name)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	savedCategory, err := c.categoryRepo.Save(ctx, *category)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return savedCategory, nil
 }

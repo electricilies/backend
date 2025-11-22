@@ -17,12 +17,12 @@ type CartHandler interface {
 	RemoveItem(*gin.Context)
 }
 
-type GinCartHandler struct{
-	cartApp                application.Cart
-	ErrRequiredCartID      string
-	ErrInvalidCartID       string
-	ErrRequiredCartItemID  string
-	ErrInvalidCartItemID   string
+type GinCartHandler struct {
+	cartApp               application.Cart
+	ErrRequiredCartID     string
+	ErrInvalidCartID      string
+	ErrRequiredCartItemID string
+	ErrInvalidCartItemID  string
 }
 
 var _ CartHandler = &GinCartHandler{}
@@ -94,16 +94,16 @@ func (h *GinCartHandler) CreateItem(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidCartID))
 		return
 	}
-	
+
 	var data application.CreateCartItemData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
-	
+
 	// TODO: Get userID from auth context
 	userID := uuid.New() // Placeholder
-	
+
 	cartItem, err := h.cartApp.CreateItem(ctx, application.CreateCartItemParam{
 		UserID: userID,
 		CartID: cartID,
@@ -141,7 +141,7 @@ func (h *GinCartHandler) UpdateItem(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidCartID))
 		return
 	}
-	
+
 	itemIDString := ctx.Param("cart_item_id")
 	if itemIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartItemID))
@@ -152,16 +152,16 @@ func (h *GinCartHandler) UpdateItem(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidCartItemID))
 		return
 	}
-	
+
 	var data application.UpdateCartItemData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
-	
+
 	// TODO: Get userID from auth context
 	userID := uuid.New() // Placeholder
-	
+
 	cartItem, err := h.cartApp.UpdateItem(ctx, application.UpdateCartItemParam{
 		UserID: userID,
 		CartID: cartID,
@@ -198,7 +198,7 @@ func (h *GinCartHandler) RemoveItem(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidCartID))
 		return
 	}
-	
+
 	itemIDString := ctx.Param("item_id")
 	if itemIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartItemID))
@@ -209,10 +209,10 @@ func (h *GinCartHandler) RemoveItem(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidCartItemID))
 		return
 	}
-	
+
 	// TODO: Get userID from auth context
 	userID := uuid.New() // Placeholder
-	
+
 	err = h.cartApp.DeleteItem(ctx, application.DeleteCartItemParam{
 		UserID: userID,
 		CartID: cartID,

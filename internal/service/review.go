@@ -67,4 +67,3 @@ func (r *Review) Update(
 	}
 	return nil
 }
-

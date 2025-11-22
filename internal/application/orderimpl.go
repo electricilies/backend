@@ -30,7 +30,7 @@ func (o *OrderImpl) Create(ctx context.Context, param CreateOrderParam) (*domain
 		}
 		items = append(items, *item)
 	}
-	
+
 	order, err := o.orderService.Create(
 		param.UserID,
 		param.Data.Address,
@@ -41,12 +41,12 @@ func (o *OrderImpl) Create(ctx context.Context, param CreateOrderParam) (*domain
 	if err != nil {
 		return nil, err
 	}
-	
+
 	savedOrder, err := o.orderRepo.Save(ctx, *order)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return savedOrder, nil
 }
 
@@ -55,17 +55,17 @@ func (o *OrderImpl) Update(ctx context.Context, param UpdateOrderParam) (*domain
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = o.orderService.Update(order, param.Data.Status, param.Data.Address)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	savedOrder, err := o.orderRepo.Save(ctx, *order)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return savedOrder, nil
 }
 
@@ -82,7 +82,7 @@ func (o *OrderImpl) Delete(ctx context.Context, param DeleteOrderParam) error {
 	if err != nil {
 		return err
 	}
-	
+
 	// Mark as deleted or set appropriate status
 	// Since there's no Remove method, we'll need to use Save with updated state
 	// This assumes the domain model has a DeletedAt field or similar
@@ -105,7 +105,7 @@ func (o *OrderImpl) List(ctx context.Context, param ListOrderParam) (*Pagination
 	if err != nil {
 		return nil, err
 	}
-	
+
 	count, err := o.orderRepo.Count(
 		ctx,
 		param.IDs,
@@ -114,7 +114,7 @@ func (o *OrderImpl) List(ctx context.Context, param ListOrderParam) (*Pagination
 	if err != nil {
 		return nil, err
 	}
-	
+
 	pagination := newPagination(*orders, *count, *param.Page, *param.Limit)
 	return pagination, nil
 }

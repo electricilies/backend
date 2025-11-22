@@ -141,7 +141,7 @@ func (h *GinAttributeHandler) ListValues(ctx *gin.Context) {
 		SendError(ctx, err)
 		return
 	}
-	
+
 	var attributeID *uuid.UUID
 	if attributeIDQuery, ok := ctx.GetQuery("attribute_id"); ok {
 		parsedID, err := uuid.Parse(attributeIDQuery)
@@ -149,17 +149,17 @@ func (h *GinAttributeHandler) ListValues(ctx *gin.Context) {
 			attributeID = &parsedID
 		}
 	}
-	
+
 	var attributeValueIDs *[]uuid.UUID
 	if attributeValueIDsQuery, ok := queryArrayToUUIDSlice(ctx, "attribute_value_ids"); ok {
 		attributeValueIDs = attributeValueIDsQuery
 	}
-	
+
 	var search *string
 	if searchQuery, ok := ctx.GetQuery("search"); ok {
 		search = &searchQuery
 	}
-	
+
 	attributeValues, err := h.attributeApp.ListValues(ctx, application.ListAttributeValuesParam{
 		PaginationParam:   *paginateParam,
 		AttributeID:       attributeID,
@@ -192,7 +192,7 @@ func (h *GinAttributeHandler) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
-	
+
 	attribute, err := h.attributeApp.Create(ctx, application.CreateAttributeParam{
 		Data: data,
 	})
@@ -229,13 +229,13 @@ func (h *GinAttributeHandler) CreateValue(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
-	
+
 	var data application.CreateAttributeValueData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
-	
+
 	attributeValue, err := h.attributeApp.CreateValue(ctx, application.CreateAttributeValueParam{
 		AttributeID: attributeID,
 		Data:        data,
@@ -273,13 +273,13 @@ func (h *GinAttributeHandler) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
-	
+
 	var data application.UpdateAttributeData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
-	
+
 	attribute, err := h.attributeApp.Update(ctx, application.UpdateAttributeParam{
 		AttributeID: attributeID,
 		Data:        data,
@@ -314,7 +314,7 @@ func (h *GinAttributeHandler) Delete(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
-	
+
 	err = h.attributeApp.Delete(ctx, application.DeleteAttributeParam{
 		AttributeID: attributeID,
 	})
@@ -348,7 +348,7 @@ func (h *GinAttributeHandler) DeleteValue(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError("invalid value_id"))
 		return
 	}
-	
+
 	attributeIDString := ctx.Param("attribute_id")
 	if attributeIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
@@ -359,7 +359,7 @@ func (h *GinAttributeHandler) DeleteValue(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
-	
+
 	err = h.attributeApp.DeleteValue(ctx, application.DeleteAttributeValueParam{
 		AttributeID:      attributeID,
 		AttributeValueID: valueID,
@@ -397,7 +397,7 @@ func (h *GinAttributeHandler) UpdateValue(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
-	
+
 	valueIDString := ctx.Param("value_id")
 	if valueIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError("value_id is required"))
@@ -408,13 +408,13 @@ func (h *GinAttributeHandler) UpdateValue(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError("invalid value_id"))
 		return
 	}
-	
+
 	var data application.UpdateAttributeValueData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
-	
+
 	attributeValue, err := h.attributeApp.UpdateValue(ctx, application.UpdateAttributeValueParam{
 		AttributeID:      attributeID,
 		AttributeValueID: valueID,

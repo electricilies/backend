@@ -51,4 +51,3 @@ func (c *Category) Update(
 	}
 	return nil
 }
-

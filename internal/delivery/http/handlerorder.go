@@ -18,7 +18,7 @@ type OrderHandler interface {
 	Delete(*gin.Context)
 }
 
-type GinOrderHandler struct{
+type GinOrderHandler struct {
 	orderApp           application.Order
 	ErrRequiredOrderID string
 	ErrInvalidOrderID  string
@@ -83,22 +83,22 @@ func (h *GinOrderHandler) List(ctx *gin.Context) {
 		SendError(ctx, err)
 		return
 	}
-	
+
 	var orderIDs *[]uuid.UUID
 	if orderIDsQuery, ok := queryArrayToUUIDSlice(ctx, "order_ids"); ok {
 		orderIDs = orderIDsQuery
 	}
-	
+
 	var userIDs *[]uuid.UUID
 	if userIDsQuery, ok := queryArrayToUUIDSlice(ctx, "user_ids"); ok {
 		userIDs = userIDsQuery
 	}
-	
+
 	var statusIDs *[]uuid.UUID
 	if statusIDsQuery, ok := queryArrayToUUIDSlice(ctx, "status_ids"); ok {
 		statusIDs = statusIDsQuery
 	}
-	
+
 	orders, err := h.orderApp.List(ctx, application.ListOrderParam{
 		PaginationParam: *paginateParam,
 		IDs:             orderIDs,
@@ -131,10 +131,10 @@ func (h *GinOrderHandler) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
-	
+
 	// TODO: Get userID from auth context
 	userID := uuid.New() // Placeholder
-	
+
 	order, err := h.orderApp.Create(ctx, application.CreateOrderParam{
 		UserID: userID,
 		Data:   data,
@@ -172,13 +172,13 @@ func (h *GinOrderHandler) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidOrderID))
 		return
 	}
-	
+
 	var data application.UpdateOrderData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
-	
+
 	order, err := h.orderApp.Update(ctx, application.UpdateOrderParam{
 		OrderID: orderID,
 		Data:    data,
@@ -213,7 +213,7 @@ func (h *GinOrderHandler) Delete(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidOrderID))
 		return
 	}
-	
+
 	err = h.orderApp.Delete(ctx, application.DeleteOrderParam{
 		OrderID: orderID,
 	})

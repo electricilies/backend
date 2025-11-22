@@ -48,7 +48,6 @@ func (o *Order) Create(
 	return order, nil
 }
 
-
 func (o *Order) CreateItem(
 	productVariantID uuid.UUID,
 	quantity int,
@@ -87,4 +86,3 @@ func (o *Order) Update(
 	}
 	return nil
 }
-
