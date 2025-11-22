@@ -79,7 +79,7 @@ func (h *GinCategoryHandler) Create(ctx *gin.Context) {
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Param			category_id	path		int							true	"Category ID"
+//	@Param			category_id	path		int								true	"Category ID"
 //	@Param			category	body		application.UpdateCategoryData	true	"Update category request"
 //	@Success		200			{object}	domain.Category
 //	@Failure		400			{object}	Error

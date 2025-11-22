@@ -75,20 +75,20 @@ func (h *GinAttributeHandler) Get(ctx *gin.Context) {
 
 // ListAttributes godoc
 //
-//		@Summary		List all attributes
-//		@Description	Get all attributes
-//		@Tags			Attribute
-//		@Accept			json
-//		@Produce		json
-//		@Param			page		query		int		false	"Page for pagination"
-//		@Param			limit		query		int		false	"Limit for pagination"	default(20)
-//	        @Param 	  attribute_ids	query		[]string	false	"Attribute IDs"				collectionFormat(csv)
-//	@Param product_ids query []string false "Product IDs" collectionFormat(csv)
-//	          	@Param			search		query		string	false	"Search term"
-//		@Param			deleted		query		string	false	"Filter by deletion status"	Enums(exclude, only, all)
-//		@Success		200			{object}	application.Pagination[domain.Attribute]
-//		@Failure		500			{object}	Error
-//		@Router			/attributes [get]
+//	@Summary		List all attributes
+//	@Description	Get all attributes
+//	@Tags			Attribute
+//	@Accept			json
+//	@Produce		json
+//	@Param			page			query		int			false	"Page for pagination"
+//	@Param			limit			query		int			false	"Limit for pagination"	default(20)
+//	@Param			attribute_ids	query		[]string	false	"Attribute IDs"			collectionFormat(csv)
+//	@Param			product_ids		query		[]string	false	"Product IDs"			collectionFormat(csv)
+//	@Param			search			query		string		false	"Search term"
+//	@Param			deleted			query		string		false	"Filter by deletion status"	Enums(exclude, only, all)
+//	@Success		200				{object}	application.Pagination[domain.Attribute]
+//	@Failure		500				{object}	Error
+//	@Router			/attributes [get]
 func (h *GinAttributeHandler) List(ctx *gin.Context) {
 	pageQuery := ctx.Query("page")
 	page, err := strconv.Atoi(pageQuery)
@@ -146,14 +146,14 @@ func (h *GinAttributeHandler) List(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			page		query		int		false	"Page for pagination"
-//	@Param			limit		query		int		false	"Limit for pagination"	default(20)
-//	@Param			attribute_id	path string false	"Attribute ID"
-//	@Param 			attribute_value_id	query		string false	"Product ID"
-//	@Param			search		query		string	false	"Search term"
-//	@Param			deleted		query		string	false	"Filter by deletion status"	Enums(exclude, only, all)
-//	@Success		200			{object}	application.Pagination[domain.AttributeValue]
-//	@Failure		500			{object}	Error
+//	@Param			page				query		int		false	"Page for pagination"
+//	@Param			limit				query		int		false	"Limit for pagination"	default(20)
+//	@Param			attribute_id		path		string	false	"Attribute ID"
+//	@Param			attribute_value_id	query		string	false	"Product ID"
+//	@Param			search				query		string	false	"Search term"
+//	@Param			deleted				query		string	false	"Filter by deletion status"	Enums(exclude, only, all)
+//	@Success		200					{object}	application.Pagination[domain.AttributeValue]
+//	@Failure		500					{object}	Error
 //	@Router			/attributes/values [get]
 func (h *GinAttributeHandler) ListValues(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
@@ -183,7 +183,7 @@ func (h *GinAttributeHandler) Create(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute_id	path		string							true	"Attribute ID"
+//	@Param			attribute_id	path		string									true	"Attribute ID"
 //	@Param			value			body		application.CreateAttributeValueData	true	"Attribute value request"
 //	@Success		201				{object}	domain.AttributeValue
 //	@Failure		400				{object}	Error
@@ -202,7 +202,7 @@ func (h *GinAttributeHandler) CreateValue(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute_id	path		string							true	"Attribute ID"
+//	@Param			attribute_id	path		string									true	"Attribute ID"
 //	@Param			attribute		body		application.UpdateAttributeValueData	true	"Update attribute request"
 //	@Success		200				{object}	domain.Attribute
 //	@Failure		400				{object}	Error
@@ -253,7 +253,7 @@ func (h *GinAttributeHandler) DeleteValue(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute_id	path		string								true	"Attribute ID"
+//	@Param			attribute_id	path		string									true	"Attribute ID"
 //	@Param			values			body		[]application.UpdateAttributeValueData	true	"Update attribute values request"
 //	@Success		200				{array}		domain.Attribute
 //	@Failure		400				{object}	Error

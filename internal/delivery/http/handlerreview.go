@@ -82,7 +82,7 @@ func (h *GinReviewHandler) Create(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			review_id	path		int						true	"Review ID"
+//	@Param			review_id	path		int								true	"Review ID"
 //	@Param			review		body		application.UpdateReviewData	true	"Update review request"
 //	@Success		204			{object}	domain.Review
 //	@Failure		400			{object}	Error

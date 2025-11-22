@@ -79,7 +79,7 @@ func (h *GinOrderHandler) Create(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order_id	path		int						true	"Order ID"
+//	@Param			order_id	path		int							true	"Order ID"
 //	@Param			status		body		application.UpdateOrderData	true	"Update order status request"
 //	@Success		200			{object}	domain.Order
 //	@Failure		400			{object}	Error

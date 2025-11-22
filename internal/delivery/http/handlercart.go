@@ -57,34 +57,34 @@ func (h *GinCartHandler) CreateItem(ctx *gin.Context) {
 
 // UpdateCartItem godoc
 //
-//		@Summary		Update cart item
-//		@Description	Update quantity of a cart item
-//		@Tags			Cart
-//		@Accept			json
-//		@Produce		json
-//		@Param			cart_item_id	path		int							true	"Cart Item ID"
-//		@Param			item			body		application.UpdateCartItemData	true	"Update cart item request"
-//		@Success		200				{object}	domain.CartItem
-//		@Failure		400				{object}	Error
-//		@Failure		404				{object}	Error
-//		@Failure		500				{object}	Error
-//	 	@Router			/carts/{cart_id}/item [patch]
+//	@Summary		Update cart item
+//	@Description	Update quantity of a cart item
+//	@Tags			Cart
+//	@Accept			json
+//	@Produce		json
+//	@Param			cart_item_id	path		int								true	"Cart Item ID"
+//	@Param			item			body		application.UpdateCartItemData	true	"Update cart item request"
+//	@Success		200				{object}	domain.CartItem
+//	@Failure		400				{object}	Error
+//	@Failure		404				{object}	Error
+//	@Failure		500				{object}	Error
+//	@Router			/carts/{cart_id}/item [patch]
 func (h *GinCartHandler) UpdateItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
 // RemoveCartItem godoc
 //
-//		@Summary		Remove cart item
-//		@Description	Remove an item from the cart
-//		@Tags			Cart
-//		@Accept			json
-//		@Produce		json
-//		@Param			item_id	path	int	true	"Cart Item ID"
-//		@Success		204
-//		@Failure		404	{object}	Error
-//		@Failure		500	{object}	Error
-//	 	@Router			/carts/{cart_id}/item [delete]
+//	@Summary		Remove cart item
+//	@Description	Remove an item from the cart
+//	@Tags			Cart
+//	@Accept			json
+//	@Produce		json
+//	@Param			item_id	path	int	true	"Cart Item ID"
+//	@Success		204
+//	@Failure		404	{object}	Error
+//	@Failure		500	{object}	Error
+//	@Router			/carts/{cart_id}/item [delete]
 func (h *GinCartHandler) RemoveItem(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
