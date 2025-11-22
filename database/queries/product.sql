@@ -63,8 +63,8 @@ LEFT JOIN (
   ON products.id = category_scores.id
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    ELSE products.id = ANY (sqlc.narg('ids')::uuid[])
+    WHEN sqlc.narg('id')::uuid IS NULL THEN TRUE
+    ELSE products.id = sqlc.narg('id')::uuid
   END
   AND CASE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE

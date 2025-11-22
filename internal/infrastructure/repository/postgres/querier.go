@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	CountAttributeValues(ctx context.Context, arg CountAttributeValuesParams) (int64, error)
 	CountAttributes(ctx context.Context, arg CountAttributesParams) (int64, error)
 	CountCategories(ctx context.Context, arg CountCategoriesParams) (int64, error)
 	CountOrders(ctx context.Context, arg CountOrdersParams) (int64, error)

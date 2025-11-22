@@ -38,20 +38,23 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('user_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('user_ids')::uuid[]) = 0 THEN TRUE
     ELSE user_id = ANY (sqlc.narg('user_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('status_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('status_ids')::uuid[]) = 0 THEN TRUE
     ELSE status_id = ANY (sqlc.narg('status_ids')::uuid[])
   END
 ORDER BY
   id ASC
-OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
-LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
+OFFSET sqlc.arg('offset')::integer
+LIMIT sqlc.arg('limit')::integer;
 
 -- name: CountOrders :one
 SELECT
@@ -61,14 +64,17 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('user_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('user_ids')::uuid[]) = 0 THEN TRUE
     ELSE user_id = ANY (sqlc.narg('user_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('status_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('status_ids')::uuid[]) = 0 THEN TRUE
     ELSE status_id = ANY (sqlc.narg('status_ids')::uuid[])
   END;
 
@@ -88,10 +94,12 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('order_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('order_ids')::uuid[]) = 0 THEN TRUE
     ELSE order_id = ANY (sqlc.narg('order_ids')::uuid[])
   END
 ORDER BY
@@ -112,7 +120,8 @@ FROM
   order_statuses
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN sqlc.narg('id')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
 ORDER BY

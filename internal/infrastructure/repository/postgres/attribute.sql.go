@@ -12,6 +12,42 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countAttributeValues = `-- name: CountAttributeValues :one
+SELECT
+  COUNT(*) AS count
+FROM
+  attribute_values
+WHERE
+  CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
+    ELSE id = ANY ($1::uuid[])
+  END
+  AND CASE
+    WHEN $2::uuid IS NULL THEN TRUE
+    ELSE attribute_id = $2::uuid
+  END
+  AND CASE
+    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $3::text = 'all' THEN TRUE
+    ELSE FALSE
+  END
+`
+
+type CountAttributeValuesParams struct {
+	IDs         []uuid.UUID
+	AttributeID pgtype.UUID
+	Deleted     string
+}
+
+func (q *Queries) CountAttributeValues(ctx context.Context, arg CountAttributeValuesParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countAttributeValues, arg.IDs, arg.AttributeID, arg.Deleted)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countAttributes = `-- name: CountAttributes :one
 SELECT
   COUNT(*) AS count

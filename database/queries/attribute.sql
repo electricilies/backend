@@ -128,6 +128,28 @@ ORDER BY
   CASE WHEN sqlc.narg('search')::text IS NOT NULL THEN pdb.score(id) END DESC,
   id ASC;
 
+-- name: CountAttributeValues :one
+SELECT
+  COUNT(*) AS count
+FROM
+  attribute_values
+WHERE
+  CASE
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.narg('attribute_id')::uuid IS NULL THEN TRUE
+    ELSE attribute_id = sqlc.narg('attribute_id')::uuid
+  END
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE FALSE
+  END;
+
 -- name: MergeAttributeValuesFromTemp :exec
 MERGE INTO attribute_values AS target
 USING temp_attribute_values AS source

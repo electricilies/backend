@@ -20,14 +20,17 @@ FROM
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE user_id = ANY ($2::uuid[])
   END
   AND CASE
     WHEN $3::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE status_id = ANY ($3::uuid[])
   END
 `
@@ -165,10 +168,12 @@ FROM
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE order_id = ANY ($2::uuid[])
   END
 ORDER BY
@@ -214,18 +219,20 @@ FROM
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::uuid[])
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
+    ELSE id = ANY ($2::uuid[])
   END
 ORDER BY
   id ASC
 `
 
 type ListOrderStatusesParams struct {
+	ID  []uuid.UUID
 	IDs []uuid.UUID
 }
 
 func (q *Queries) ListOrderStatuses(ctx context.Context, arg ListOrderStatusesParams) ([]OrderStatus, error) {
-	rows, err := q.db.Query(ctx, listOrderStatuses, arg.IDs)
+	rows, err := q.db.Query(ctx, listOrderStatuses, arg.ID, arg.IDs)
 	if err != nil {
 		return nil, err
 	}
@@ -252,28 +259,31 @@ FROM
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE user_id = ANY ($2::uuid[])
   END
   AND CASE
     WHEN $3::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE status_id = ANY ($3::uuid[])
   END
 ORDER BY
   id ASC
-OFFSET COALESCE($4::integer, 0)
-LIMIT COALESCE($5::integer, 20)
+OFFSET $4::integer
+LIMIT $5::integer
 `
 
 type ListOrdersParams struct {
 	IDs       []uuid.UUID
 	UserIds   []uuid.UUID
 	StatusIds []uuid.UUID
-	Offset    *int32
-	Limit     *int32
+	Offset    int32
+	Limit     int32
 }
 
 func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order, error) {

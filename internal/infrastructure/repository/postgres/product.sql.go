@@ -388,8 +388,8 @@ LEFT JOIN (
   ON products.id = category_scores.id
 WHERE
   CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
-    ELSE products.id = ANY ($2::uuid[])
+    WHEN $2::uuid IS NULL THEN TRUE
+    ELSE products.id = $2::uuid
   END
   AND CASE
     WHEN $1::text IS NULL THEN TRUE
@@ -439,7 +439,7 @@ LIMIT COALESCE($11::integer, 20)
 
 type ListProductsParams struct {
 	Search      *string
-	IDs         []uuid.UUID
+	ID          pgtype.UUID
 	MinPrice    pgtype.Numeric
 	MaxPrice    pgtype.Numeric
 	Rating      *float32
@@ -455,7 +455,7 @@ type ListProductsParams struct {
 func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]Product, error) {
 	rows, err := q.db.Query(ctx, listProducts,
 		arg.Search,
-		arg.IDs,
+		arg.ID,
 		arg.MinPrice,
 		arg.MaxPrice,
 		arg.Rating,
