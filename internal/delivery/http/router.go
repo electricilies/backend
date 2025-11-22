@@ -130,7 +130,7 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 
 		reviews := api.Group("/reviews")
 		{
-			reviews.GET("", r.reviewHandler.ListReviewsByProducts)
+			reviews.GET("", r.reviewHandler.List)
 			reviews.POST("", r.reviewHandler.Create)
 			reviews.GET("/:review_id", r.reviewHandler.Get)
 			reviews.PATCH("/:review_id", r.reviewHandler.Update)

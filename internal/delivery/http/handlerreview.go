@@ -11,7 +11,7 @@ import (
 
 type ReviewHandler interface {
 	Get(*gin.Context)
-	ListReviewsByProducts(*gin.Context)
+	List(*gin.Context)
 	Create(*gin.Context)
 	Update(*gin.Context)
 	Delete(*gin.Context)
@@ -55,7 +55,7 @@ func (h *GinReviewHandler) Get(ctx *gin.Context) {
 //	@Success		200			{object}	application.Pagination[domain.Review]
 //	@Failure		500			{object}	Error
 //	@Router			/reviews [get]
-func (h *GinReviewHandler) ListReviewsByProducts(ctx *gin.Context) {
+func (h *GinReviewHandler) List(ctx *gin.Context) {
 }
 
 // CreateReview godoc
