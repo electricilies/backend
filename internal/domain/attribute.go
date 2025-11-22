@@ -27,7 +27,8 @@ func (a *Attribute) GetValueByID(id uuid.UUID) *AttributeValue {
 }
 
 type AttributeValue struct {
-	ID        uuid.UUID  `json:"id"        binding:"required" validate:"required"               example:"1"`
-	Value     string     `json:"value"     binding:"required" validate:"required,gte=1,lte=100" example:"Red"`
+	ID        uuid.UUID  `json:"id"        binding:"required"   validate:"required"               example:"1"`
+	Value     string     `json:"value"     binding:"required"   validate:"required,gte=1,lte=100" example:"Red"`
 	Attribute *Attribute `json:"attribute"`
+	DeletedAt *time.Time `json:"deletedAt" validate:"omitempty"`
 }

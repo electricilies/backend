@@ -32,8 +32,9 @@ type Option struct {
 }
 
 type OptionValue struct {
-	ID    uuid.UUID `json:"id"    binding:"required" validate:"required"`
-	Value string    `json:"value" binding:"required" validate:"required"`
+	ID        uuid.UUID  `json:"id"        binding:"required"   validate:"required"`
+	Value     string     `json:"value"     binding:"required"   validate:"required"`
+	DeletedAt *time.Time `json:"deletedAt" validate:"omitempty"`
 }
 
 type ProductVariant struct {
@@ -50,8 +51,9 @@ type ProductVariant struct {
 }
 
 type ProductImage struct {
-	ID        uuid.UUID `json:"id"        binding:"required" validate:"required"`
-	URL       string    `json:"url"       binding:"required" validate:"required,url"`
-	Order     int       `json:"order"     binding:"required" validate:"required,gte=0"`
-	CreatedAt time.Time `json:"createdAt" binding:"required" validate:"required"`
+	ID        uuid.UUID  `json:"id"         binding:"required"                      validate:"required"`
+	URL       string     `json:"url"        binding:"required"                      validate:"required,url"`
+	Order     int        `json:"order"      binding:"required"                      validate:"required,gte=0"`
+	CreatedAt time.Time  `json:"createdAt"  binding:"required"                      validate:"required"`
+	DeletedAt *time.Time `json:"deletedAt " validate:"omitempty,gtefield=CreatedAt"`
 }
