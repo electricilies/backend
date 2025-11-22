@@ -11,6 +11,7 @@ import (
 	"backend/internal/client"
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
+	"backend/internal/infrastructure/repository/postgres"
 	"backend/internal/service"
 	"backend/pkg/logger"
 
@@ -28,7 +29,11 @@ var LoggerSet = wire.NewSet(
 
 var DbSet = wire.NewSet(
 	client.NewDBConnection,
-	client.NewDBQueries,
+	postgres.ProvideQueries,
+	wire.Bind(
+		new(postgres.Querier),
+		new(*postgres.Queries),
+	),
 	client.NewDBTransactor,
 )
 
