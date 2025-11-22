@@ -1,6 +1,6 @@
 package application
 
-func newPagintion[T interface{}](
+func newPagination[T interface{}](
 	data []T,
 	totalItems, currentPage, itemsPerPage int,
 ) *Pagination[T] {

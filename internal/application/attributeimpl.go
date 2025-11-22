@@ -71,7 +71,7 @@ func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*P
 	if err != nil {
 		return nil, err
 	}
-	pagination := newPagintion(*attributes, *count, *param.Page, *param.Limit)
+	pagination := newPagination(*attributes, *count, *param.Page, *param.Limit)
 	return pagination, nil
 }
 
@@ -103,7 +103,7 @@ func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValue
 	if err != nil {
 		return nil, err
 	}
-	pagination := newPagintion(*attribute, *count, *param.Page, *param.Limit)
+	pagination := newPagination(*attribute, *count, *param.Page, *param.Limit)
 	return pagination, nil
 }
 
@@ -133,7 +133,7 @@ func (a *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeVa
 	}
 	err = a.attributeService.UpdateValue(
 		*attribute,
-		param.AttributeID,
+		param.AttributeValueID,
 		param.Data.Value,
 	)
 	if err != nil {
