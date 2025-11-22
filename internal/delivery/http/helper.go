@@ -3,19 +3,18 @@ package http
 import (
 	"strconv"
 
+	"backend/internal/application"
+	"backend/internal/domain"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-func ParseIntQuery(query string) (int, error) {
-	val, err := strconv.Atoi(query)
-	if err != nil {
-		return 0, err
+func queryArrayToUUIDSlice(ctx *gin.Context, key string) (*[]uuid.UUID, bool) {
+	queryArr := ctx.QueryArray(key)
+	if len(queryArr) == 0 {
+		return nil, false
 	}
-	return val, nil
-}
-
-func ParseUUIDArrayQuery(queryArr []string, key string) (*[]uuid.UUID, bool) {
 	ids := make([]uuid.UUID, 0, len(queryArr))
 	for _, idStr := range queryArr {
 		id, err := uuid.Parse(idStr)
@@ -27,16 +26,20 @@ func ParseUUIDArrayQuery(queryArr []string, key string) (*[]uuid.UUID, bool) {
 	return &ids, true
 }
 
-func GetOptionalQuery(ctx *gin.Context, key string) *string {
-	if val, ok := ctx.GetQuery(key); ok {
-		return &val
+func createPaginationParamsFromQuery(ctx *gin.Context) (*application.PaginationParam, error) {
+	pageQuery := ctx.Query("page")
+	page, err := strconv.Atoi(pageQuery)
+	if err != nil {
+		return nil, domain.ErrInvalid
 	}
-	return nil
-}
 
-func GetDeletedParam(ctx *gin.Context, key string, defaultVal string) string {
-	if val, ok := ctx.GetQuery(key); ok {
-		return val
+	limitQuery := ctx.Query("limit")
+	limit, err := strconv.Atoi(limitQuery)
+	if err != nil {
+		return nil, domain.ErrInvalid
 	}
-	return defaultVal
+	return &application.PaginationParam{
+		Page:  &page,
+		Limit: &limit,
+	}, nil
 }

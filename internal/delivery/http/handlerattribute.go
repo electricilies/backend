@@ -2,7 +2,6 @@ package http
 
 import (
 	"net/http"
-	"strconv"
 
 	"backend/internal/application"
 	"backend/internal/domain"
@@ -90,30 +89,14 @@ func (h *GinAttributeHandler) Get(ctx *gin.Context) {
 //	@Failure		500				{object}	Error
 //	@Router			/attributes [get]
 func (h *GinAttributeHandler) List(ctx *gin.Context) {
-	pageQuery := ctx.Query("page")
-	page, err := strconv.Atoi(pageQuery)
+	paginateParam, err := createPaginationParamsFromQuery(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewError(ErrInvalidPage))
+		SendError(ctx, err)
+		return
 	}
-
-	limitQuery := ctx.Query("limit")
-	limit, err := strconv.Atoi(limitQuery)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewError(ErrInvalidLimit))
-	}
-
 	var attributeIDs *[]uuid.UUID
-	if attributeIDsQuery, ok := ctx.GetQueryArray("attribute_ids"); ok {
-		ids := make([]uuid.UUID, 0, len(attributeIDsQuery))
-		for _, idStr := range attributeIDsQuery {
-			id, err := uuid.Parse(idStr)
-			if err != nil {
-				ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID+":"+idStr))
-				return
-			}
-			ids = append(ids, id)
-		}
-		attributeIDs = &ids
+	if attributeIDsQuery, ok := queryArrayToUUIDSlice(ctx, "attribute_ids"); ok {
+		attributeIDs = attributeIDsQuery
 	}
 	var search *string
 	if searchQuery, ok := ctx.GetQuery("search"); ok {
@@ -124,13 +107,10 @@ func (h *GinAttributeHandler) List(ctx *gin.Context) {
 		deleted = domain.DeletedParam(deletedQuery)
 	}
 	attributes, err := h.attributeApp.List(ctx, application.ListAttributesParam{
-		PaginationParam: application.PaginationParam{
-			Page:  &page,
-			Limit: &limit,
-		},
-		AttributeIDs: attributeIDs,
-		Search:       search,
-		Deleted:      domain.DeletedParam(deleted),
+		PaginationParam: *paginateParam,
+		AttributeIDs:    attributeIDs,
+		Search:          search,
+		Deleted:         domain.DeletedParam(deleted),
 	})
 	if err != nil {
 		SendError(ctx, err)
