@@ -1,4 +1,5 @@
 internal/**
+pkg/**
 cmd/**
 config/**
 test/**/*.go
