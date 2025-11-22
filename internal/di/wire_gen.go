@@ -13,7 +13,6 @@ import (
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
 	"backend/internal/infrastructure/repository"
-	"backend/internal/infrastructure/repository/postgres"
 	"backend/internal/service"
 	"backend/pkg/logger"
 	"context"
@@ -35,14 +34,14 @@ func InitializeServer(ctx context.Context) *http.Server {
 	zapLogger := logger.New(loggerConfig)
 	loggingMiddlewareImpl := http.ProvideLoggingMiddleware(zapLogger)
 	ginAuthMiddleware := http.ProvideAuthMiddleware(goCloak, server)
-	queries := postgres.ProvideQueries(pool)
+	queries := client.NewDBQueries(pool)
 	postgresCategory := repository.ProvidePostgresCategory(queries)
 	validate := client.NewValidate()
 	category := service.ProvideCategory(validate)
 	categoryImpl := application.ProvideCategory(postgresCategory, category, redisClient)
 	ginCategoryHandler := http.ProvideCategoryHandler(categoryImpl)
 	ginProductHandler := http.ProvideProductHandler()
-	postgresAttribute := repository.ProvidePostgresAttribute(queries)
+	postgresAttribute := repository.ProvidePostgresAttribute(queries, pool)
 	attribute := service.ProvideAttribute(validate)
 	attributeImpl := application.ProvideAttribute(postgresAttribute, attribute, redisClient)
 	ginAttributeHandler := http.ProvideAttributeHandler(attributeImpl)
@@ -70,11 +69,7 @@ var ConfigSet = wire.NewSet(config.NewServer, logger.NewConfig)
 
 var LoggerSet = wire.NewSet(logger.New)
 
-var DbSet = wire.NewSet(client.NewDBConnection, postgres.ProvideQueries, wire.Bind(
-	new(postgres.Querier),
-	new(*postgres.Queries),
-), client.NewDBTransactor,
-)
+var DbSet = wire.NewSet(client.NewDBConnection, client.NewDBQueries, client.NewDBTransactor)
 
 var EngineSet = wire.NewSet(client.NewGin)
 

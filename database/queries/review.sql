@@ -55,7 +55,7 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN reviews.deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN reviews.deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE reviews.deleted_at IS NOT NULL
   END
 ORDER BY
   reviews.created_at DESC
@@ -86,7 +86,7 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN reviews.deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN reviews.deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE reviews.deleted_at IS NOT NULL
   END;
 
 -- name: GetReview :one
@@ -100,5 +100,5 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END;

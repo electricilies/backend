@@ -10,14 +10,13 @@ import (
 )
 
 type PostgresOrder struct {
-	querier postgres.Querier
+	queries *postgres.Queries
 }
 
 var _ domain.OrderRepository = (*PostgresOrder)(nil)
 
-
-func ProvidePostgresOrder(q postgres.Querier) *PostgresOrder {
-	return &PostgresOrder{querier: q}
+func ProvidePostgresOrder(q *postgres.Queries) *PostgresOrder {
+	return &PostgresOrder{queries: q}
 }
 
 func (r *PostgresOrder) List(ctx context.Context, ids *[]uuid.UUID, search *string, deleted domain.DeletedParam, limit int, offset int) (*[]domain.Order, error) {

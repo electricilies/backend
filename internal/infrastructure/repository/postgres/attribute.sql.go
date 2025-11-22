@@ -28,21 +28,32 @@ WHERE
     ELSE attribute_id = $2::uuid
   END
   AND CASE
-    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
-    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
-    WHEN $3::text = 'all' THEN TRUE
-    ELSE FALSE
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
+     ELSE attribute_id = ANY ($3::uuid[])
+  END
+  AND CASE
+    WHEN $4::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $4::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $4::text = 'all' THEN TRUE
+    ELSE deleted_at IS NULL
   END
 `
 
 type CountAttributeValuesParams struct {
-	IDs         []uuid.UUID
-	AttributeID pgtype.UUID
-	Deleted     string
+	IDs          []uuid.UUID
+	AttributeID  pgtype.UUID
+	AttributeIDs []uuid.UUID
+	Deleted      string
 }
 
 func (q *Queries) CountAttributeValues(ctx context.Context, arg CountAttributeValuesParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countAttributeValues, arg.IDs, arg.AttributeID, arg.Deleted)
+	row := q.db.QueryRow(ctx, countAttributeValues,
+		arg.IDs,
+		arg.AttributeID,
+		arg.AttributeIDs,
+		arg.Deleted,
+	)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -63,7 +74,7 @@ WHERE
     WHEN $2::text = 'exclude' THEN deleted_at IS NULL
     WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $2::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 `
 
@@ -99,12 +110,12 @@ SELECT
 FROM
   attributes
 WHERE
-  id = $1
+  id = $1::uuid
   AND CASE
     WHEN $2::text = 'exclude' THEN deleted_at IS NULL
     WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $2::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 `
 
@@ -148,35 +159,42 @@ WHERE
     ELSE attribute_id = $2::uuid
   END
   AND CASE
-    WHEN $3::text IS NULL THEN TRUE
-    ELSE value ||| ($3::text)::pdb.fuzzy(2)
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
+     ELSE attribute_id = ANY ($3::uuid[])
   END
   AND CASE
-    WHEN $4::text = 'exclude' THEN deleted_at IS NULL
-    WHEN $4::text = 'only' THEN deleted_at IS NOT NULL
-    WHEN $4::text = 'all' THEN TRUE
-    ELSE FALSE
+    WHEN $4::text IS NULL THEN TRUE
+    ELSE value ||| ($4::text)::pdb.fuzzy(2)
+  END
+  AND CASE
+    WHEN $5::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $5::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $5::text = 'all' THEN TRUE
+    ELSE deleted_at IS NULL
   END
 ORDER BY
-  CASE WHEN $3::text IS NOT NULL THEN pdb.score(id) END DESC,
+  CASE WHEN $4::text IS NOT NULL THEN pdb.score(id) END DESC,
   id ASC
-OFFSET $5::integer
-LIMIT NULLIF($6::integer, 0)
+OFFSET $6::integer
+LIMIT NULLIF($7::integer, 0)
 `
 
 type ListAttributeValuesParams struct {
-	IDs         []uuid.UUID
-	AttributeID pgtype.UUID
-	Search      *string
-	Deleted     string
-	Offset      int32
-	Limit       int32
+	IDs          []uuid.UUID
+	AttributeID  pgtype.UUID
+	AttributeIDs []uuid.UUID
+	Search       *string
+	Deleted      string
+	Offset       int32
+	Limit        int32
 }
 
 func (q *Queries) ListAttributeValues(ctx context.Context, arg ListAttributeValuesParams) ([]AttributeValue, error) {
 	rows, err := q.db.Query(ctx, listAttributeValues,
 		arg.IDs,
 		arg.AttributeID,
+		arg.AttributeIDs,
 		arg.Search,
 		arg.Deleted,
 		arg.Offset,
@@ -226,7 +244,7 @@ WHERE
     WHEN $3::text = 'exclude' THEN deleted_at IS NULL
     WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $3::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 ORDER BY
   CASE WHEN $2::text IS NOT NULL THEN pdb.score(id) END DESC,
@@ -332,8 +350,12 @@ func (q *Queries) ListProductsAttributeValues(ctx context.Context, arg ListProdu
 const mergeAttributeValuesFromTemp = `-- name: MergeAttributeValuesFromTemp :exec
 MERGE INTO attribute_values AS target
 USING temp_attribute_values AS source
-  ON target.id = source.id
-WHEN MATCHED THEN
+ON target.id = source.id
+   OR (
+        target.attribute_id = source.attribute_id
+        AND source.id IS NULL
+      )
+WHEN MATCHED AND source.id IS NOT NULL THEN
   UPDATE SET
     attribute_id = source.attribute_id,
     value = source.value,
@@ -351,7 +373,7 @@ WHEN NOT MATCHED THEN
     source.value,
     source.deleted_at
   )
-WHEN NOT MATCHED BY SOURCE AND target.attribute_id = sqlc.arg('attribute_id')::uuid THEN
+WHEN MATCHED AND source.id IS NULL THEN
   DELETE
 `
 

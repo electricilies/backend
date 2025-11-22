@@ -38,16 +38,16 @@ type OptionValue struct {
 }
 
 type ProductVariant struct {
-	ID            uuid.UUID       `json:"id"            binding:"required"                      validate:"required"`
-	SKU           string          `json:"sku"           binding:"required"                      validate:"required"`
-	Price         int64           `json:"price"         binding:"required"                      validate:"required,gt=0"`
-	Quantity      int             `json:"quantity"      binding:"required"                      validate:"required,gte=0"`
-	PurchaseCount int             `json:"purchaseCount" binding:"required"                      validate:"required,gte=0"`
-	CreatedAt     time.Time       `json:"createdAt"     binding:"required"                      validate:"required"`
-	DeletedAt     *time.Time      `json:"deletedAt"     validate:"omitempty,gtefield=CreatedAt"`
-	OptionValues  *[]OptionValue  `json:"optionValues"  validate:"omitnil,gte=1,dive"`
-	Images        *[]ProductImage `json:"images"        validate:"omitnil,dive"`
-	Product       *Product        `json:"product"       validate:"omitnil"`
+	ID            uuid.UUID       `json:"id"                binding:"required"                      validate:"required"`
+	SKU           string          `json:"sku"               binding:"required"                      validate:"required"`
+	Price         int64           `json:"price"             binding:"required"                      validate:"required,gt=0"`
+	Quantity      int             `json:"quantity"          binding:"required"                      validate:"required,gte=0"`
+	PurchaseCount int             `json:"purchaseCount"     binding:"required"                      validate:"required,gte=0"`
+	CreatedAt     time.Time       `json:"createdAt"         binding:"required"                      validate:"required"`
+	DeletedAt     *time.Time      `json:"deletedAt"         validate:"omitempty,gtefield=CreatedAt"`
+	OptionValues  *[]OptionValue  `json:"optionValues"      validate:"omitnil,gte=1,dive"`
+	Images        *[]ProductImage `json:"images"            validate:"omitnil,dive"`
+	Product       *Product        `json:"product,omitempty"`
 }
 
 type ProductImage struct {

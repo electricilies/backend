@@ -37,7 +37,7 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 ORDER BY
   CASE WHEN sqlc.narg('search')::text IS NOT NULL THEN pdb.score(id) END DESC,
@@ -60,7 +60,7 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END;
 
 -- name: GetAttribute :one
@@ -69,12 +69,12 @@ SELECT
 FROM
   attributes
 WHERE
-  id = sqlc.arg('id')
+  id = sqlc.arg('id')::uuid
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END;
 
 -- name: ListProductsAttributeValues :many
@@ -115,6 +115,11 @@ WHERE
     ELSE attribute_id = sqlc.narg('attribute_id')::uuid
   END
   AND CASE
+    WHEN sqlc.narg('attribute_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('attribute_ids')::uuid[]) = 0 THEN TRUE
+     ELSE attribute_id = ANY (sqlc.narg('attribute_ids')::uuid[])
+  END
+  AND CASE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE
     ELSE value ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
   END
@@ -122,7 +127,7 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 ORDER BY
   CASE WHEN sqlc.narg('search')::text IS NOT NULL THEN pdb.score(id) END DESC,
@@ -146,17 +151,26 @@ WHERE
     ELSE attribute_id = sqlc.narg('attribute_id')::uuid
   END
   AND CASE
+    WHEN sqlc.narg('attribute_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('attribute_ids')::uuid[]) = 0 THEN TRUE
+     ELSE attribute_id = ANY (sqlc.narg('attribute_ids')::uuid[])
+  END
+  AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END;
 
 -- name: MergeAttributeValuesFromTemp :exec
 MERGE INTO attribute_values AS target
 USING temp_attribute_values AS source
-  ON target.id = source.id
-WHEN MATCHED THEN
+ON target.id = source.id
+   OR (
+        target.attribute_id = source.attribute_id
+        AND source.id IS NULL
+      )
+WHEN MATCHED AND source.id IS NOT NULL THEN
   UPDATE SET
     attribute_id = source.attribute_id,
     value = source.value,
@@ -174,5 +188,5 @@ WHEN NOT MATCHED THEN
     source.value,
     source.deleted_at
   )
-WHEN NOT MATCHED BY SOURCE AND target.attribute_id = sqlc.arg('attribute_id')::uuid THEN
+WHEN MATCHED AND source.id IS NULL THEN
   DELETE;

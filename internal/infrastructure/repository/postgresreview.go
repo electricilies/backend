@@ -10,13 +10,13 @@ import (
 )
 
 type PostgresReview struct {
-	querier postgres.Querier
+	queries *postgres.Queries
 }
 
 var _ domain.ReviewRepository = (*PostgresReview)(nil)
 
-func ProvidePostgresReview(q postgres.Querier) *PostgresReview {
-	return &PostgresReview{querier: q}
+func ProvidePostgresReview(q *postgres.Queries) *PostgresReview {
+	return &PostgresReview{queries: q}
 }
 
 func (r *PostgresReview) List(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted domain.DeletedParam, limit int, offset int) (*[]domain.Review, error) {

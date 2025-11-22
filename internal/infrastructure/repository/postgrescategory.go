@@ -10,13 +10,13 @@ import (
 )
 
 type PostgresCategory struct {
-	querier postgres.Querier
+	queries *postgres.Queries
 }
 
 var _ domain.CategoryRepository = (*PostgresCategory)(nil)
 
-func ProvidePostgresCategory(q postgres.Querier) *PostgresCategory {
-	return &PostgresCategory{querier: q}
+func ProvidePostgresCategory(q *postgres.Queries) *PostgresCategory {
+	return &PostgresCategory{queries: q}
 }
 
 func (r *PostgresCategory) List(ctx context.Context, search *string, limit int, offset int) (*[]domain.Category, error) {

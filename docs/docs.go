@@ -325,7 +325,8 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Attribute ID",
                         "name": "attribute_id",
-                        "in": "path"
+                        "in": "path",
+                        "required": true
                     },
                     {
                         "type": "string",

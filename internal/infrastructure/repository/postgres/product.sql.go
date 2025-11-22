@@ -42,7 +42,7 @@ WHERE
     WHEN $6::text = 'exclude' THEN products.deleted_at IS NULL
     WHEN $6::text = 'only' THEN products.deleted_at IS NOT NULL
     WHEN $6::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE products.deleted_at IS NOT NULL
   END
 `
 
@@ -129,7 +129,7 @@ WHERE
     WHEN $2::text = 'exclude' THEN deleted_at IS NULL
     WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $2::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 `
 
@@ -197,7 +197,7 @@ WHERE
     WHEN $2::text = 'exclude' THEN deleted_at IS NULL
     WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $2::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 `
 
@@ -324,7 +324,7 @@ WHERE
     WHEN $3::text = 'exclude' THEN deleted_at IS NULL
     WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $3::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 ORDER BY
   id
@@ -415,7 +415,7 @@ WHERE
     WHEN $7::text = 'exclude' THEN products.deleted_at IS NULL
     WHEN $7::text = 'only' THEN products.deleted_at IS NOT NULL
     WHEN $7::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE products.deleted_at IS NOT NULL
   END
 ORDER BY
   CASE WHEN

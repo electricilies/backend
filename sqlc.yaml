@@ -25,7 +25,7 @@ sql:
             nullable: false
             go_type:
               import: github.com/google/uuid
-              type: "UUID"
+              type: UUID
         emit_pointers_for_null_types: true
         emit_interface: true
         initialisms:

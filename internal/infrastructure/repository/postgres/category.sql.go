@@ -22,7 +22,7 @@ WHERE
     WHEN $1::text = 'exclude' THEN deleted_at IS NULL
     WHEN $1::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $1::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 `
 
@@ -48,7 +48,7 @@ WHERE
     WHEN $2::text = 'exclude' THEN deleted_at IS NULL
     WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $2::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 `
 
@@ -84,7 +84,7 @@ WHERE
     WHEN $2::text = 'exclude' THEN deleted_at IS NULL
     WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $2::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 ORDER BY
   id DESC

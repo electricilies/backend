@@ -10,13 +10,13 @@ import (
 )
 
 type PostgresCart struct {
-	querier postgres.Querier
+	queries *postgres.Queries
 }
 
 var _ domain.CartRepository = (*PostgresCart)(nil)
 
-func ProvidePostgresCart(q postgres.Querier) *PostgresCart {
-	return &PostgresCart{querier: q}
+func ProvidePostgresCart(q *postgres.Queries) *PostgresCart {
+	return &PostgresCart{queries: q}
 }
 
 func (r *PostgresCart) Get(ctx context.Context, id uuid.UUID) (*domain.Cart, error) {

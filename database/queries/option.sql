@@ -35,7 +35,7 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 ORDER BY
   options.id;
@@ -51,7 +51,7 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END;
 
 -- name: ListOptionValuesProductVariants :many
@@ -91,7 +91,7 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 ORDER BY
   option_values.id;

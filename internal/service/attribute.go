@@ -33,9 +33,10 @@ func (a *Attribute) Create(
 		return nil, multierror.Append(domain.ErrInternal, err)
 	}
 	attribute := &domain.Attribute{
-		ID:   id,
-		Code: code,
-		Name: name,
+		ID:     id,
+		Code:   code,
+		Name:   name,
+		Values: &[]domain.AttributeValue{},
 	}
 	if err := a.validate.Struct(attribute); err != nil {
 		return nil, multierror.Append(domain.ErrInvalid, err)

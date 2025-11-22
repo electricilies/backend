@@ -33,7 +33,7 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 ORDER BY
   id DESC
@@ -50,7 +50,7 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END;
 
 -- name: GetCategory :one
@@ -64,5 +64,5 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END;

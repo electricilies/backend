@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"backend/internal/domain"
@@ -10,16 +11,21 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type PostgresAttribute struct {
-	querier postgres.Querier
+	queries *postgres.Queries
+	conn    *pgxpool.Pool
 }
 
 var _ domain.AttributeRepository = (*PostgresAttribute)(nil)
 
-func ProvidePostgresAttribute(q postgres.Querier) *PostgresAttribute {
-	return &PostgresAttribute{querier: q}
+func ProvidePostgresAttribute(q *postgres.Queries, conn *pgxpool.Pool) *PostgresAttribute {
+	return &PostgresAttribute{
+		queries: q,
+		conn:    conn,
+	}
 }
 
 func (r *PostgresAttribute) Count(
@@ -27,7 +33,7 @@ func (r *PostgresAttribute) Count(
 	ids *[]uuid.UUID,
 	deleted domain.DeletedParam,
 ) (*int, error) {
-	count, err := r.querier.CountAttributes(ctx, postgres.CountAttributesParams{
+	count, err := r.queries.CountAttributes(ctx, postgres.CountAttributesParams{
 		IDs:     ptr.Deref(ids, []uuid.UUID{}),
 		Deleted: string(deleted),
 	})
@@ -42,7 +48,7 @@ func (r *PostgresAttribute) List(
 	limit int,
 	offset int,
 ) (*[]domain.Attribute, error) {
-	attributes, err := r.querier.ListAttributes(ctx, postgres.ListAttributesParams{
+	attributes, err := r.queries.ListAttributes(ctx, postgres.ListAttributesParams{
 		IDs:     ptr.Deref(ids, []uuid.UUID{}),
 		Search:  search,
 		Deleted: string(deleted),
@@ -52,14 +58,32 @@ func (r *PostgresAttribute) List(
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
 	}
+	attributeIDs := make([]uuid.UUID, 0, len(attributes))
+	for _, attr := range attributes {
+		attributeIDs = append(attributeIDs, attr.ID)
+	}
+	attributeValues, err := r.queries.ListAttributeValues(ctx, postgres.ListAttributeValuesParams{
+		AttributeIDs: attributeIDs,
+		Deleted:      string(deleted),
+	})
+	if err != nil {
+		return nil, ToDomainErrorFromPostgres(err)
+	}
 	result := make([]domain.Attribute, 0, len(attributes))
-	for i, attr := range attributes {
-		result[i] = domain.Attribute{
-			ID:        attr.ID,
-			Code:      attr.Code,
-			Name:      attr.Name,
-			DeletedAt: &attr.DeletedAt.Time,
-		}
+	for _, attribute := range attributes {
+		result = append(result, domain.Attribute{
+			ID:   attribute.ID,
+			Code: attribute.Code,
+			Name: attribute.Name,
+			Values: buildAttributeValues(
+				attribute.ID,
+				attributeValues,
+			),
+			DeletedAt: fromPgValidToPtr(
+				attribute.DeletedAt.Time,
+				attribute.DeletedAt.Valid,
+			),
+		})
 	}
 	return &result, err
 }
@@ -73,7 +97,7 @@ func (r *PostgresAttribute) ListValues(
 	limit int,
 	offset int,
 ) (*[]domain.AttributeValue, error) {
-	attributeValues, err := r.querier.ListAttributeValues(
+	attributeValues, err := r.queries.ListAttributeValues(
 		ctx,
 		postgres.ListAttributeValuesParams{
 			IDs: ptr.Deref(attributeValueIDs, []uuid.UUID{}),
@@ -91,19 +115,23 @@ func (r *PostgresAttribute) ListValues(
 		return nil, ToDomainErrorFromPostgres(err)
 	}
 	result := make([]domain.AttributeValue, 0, len(attributeValues))
-	for i, attrVal := range attributeValues {
-		result[i] = domain.AttributeValue{
-			ID:        attrVal.ID,
-			Value:     attrVal.Value,
-			DeletedAt: &attrVal.DeletedAt.Time,
-		}
+	for _, attrVal := range attributeValues {
+		result = append(result, domain.AttributeValue{
+			ID:    attrVal.ID,
+			Value: attrVal.Value,
+			DeletedAt: fromPgValidToPtr(
+				attrVal.DeletedAt.Time,
+				attrVal.DeletedAt.Valid,
+			),
+		})
 	}
 	return &result, nil
 }
 
 func (r *PostgresAttribute) CountValues(ctx context.Context, attributeID *uuid.UUID, attributeValueIDs *[]uuid.UUID) (*int, error) {
-	count, err := r.querier.CountAttributeValues(ctx, postgres.CountAttributeValuesParams{
-		IDs: ptr.Deref(attributeValueIDs, []uuid.UUID{}),
+	count, err := r.queries.CountAttributeValues(ctx, postgres.CountAttributeValuesParams{
+		IDs:     ptr.Deref(attributeValueIDs, []uuid.UUID{}),
+		Deleted: string(domain.DeletedExcludeParam),
 		AttributeID: pgtype.UUID{
 			Bytes: ptr.Deref(attributeID, uuid.UUID{}),
 			Valid: attributeID != nil,
@@ -113,9 +141,10 @@ func (r *PostgresAttribute) CountValues(ctx context.Context, attributeID *uuid.U
 }
 
 func (r *PostgresAttribute) Get(ctx context.Context, id uuid.UUID) (*domain.Attribute, error) {
-	attribute, err := r.querier.GetAttribute(ctx, postgres.GetAttributeParams{
+	attribute, err := r.queries.GetAttribute(ctx, postgres.GetAttributeParams{
 		ID: id,
 	})
+	log.Println("Fetched attribute:", attribute, "Id", id)
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
 	}
@@ -126,34 +155,26 @@ func (r *PostgresAttribute) Get(ctx context.Context, id uuid.UUID) (*domain.Attr
 	}
 
 	result := domain.Attribute{
-		ID:        attribute.ID,
-		Code:      attribute.Code,
-		Name:      attribute.Name,
-		Values:    attributeValues,
-		DeletedAt: ptr.To(attribute.DeletedAt.Time),
+		ID:     attribute.ID,
+		Code:   attribute.Code,
+		Name:   attribute.Name,
+		Values: attributeValues,
+		DeletedAt: fromPgValidToPtr(
+			attribute.DeletedAt.Time,
+			attribute.DeletedAt.Valid,
+		),
 	}
 	return &result, nil
 }
 
 func (r *PostgresAttribute) Save(ctx context.Context, attribute domain.Attribute) error {
-	err := r.querier.CreateTempTableAttributeValues(ctx)
+	tx, err := r.conn.Begin(ctx)
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	_, err = r.querier.InsertTempTableAttributeValues(ctx, func() []postgres.InsertTempTableAttributeValuesParams {
-		params := make([]postgres.InsertTempTableAttributeValuesParams, 0, len(*attribute.Values))
-		for _, val := range *attribute.Values {
-			params = append(params, postgres.InsertTempTableAttributeValuesParams{
-				ID:    val.ID,
-				Value: val.Value,
-			})
-		}
-		return params
-	}())
-	if err != nil {
-		return ToDomainErrorFromPostgres(err)
-	}
-	err = r.querier.UpsertAttribute(ctx, postgres.UpsertAttributeParams{
+	defer func() { _ = tx.Rollback(ctx) }()
+	qtx := r.queries.WithTx(tx)
+	err = qtx.UpsertAttribute(ctx, postgres.UpsertAttributeParams{
 		ID:   attribute.ID,
 		Code: attribute.Code,
 		Name: attribute.Name,
@@ -165,5 +186,49 @@ func (r *PostgresAttribute) Save(ctx context.Context, attribute domain.Attribute
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
+	err = qtx.CreateTempTableAttributeValues(ctx)
+	if err != nil {
+		return ToDomainErrorFromPostgres(err)
+	}
+	_, err = qtx.InsertTempTableAttributeValues(ctx, buildInsertTempTableAttributeValuesParams(attribute.Values))
+	if err != nil {
+		return ToDomainErrorFromPostgres(err)
+	}
+	err = qtx.MergeAttributeValuesFromTemp(ctx)
+	if err != nil {
+		return ToDomainErrorFromPostgres(err)
+	}
+	err = tx.Commit(ctx)
+	if err != nil {
+		return ToDomainErrorFromPostgres(err)
+	}
 	return nil
+}
+
+func buildAttributeValues(attributeID uuid.UUID, attributeValues []postgres.AttributeValue) *[]domain.AttributeValue {
+	values := make([]domain.AttributeValue, 0)
+	for _, val := range attributeValues {
+		if val.AttributeID == attributeID {
+			values = append(values, domain.AttributeValue{
+				ID:    val.ID,
+				Value: val.Value,
+				DeletedAt: fromPgValidToPtr(
+					val.DeletedAt.Time,
+					val.DeletedAt.Valid,
+				),
+			})
+		}
+	}
+	return &values
+}
+
+func buildInsertTempTableAttributeValuesParams(values *[]domain.AttributeValue) []postgres.InsertTempTableAttributeValuesParams {
+	params := make([]postgres.InsertTempTableAttributeValuesParams, 0, len(*values))
+	for _, val := range *values {
+		params = append(params, postgres.InsertTempTableAttributeValuesParams{
+			ID:    val.ID,
+			Value: val.Value,
+		})
+	}
+	return params
 }

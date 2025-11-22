@@ -36,7 +36,7 @@ WHERE
     WHEN $4::text = 'exclude' THEN reviews.deleted_at IS NULL
     WHEN $4::text = 'only' THEN reviews.deleted_at IS NOT NULL
     WHEN $4::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE reviews.deleted_at IS NOT NULL
   END
 `
 
@@ -70,7 +70,7 @@ WHERE
     WHEN $2::text = 'exclude' THEN deleted_at IS NULL
     WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
     WHEN $2::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE deleted_at IS NULL
   END
 `
 
@@ -120,7 +120,7 @@ WHERE
     WHEN $4::text = 'exclude' THEN reviews.deleted_at IS NULL
     WHEN $4::text = 'only' THEN reviews.deleted_at IS NOT NULL
     WHEN $4::text = 'all' THEN TRUE
-    ELSE FALSE
+    ELSE reviews.deleted_at IS NOT NULL
   END
 ORDER BY
   reviews.created_at DESC
