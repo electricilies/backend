@@ -202,6 +202,7 @@ func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValue
 		param.AttributeID,
 		param.AttributeValueIDs,
 		param.Search,
+		param.Deleted,
 		*param.Limit,
 		*param.Page,
 	)

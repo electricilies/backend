@@ -27,6 +27,7 @@ type AttributeRepository interface {
 		attributeID *uuid.UUID,
 		attributeValueIDs *[]uuid.UUID,
 		search *string,
+		deleted DeletedParam,
 		limit int,
 		offset int,
 	) (*[]AttributeValue, error)

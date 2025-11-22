@@ -159,11 +159,15 @@ func (h *GinAttributeHandler) ListValues(ctx *gin.Context) {
 	if searchQuery, ok := ctx.GetQuery("search"); ok {
 		search = &searchQuery
 	}
-
+	deleted := domain.DeletedExcludeParam
+	if deletedQuery, ok := ctx.GetQuery("deleted"); ok {
+		deleted = domain.DeletedParam(deletedQuery)
+	}
 	attributeValues, err := h.attributeApp.ListValues(ctx, application.ListAttributeValuesParam{
 		PaginationParam:   *paginateParam,
 		AttributeID:       attributeID,
 		AttributeValueIDs: attributeValueIDs,
+		Deleted:           deleted,
 		Search:            search,
 	})
 	if err != nil {

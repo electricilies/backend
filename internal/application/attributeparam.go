@@ -9,15 +9,16 @@ type ListAttributesParam struct {
 	PaginationParam
 	AttributeIDs *[]uuid.UUID        `binding:"omitnil"`
 	ProductIDs   *[]uuid.UUID        `binding:"omitnil"`
-	Search       *string             `binding:"omitnil"`
 	Deleted      domain.DeletedParam `binding:"required,oneof=exclude only all"`
+	Search       *string             `binding:"omitnil"`
 }
 
 type ListAttributeValuesParam struct {
 	PaginationParam
 	AttributeID       *uuid.UUID
-	AttributeValueIDs *[]uuid.UUID `binding:"omitnil"`
-	Search            *string      `binding:"omitnil"`
+	AttributeValueIDs *[]uuid.UUID        `binding:"omitnil"`
+	Deleted           domain.DeletedParam `binding:"required,oneof=exclude only all"`
+	Search            *string             `binding:"omitnil"`
 }
 
 type GetAttributeParam struct {

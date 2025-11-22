@@ -74,8 +74,11 @@ func (h *GinOrderHandler) Get(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{array}		domain.Order
-//	@Failure		500	{object}	Error
+//	@Param			order_ids	query		[]string	false	"Filter by order IDs"	collectionFormat(csv)
+//	@Param			user_ids	query		[]string	false	"Filter by user IDs"	collectionFormat(csv)
+//	@Param			status_ids	query		[]string	false	"Filter by status IDs"	collectionFormat(csv)
+//	@Success		200			{array}		domain.Order
+//	@Failure		500			{object}	Error
 //	@Router			/orders [get]
 func (h *GinOrderHandler) List(ctx *gin.Context) {
 	paginateParam, err := createPaginationParamsFromQuery(ctx)

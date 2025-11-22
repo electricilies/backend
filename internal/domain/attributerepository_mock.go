@@ -347,8 +347,8 @@ func (_c *MockAttributeRepository_List_Call) RunAndReturn(run func(ctx context.C
 }
 
 // ListValues provides a mock function for the type MockAttributeRepository
-func (_mock *MockAttributeRepository) ListValues(ctx context.Context, attributeID *uuid.UUID, attributeValueIDs *[]uuid.UUID, search *string, limit int, offset int) (*[]AttributeValue, error) {
-	ret := _mock.Called(ctx, attributeID, attributeValueIDs, search, limit, offset)
+func (_mock *MockAttributeRepository) ListValues(ctx context.Context, attributeID *uuid.UUID, attributeValueIDs *[]uuid.UUID, search *string, deleted DeletedParam, limit int, offset int) (*[]AttributeValue, error) {
+	ret := _mock.Called(ctx, attributeID, attributeValueIDs, search, deleted, limit, offset)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListValues")
@@ -356,18 +356,18 @@ func (_mock *MockAttributeRepository) ListValues(ctx context.Context, attributeI
 
 	var r0 *[]AttributeValue
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *uuid.UUID, *[]uuid.UUID, *string, int, int) (*[]AttributeValue, error)); ok {
-		return returnFunc(ctx, attributeID, attributeValueIDs, search, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *uuid.UUID, *[]uuid.UUID, *string, DeletedParam, int, int) (*[]AttributeValue, error)); ok {
+		return returnFunc(ctx, attributeID, attributeValueIDs, search, deleted, limit, offset)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *uuid.UUID, *[]uuid.UUID, *string, int, int) *[]AttributeValue); ok {
-		r0 = returnFunc(ctx, attributeID, attributeValueIDs, search, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *uuid.UUID, *[]uuid.UUID, *string, DeletedParam, int, int) *[]AttributeValue); ok {
+		r0 = returnFunc(ctx, attributeID, attributeValueIDs, search, deleted, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*[]AttributeValue)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *uuid.UUID, *[]uuid.UUID, *string, int, int) error); ok {
-		r1 = returnFunc(ctx, attributeID, attributeValueIDs, search, limit, offset)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *uuid.UUID, *[]uuid.UUID, *string, DeletedParam, int, int) error); ok {
+		r1 = returnFunc(ctx, attributeID, attributeValueIDs, search, deleted, limit, offset)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -384,13 +384,14 @@ type MockAttributeRepository_ListValues_Call struct {
 //   - attributeID *uuid.UUID
 //   - attributeValueIDs *[]uuid.UUID
 //   - search *string
+//   - deleted DeletedParam
 //   - limit int
 //   - offset int
-func (_e *MockAttributeRepository_Expecter) ListValues(ctx interface{}, attributeID interface{}, attributeValueIDs interface{}, search interface{}, limit interface{}, offset interface{}) *MockAttributeRepository_ListValues_Call {
-	return &MockAttributeRepository_ListValues_Call{Call: _e.mock.On("ListValues", ctx, attributeID, attributeValueIDs, search, limit, offset)}
+func (_e *MockAttributeRepository_Expecter) ListValues(ctx interface{}, attributeID interface{}, attributeValueIDs interface{}, search interface{}, deleted interface{}, limit interface{}, offset interface{}) *MockAttributeRepository_ListValues_Call {
+	return &MockAttributeRepository_ListValues_Call{Call: _e.mock.On("ListValues", ctx, attributeID, attributeValueIDs, search, deleted, limit, offset)}
 }
 
-func (_c *MockAttributeRepository_ListValues_Call) Run(run func(ctx context.Context, attributeID *uuid.UUID, attributeValueIDs *[]uuid.UUID, search *string, limit int, offset int)) *MockAttributeRepository_ListValues_Call {
+func (_c *MockAttributeRepository_ListValues_Call) Run(run func(ctx context.Context, attributeID *uuid.UUID, attributeValueIDs *[]uuid.UUID, search *string, deleted DeletedParam, limit int, offset int)) *MockAttributeRepository_ListValues_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -408,13 +409,17 @@ func (_c *MockAttributeRepository_ListValues_Call) Run(run func(ctx context.Cont
 		if args[3] != nil {
 			arg3 = args[3].(*string)
 		}
-		var arg4 int
+		var arg4 DeletedParam
 		if args[4] != nil {
-			arg4 = args[4].(int)
+			arg4 = args[4].(DeletedParam)
 		}
 		var arg5 int
 		if args[5] != nil {
 			arg5 = args[5].(int)
+		}
+		var arg6 int
+		if args[6] != nil {
+			arg6 = args[6].(int)
 		}
 		run(
 			arg0,
@@ -423,6 +428,7 @@ func (_c *MockAttributeRepository_ListValues_Call) Run(run func(ctx context.Cont
 			arg3,
 			arg4,
 			arg5,
+			arg6,
 		)
 	})
 	return _c
@@ -433,7 +439,7 @@ func (_c *MockAttributeRepository_ListValues_Call) Return(attributeValues *[]Att
 	return _c
 }
 
-func (_c *MockAttributeRepository_ListValues_Call) RunAndReturn(run func(ctx context.Context, attributeID *uuid.UUID, attributeValueIDs *[]uuid.UUID, search *string, limit int, offset int) (*[]AttributeValue, error)) *MockAttributeRepository_ListValues_Call {
+func (_c *MockAttributeRepository_ListValues_Call) RunAndReturn(run func(ctx context.Context, attributeID *uuid.UUID, attributeValueIDs *[]uuid.UUID, search *string, deleted DeletedParam, limit int, offset int) (*[]AttributeValue, error)) *MockAttributeRepository_ListValues_Call {
 	_c.Call.Return(run)
 	return _c
 }
