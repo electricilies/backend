@@ -17,19 +17,25 @@ SELECT
   COUNT(*) AS count
 FROM
   reviews
+LEFT JOIN order_items ON reviews.order_item_id = order_items.id
+LEFT JOIN product_variants ON order_items.product_variant_id = product_variants.id
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::uuid[])
+    ELSE reviews.id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
-    ELSE order_item_id = ANY ($2::uuid[])
+    ELSE reviews.order_item_id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
-    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
-    WHEN $3::text = 'all' THEN TRUE
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    ELSE product_variants.product_id = ANY ($3::uuid[])
+  END
+  AND CASE
+    WHEN $4::text = 'exclude' THEN reviews.deleted_at IS NULL
+    WHEN $4::text = 'only' THEN reviews.deleted_at IS NOT NULL
+    WHEN $4::text = 'all' THEN TRUE
     ELSE FALSE
   END
 `
@@ -37,11 +43,17 @@ WHERE
 type CountReviewsParams struct {
 	IDs          []uuid.UUID
 	OrderItemIds []uuid.UUID
+	ProductIDs   []uuid.UUID
 	Deleted      string
 }
 
 func (q *Queries) CountReviews(ctx context.Context, arg CountReviewsParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countReviews, arg.IDs, arg.OrderItemIds, arg.Deleted)
+	row := q.db.QueryRow(ctx, countReviews,
+		arg.IDs,
+		arg.OrderItemIds,
+		arg.ProductIDs,
+		arg.Deleted,
+	)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -86,33 +98,40 @@ func (q *Queries) GetReview(ctx context.Context, arg GetReviewParams) (Review, e
 
 const listReviews = `-- name: ListReviews :many
 SELECT
-  id, rating, content, image_url, created_at, updated_at, deleted_at, user_id, order_item_id
+  reviews.id, reviews.rating, reviews.content, reviews.image_url, reviews.created_at, reviews.updated_at, reviews.deleted_at, reviews.user_id, reviews.order_item_id
 FROM
   reviews
+LEFT JOIN order_items ON reviews.order_item_id = order_items.id
+LEFT JOIN product_variants ON order_items.product_variant_id = product_variants.id
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::uuid[])
+    ELSE reviews.id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
-    ELSE order_item_id = ANY ($2::uuid[])
+    ELSE reviews.order_item_id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
-    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
-    WHEN $3::text = 'all' THEN TRUE
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    ELSE product_variants.product_id = ANY ($3::uuid[])
+  END
+  AND CASE
+    WHEN $4::text = 'exclude' THEN reviews.deleted_at IS NULL
+    WHEN $4::text = 'only' THEN reviews.deleted_at IS NOT NULL
+    WHEN $4::text = 'all' THEN TRUE
     ELSE FALSE
   END
 ORDER BY
-  created_at DESC
-OFFSET COALESCE($4::integer, 0)
-LIMIT COALESCE($5::integer, 10)
+  reviews.created_at DESC
+OFFSET COALESCE($5::integer, 0)
+LIMIT COALESCE($6::integer, 10)
 `
 
 type ListReviewsParams struct {
 	IDs          []uuid.UUID
 	OrderItemIds []uuid.UUID
+	ProductIDs   []uuid.UUID
 	Deleted      string
 	Offset       *int32
 	Limit        *int32
@@ -122,6 +141,7 @@ func (q *Queries) ListReviews(ctx context.Context, arg ListReviewsParams) ([]Rev
 	rows, err := q.db.Query(ctx, listReviews,
 		arg.IDs,
 		arg.OrderItemIds,
+		arg.ProductIDs,
 		arg.Deleted,
 		arg.Offset,
 		arg.Limit,

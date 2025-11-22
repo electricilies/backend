@@ -66,4 +66,3 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END;
-

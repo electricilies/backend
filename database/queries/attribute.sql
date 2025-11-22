@@ -142,4 +142,3 @@ WHEN NOT MATCHED THEN
   )
 WHEN NOT MATCHED BY SOURCE AND target.attribute_id = sqlc.arg('attribute_id')::uuid THEN
   DELETE;
-

@@ -33,26 +33,32 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- name: ListReviews :many
 SELECT
-  *
+  reviews.*
 FROM
   reviews
+LEFT JOIN order_items ON reviews.order_item_id = order_items.id
+LEFT JOIN product_variants ON order_items.product_variant_id = product_variants.id
 WHERE
   CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::uuid[])
+    ELSE reviews.id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('order_item_ids')::uuid[] IS NULL THEN TRUE
-    ELSE order_item_id = ANY (sqlc.narg('order_item_ids')::uuid[])
+    ELSE reviews.order_item_id = ANY (sqlc.narg('order_item_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
-    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
+    ELSE product_variants.product_id = ANY (sqlc.narg('product_ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN reviews.deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN reviews.deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END
 ORDER BY
-  created_at DESC
+  reviews.created_at DESC
 OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
 LIMIT COALESCE(sqlc.narg('limit')::integer, 10);
 
@@ -61,18 +67,24 @@ SELECT
   COUNT(*) AS count
 FROM
   reviews
+LEFT JOIN order_items ON reviews.order_item_id = order_items.id
+LEFT JOIN product_variants ON order_items.product_variant_id = product_variants.id
 WHERE
   CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::uuid[])
+    ELSE reviews.id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('order_item_ids')::uuid[] IS NULL THEN TRUE
-    ELSE order_item_id = ANY (sqlc.narg('order_item_ids')::uuid[])
+    ELSE reviews.order_item_id = ANY (sqlc.narg('order_item_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
-    WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
+    ELSE product_variants.product_id = ANY (sqlc.narg('product_ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN reviews.deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN reviews.deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END;
@@ -90,4 +102,3 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE FALSE
   END;
-

@@ -62,4 +62,3 @@ WHEN NOT MATCHED THEN
   )
 WHEN NOT MATCHED BY SOURCE AND target.cart_id = sqlc.arg('cart_id')::uuid THEN
   DELETE;
-

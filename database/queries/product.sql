@@ -313,4 +313,3 @@ WHEN NOT MATCHED THEN
   )
 WHEN NOT MATCHED BY SOURCE AND target.product_id = sqlc.arg('product_id')::uuid THEN
   DELETE;
-
