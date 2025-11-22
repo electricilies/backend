@@ -3,10 +3,11 @@ package http
 import (
 	"net/http"
 
-	_ "backend/internal/application"
-	_ "backend/internal/domain"
+	"backend/internal/application"
+	"backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type ReviewHandler interface {
@@ -17,12 +18,20 @@ type ReviewHandler interface {
 	Delete(*gin.Context)
 }
 
-type GinReviewHandler struct{}
+type GinReviewHandler struct{
+	reviewApp           application.Review
+	ErrRequiredReviewID string
+	ErrInvalidReviewID  string
+}
 
 var _ ReviewHandler = &GinReviewHandler{}
 
-func ProvideReviewHandler() *GinReviewHandler {
-	return &GinReviewHandler{}
+func ProvideReviewHandler(reviewApp application.Review) *GinReviewHandler {
+	return &GinReviewHandler{
+		reviewApp:           reviewApp,
+		ErrRequiredReviewID: "review_id is required",
+		ErrInvalidReviewID:  "invalid review_id",
+	}
 }
 
 // GetReview godoc
@@ -38,7 +47,24 @@ func ProvideReviewHandler() *GinReviewHandler {
 //	@Failure		500			{object}	Error
 //	@Router			/reviews/{review_id} [get]
 func (h *GinReviewHandler) Get(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
+	reviewIDString := ctx.Param("review_id")
+	if reviewIDString == "" {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredReviewID))
+		return
+	}
+	reviewID, err := uuid.Parse(reviewIDString)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidReviewID))
+		return
+	}
+	review, err := h.reviewApp.Get(ctx, application.GetReviewParam{
+		ReviewID: reviewID,
+	})
+	if err != nil {
+		SendError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, review)
 }
 
 // ListReviews godoc
@@ -56,6 +82,47 @@ func (h *GinReviewHandler) Get(ctx *gin.Context) {
 //	@Failure		500			{object}	Error
 //	@Router			/reviews [get]
 func (h *GinReviewHandler) List(ctx *gin.Context) {
+	paginateParam, err := createPaginationParamsFromQuery(ctx)
+	if err != nil {
+		SendError(ctx, err)
+		return
+	}
+	
+	var orderItemIDs *[]uuid.UUID
+	if orderItemIDsQuery, ok := queryArrayToUUIDSlice(ctx, "order_item_ids"); ok {
+		orderItemIDs = orderItemIDsQuery
+	}
+	
+	var productVariantID *uuid.UUID
+	if productVariantIDQuery, ok := ctx.GetQuery("product_variant_id"); ok {
+		parsedID, err := uuid.Parse(productVariantIDQuery)
+		if err == nil {
+			productVariantID = &parsedID
+		}
+	}
+	
+	var userIDs *[]uuid.UUID
+	if userIDsQuery, ok := queryArrayToUUIDSlice(ctx, "user_ids"); ok {
+		userIDs = userIDsQuery
+	}
+	
+	deleted := domain.DeletedExcludeParam
+	if deletedQuery, ok := ctx.GetQuery("deleted"); ok {
+		deleted = domain.DeletedParam(deletedQuery)
+	}
+	
+	reviews, err := h.reviewApp.List(ctx, application.ListReviewsParam{
+		PaginationParam:  *paginateParam,
+		OrderItemIDs:     orderItemIDs,
+		ProductVariantID: productVariantID,
+		UserIDs:          userIDs,
+		Deleted:          deleted,
+	})
+	if err != nil {
+		SendError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, reviews)
 }
 
 // CreateReview godoc
@@ -72,7 +139,26 @@ func (h *GinReviewHandler) List(ctx *gin.Context) {
 //	@Failure		500		{object}	Error
 //	@Router			/reviews [post]
 func (h *GinReviewHandler) Create(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
+	var data application.CreateReviewData
+	if err := ctx.ShouldBindJSON(&data); err != nil {
+		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
+		return
+	}
+	
+	// TODO: Get orderItemID and userID from request/context
+	orderItemID := uuid.New() // Placeholder
+	userID := uuid.New()      // Placeholder
+	
+	review, err := h.reviewApp.Create(ctx, application.CreateReviewParam{
+		OrderItemID: orderItemID,
+		UserID:      userID,
+		Data:        data,
+	})
+	if err != nil {
+		SendError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusCreated, review)
 }
 
 // UpdateReview godoc
@@ -91,7 +177,32 @@ func (h *GinReviewHandler) Create(ctx *gin.Context) {
 //	@Failure		500			{object}	Error
 //	@Router			/reviews/{review_id} [patch]
 func (h *GinReviewHandler) Update(ctx *gin.Context) {
-	ctx.Status(http.StatusNoContent)
+	reviewIDString := ctx.Param("review_id")
+	if reviewIDString == "" {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredReviewID))
+		return
+	}
+	reviewID, err := uuid.Parse(reviewIDString)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidReviewID))
+		return
+	}
+	
+	var data application.UpdateReviewData
+	if err := ctx.ShouldBindJSON(&data); err != nil {
+		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
+		return
+	}
+	
+	review, err := h.reviewApp.Update(ctx, application.UpdateReviewParam{
+		ReviewID: reviewID,
+		Data:     data,
+	})
+	if err != nil {
+		SendError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, review)
 }
 
 // DeleteReview godoc
@@ -107,5 +218,23 @@ func (h *GinReviewHandler) Update(ctx *gin.Context) {
 //	@Failure		500	{object}	Error
 //	@Router			/reviews/{review_id} [delete]
 func (h *GinReviewHandler) Delete(ctx *gin.Context) {
+	reviewIDString := ctx.Param("review_id")
+	if reviewIDString == "" {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredReviewID))
+		return
+	}
+	reviewID, err := uuid.Parse(reviewIDString)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidReviewID))
+		return
+	}
+	
+	err = h.reviewApp.Delete(ctx, application.DeleteReviewParam{
+		ReviewID: reviewID,
+	})
+	if err != nil {
+		SendError(ctx, err)
+		return
+	}
 	ctx.Status(http.StatusNoContent)
 }

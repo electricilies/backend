@@ -7,9 +7,9 @@ import (
 )
 
 type Review interface {
-	Create(context.Context, CreateReviewParam) (*domain.Review, error)
-	List(context.Context, ListReviewsParam) (*Pagination[domain.Review], error)
-	Get(context.Context, int) (*domain.Review, error)
-	Update(context.Context, UpdateReviewParam) (*domain.Review, error)
-	Delete(context.Context, int) error
+	Create(ctx context.Context, param CreateReviewParam) (*domain.Review, error)
+	List(ctx context.Context, param ListReviewsParam) (*Pagination[domain.Review], error)
+	Get(ctx context.Context, param GetReviewParam) (*domain.Review, error)
+	Update(ctx context.Context, param UpdateReviewParam) (*domain.Review, error)
+	Delete(ctx context.Context, param DeleteReviewParam) error
 }
