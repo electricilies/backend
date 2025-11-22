@@ -28,7 +28,11 @@ type AttributeService interface {
 		value *string,
 	) error
 
-	DeleteValue(
+	Remove(
+		attribute *Attribute,
+	) error
+
+	RemoveValue(
 		attribute Attribute,
 		attributeValueID uuid.UUID,
 	) error

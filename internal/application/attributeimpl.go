@@ -300,8 +300,10 @@ func (a *AttributeImpl) Delete(ctx context.Context, param DeleteAttributeParam) 
 	if err != nil {
 		return err
 	}
-	// Mark as deleted by saving with DeletedAt set
-	// This assumes the domain model handles soft delete
+	err = a.attributeService.Remove(attribute)
+	if err != nil {
+		return err
+	}
 	err = a.attributeRepo.Save(ctx, *attribute)
 	if err != nil {
 		return err
@@ -324,7 +326,7 @@ func (a *AttributeImpl) DeleteValue(ctx context.Context, param DeleteAttributeVa
 	if err != nil {
 		return err
 	}
-	err = a.attributeService.DeleteValue(*attribute, param.AttributeValueID)
+	err = a.attributeService.RemoveValue(*attribute, param.AttributeValueID)
 	if err != nil {
 		return err
 	}

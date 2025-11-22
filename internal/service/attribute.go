@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"backend/internal/domain"
 
 	"github.com/go-playground/validator/v10"
@@ -102,7 +104,24 @@ func (a *Attribute) UpdateValue(
 	return nil
 }
 
-func (a *Attribute) DeleteValue(
+func (a *Attribute) Remove(
+	attribute *domain.Attribute,
+) error {
+	if attribute == nil {
+		return domain.ErrInvalid
+	}
+	now := time.Now()
+	attribute.DeletedAt = &now
+	for i := range *attribute.Values {
+		(*attribute.Values)[i].DeletedAt = &now
+	}
+	if err := a.validate.Struct(attribute); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
+func (a *Attribute) RemoveValue(
 	attribute domain.Attribute,
 	attributeValueID uuid.UUID,
 ) error {

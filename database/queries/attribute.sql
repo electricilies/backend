@@ -24,6 +24,7 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
@@ -52,6 +53,7 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
@@ -83,10 +85,12 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('product_ids')::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
     ELSE attribute_value_id = ANY (sqlc.narg('attribute_value_ids')::uuid[])
   END;
 
@@ -98,6 +102,7 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE

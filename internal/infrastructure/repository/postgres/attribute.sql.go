@@ -20,6 +20,7 @@ FROM
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
@@ -103,6 +104,7 @@ FROM
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
@@ -169,6 +171,7 @@ FROM
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
@@ -237,10 +240,12 @@ FROM
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE attribute_value_id = ANY ($2::uuid[])
   END
 `

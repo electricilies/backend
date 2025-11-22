@@ -39,7 +39,7 @@ func (r *ReviewImpl) Create(ctx context.Context, param CreateReviewParam) (*doma
 		return nil, err
 	}
 
-	savedReview, err := r.reviewRepo.Save(ctx, *review)
+	err = r.reviewRepo.Save(ctx, *review)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (r *ReviewImpl) Create(ctx context.Context, param CreateReviewParam) (*doma
 		}
 	}
 
-	return savedReview, nil
+	return review, nil
 }
 
 func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Pagination[domain.Review], error) {
@@ -143,7 +143,7 @@ func (r *ReviewImpl) Update(ctx context.Context, param UpdateReviewParam) (*doma
 		}
 	}
 
-	return savedReview, nil
+	return review, nil
 }
 
 func (r *ReviewImpl) Delete(ctx context.Context, param DeleteReviewParam) error {

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"backend/internal/domain"
+	"backend/internal/helper/ptr"
 	"backend/internal/infrastructure/repository/postgres"
 
 	"github.com/google/uuid"
@@ -20,7 +21,11 @@ func ProvidePostgresAttribute(q postgres.Querier) *PostgresAttribute {
 }
 
 func (r *PostgresAttribute) Count(ctx context.Context, ids *[]uuid.UUID, deleted domain.DeletedParam) (*int, error) {
-	panic("implement me")
+	count, err := r.querier.CountAttributes(ctx, postgres.CountAttributesParams{
+		IDs:     ptr.Deref(ids, []uuid.UUID{}),
+		Deleted: string(deleted),
+	})
+	return ptr.To(int(count)), err
 }
 
 func (r *PostgresAttribute) List(ctx context.Context, ids *[]uuid.UUID, search *string, deleted domain.DeletedParam, limit int, offset int) (*[]domain.Attribute, error) {
