@@ -92,7 +92,12 @@ WHERE
     WHEN sqlc.narg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.narg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
     ELSE attribute_value_id = ANY (sqlc.narg('attribute_value_ids')::uuid[])
-  END;
+  END
+ORDER BY
+  product_id ASC,
+  attribute_value_id ASC
+OFFSET sqlc.arg('offset')::integer
+LIMIT sqlc.arg('limit')::integer;
 
 -- name: ListAttributeValues :many
 SELECT

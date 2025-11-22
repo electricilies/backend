@@ -37,8 +37,8 @@ WHERE
   END
 ORDER BY
   id DESC
-OFFSET COALESCE(sqlc.narg('offset')::integer, 0)
-LIMIT COALESCE(sqlc.narg('limit')::integer, 20);
+OFFSET sqlc.arg('offset')::integer
+LIMIT sqlc.arg('limit')::integer;
 
 -- name: CountCategories :one
 SELECT

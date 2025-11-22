@@ -88,15 +88,15 @@ WHERE
   END
 ORDER BY
   id DESC
-OFFSET COALESCE($3::integer, 0)
-LIMIT COALESCE($4::integer, 20)
+OFFSET $3::integer
+LIMIT $4::integer
 `
 
 type ListCategoriesParams struct {
 	Search  *string
 	Deleted string
-	Offset  *int32
-	Limit   *int32
+	Offset  int32
+	Limit   int32
 }
 
 func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) ([]Category, error) {

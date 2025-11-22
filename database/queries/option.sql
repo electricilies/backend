@@ -24,6 +24,7 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
     ELSE options.id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
@@ -61,10 +62,12 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('option_value_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('option_value_ids')::uuid[]) = 0 THEN TRUE
     ELSE option_values_product_variants.option_value_id = ANY (sqlc.narg('option_value_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('product_variant_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('product_variant_ids')::uuid[]) = 0 THEN TRUE
     ELSE option_values_product_variants.product_variant_id = ANY (sqlc.narg('product_variant_ids')::uuid[])
   END;
 
@@ -76,10 +79,12 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
     ELSE option_values.id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('option_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('option_ids')::uuid[]) = 0 THEN TRUE
     ELSE option_values.option_id = ANY (sqlc.narg('option_ids')::uuid[])
   END
   AND CASE

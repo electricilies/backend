@@ -248,15 +248,27 @@ WHERE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE attribute_value_id = ANY ($2::uuid[])
   END
+ORDER BY
+  product_id ASC,
+  attribute_value_id ASC
+OFFSET $3::integer
+LIMIT $4::integer
 `
 
 type ListProductsAttributeValuesParams struct {
 	ProductIDs        []uuid.UUID
 	AttributeValueIDs []uuid.UUID
+	Offset            int32
+	Limit             int32
 }
 
 func (q *Queries) ListProductsAttributeValues(ctx context.Context, arg ListProductsAttributeValuesParams) ([]ProductsAttributeValue, error) {
-	rows, err := q.db.Query(ctx, listProductsAttributeValues, arg.ProductIDs, arg.AttributeValueIDs)
+	rows, err := q.db.Query(ctx, listProductsAttributeValues,
+		arg.ProductIDs,
+		arg.AttributeValueIDs,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
