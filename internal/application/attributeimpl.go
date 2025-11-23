@@ -2,27 +2,22 @@ package application
 
 import (
 	"context"
-	"encoding/json"
 	"log"
-	"time"
 
-	"backend/internal/constant"
 	"backend/internal/domain"
-
-	"github.com/redis/go-redis/v9"
 )
 
 type AttributeImpl struct {
 	attributeRepo    domain.AttributeRepository
 	attributeService domain.AttributeService
-	redisClient      *redis.Client
+	attributeCache   AttributeCache
 }
 
-func ProvideAttribute(attributeRepo domain.AttributeRepository, attributeService domain.AttributeService, redisClient *redis.Client) *AttributeImpl {
+func ProvideAttribute(attributeRepo domain.AttributeRepository, attributeService domain.AttributeService, attributeCache AttributeCache) *AttributeImpl {
 	return &AttributeImpl{
 		attributeRepo:    attributeRepo,
 		attributeService: attributeService,
-		redisClient:      redisClient,
+		attributeCache:   attributeCache,
 	}
 }
 
@@ -39,12 +34,7 @@ func (a *AttributeImpl) Create(ctx context.Context, param CreateAttributeParam) 
 	}
 
 	// Invalidate list cache
-	if a.redisClient != nil {
-		iter := a.redisClient.Scan(ctx, 0, constant.AttributeListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			a.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	a.attributeCache.InvalidateAttributeList(ctx)
 
 	return attribute, nil
 }
@@ -68,26 +58,13 @@ func (a *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeVa
 	}
 
 	// Invalidate cache
-	if a.redisClient != nil {
-		// Delete attribute cache (since it contains values)
-		a.redisClient.Del(ctx, constant.AttributeGetKey(param.AttributeID))
-		// Delete attribute list cache
-		iter := a.redisClient.Scan(ctx, 0, constant.AttributeListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			a.redisClient.Del(ctx, iter.Val())
-		}
-		// Delete attribute value list cache
-		iter = a.redisClient.Scan(ctx, 0, constant.AttributeValueListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			a.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	a.attributeCache.InvalidateAllAttributes(ctx)
 
 	return attributeValue, nil
 }
 
 func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*Pagination[domain.Attribute], error) {
-	cacheKey := constant.AttributeListKey(
+	cacheKey := a.attributeCache.BuildListCacheKey(
 		param.AttributeIDs,
 		param.Search,
 		param.Deleted,
@@ -97,14 +74,8 @@ func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*P
 	log.Println("Attribute List Cache Key:", cacheKey)
 
 	// Try to get from cache
-	if a.redisClient != nil {
-		cachedData, err := a.redisClient.Get(ctx, cacheKey).Result()
-		if err == nil && cachedData != "" {
-			var pagination Pagination[domain.Attribute]
-			if err := json.Unmarshal([]byte(cachedData), &pagination); err == nil {
-				return &pagination, nil
-			}
-		}
+	if cachedPagination, err := a.attributeCache.GetAttributeList(ctx, cacheKey); err == nil {
+		return cachedPagination, nil
 	}
 
 	attributes, err := a.attributeRepo.List(
@@ -134,28 +105,15 @@ func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*P
 	)
 
 	// Cache the result
-	if a.redisClient != nil {
-		if data, err := json.Marshal(pagination); err == nil {
-			a.redisClient.Set(ctx, cacheKey, data, time.Duration(constant.CacheTTLAttribute)*time.Second)
-		}
-	}
+	a.attributeCache.SetAttributeList(ctx, cacheKey, pagination)
 
 	return pagination, nil
 }
 
 func (a *AttributeImpl) Get(ctx context.Context, param GetAttributeParam) (*domain.Attribute, error) {
-	// Build cache key
-	cacheKey := constant.AttributeGetKey(param.AttributeID)
-
 	// Try to get from cache
-	if a.redisClient != nil {
-		cachedData, err := a.redisClient.Get(ctx, cacheKey).Result()
-		if err == nil && cachedData != "" {
-			var attribute domain.Attribute
-			if err := json.Unmarshal([]byte(cachedData), &attribute); err == nil {
-				return &attribute, nil
-			}
-		}
+	if cachedAttribute, err := a.attributeCache.GetAttribute(ctx, param.AttributeID); err == nil {
+		return cachedAttribute, nil
 	}
 
 	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
@@ -164,17 +122,13 @@ func (a *AttributeImpl) Get(ctx context.Context, param GetAttributeParam) (*doma
 	}
 
 	// Cache the result
-	if a.redisClient != nil {
-		if data, err := json.Marshal(attribute); err == nil {
-			a.redisClient.Set(ctx, cacheKey, data, time.Duration(constant.CacheTTLAttribute)*time.Second)
-		}
-	}
+	a.attributeCache.SetAttribute(ctx, param.AttributeID, attribute)
 
 	return attribute, nil
 }
 
 func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValuesParam) (*Pagination[domain.AttributeValue], error) {
-	cacheKey := constant.AttributeValueListKey(
+	cacheKey := a.attributeCache.BuildValueListCacheKey(
 		param.AttributeID,
 		param.AttributeValueIDs,
 		param.Search,
@@ -183,14 +137,8 @@ func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValue
 	)
 
 	// Try to get from cache
-	if a.redisClient != nil {
-		cachedData, err := a.redisClient.Get(ctx, cacheKey).Result()
-		if err == nil && cachedData != "" {
-			var pagination Pagination[domain.AttributeValue]
-			if err := json.Unmarshal([]byte(cachedData), &pagination); err == nil {
-				return &pagination, nil
-			}
-		}
+	if cachedPagination, err := a.attributeCache.GetAttributeValueList(ctx, cacheKey); err == nil {
+		return cachedPagination, nil
 	}
 
 	attribute, err := a.attributeRepo.ListValues(
@@ -221,11 +169,7 @@ func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValue
 	)
 
 	// Cache the result
-	if a.redisClient != nil {
-		if data, err := json.Marshal(pagination); err == nil {
-			a.redisClient.Set(ctx, cacheKey, data, time.Duration(constant.CacheTTLAttributeValue)*time.Second)
-		}
-	}
+	a.attributeCache.SetAttributeValueList(ctx, cacheKey, pagination)
 
 	return pagination, nil
 }
@@ -248,13 +192,8 @@ func (a *AttributeImpl) Update(ctx context.Context, param UpdateAttributeParam) 
 	}
 
 	// Invalidate cache
-	if a.redisClient != nil {
-		a.redisClient.Del(ctx, constant.AttributeGetKey(param.AttributeID))
-		iter := a.redisClient.Scan(ctx, 0, constant.AttributeListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			a.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	a.attributeCache.InvalidateAttribute(ctx, param.AttributeID)
+	a.attributeCache.InvalidateAttributeList(ctx)
 
 	return attribute, nil
 }
@@ -282,17 +221,7 @@ func (a *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeVa
 	}
 
 	// Invalidate cache
-	if a.redisClient != nil {
-		a.redisClient.Del(ctx, constant.AttributeGetKey(param.AttributeID))
-		iter := a.redisClient.Scan(ctx, 0, constant.AttributeListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			a.redisClient.Del(ctx, iter.Val())
-		}
-		iter = a.redisClient.Scan(ctx, 0, constant.AttributeValueListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			a.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	a.attributeCache.InvalidateAllAttributes(ctx)
 
 	return attributeValue, nil
 }
@@ -312,13 +241,8 @@ func (a *AttributeImpl) Delete(ctx context.Context, param DeleteAttributeParam) 
 	}
 
 	// Invalidate cache
-	if a.redisClient != nil {
-		a.redisClient.Del(ctx, constant.AttributeGetKey(param.AttributeID))
-		iter := a.redisClient.Scan(ctx, 0, constant.AttributeListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			a.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	a.attributeCache.InvalidateAttribute(ctx, param.AttributeID)
+	a.attributeCache.InvalidateAttributeList(ctx)
 
 	return nil
 }
@@ -338,17 +262,7 @@ func (a *AttributeImpl) DeleteValue(ctx context.Context, param DeleteAttributeVa
 	}
 
 	// Invalidate cache
-	if a.redisClient != nil {
-		a.redisClient.Del(ctx, constant.AttributeGetKey(param.AttributeID))
-		iter := a.redisClient.Scan(ctx, 0, constant.AttributeListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			a.redisClient.Del(ctx, iter.Val())
-		}
-		iter = a.redisClient.Scan(ctx, 0, constant.AttributeValueListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			a.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	a.attributeCache.InvalidateAllAttributes(ctx)
 
 	return nil
 }

@@ -42,12 +42,12 @@ func (o *OrderImpl) Create(ctx context.Context, param CreateOrderParam) (*domain
 		return nil, err
 	}
 
-	savedOrder, err := o.orderRepo.Save(ctx, *order)
+	err = o.orderRepo.Save(ctx, *order)
 	if err != nil {
 		return nil, err
 	}
 
-	return savedOrder, nil
+	return order, nil
 }
 
 func (o *OrderImpl) Update(ctx context.Context, param UpdateOrderParam) (*domain.Order, error) {
@@ -61,12 +61,12 @@ func (o *OrderImpl) Update(ctx context.Context, param UpdateOrderParam) (*domain
 		return nil, err
 	}
 
-	savedOrder, err := o.orderRepo.Save(ctx, *order)
+	err = o.orderRepo.Save(ctx, *order)
 	if err != nil {
 		return nil, err
 	}
 
-	return savedOrder, nil
+	return order, nil
 }
 
 func (o *OrderImpl) Get(ctx context.Context, param GetOrderParam) (*domain.Order, error) {
@@ -87,7 +87,7 @@ func (o *OrderImpl) Delete(ctx context.Context, param DeleteOrderParam) error {
 	// Since there's no Remove method, we'll need to use Save with updated state
 	// This assumes the domain model has a DeletedAt field or similar
 	// For now, just return the order unchanged to match the Save signature
-	_, err = o.orderRepo.Save(ctx, *order)
+	err = o.orderRepo.Save(ctx, *order)
 	return err
 }
 

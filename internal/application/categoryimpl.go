@@ -2,26 +2,21 @@ package application
 
 import (
 	"context"
-	"encoding/json"
-	"time"
 
-	"backend/internal/constant"
 	"backend/internal/domain"
-
-	"github.com/redis/go-redis/v9"
 )
 
 type CategoryImpl struct {
 	categoryRepo    domain.CategoryRepository
 	categoryService domain.CategoryService
-	redisClient     *redis.Client
+	categoryCache   CategoryCache
 }
 
-func ProvideCategory(categoryRepo domain.CategoryRepository, categoryService domain.CategoryService, redisClient *redis.Client) *CategoryImpl {
+func ProvideCategory(categoryRepo domain.CategoryRepository, categoryService domain.CategoryService, categoryCache CategoryCache) *CategoryImpl {
 	return &CategoryImpl{
 		categoryRepo:    categoryRepo,
 		categoryService: categoryService,
-		redisClient:     redisClient,
+		categoryCache:   categoryCache,
 	}
 }
 
@@ -39,32 +34,21 @@ func (c *CategoryImpl) Create(ctx context.Context, param CreateCategoryParam) (*
 	}
 
 	// Invalidate list cache
-	if c.redisClient != nil {
-		iter := c.redisClient.Scan(ctx, 0, constant.CategoryListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			c.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	c.categoryCache.InvalidateCategoryList(ctx)
 
 	return category, nil
 }
 
 func (c *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*Pagination[domain.Category], error) {
-	cacheKey := constant.CategoryListKey(
+	cacheKey := c.categoryCache.BuildListCacheKey(
 		param.Search,
 		param.Limit,
 		param.Page,
 	)
 
 	// Try to get from cache
-	if c.redisClient != nil {
-		cachedData, err := c.redisClient.Get(ctx, cacheKey).Result()
-		if err == nil && cachedData != "" {
-			var pagination Pagination[domain.Category]
-			if err := json.Unmarshal([]byte(cachedData), &pagination); err == nil {
-				return &pagination, nil
-			}
-		}
+	if cachedPagination, err := c.categoryCache.GetCategoryList(ctx, cacheKey); err == nil {
+		return cachedPagination, nil
 	}
 
 	categories, err := c.categoryRepo.List(
@@ -91,28 +75,15 @@ func (c *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*Pagi
 	)
 
 	// Cache the result
-	if c.redisClient != nil {
-		if data, err := json.Marshal(pagination); err == nil {
-			c.redisClient.Set(ctx, cacheKey, data, time.Duration(constant.CacheTTLCategory)*time.Second)
-		}
-	}
+	c.categoryCache.SetCategoryList(ctx, cacheKey, pagination)
 
 	return pagination, nil
 }
 
 func (c *CategoryImpl) Get(ctx context.Context, param GetCategoryParam) (*domain.Category, error) {
-	// Build cache key
-	cacheKey := constant.CategoryGetKey(param.CategoryID)
-
 	// Try to get from cache
-	if c.redisClient != nil {
-		cachedData, err := c.redisClient.Get(ctx, cacheKey).Result()
-		if err == nil && cachedData != "" {
-			var category domain.Category
-			if err := json.Unmarshal([]byte(cachedData), &category); err == nil {
-				return &category, nil
-			}
-		}
+	if cachedCategory, err := c.categoryCache.GetCategory(ctx, param.CategoryID); err == nil {
+		return cachedCategory, nil
 	}
 
 	category, err := c.categoryRepo.Get(ctx, param.CategoryID)
@@ -121,11 +92,7 @@ func (c *CategoryImpl) Get(ctx context.Context, param GetCategoryParam) (*domain
 	}
 
 	// Cache the result
-	if c.redisClient != nil {
-		if data, err := json.Marshal(category); err == nil {
-			c.redisClient.Set(ctx, cacheKey, data, time.Duration(constant.CacheTTLCategory)*time.Second)
-		}
-	}
+	c.categoryCache.SetCategory(ctx, param.CategoryID, category)
 
 	return category, nil
 }
@@ -147,15 +114,8 @@ func (c *CategoryImpl) Update(ctx context.Context, param UpdateCategoryParam) (*
 	}
 
 	// Invalidate cache
-	if c.redisClient != nil {
-		// Delete specific category cache
-		c.redisClient.Del(ctx, constant.CategoryGetKey(param.CategoryID))
-		// Delete list cache (use pattern matching)
-		iter := c.redisClient.Scan(ctx, 0, constant.CategoryListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			c.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	c.categoryCache.InvalidateCategory(ctx, param.CategoryID)
+	c.categoryCache.InvalidateCategoryList(ctx)
 
 	return category, nil
 }

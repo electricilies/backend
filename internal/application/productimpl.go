@@ -2,16 +2,12 @@ package application
 
 import (
 	"context"
-	"encoding/json"
-	"time"
 
-	"backend/internal/constant"
 	"backend/internal/domain"
 	"backend/internal/helper/slice"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
-	"github.com/redis/go-redis/v9"
 )
 
 type ProductImpl struct {
@@ -20,20 +16,20 @@ type ProductImpl struct {
 	categoryRepo     domain.CategoryRepository
 	attributeRepo    domain.AttributeRepository
 	attributeService domain.AttributeService
-	redisClient      *redis.Client
+	productCache     ProductCache
 	s3Client         *s3.Client
 }
 
 func ProvideProduct(
 	productRepo domain.ProductRepository,
 	productService domain.ProductService,
-	redisClient *redis.Client,
+	productCache ProductCache,
 	s3Client *s3.Client,
 ) *ProductImpl {
 	return &ProductImpl{
 		productRepo:    productRepo,
 		productService: productService,
-		redisClient:    redisClient,
+		productCache:   productCache,
 		s3Client:       s3Client,
 	}
 }
@@ -41,7 +37,7 @@ func ProvideProduct(
 var _ Product = (*ProductImpl)(nil)
 
 func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagination[domain.Product], error) {
-	cacheKey := constant.ProductListKey(
+	cacheKey := p.productCache.BuildListCacheKey(
 		param.ProductIDs,
 		param.Search,
 		param.MinPrice,
@@ -56,14 +52,8 @@ func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagina
 	)
 
 	// Try to get from cache
-	if p.redisClient != nil {
-		cachedData, err := p.redisClient.Get(ctx, cacheKey).Result()
-		if err == nil && cachedData != "" {
-			var pagination Pagination[domain.Product]
-			if err := json.Unmarshal([]byte(cachedData), &pagination); err == nil {
-				return &pagination, nil
-			}
-		}
+	if cachedPagination, err := p.productCache.GetProductList(ctx, cacheKey); err == nil {
+		return cachedPagination, nil
 	}
 
 	products, err := p.productRepo.List(
@@ -105,28 +95,15 @@ func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagina
 	)
 
 	// Cache the result
-	if p.redisClient != nil {
-		if data, err := json.Marshal(pagination); err == nil {
-			p.redisClient.Set(ctx, cacheKey, data, time.Duration(constant.CacheTTLProduct)*time.Second)
-		}
-	}
+	p.productCache.SetProductList(ctx, cacheKey, pagination)
 
 	return pagination, nil
 }
 
 func (p *ProductImpl) Get(ctx context.Context, param GetProductParam) (*domain.Product, error) {
-	// Build cache key
-	cacheKey := constant.ProductGetKey(param.ProductID)
-
 	// Try to get from cache
-	if p.redisClient != nil {
-		cachedData, err := p.redisClient.Get(ctx, cacheKey).Result()
-		if err == nil && cachedData != "" {
-			var product domain.Product
-			if err := json.Unmarshal([]byte(cachedData), &product); err == nil {
-				return &product, nil
-			}
-		}
+	if cachedProduct, err := p.productCache.GetProduct(ctx, param.ProductID); err == nil {
+		return cachedProduct, nil
 	}
 
 	product, err := p.productRepo.Get(ctx, param.ProductID)
@@ -135,11 +112,7 @@ func (p *ProductImpl) Get(ctx context.Context, param GetProductParam) (*domain.P
 	}
 
 	// Cache the result
-	if p.redisClient != nil {
-		if data, err := json.Marshal(product); err == nil {
-			p.redisClient.Set(ctx, cacheKey, data, time.Duration(constant.CacheTTLProduct)*time.Second)
-		}
-	}
+	p.productCache.SetProduct(ctx, param.ProductID, product)
 
 	return product, nil
 }
@@ -227,12 +200,7 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 		return nil, err
 	}
 	// Invalidate cache after create
-	if p.redisClient != nil {
-		iter := p.redisClient.Scan(ctx, 0, constant.ProductListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	p.productCache.InvalidateProductList(ctx)
 	return product, nil
 }
 
@@ -259,13 +227,8 @@ func (p *ProductImpl) Update(ctx context.Context, param UpdateProductParam) (*do
 	if err != nil {
 		return nil, err
 	}
-	if p.redisClient != nil {
-		p.redisClient.Del(ctx, constant.ProductGetKey(param.ProductID))
-		iter := p.redisClient.Scan(ctx, 0, constant.ProductListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	p.productCache.InvalidateProduct(ctx, param.ProductID)
+	p.productCache.InvalidateProductList(ctx)
 	return product, nil
 }
 
@@ -278,13 +241,8 @@ func (p *ProductImpl) Delete(ctx context.Context, param DeleteProductParam) erro
 	if err != nil {
 		return err
 	}
-	if p.redisClient != nil {
-		p.redisClient.Del(ctx, constant.ProductGetKey(param.ProductID))
-		iter := p.redisClient.Scan(ctx, 0, constant.ProductListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	p.productCache.InvalidateProduct(ctx, param.ProductID)
+	p.productCache.InvalidateProductList(ctx)
 	return nil
 }
 
@@ -310,13 +268,8 @@ func (p *ProductImpl) AddVariants(ctx context.Context, param AddProductVariantsP
 	if err != nil {
 		return nil, err
 	}
-	if p.redisClient != nil {
-		p.redisClient.Del(ctx, constant.ProductGetKey(param.ProductID))
-		iter := p.redisClient.Scan(ctx, 0, constant.ProductListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	p.productCache.InvalidateProduct(ctx, param.ProductID)
+	p.productCache.InvalidateProductList(ctx)
 	return &variants, nil
 }
 
@@ -339,14 +292,8 @@ func (p *ProductImpl) UpdateVariant(ctx context.Context, param UpdateProductVari
 	if err != nil {
 		return nil, err
 	}
-	if p.redisClient != nil {
-		// Note: We'd need product ID to invalidate specific get cache
-		// For now, just invalidate all list caches
-		iter := p.redisClient.Scan(ctx, 0, constant.ProductListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	// Invalidate product list caches
+	p.productCache.InvalidateProductList(ctx)
 	return variant, nil
 }
 
@@ -375,17 +322,8 @@ func (p *ProductImpl) AddImages(ctx context.Context, param AddProductImagesParam
 	if err != nil {
 		return nil, err
 	}
-	if p.redisClient != nil {
-		// Invalidate product caches
-		iter := p.redisClient.Scan(ctx, 0, constant.ProductGetPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-		iter = p.redisClient.Scan(ctx, 0, constant.ProductListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	// Invalidate product caches
+	p.productCache.InvalidateAllProducts(ctx)
 	return &images, nil
 }
 
@@ -420,16 +358,7 @@ func (p *ProductImpl) DeleteImages(ctx context.Context, param DeleteProductImage
 	if err != nil {
 		return err
 	}
-	if p.redisClient != nil {
-		iter := p.redisClient.Scan(ctx, 0, constant.ProductGetPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-		iter = p.redisClient.Scan(ctx, 0, constant.ProductListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	p.productCache.InvalidateAllProducts(ctx)
 	return nil
 }
 
@@ -455,16 +384,7 @@ func (p *ProductImpl) UpdateOptions(ctx context.Context, param UpdateProductOpti
 	if err != nil {
 		return nil, err
 	}
-	if p.redisClient != nil {
-		iter := p.redisClient.Scan(ctx, 0, constant.ProductGetPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-		iter = p.redisClient.Scan(ctx, 0, constant.ProductListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	p.productCache.InvalidateAllProducts(ctx)
 	return slice.SlicePtrToPtrSlice(options), nil
 }
 
@@ -491,16 +411,7 @@ func (p *ProductImpl) UpdateOptionValues(ctx context.Context, param UpdateProduc
 	if err != nil {
 		return nil, err
 	}
-	if p.redisClient != nil {
-		iter := p.redisClient.Scan(ctx, 0, constant.ProductGetPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-		iter = p.redisClient.Scan(ctx, 0, constant.ProductListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			p.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	p.productCache.InvalidateAllProducts(ctx)
 	return slice.SlicePtrToPtrSlice(optionValues), nil
 }
 

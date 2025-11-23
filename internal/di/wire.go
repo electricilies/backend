@@ -11,6 +11,7 @@ import (
 	"backend/internal/client"
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
+	"backend/internal/infrastructure/cacheredis"
 	"backend/internal/infrastructure/repository"
 	"backend/internal/service"
 	"backend/pkg/logger"
@@ -219,9 +220,33 @@ var ClientSet = wire.NewSet(
 	client.NewValidate,
 )
 
+var CacheSet = wire.NewSet(
+	cacheredis.ProvideProductCache,
+	wire.Bind(
+		new(application.ProductCache),
+		new(*cacheredis.ProductCache),
+	),
+	cacheredis.ProvideReviewCache,
+	wire.Bind(
+		new(application.ReviewCache),
+		new(*cacheredis.ReviewCache),
+	),
+	cacheredis.ProvideCategoryCache,
+	wire.Bind(
+		new(application.CategoryCache),
+		new(*cacheredis.CategoryCache),
+	),
+	cacheredis.ProvideAttributeCache,
+	wire.Bind(
+		new(application.AttributeCache),
+		new(*cacheredis.AttributeCache),
+	),
+)
+
 func InitializeServer(ctx context.Context) *http.Server {
 	wire.Build(
 		ApplicationSet,
+		CacheSet,
 		ClientSet,
 		ConfigSet,
 		DbSet,

@@ -12,6 +12,7 @@ import (
 	"backend/internal/client"
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
+	"backend/internal/infrastructure/cacheredis"
 	"backend/internal/infrastructure/repository"
 	"backend/internal/service"
 	"backend/pkg/logger"
@@ -38,12 +39,14 @@ func InitializeServer(ctx context.Context) *http.Server {
 	postgresCategory := repository.ProvidePostgresCategory(queries)
 	validate := client.NewValidate()
 	category := service.ProvideCategory(validate)
-	categoryImpl := application.ProvideCategory(postgresCategory, category, redisClient)
+	categoryCache := cacheredis.ProvideCategoryCache(redisClient)
+	categoryImpl := application.ProvideCategory(postgresCategory, category, categoryCache)
 	categoryHandlerImpl := http.ProvideCategoryHandler(categoryImpl)
 	productHandlerImpl := http.ProvideProductHandler()
 	postgresAttribute := repository.ProvidePostgresAttribute(queries, pool)
 	attribute := service.ProvideAttribute(validate)
-	attributeImpl := application.ProvideAttribute(postgresAttribute, attribute, redisClient)
+	attributeCache := cacheredis.ProvideAttributeCache(redisClient)
+	attributeImpl := application.ProvideAttribute(postgresAttribute, attribute, attributeCache)
 	attributeHandlerImpl := http.ProvideAttributeHandler(attributeImpl)
 	postgresOrder := repository.ProvidePostgresOrder(queries)
 	order := service.ProvideOrder(validate)
@@ -51,7 +54,8 @@ func InitializeServer(ctx context.Context) *http.Server {
 	orderHandlerImpl := http.ProvideOrderHandler(orderImpl)
 	postgresReview := repository.ProvidePostgresReview(queries)
 	review := service.ProvideReview(validate)
-	reviewImpl := application.ProvideReview(postgresReview, review, redisClient)
+	reviewCache := cacheredis.ProvideReviewCache(redisClient)
+	reviewImpl := application.ProvideReview(postgresReview, review, reviewCache)
 	reviewHandlerImpl := http.ProvideReviewHandler(reviewImpl)
 	postgresCart := repository.ProvidePostgresCart(queries)
 	cart := service.ProvideCart(validate)
@@ -185,3 +189,18 @@ var RouterSet = wire.NewSet(http.ProvideRouter, wire.Bind(
 )
 
 var ClientSet = wire.NewSet(client.NewRedis, client.NewS3, client.NewKeycloak, client.NewS3Presign, client.NewValidate)
+
+var CacheSet = wire.NewSet(cacheredis.ProvideProductCache, wire.Bind(
+	new(application.ProductCache),
+	new(*cacheredis.ProductCache),
+), cacheredis.ProvideReviewCache, wire.Bind(
+	new(application.ReviewCache),
+	new(*cacheredis.ReviewCache),
+), cacheredis.ProvideCategoryCache, wire.Bind(
+	new(application.CategoryCache),
+	new(*cacheredis.CategoryCache),
+), cacheredis.ProvideAttributeCache, wire.Bind(
+	new(application.AttributeCache),
+	new(*cacheredis.AttributeCache),
+),
+)

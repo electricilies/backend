@@ -28,6 +28,7 @@ type CreateReviewData struct {
 
 type UpdateReviewParam struct {
 	ReviewID uuid.UUID        `binding:"required"`
+	UserID   uuid.UUID        `binding:"required"`
 	Data     UpdateReviewData `binding:"required"`
 }
 

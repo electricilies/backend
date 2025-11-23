@@ -2,26 +2,21 @@ package application
 
 import (
 	"context"
-	"encoding/json"
-	"time"
 
-	"backend/internal/constant"
 	"backend/internal/domain"
-
-	"github.com/redis/go-redis/v9"
 )
 
 type ReviewImpl struct {
 	reviewRepo    domain.ReviewRepository
 	reviewService domain.ReviewService
-	redisClient   *redis.Client
+	reviewCache   ReviewCache
 }
 
-func ProvideReview(reviewRepo domain.ReviewRepository, reviewService domain.ReviewService, redisClient *redis.Client) *ReviewImpl {
+func ProvideReview(reviewRepo domain.ReviewRepository, reviewService domain.ReviewService, reviewCache ReviewCache) *ReviewImpl {
 	return &ReviewImpl{
 		reviewRepo:    reviewRepo,
 		reviewService: reviewService,
-		redisClient:   redisClient,
+		reviewCache:   reviewCache,
 	}
 }
 
@@ -44,20 +39,15 @@ func (r *ReviewImpl) Create(ctx context.Context, param CreateReviewParam) (*doma
 		return nil, err
 	}
 
-	// Invalidate list cache
-	if r.redisClient != nil {
-		iter := r.redisClient.Scan(ctx, 0, constant.ReviewListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			r.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	// TODO: Log redis failure
+	_ = r.reviewCache.InvalidateReviewList(ctx)
 
 	return review, nil
 }
 
 func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Pagination[domain.Review], error) {
 	// Build cache key
-	cacheKey := constant.ReviewListKey(
+	cacheKey := r.reviewCache.BuildListCacheKey(
 		param.OrderItemIDs,
 		param.ProductVariantID,
 		param.UserIDs,
@@ -67,14 +57,8 @@ func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Paginat
 	)
 
 	// Try to get from cache
-	if r.redisClient != nil {
-		cachedData, err := r.redisClient.Get(ctx, cacheKey).Result()
-		if err == nil && cachedData != "" {
-			var pagination Pagination[domain.Review]
-			if err := json.Unmarshal([]byte(cachedData), &pagination); err == nil {
-				return &pagination, nil
-			}
-		}
+	if cachedPagination, err := r.reviewCache.GetReviewList(ctx, cacheKey); err == nil {
+		return cachedPagination, nil
 	}
 
 	reviews, err := r.reviewRepo.List(
@@ -108,12 +92,8 @@ func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Paginat
 		param.Limit,
 	)
 
-	// Cache the result
-	if r.redisClient != nil {
-		if data, err := json.Marshal(pagination); err == nil {
-			r.redisClient.Set(ctx, cacheKey, data, time.Duration(constant.CacheTTLReview)*time.Second)
-		}
-	}
+	// TODO: Log redis failure
+	_ = r.reviewCache.SetReviewList(ctx, cacheKey, pagination)
 
 	return pagination, nil
 }
@@ -134,6 +114,7 @@ func (r *ReviewImpl) Update(ctx context.Context, param UpdateReviewParam) (*doma
 
 	err = r.reviewService.Update(
 		review,
+		param.UserID,
 		param.Data.Rating,
 		param.Data.Content,
 		param.Data.ImageURL,
@@ -147,13 +128,8 @@ func (r *ReviewImpl) Update(ctx context.Context, param UpdateReviewParam) (*doma
 		return nil, err
 	}
 
-	// Invalidate list cache
-	if r.redisClient != nil {
-		iter := r.redisClient.Scan(ctx, 0, constant.ReviewListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			r.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	// TODO: Log redis failure
+	_ = r.reviewCache.InvalidateReviewList(ctx)
 
 	return review, nil
 }
@@ -171,13 +147,8 @@ func (r *ReviewImpl) Delete(ctx context.Context, param DeleteReviewParam) error 
 		return err
 	}
 
-	// Invalidate list cache
-	if r.redisClient != nil {
-		iter := r.redisClient.Scan(ctx, 0, constant.ReviewListPrefix+"*", 0).Iterator()
-		for iter.Next(ctx) {
-			r.redisClient.Del(ctx, iter.Val())
-		}
-	}
+	// TODO: Log redis failure
+	_ = r.reviewCache.InvalidateReviewList(ctx)
 
 	return nil
 }
