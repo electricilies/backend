@@ -33,8 +33,7 @@ func (a *AttributeImpl) Create(ctx context.Context, param CreateAttributeParam) 
 		return nil, err
 	}
 
-	// Invalidate list cache
-	a.attributeCache.InvalidateAttributeList(ctx)
+	_ = a.attributeCache.InvalidateAttributeList(ctx)
 
 	return attribute, nil
 }
@@ -57,8 +56,7 @@ func (a *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeVa
 		return nil, err
 	}
 
-	// Invalidate cache
-	a.attributeCache.InvalidateAllAttributes(ctx)
+	_ = a.attributeCache.InvalidateAllAttributes(ctx)
 
 	return attributeValue, nil
 }
@@ -105,13 +103,15 @@ func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*P
 	)
 
 	// Cache the result
-	a.attributeCache.SetAttributeList(ctx, cacheKey, pagination)
+	err = a.attributeCache.SetAttributeList(ctx, cacheKey, pagination)
+	if err != nil {
+		return nil, err
+	}
 
 	return pagination, nil
 }
 
 func (a *AttributeImpl) Get(ctx context.Context, param GetAttributeParam) (*domain.Attribute, error) {
-	// Try to get from cache
 	if cachedAttribute, err := a.attributeCache.GetAttribute(ctx, param.AttributeID); err == nil {
 		return cachedAttribute, nil
 	}
@@ -121,8 +121,7 @@ func (a *AttributeImpl) Get(ctx context.Context, param GetAttributeParam) (*doma
 		return nil, err
 	}
 
-	// Cache the result
-	a.attributeCache.SetAttribute(ctx, param.AttributeID, attribute)
+	_ = a.attributeCache.SetAttribute(ctx, param.AttributeID, attribute)
 
 	return attribute, nil
 }
@@ -135,12 +134,9 @@ func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValue
 		param.Limit,
 		param.Page,
 	)
-
-	// Try to get from cache
 	if cachedPagination, err := a.attributeCache.GetAttributeValueList(ctx, cacheKey); err == nil {
 		return cachedPagination, nil
 	}
-
 	attribute, err := a.attributeRepo.ListValues(
 		ctx,
 		param.AttributeID,
@@ -167,10 +163,7 @@ func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValue
 		param.Page,
 		param.Limit,
 	)
-
-	// Cache the result
-	a.attributeCache.SetAttributeValueList(ctx, cacheKey, pagination)
-
+	_ = a.attributeCache.SetAttributeValueList(ctx, cacheKey, pagination)
 	return pagination, nil
 }
 
@@ -190,11 +183,8 @@ func (a *AttributeImpl) Update(ctx context.Context, param UpdateAttributeParam) 
 	if err != nil {
 		return nil, err
 	}
-
-	// Invalidate cache
-	a.attributeCache.InvalidateAttribute(ctx, param.AttributeID)
-	a.attributeCache.InvalidateAttributeList(ctx)
-
+	_ = a.attributeCache.InvalidateAttribute(ctx, param.AttributeID)
+	_ = a.attributeCache.InvalidateAttributeList(ctx)
 	return attribute, nil
 }
 
@@ -219,10 +209,7 @@ func (a *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeVa
 	if attributeValue == nil {
 		return nil, domain.ErrNotFound
 	}
-
-	// Invalidate cache
-	a.attributeCache.InvalidateAllAttributes(ctx)
-
+	_ = a.attributeCache.InvalidateAllAttributes(ctx)
 	return attributeValue, nil
 }
 
@@ -239,11 +226,8 @@ func (a *AttributeImpl) Delete(ctx context.Context, param DeleteAttributeParam) 
 	if err != nil {
 		return err
 	}
-
-	// Invalidate cache
-	a.attributeCache.InvalidateAttribute(ctx, param.AttributeID)
-	a.attributeCache.InvalidateAttributeList(ctx)
-
+	_ = a.attributeCache.InvalidateAttribute(ctx, param.AttributeID)
+	_ = a.attributeCache.InvalidateAttributeList(ctx)
 	return nil
 }
 
@@ -260,9 +244,6 @@ func (a *AttributeImpl) DeleteValue(ctx context.Context, param DeleteAttributeVa
 	if err != nil {
 		return err
 	}
-
-	// Invalidate cache
-	a.attributeCache.InvalidateAllAttributes(ctx)
-
+	_ = a.attributeCache.InvalidateAllAttributes(ctx)
 	return nil
 }
