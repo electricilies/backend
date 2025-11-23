@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GinAuthHandler struct {
+type AuthHandlerImpl struct {
 	cfgSrv *config.Server
 }
 
-func ProvideAuthHandler(cfg *config.Server) *GinAuthHandler {
-	return &GinAuthHandler{
+func ProvideAuthHandler(cfg *config.Server) *AuthHandlerImpl {
+	return &AuthHandlerImpl{
 		cfgSrv: cfg,
 	}
 }
 
-func (h *GinAuthHandler) Handler() gin.HandlerFunc {
+func (h *AuthHandlerImpl) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		basePath := h.cfgSrv.KCBasePath
 		redirectURL := basePath + strings.TrimPrefix(c.Request.URL.String(), "/auth")

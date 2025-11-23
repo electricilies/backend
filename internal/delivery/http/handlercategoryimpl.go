@@ -10,16 +10,16 @@ import (
 	"github.com/google/uuid"
 )
 
-type GinCategoryHandler struct {
+type CategoryHandlerImpl struct {
 	categoryApp           application.Category
 	ErrRequiredCategoryID string
 	ErrInvalidCategoryID  string
 }
 
-var _ CategoryHandler = &GinCategoryHandler{}
+var _ CategoryHandler = &CategoryHandlerImpl{}
 
-func ProvideCategoryHandler(categoryApp application.Category) *GinCategoryHandler {
-	return &GinCategoryHandler{
+func ProvideCategoryHandler(categoryApp application.Category) *CategoryHandlerImpl {
+	return &CategoryHandlerImpl{
 		categoryApp:           categoryApp,
 		ErrRequiredCategoryID: "category_id is required",
 		ErrInvalidCategoryID:  "invalid category_id",
@@ -38,7 +38,7 @@ func ProvideCategoryHandler(categoryApp application.Category) *GinCategoryHandle
 //	@Success		200		{object}	application.Pagination[domain.Category]
 //	@Failure		500		{object}	Error
 //	@Router			/categories [get]
-func (h *GinCategoryHandler) List(ctx *gin.Context) {
+func (h *CategoryHandlerImpl) List(ctx *gin.Context) {
 	paginateParam, err := createPaginationParamsFromQuery(ctx)
 	if err != nil {
 		SendError(ctx, err)
@@ -73,7 +73,7 @@ func (h *GinCategoryHandler) List(ctx *gin.Context) {
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/categories/{category_id} [get]
-func (h *GinCategoryHandler) Get(ctx *gin.Context) {
+func (h *CategoryHandlerImpl) Get(ctx *gin.Context) {
 	categoryIDString := ctx.Param("category_id")
 	if categoryIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCategoryID))
@@ -107,7 +107,7 @@ func (h *GinCategoryHandler) Get(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/categories [post]
-func (h *GinCategoryHandler) Create(ctx *gin.Context) {
+func (h *CategoryHandlerImpl) Create(ctx *gin.Context) {
 	var data application.CreateCategoryData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
@@ -139,7 +139,7 @@ func (h *GinCategoryHandler) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/categories/{category_id} [patch]
-func (h *GinCategoryHandler) Update(ctx *gin.Context) {
+func (h *CategoryHandlerImpl) Update(ctx *gin.Context) {
 	categoryIDString := ctx.Param("category_id")
 	if categoryIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCategoryID))

@@ -28,7 +28,7 @@ func InitializeServer(ctx context.Context) *http.Server {
 	redisClient := client.NewRedis(ctx, server)
 	s3Client := client.NewS3(ctx, server)
 	pool := client.NewDBConnection(ctx, server)
-	ginHealthHandler := http.ProvideHealthHandler(goCloak, redisClient, s3Client, pool, server)
+	healthHandlerImpl := http.ProvideHealthHandler(goCloak, redisClient, s3Client, pool, server)
 	metricMiddlewareImpl := http.ProvideMetricMiddleware()
 	loggerConfig := logger.NewConfig(server)
 	zapLogger := logger.New(loggerConfig)
@@ -39,27 +39,27 @@ func InitializeServer(ctx context.Context) *http.Server {
 	validate := client.NewValidate()
 	category := service.ProvideCategory(validate)
 	categoryImpl := application.ProvideCategory(postgresCategory, category, redisClient)
-	ginCategoryHandler := http.ProvideCategoryHandler(categoryImpl)
-	ginProductHandler := http.ProvideProductHandler()
+	categoryHandlerImpl := http.ProvideCategoryHandler(categoryImpl)
+	productHandlerImpl := http.ProvideProductHandler()
 	postgresAttribute := repository.ProvidePostgresAttribute(queries, pool)
 	attribute := service.ProvideAttribute(validate)
 	attributeImpl := application.ProvideAttribute(postgresAttribute, attribute, redisClient)
-	ginAttributeHandler := http.ProvideAttributeHandler(attributeImpl)
+	attributeHandlerImpl := http.ProvideAttributeHandler(attributeImpl)
 	postgresOrder := repository.ProvidePostgresOrder(queries)
 	order := service.ProvideOrder(validate)
 	orderImpl := application.ProvideOrder(postgresOrder, order)
-	ginOrderHandler := http.ProvideOrderHandler(orderImpl)
+	orderHandlerImpl := http.ProvideOrderHandler(orderImpl)
 	postgresReview := repository.ProvidePostgresReview(queries)
 	review := service.ProvideReview(validate)
 	reviewImpl := application.ProvideReview(postgresReview, review, redisClient)
-	ginReviewHandler := http.ProvideReviewHandler(reviewImpl)
+	reviewHandlerImpl := http.ProvideReviewHandler(reviewImpl)
 	postgresCart := repository.ProvidePostgresCart(queries)
 	cart := service.ProvideCart(validate)
 	cartImpl := application.ProvideCart(postgresCart, cart)
-	ginCartHandler := http.ProvideCartHandler(cartImpl)
-	ginRouter := http.ProvideRouter(ginHealthHandler, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, ginCategoryHandler, ginProductHandler, ginAttributeHandler, ginOrderHandler, ginReviewHandler, ginCartHandler)
-	ginAuthHandler := http.ProvideAuthHandler(server)
-	httpServer := http.NewServer(engine, ginRouter, server, ginAuthHandler)
+	cartHandlerImpl := http.ProvideCartHandler(cartImpl)
+	ginRouter := http.ProvideRouter(healthHandlerImpl, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, categoryHandlerImpl, productHandlerImpl, attributeHandlerImpl, orderHandlerImpl, reviewHandlerImpl, cartHandlerImpl)
+	authHandlerImpl := http.ProvideAuthHandler(server)
+	httpServer := http.NewServer(engine, ginRouter, server, authHandlerImpl)
 	return httpServer
 }
 
@@ -111,28 +111,28 @@ var MiddlewareSet = wire.NewSet(http.ProvideAuthMiddleware, wire.Bind(
 
 var HandlerSet = wire.NewSet(http.ProvideAttributeHandler, wire.Bind(
 	new(http.AttributeHandler),
-	new(*http.GinAttributeHandler),
+	new(*http.AttributeHandlerImpl),
 ), http.ProvideAuthHandler, wire.Bind(
 	new(http.AuthHandler),
-	new(*http.GinAuthHandler),
+	new(*http.AuthHandlerImpl),
 ), http.ProvideCategoryHandler, wire.Bind(
 	new(http.CategoryHandler),
-	new(*http.GinCategoryHandler),
+	new(*http.CategoryHandlerImpl),
 ), http.ProvideHealthHandler, wire.Bind(
 	new(http.HealthHandler),
-	new(*http.GinHealthHandler),
+	new(*http.HealthHandlerImpl),
 ), http.ProvideOrderHandler, wire.Bind(
 	new(http.OrderHandler),
-	new(*http.GinOrderHandler),
+	new(*http.OrderHandlerImpl),
 ), http.ProvideProductHandler, wire.Bind(
 	new(http.ProductHandler),
-	new(*http.GinProductHandler),
+	new(*http.ProductHandlerImpl),
 ), http.ProvideReviewHandler, wire.Bind(
 	new(http.ReviewHandler),
-	new(*http.GinReviewHandler),
+	new(*http.ReviewHandlerImpl),
 ), http.ProvideCartHandler, wire.Bind(
 	new(http.CartHandler),
-	new(*http.GinCartHandler),
+	new(*http.CartHandlerImpl),
 ),
 )
 

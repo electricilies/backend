@@ -15,7 +15,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type GinHealthHandler struct {
+type HealthHandlerImpl struct {
 	keycloakClient *gocloak.GoCloak
 	redisClient    *redis.Client
 	s3Client       *s3.Client
@@ -23,15 +23,15 @@ type GinHealthHandler struct {
 	srvCfg         *config.Server
 }
 
-var _ HealthHandler = &GinHealthHandler{}
+var _ HealthHandler = &HealthHandlerImpl{}
 
 func ProvideHealthHandler(keycloakClient *gocloak.GoCloak,
 	redisClient *redis.Client,
 	s3Client *s3.Client,
 	dbPool *pgxpool.Pool,
 	cfg *config.Server,
-) *GinHealthHandler {
-	return &GinHealthHandler{
+) *HealthHandlerImpl {
+	return &HealthHandlerImpl{
 		keycloakClient: keycloakClient,
 		redisClient:    redisClient,
 		s3Client:       s3Client,
@@ -40,7 +40,7 @@ func ProvideHealthHandler(keycloakClient *gocloak.GoCloak,
 	}
 }
 
-func (h *GinHealthHandler) Readiness(ctx *gin.Context) {
+func (h *HealthHandlerImpl) Readiness(ctx *gin.Context) {
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
@@ -80,7 +80,7 @@ func (h *GinHealthHandler) Readiness(ctx *gin.Context) {
 	}
 }
 
-func (h *GinHealthHandler) Liveness(ctx *gin.Context) {
+func (h *HealthHandlerImpl) Liveness(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, time.Now())
 }
 

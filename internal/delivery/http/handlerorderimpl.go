@@ -10,16 +10,16 @@ import (
 	"github.com/google/uuid"
 )
 
-type GinOrderHandler struct {
+type OrderHandlerImpl struct {
 	orderApp           application.Order
 	ErrRequiredOrderID string
 	ErrInvalidOrderID  string
 }
 
-var _ OrderHandler = &GinOrderHandler{}
+var _ OrderHandler = &OrderHandlerImpl{}
 
-func ProvideOrderHandler(orderApp application.Order) *GinOrderHandler {
-	return &GinOrderHandler{
+func ProvideOrderHandler(orderApp application.Order) *OrderHandlerImpl {
+	return &OrderHandlerImpl{
 		orderApp:           orderApp,
 		ErrRequiredOrderID: "order_id is required",
 		ErrInvalidOrderID:  "invalid order_id",
@@ -38,7 +38,7 @@ func ProvideOrderHandler(orderApp application.Order) *GinOrderHandler {
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/orders/{order_id} [get]
-func (h *GinOrderHandler) Get(ctx *gin.Context) {
+func (h *OrderHandlerImpl) Get(ctx *gin.Context) {
 	orderIDString := ctx.Param("order_id")
 	if orderIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredOrderID))
@@ -72,7 +72,7 @@ func (h *GinOrderHandler) Get(ctx *gin.Context) {
 //	@Success		200			{array}		domain.Order
 //	@Failure		500			{object}	Error
 //	@Router			/orders [get]
-func (h *GinOrderHandler) List(ctx *gin.Context) {
+func (h *OrderHandlerImpl) List(ctx *gin.Context) {
 	paginateParam, err := createPaginationParamsFromQuery(ctx)
 	if err != nil {
 		SendError(ctx, err)
@@ -120,7 +120,7 @@ func (h *GinOrderHandler) List(ctx *gin.Context) {
 //	@Failure		409		{object}	Error
 //	@Failure		500		{object}	Error
 //	@Router			/orders [post]
-func (h *GinOrderHandler) Create(ctx *gin.Context) {
+func (h *OrderHandlerImpl) Create(ctx *gin.Context) {
 	var data application.CreateOrderData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
@@ -156,7 +156,7 @@ func (h *GinOrderHandler) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/orders/{order_id} [patch]
-func (h *GinOrderHandler) Update(ctx *gin.Context) {
+func (h *OrderHandlerImpl) Update(ctx *gin.Context) {
 	orderIDString := ctx.Param("order_id")
 	if orderIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredOrderID))
@@ -197,7 +197,7 @@ func (h *GinOrderHandler) Update(ctx *gin.Context) {
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/orders/{order_id} [delete]
-func (h *GinOrderHandler) Delete(ctx *gin.Context) {
+func (h *OrderHandlerImpl) Delete(ctx *gin.Context) {
 	orderIDString := ctx.Param("order_id")
 	if orderIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredOrderID))

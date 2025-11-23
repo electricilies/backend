@@ -9,12 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GinProductHandler struct{}
+type ProductHandlerImpl struct{}
 
-var _ ProductHandler = &GinProductHandler{}
+var _ ProductHandler = &ProductHandlerImpl{}
 
-func ProvideProductHandler() *GinProductHandler {
-	return &GinProductHandler{}
+func ProvideProductHandler() *ProductHandlerImpl {
+	return &ProductHandlerImpl{}
 }
 
 // GetProduct godoc
@@ -29,7 +29,7 @@ func ProvideProductHandler() *GinProductHandler {
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/products/{product_id} [get]
-func (h *GinProductHandler) Get(ctx *gin.Context) {
+func (h *ProductHandlerImpl) Get(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -51,7 +51,7 @@ func (h *GinProductHandler) Get(ctx *gin.Context) {
 //	@Success		200				{object}	application.Pagination[domain.Product]
 //	@Failure		500				{object}	Error
 //	@Router			/products [get]
-func (h *GinProductHandler) List(ctx *gin.Context) {
+func (h *ProductHandlerImpl) List(ctx *gin.Context) {
 }
 
 // CreateProduct godoc
@@ -67,7 +67,7 @@ func (h *GinProductHandler) List(ctx *gin.Context) {
 //	@Failure		409		{object}	Error
 //	@Failure		500		{object}	Error
 //	@Router			/products [post]
-func (h *GinProductHandler) Create(ctx *gin.Context) {
+func (h *ProductHandlerImpl) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -86,7 +86,7 @@ func (h *GinProductHandler) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/products/{product_id} [patch]
-func (h *GinProductHandler) Update(ctx *gin.Context) {
+func (h *ProductHandlerImpl) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -102,7 +102,7 @@ func (h *GinProductHandler) Update(ctx *gin.Context) {
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/products/{product_id} [delete]
-func (h *GinProductHandler) Delete(ctx *gin.Context) {
+func (h *ProductHandlerImpl) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -120,7 +120,7 @@ func (h *GinProductHandler) Delete(ctx *gin.Context) {
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/products/{product_id}/images [post]
-func (h *GinProductHandler) AddImages(ctx *gin.Context) {
+func (h *ProductHandlerImpl) AddImages(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -137,7 +137,7 @@ func (h *GinProductHandler) AddImages(ctx *gin.Context) {
 //	@Failure		400	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/products/{product_id}/images [delete]
-func (h *GinProductHandler) DeleteImages(ctx *gin.Context) {
+func (h *ProductHandlerImpl) DeleteImages(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -155,7 +155,7 @@ func (h *GinProductHandler) DeleteImages(ctx *gin.Context) {
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/products/{product_id}/variants [post]
-func (h *GinProductHandler) AddVariants(ctx *gin.Context) {
+func (h *ProductHandlerImpl) AddVariants(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -175,7 +175,7 @@ func (h *GinProductHandler) AddVariants(ctx *gin.Context) {
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/products/{product_id}/variants/{variant_id} [patch]
-func (h *GinProductHandler) UpdateVariant(ctx *gin.Context) {
+func (h *ProductHandlerImpl) UpdateVariant(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -194,7 +194,7 @@ func (h *GinProductHandler) UpdateVariant(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/products/{product_id}/options [put]
-func (h *GinProductHandler) UpdateOptions(ctx *gin.Context) {
+func (h *ProductHandlerImpl) UpdateOptions(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -209,7 +209,7 @@ func (h *GinProductHandler) UpdateOptions(ctx *gin.Context) {
 //	@Router			/products/images/upload-url [get]
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
-func (h *GinProductHandler) GetUploadImageURL(ctx *gin.Context) {
+func (h *ProductHandlerImpl) GetUploadImageURL(ctx *gin.Context) {
 }
 
 // GetDeleteImageURL godoc
@@ -224,5 +224,5 @@ func (h *GinProductHandler) GetUploadImageURL(ctx *gin.Context) {
 //	@Router			/products/images/delete-url/{image_id} [get]
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
-func (h *GinProductHandler) GetDeleteImageURL(ctx *gin.Context) {
+func (h *ProductHandlerImpl) GetDeleteImageURL(ctx *gin.Context) {
 }

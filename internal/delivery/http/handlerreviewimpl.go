@@ -10,16 +10,16 @@ import (
 	"github.com/google/uuid"
 )
 
-type GinReviewHandler struct {
+type ReviewHandlerImpl struct {
 	reviewApp           application.Review
 	ErrRequiredReviewID string
 	ErrInvalidReviewID  string
 }
 
-var _ ReviewHandler = &GinReviewHandler{}
+var _ ReviewHandler = &ReviewHandlerImpl{}
 
-func ProvideReviewHandler(reviewApp application.Review) *GinReviewHandler {
-	return &GinReviewHandler{
+func ProvideReviewHandler(reviewApp application.Review) *ReviewHandlerImpl {
+	return &ReviewHandlerImpl{
 		reviewApp:           reviewApp,
 		ErrRequiredReviewID: "review_id is required",
 		ErrInvalidReviewID:  "invalid review_id",
@@ -38,7 +38,7 @@ func ProvideReviewHandler(reviewApp application.Review) *GinReviewHandler {
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/reviews/{review_id} [get]
-func (h *GinReviewHandler) Get(ctx *gin.Context) {
+func (h *ReviewHandlerImpl) Get(ctx *gin.Context) {
 	reviewIDString := ctx.Param("review_id")
 	if reviewIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredReviewID))
@@ -73,7 +73,7 @@ func (h *GinReviewHandler) Get(ctx *gin.Context) {
 //	@Success		200			{object}	application.Pagination[domain.Review]
 //	@Failure		500			{object}	Error
 //	@Router			/reviews [get]
-func (h *GinReviewHandler) List(ctx *gin.Context) {
+func (h *ReviewHandlerImpl) List(ctx *gin.Context) {
 	paginateParam, err := createPaginationParamsFromQuery(ctx)
 	if err != nil {
 		SendError(ctx, err)
@@ -130,7 +130,7 @@ func (h *GinReviewHandler) List(ctx *gin.Context) {
 //	@Failure		409		{object}	Error
 //	@Failure		500		{object}	Error
 //	@Router			/reviews [post]
-func (h *GinReviewHandler) Create(ctx *gin.Context) {
+func (h *ReviewHandlerImpl) Create(ctx *gin.Context) {
 	var data application.CreateReviewData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
@@ -168,7 +168,7 @@ func (h *GinReviewHandler) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/reviews/{review_id} [patch]
-func (h *GinReviewHandler) Update(ctx *gin.Context) {
+func (h *ReviewHandlerImpl) Update(ctx *gin.Context) {
 	reviewIDString := ctx.Param("review_id")
 	if reviewIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredReviewID))
@@ -209,7 +209,7 @@ func (h *GinReviewHandler) Update(ctx *gin.Context) {
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/reviews/{review_id} [delete]
-func (h *GinReviewHandler) Delete(ctx *gin.Context) {
+func (h *ReviewHandlerImpl) Delete(ctx *gin.Context) {
 	reviewIDString := ctx.Param("review_id")
 	if reviewIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredReviewID))

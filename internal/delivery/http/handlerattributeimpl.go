@@ -10,17 +10,17 @@ import (
 	"github.com/google/uuid"
 )
 
-type GinAttributeHandler struct {
+type AttributeHandlerImpl struct {
 	attributeApp           application.Attribute
 	ErrRequiredAttributeID string
 	ErrInvalidAttributeID  string
 	ErrInvalidProductID    string
 }
 
-var _ AttributeHandler = &GinAttributeHandler{}
+var _ AttributeHandler = &AttributeHandlerImpl{}
 
-func ProvideAttributeHandler(attributeApp application.Attribute) *GinAttributeHandler {
-	return &GinAttributeHandler{
+func ProvideAttributeHandler(attributeApp application.Attribute) *AttributeHandlerImpl {
+	return &AttributeHandlerImpl{
 		attributeApp:           attributeApp,
 		ErrRequiredAttributeID: "attribute_id is required",
 		ErrInvalidAttributeID:  "invalid attribute_id",
@@ -39,7 +39,7 @@ func ProvideAttributeHandler(attributeApp application.Attribute) *GinAttributeHa
 //	@Failure		404				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/attributes/{attribute_id} [get]
-func (h *GinAttributeHandler) Get(ctx *gin.Context) {
+func (h *AttributeHandlerImpl) Get(ctx *gin.Context) {
 	attributeIDString := ctx.Param("attribute_id")
 	if attributeIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
@@ -76,7 +76,7 @@ func (h *GinAttributeHandler) Get(ctx *gin.Context) {
 //	@Success		200				{object}	application.Pagination[domain.Attribute]
 //	@Failure		500				{object}	Error
 //	@Router			/attributes [get]
-func (h *GinAttributeHandler) List(ctx *gin.Context) {
+func (h *AttributeHandlerImpl) List(ctx *gin.Context) {
 	paginateParam, err := createPaginationParamsFromQuery(ctx)
 	if err != nil {
 		SendError(ctx, err)
@@ -123,7 +123,7 @@ func (h *GinAttributeHandler) List(ctx *gin.Context) {
 //	@Success		200					{object}	application.Pagination[domain.AttributeValue]
 //	@Failure		500					{object}	Error
 //	@Router			/attributes/{attribute_id}/values [get]
-func (h *GinAttributeHandler) ListValues(ctx *gin.Context) {
+func (h *AttributeHandlerImpl) ListValues(ctx *gin.Context) {
 	paginateParam, err := createPaginationParamsFromQuery(ctx)
 	if err != nil {
 		SendError(ctx, err)
@@ -178,7 +178,7 @@ func (h *GinAttributeHandler) ListValues(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/attributes [post]
-func (h *GinAttributeHandler) Create(ctx *gin.Context) {
+func (h *AttributeHandlerImpl) Create(ctx *gin.Context) {
 	var data application.CreateAttributeData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
@@ -210,7 +210,7 @@ func (h *GinAttributeHandler) Create(ctx *gin.Context) {
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/attributes/{attribute_id}/values [post]
-func (h *GinAttributeHandler) CreateValue(ctx *gin.Context) {
+func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 	attributeIDString := ctx.Param("attribute_id")
 	if attributeIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
@@ -254,7 +254,7 @@ func (h *GinAttributeHandler) CreateValue(ctx *gin.Context) {
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/attributes/{attribute_id} [patch]
-func (h *GinAttributeHandler) Update(ctx *gin.Context) {
+func (h *AttributeHandlerImpl) Update(ctx *gin.Context) {
 	attributeIDString := ctx.Param("attribute_id")
 	if attributeIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
@@ -295,7 +295,7 @@ func (h *GinAttributeHandler) Update(ctx *gin.Context) {
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/attributes/{attribute_id} [delete]
-func (h *GinAttributeHandler) Delete(ctx *gin.Context) {
+func (h *AttributeHandlerImpl) Delete(ctx *gin.Context) {
 	attributeIDString := ctx.Param("attribute_id")
 	if attributeIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
@@ -329,7 +329,7 @@ func (h *GinAttributeHandler) Delete(ctx *gin.Context) {
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/attributes/{attribute_id}/values/{value_id} [delete]
-func (h *GinAttributeHandler) DeleteValue(ctx *gin.Context) {
+func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
 	valueIDString := ctx.Param("value_id")
 	if valueIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError("value_id is required"))
@@ -378,7 +378,7 @@ func (h *GinAttributeHandler) DeleteValue(ctx *gin.Context) {
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/attributes/{attribute_id}/values [patch]
-func (h *GinAttributeHandler) UpdateValue(ctx *gin.Context) {
+func (h *AttributeHandlerImpl) UpdateValue(ctx *gin.Context) {
 	attributeIDString := ctx.Param("attribute_id")
 	if attributeIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))

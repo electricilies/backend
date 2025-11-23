@@ -98,42 +98,42 @@ var HandlerSet = wire.NewSet(
 	http.ProvideAttributeHandler,
 	wire.Bind(
 		new(http.AttributeHandler),
-		new(*http.GinAttributeHandler),
+		new(*http.AttributeHandlerImpl),
 	),
 	http.ProvideAuthHandler,
 	wire.Bind(
 		new(http.AuthHandler),
-		new(*http.GinAuthHandler),
+		new(*http.AuthHandlerImpl),
 	),
 	http.ProvideCategoryHandler,
 	wire.Bind(
 		new(http.CategoryHandler),
-		new(*http.GinCategoryHandler),
+		new(*http.CategoryHandlerImpl),
 	),
 	http.ProvideHealthHandler,
 	wire.Bind(
 		new(http.HealthHandler),
-		new(*http.GinHealthHandler),
+		new(*http.HealthHandlerImpl),
 	),
 	http.ProvideOrderHandler,
 	wire.Bind(
 		new(http.OrderHandler),
-		new(*http.GinOrderHandler),
+		new(*http.OrderHandlerImpl),
 	),
 	http.ProvideProductHandler,
 	wire.Bind(
 		new(http.ProductHandler),
-		new(*http.GinProductHandler),
+		new(*http.ProductHandlerImpl),
 	),
 	http.ProvideReviewHandler,
 	wire.Bind(
 		new(http.ReviewHandler),
-		new(*http.GinReviewHandler),
+		new(*http.ReviewHandlerImpl),
 	),
 	http.ProvideCartHandler,
 	wire.Bind(
 		new(http.CartHandler),
-		new(*http.GinCartHandler),
+		new(*http.CartHandlerImpl),
 	),
 )
 

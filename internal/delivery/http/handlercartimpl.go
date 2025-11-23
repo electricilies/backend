@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type GinCartHandler struct {
+type CartHandlerImpl struct {
 	cartApp               application.Cart
 	ErrRequiredCartID     string
 	ErrInvalidCartID      string
@@ -18,10 +18,10 @@ type GinCartHandler struct {
 	ErrInvalidCartItemID  string
 }
 
-var _ CartHandler = &GinCartHandler{}
+var _ CartHandler = &CartHandlerImpl{}
 
-func ProvideCartHandler(cartApp application.Cart) *GinCartHandler {
-	return &GinCartHandler{
+func ProvideCartHandler(cartApp application.Cart) *CartHandlerImpl {
+	return &CartHandlerImpl{
 		cartApp:               cartApp,
 		ErrRequiredCartID:     "cart_id is required",
 		ErrInvalidCartID:      "invalid cart_id",
@@ -43,7 +43,7 @@ func ProvideCartHandler(cartApp application.Cart) *GinCartHandler {
 //	@Failure		404		{object}	Error
 //	@Failure		500		{object}	Error
 //	@Router			/carts/{cart_id} [get]
-func (h *GinCartHandler) Get(ctx *gin.Context) {
+func (h *CartHandlerImpl) Get(ctx *gin.Context) {
 	cartIDString := ctx.Param("cart_id")
 	if cartIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartID))
@@ -76,7 +76,7 @@ func (h *GinCartHandler) Get(ctx *gin.Context) {
 //	@Failure		400		{object}	Error
 //	@Failure		500		{object}	Error
 //	@Router			/carts/{cart_id}/item  [post]
-func (h *GinCartHandler) CreateItem(ctx *gin.Context) {
+func (h *CartHandlerImpl) CreateItem(ctx *gin.Context) {
 	cartIDString := ctx.Param("cart_id")
 	if cartIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartID))
@@ -123,7 +123,7 @@ func (h *GinCartHandler) CreateItem(ctx *gin.Context) {
 //	@Failure		404				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/carts/{cart_id}/item [patch]
-func (h *GinCartHandler) UpdateItem(ctx *gin.Context) {
+func (h *CartHandlerImpl) UpdateItem(ctx *gin.Context) {
 	cartIDString := ctx.Param("cart_id")
 	if cartIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartID))
@@ -180,7 +180,7 @@ func (h *GinCartHandler) UpdateItem(ctx *gin.Context) {
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/carts/{cart_id}/item [delete]
-func (h *GinCartHandler) RemoveItem(ctx *gin.Context) {
+func (h *CartHandlerImpl) RemoveItem(ctx *gin.Context) {
 	cartIDString := ctx.Param("cart_id")
 	if cartIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartID))
