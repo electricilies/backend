@@ -1,27 +1,15 @@
-# Domain Layer Rules
+# Domain Layer (`internal/domain`)
 
-## Overview
+## Purpose
 
-The domain layer (`internal/domain`) is the core of the application and contains business logic, entities, and interfaces. It should have no dependencies on infrastructure or external frameworks.
+Define contracts (interfaces), models, errors. **No implementations.**
 
-## Structure
-
-### Domain Models
-
-Domain models are pure Go structs representing business entities with validation tags:
-
-- **Struct tags:**
-  - `json` - JSON serialization field names (camelCase)
-  - `binding` - Gin binding validation rules
-  - `validate` - Go Playground validator rules
-
-**Example:**
+## Domain Models
 
 ```go
 type Product struct {
     ID          uuid.UUID   `json:"id"          binding:"required"  validate:"required"`
     Name        string      `json:"name"        binding:"required"  validate:"required,gte=3,lte=200"`
-    Description string      `json:"description" binding:"required"  validate:"required,gte=10"`
     Price       int64       `json:"price"       binding:"required"  validate:"required,gt=0"`
     CreatedAt   time.Time   `json:"createdAt"   binding:"required"  validate:"required"`
     UpdatedAt   time.Time   `json:"updatedAt"   binding:"required"  validate:"required,gtefield=CreatedAt"`
@@ -30,76 +18,55 @@ type Product struct {
 ```
 
 **Conventions:**
+- ✅ `uuid.UUID` for IDs (generate with `uuid.NewV7()`)
+- ✅ `time.Time` for timestamps
+- ✅ Pointers for optional fields (`*time.Time`, `*string`)
+- ✅ Pointers for slices (`*[]Type`) to distinguish nil vs empty
+- ✅ Money as `int64` (cents/smallest unit)
+- ✅ Soft delete with `DeletedAt *time.Time`
 
-- Use `uuid.UUID` for all IDs (generate with `uuid.NewV7()`)
-- Use `time.Time` for timestamps
-- Use pointers for optional/nullable fields
-- Use pointers for slice fields (`*[]Type`) to distinguish between nil and empty
-- Money/currency values are stored as `int64` (cents/smallest unit)
-- Soft delete with `DeletedAt *time.Time`
+**Tags:**
+- `json` - camelCase field names
+- `binding` - Gin validation
+- `validate` - go-playground/validator rules
 
-### Repository Interfaces
+## Repository Interfaces
 
-Repositories define minimal CRUD operations for aggregate roots:
-
-**Required methods:**
-
-- `List()` - Retrieve multiple entities with filters, sorting, pagination
-- `Count()` - Count entities matching filters
-- `Get()` - Retrieve a single entity by ID
-- `Save()` - Upsert entity (insert or update)
-
-**Conventions:**
-
-- First parameter is always `context.Context`
-- Return `error` as last return value
-- Use pointer parameters for optional filters (`*string`, `*[]uuid.UUID`)
-- Use custom enums for special parameters (e.g., `DeletedParam`)
-- Repositories should NOT contain business logic
-
-**Example:**
+**Minimal CRUD only:**
 
 ```go
 type ProductRepository interface {
-    List(
-        ctx context.Context,
-        ids *[]uuid.UUID,
-        search *string,
-        deleted DeletedParam,
-        limit int,
-        offset int,
-    ) (*[]Product, error)
-
+    List(ctx context.Context, ids *[]uuid.UUID, search *string, 
+         deleted DeletedParam, limit int, offset int) (*[]Product, error)
     Count(ctx context.Context, ids *[]uuid.UUID, deleted DeletedParam) (*int, error)
     Get(ctx context.Context, id uuid.UUID) (*Product, error)
-    Save(ctx context.Context, entity Product) error
+    Save(ctx context.Context, entity Product) error  // Upsert
 }
 ```
 
-### Service Interfaces
+**Rules:**
+- ✅ First param is `context.Context`
+- ✅ Pointers for optional filters (`*string`, `*[]uuid.UUID`)
+- ✅ Return `error` as last value
+- ✅ NO business logic in repos
 
-Domain services contain business logic that doesn't naturally fit in a single entity:
-
-**Conventions:**
-
-- Factory methods for creating new entities (e.g., `Create()`, `CreateOption()`)
-- Business logic operations (e.g., `AddValues()`, `UpdateQuantity()`)
-- Validation is performed using `go-playground/validator`
-- Return newly created entities as pointers
-- Generate UUIDs using `uuid.NewV7()`
-
-**Example:**
+## Service Interfaces
 
 ```go
 type ProductService interface {
-    Create(name string, description string, category Category) (*Product, error)
-    CreateVariant(sku string, price int64, quantity int) (*ProductVariant, error)
+    Create(name string, description string) (*Product, error)
+    AddVariant(product *Product, variant Variant) error
 }
 ```
 
-### Domain Errors
+**Rules:**
+- ✅ Factory methods (Create, CreateX)
+- ✅ Business logic operations
+- ✅ Return pointers for new entities
 
-All domain errors are defined in `internal/domain/error.go`:
+## Domain Errors
+
+**File:** `internal/domain/error.go`
 
 ```go
 var (
@@ -116,16 +83,14 @@ var (
 )
 ```
 
-**Error Wrapping:**
-Use `github.com/hashicorp/go-multierror` for wrapping:
-
+**Wrap with `multierror.Append`:**
 ```go
 return nil, multierror.Append(domain.ErrInternal, err)
 ```
 
-### Enums and Common Types
+## Enums & Common Types
 
-Define shared enums and types in `internal/domain/common.go`:
+**File:** `internal/domain/common.go`
 
 ```go
 type DeletedParam string
@@ -137,31 +102,36 @@ const (
 )
 ```
 
-## Testing
+## Mock Generation
 
-### Mock Generation
+**Config:** `.mockery.yml`
 
-Repository mocks are auto-generated using mockery with testify:
+**Generate:** `mockery`
 
-**Configuration:** `.mockery.yml`
+**Output:** `internal/domain/*_repository_mock.go`
 
-**Generated files:** `internal/domain/*_repository_mock.go`
-
-**Usage in tests:**
-
+**Usage:**
 ```go
 mockRepo := domain.NewMockProductRepository(t)
-mockRepo.EXPECT().Get(ctx, productID).Return(&product, nil)
+mockRepo.EXPECT().Get(ctx, id).Return(&product, nil)
 ```
 
-## Rules Summary
+## Validation Tags
 
-1. ✅ Domain models are pure structs with validation tags
-2. ✅ Use `uuid.UUID` for IDs, `time.Time` for timestamps
-3. ✅ Use pointers for optional fields and slices
-4. ✅ Repositories have only List, Count, Get, Save methods
-5. ✅ Services contain business logic and factory methods
-6. ✅ All domain errors defined in `error.go`
+- `required` - Must be present
+- `omitempty` - Optional
+- `omitnil` - Pointer, validate if not nil
+- `gt=0`, `gte=0`, `lte=100`, `lt=100` - Numeric constraints
+- `dive` - Validate slice elements
+- `gtefield=OtherField` - Field comparison
+
+## Quick Rules
+
+1. ✅ Pure structs, interfaces only
+2. ✅ UUID for IDs, time.Time for timestamps
+3. ✅ Pointers for optional/nullable/slices
+4. ✅ Repos: List, Count, Get, Save (minimal CRUD)
+5. ✅ Services: factory + business logic
+6. ✅ All errors defined in `error.go`
 7. ✅ Wrap errors with `multierror.Append()`
-8. ✅ No infrastructure dependencies in domain layer
-9. ✅ Generate mocks with mockery for testing
+8. ❌ No implementations, no infrastructure deps

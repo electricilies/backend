@@ -1,462 +1,225 @@
 # Business Logic Rules
 
-This document describes the core business rules and domain logic for the e-commerce system.
+## Soft Delete Strategy
 
-## Core Principles
-
-### Soft Delete Strategy
-
-**Default Behavior:** Most entities use soft delete (marked with `deleted_at` timestamp)
-
-**Soft-deleted entities:**
-
-- ✅ Product
-- ✅ ProductVariant
-- ✅ Category
-- ✅ Attribute
-- ✅ AttributeValue
-- ✅ Option
-- ✅ OptionValue
-- ✅ Review
-- ✅ Order
-
-**Hard-deleted entities:**
-
-- ❌ **CartItem** - Deleted entirely from database when removed
-
-**Why hard delete CartItem?** Cart items are transient data that don't need historical tracking. Once removed, they have no business value.
-
----
+**Soft deleted:** Product, ProductVariant, Category, Attribute, AttributeValue, Option, OptionValue, Review, Order  
+**Hard deleted:** CartItem (transient, no historical value)
 
 ## Aggregates
 
-The system is organized into the following aggregates (bounded contexts):
+1. **Attribute** - Filterable properties (Color: Red, Material: Cotton)
+2. **Cart** - Shopping cart (one per user)
+3. **Category** - Product categorization
+4. **Order** - Purchases, order items
+5. **Product** - Products, variants, options, images
+6. **Review** - Product ratings
 
-1. **Attribute** - Product attributes and their values (e.g., Color: Red, Blue)
-2. **Cart** - Shopping cart management
-3. **Category** - Product categorization hierarchy
-4. **Order** - Purchase orders and order items
-5. **Product** - Products, variants, options, and images
-6. **Review** - Product reviews and ratings
-
----
-
-## Product Aggregate
-
-### Product Structure
+## Product Structure
 
 ```
 Product
-├── belongs to 1 Category (required)
-├── has multiple Attributes (optional)
-├── has multiple Options (e.g., "Size", "Color")
-│   └── each Option has multiple OptionValues (e.g., "Small", "Red")
-├── has multiple ProductVariants
-│   ├── each variant has a combination of OptionValues
-│   ├── each variant has its own price, quantity, SKU
-│   └── each variant can have its own images
-└── has multiple ProductImages (at product level)
+├─ belongs to 1 Category (required)
+├─ has multiple Attributes (for filtering)
+├─ has multiple Options (e.g. "Size", "Color")
+│  └─ each Option has OptionValues (e.g. "S/M/L", "Red/Blue")
+├─ has multiple ProductVariants
+│  ├─ combination of OptionValues
+│  ├─ own price, quantity, SKU
+│  └─ own images (optional)
+└─ has ProductImages (fallback)
 ```
 
-### Business Rules
+## Key Rules
 
-#### Product-Category Relationship
+### Product-Category
+- ✅ Every product MUST have exactly one category
+- ✅ Category cannot be null
 
-- **Rule:** Every product MUST belong to exactly one category
-- **Constraint:** `category_id` is required and must reference an active (non-deleted) category
-- **Behavior:** If category is deleted, products remain but queries should handle gracefully
+### Attributes vs Options
+- **Attributes:** For filtering/search (Material, Brand, Season)
+- **Options:** Create variants (Size, Color)
 
-#### Product Attributes
-
-- **Rule:** A product can have multiple attribute values (e.g., Material: Cotton, Season: Summer)
-- **Purpose:** Attributes are for filtering/faceted search, not for variants
-- **Example:** A shirt has Material=Cotton (attribute), but Size=M/L/XL (options → variants)
-
-#### Options and Variants
-
-- **Rule:** Each Option (e.g., "Size") has multiple OptionValues (e.g., "Small", "Medium", "Large")
-- **Rule:** ProductVariants are combinations of OptionValues from different options
-- **Important:** Variants do NOT need to cover all possible combinations (partial matrix allowed)
+### Variants
+- ✅ Each variant has unique SKU
+- ✅ Own price, quantity, images
+- ✅ Partial matrix allowed (not all combinations required)
+- ✅ Can be soft-deleted independently
 
 **Example:**
-
 ```
 Product: T-Shirt
 Options:
-  - Size: [Small, Medium, Large]
-  - Color: [Red, Blue, Black]
+  Size: [S, M, L]
+  Color: [Red, Blue]
 
-Possible full matrix: 3 × 3 = 9 variants
-Actual variants (partial matrix allowed):
-  ✅ Small + Red
-  ✅ Small + Blue
-  ✅ Medium + Red
-  ✅ Large + Black
-  ❌ Small + Black (out of stock, not created)
-  ❌ Medium + Blue (out of stock, not created)
-  ❌ Medium + Black (out of stock, not created)
-  ❌ Large + Red (out of stock, not created)
-  ❌ Large + Blue (out of stock, not created)
+Variants (partial matrix):
+  ✅ S + Red
+  ✅ M + Blue
+  ✅ L + Red
+  ❌ S + Blue (not in stock, not created)
 ```
 
-#### Variant Management
+### Product Metrics
+- `views_count` - Incremented on product page view
+- `total_purchase` - Incremented on order confirmation
+- `trending_score` - Based on recent views/purchases
+- `rating` - Average of approved reviews
 
-- **Rule:** Each variant MUST have a unique SKU
-- **Rule:** Each variant has its own price (can differ from base product price)
-- **Rule:** Each variant has its own quantity (inventory tracking)
-- **Rule:** Each variant can have specific images (product images are fallback)
-- **Rule:** Variants can be soft-deleted independently
+## Cart Rules
 
-#### Product Images
+### One Cart Per User
+- ✅ Each user has exactly ONE active cart
+- ✅ Created automatically on first item add
+- ✅ Persists across sessions
 
-- **Product-level images:** Shown when no variant is selected
-- **Variant-level images:** Override product images when variant is selected
-- **Rule:** Products should have at least 1 image at product or variant level
+### Cart Items
+- ✅ References specific ProductVariant (not just Product)
+- ✅ Has quantity
+- ✅ Stores price snapshot
+- ✅ **Hard deleted** when removed
+- ❌ Cannot add deleted/out-of-stock variants
+- ❌ Quantity cannot exceed available stock
 
-#### Product Metrics
-
-- **views_count:** Incremented when product detail page is viewed
-- **total_purchase:** Incremented when an order with this product is confirmed
-- **trending_score:** Calculated based on recent views and purchases (algorithm TBD)
-- **rating:** Average of all approved reviews for this product
-
----
-
-## Cart Aggregate
-
-### Cart Structure
-
-```
-User
-└── has 1 Cart (singleton per user)
-    └── has multiple CartItems
-        ├── references ProductVariant
-        ├── has quantity
-        └── snapshot of price at time of addition
-```
-
-### Business Rules
-
-#### One Cart Per User
-
-- **Rule:** Each user has exactly ONE active cart
-- **Rule:** Cart is created automatically on first item addition
-- **Rule:** Cart persists across sessions (saved in database)
-- **Behavior:** Guest users may have session-based carts (not persisted)
-
-#### Cart Items
-
-- **Rule:** Each CartItem references a specific ProductVariant (not just Product)
-- **Rule:** CartItem stores quantity (user can have multiple of same variant)
-- **Rule:** CartItem may store price snapshot (to detect price changes)
-- **Rule:** CartItems are **hard deleted** when removed from cart
-
-#### Cart Item Validation
-
-- **Rule:** Cannot add deleted ProductVariant to cart
-- **Rule:** Cannot add out-of-stock variant (quantity = 0) to cart
-- **Rule:** Cart quantity cannot exceed variant available quantity
-- **Behavior:** When variant quantity changes, cart should validate and notify user
-
-#### Price Changes
-
-- **Rule:** If product/variant price changes after adding to cart, show notification
-- **Behavior:** User should be informed before checkout if prices changed
-
----
-
-## Order Aggregate
-
-### Order Structure
-
-```
-Order
-├── belongs to 1 User
-├── has status (pending, confirmed, shipped, delivered, cancelled)
-├── has multiple OrderItems
-│   ├── references ProductVariant
-│   ├── snapshot of product/variant data at time of order
-│   ├── quantity ordered
-│   └── price at time of order
-└── has total amount, shipping address, payment info
-```
+## Order Workflow
 
 ### Order Status Flow
-
 ```
 pending → confirmed → shipped → delivered
     ↓
-cancelled (can cancel from pending or confirmed)
+cancelled
 ```
 
-### Business Rules
+### Order Confirmation (⚠️ Critical Transaction)
 
-#### Order Creation
+**When status: pending → confirmed:**
 
-- **Rule:** Order is created with status = "pending" when user initiates checkout
-- **Rule:** OrderItems are snapshots (copy product/variant data, don't just reference)
-- **Why snapshot?** Product data may change; order should reflect purchase-time state
+1. **Decrease Inventory**
+   - Decrease `product_variants.quantity`
+   - Validate sufficient stock BEFORE confirming
+   - Reject if insufficient
 
-#### Order Confirmation (Critical Transaction)
+2. **Clean Cart**
+   - Remove corresponding CartItems
+   - Only items matching ordered variants
 
-**When order status changes from "pending" → "confirmed":**
+3. **Update Metrics**
+   - Increment `products.total_purchase`
+   - Increment `product_variants.purchase_count`
 
-1. **Decrease Inventory:**
-   - **Rule:** Decrease `product_variants.quantity` for each ordered variant
-   - **Validation:** Ensure sufficient quantity available (check before confirming)
-   - **Behavior:** If insufficient quantity, reject confirmation and notify user
+⚠️ **MUST be atomic transaction** (all or nothing)
 
-2. **Update Cart:**
-   - **Rule:** Remove corresponding CartItems from user's cart
-   - **Why?** Items are now ordered; cart should be cleaned up
-   - **Behavior:** Only remove items that match ordered variants and quantities
+### Order Cancellation
 
-3. **Update Product Metrics:**
-   - **Rule:** Increment `products.total_purchase` for each product in order
-   - **Rule:** Increment `product_variants.purchase_count` for each variant
+**When order cancelled:**
 
-**Transaction Requirement:** All inventory decreases and cart updates MUST happen atomically (database transaction)
+1. **Restore Inventory**
+   - Increase `product_variants.quantity`
+   - Only if previously confirmed/shipped
 
-#### Order Cancellation
+2. **Update Metrics**
+   - Decrement `products.total_purchase`
+   - Decrement `product_variants.purchase_count`
 
-**When order is cancelled:**
+3. **Process Refund**
 
-1. **Restore Inventory:**
-   - **Rule:** Increase `product_variants.quantity` back for each cancelled item
-   - **Only if:** Order was previously "confirmed" or "shipped" (not "pending")
+### Order Item Snapshots
+- ✅ Store product name, variant SKU, price at purchase time
+- ✅ Immutable - preserve even if product changes/deleted
+- ✅ Include discounts applied
 
-2. **Update Metrics:**
-   - **Rule:** Decrement `products.total_purchase`
-   - **Rule:** Decrement `product_variants.purchase_count`
+## Review Rules
 
-3. **Refund Handling:**
-   - Process refund according to payment method
-   - Update order with refund status and amount
-
-#### Order Item Snapshots
-
-- **Rule:** OrderItem stores product name, variant SKU, price at time of order
-- **Why?** Product may be deleted or changed later; order should preserve history
-- **Fields to snapshot:**
-  - Product name, description, images
-  - Variant SKU, option values (e.g., "Size: M, Color: Red")
-  - Price at time of order
-  - Any discounts applied
-
----
-
-## Category Aggregate
-
-### Business Rules
-
-- **Rule:** Categories can be hierarchical (parent-child relationships)
-- **Rule:** Soft delete - deleted categories don't cascade delete products
-- **Rule:** Products in deleted categories should still be accessible by direct link
-- **Behavior:** Queries should filter deleted categories from navigation/listings
-
----
-
-## Attribute Aggregate
-
-### Attribute Structure
-
-```
-Attribute (e.g., "Color", "Material", "Brand")
-└── has multiple AttributeValues (e.g., "Red", "Blue", "Cotton")
-```
-
-### Business Rules
-
-- **Rule:** Attributes are used for product filtering/faceted search
-- **Rule:** Attributes are NOT used for creating variants (use Options for that)
-- **Distinction:**
-  - **Attribute:** Characteristics for filtering (Material, Brand, Season)
-  - **Option:** Characteristics that create variants (Size, Color for variants)
-
-**Example:**
-
-```
-Product: Winter Jacket
-Attributes:
-  - Brand: Nike
-  - Material: Polyester
-  - Season: Winter
-Options (create variants):
-  - Size: S, M, L, XL
-  - Color: Black, Navy
-```
-
----
-
-## Review Aggregate
-
-### Business Rules
-
-- **Rule:** Each review is for a specific Product (not ProductVariant)
-- **Rule:** User can only review a product they have purchased
-- **Rule:** User can only submit one review per product
-- **Rule:** Reviews have rating (1-5 stars) and optional text comment
-- **Rule:** Reviews can be soft-deleted (moderation)
-
-#### Product Rating Calculation
-
-- **Rule:** `products.rating` is the average of all approved (non-deleted) reviews
-- **Trigger:** Update product rating when review is created, updated, or deleted
-- **Formula:** `AVG(reviews.rating) WHERE product_id = X AND deleted_at IS NULL`
-
----
+- ✅ One review per user per product
+- ✅ Rating: 1-5 stars (integer)
+- ✅ User must have purchased product
+- ✅ Reviews can be soft-deleted (moderation)
+- ✅ `products.rating` = AVG of non-deleted reviews
 
 ## Inventory Management
 
 ### Stock Tracking
+- ✅ Tracked at ProductVariant level (not Product)
+- ✅ Decreases on order confirmation
+- ✅ Increases on order cancellation
 
-- **Rule:** Inventory is tracked at ProductVariant level (not Product level)
-- **Rule:** `product_variants.quantity` represents available stock
-- **Rule:** Stock decreases on order confirmation
-- **Rule:** Stock increases on order cancellation
+### Out of Stock
+- ✅ Variant with `quantity = 0` is out of stock
+- ❌ Cannot add to cart
+- ✅ Show "Out of Stock" badge
+- ✅ Product page still accessible
 
-### Out of Stock Handling
-
-- **Rule:** Variants with `quantity = 0` are considered out of stock
-- **Behavior:** Out-of-stock variants:
-  - Cannot be added to cart
-  - Show "Out of Stock" badge in product listings
-  - Can still be viewed (product page remains accessible)
-
-### Low Stock Alerts
-
-- **Optional Rule:** Notify admin when `quantity < threshold` (e.g., quantity < 5)
-- **Behavior:** Trigger restock workflow
-
----
-
-## Validation Rules Summary
+## Validation Summary
 
 ### Product
-
 - ✅ Must have category
-- ✅ Name: 3-200 characters
-- ✅ Description: minimum 10 characters
-- ✅ Price: must be positive
-- ✅ At least 1 image (product or variant level)
+- ✅ Name: 3-200 chars
+- ✅ Description: min 10 chars
+- ✅ Price > 0
+- ✅ At least 1 image (product or variant)
 
 ### ProductVariant
-
-- ✅ Unique SKU required
-- ✅ Price must be positive
-- ✅ Quantity must be >= 0
-- ✅ Must have at least 1 option value
+- ✅ Unique SKU
+- ✅ Price > 0
+- ✅ Quantity >= 0
+- ✅ At least 1 option value
 
 ### Cart
-
-- ✅ CartItem quantity must be > 0
-- ✅ CartItem quantity cannot exceed variant available quantity
-- ✅ Cannot add deleted or out-of-stock variants
+- ✅ Item quantity > 0
+- ✅ Quantity ≤ available stock
+- ❌ No deleted/OOS variants
 
 ### Order
-
-- ✅ Must have at least 1 order item
-- ✅ Total amount must match sum of item prices
-- ✅ Cannot confirm order if insufficient inventory
-- ✅ Cannot cancel order if already shipped/delivered
-
-### Review
-
-- ✅ Rating: 1-5 stars (integer)
-- ✅ User must have purchased the product
-- ✅ One review per user per product
-
----
+- ✅ At least 1 item
+- ✅ Total = sum of item prices
+- ❌ Cannot confirm if insufficient inventory
+- ❌ Cannot cancel if shipped/delivered
 
 ## Event-Driven Side Effects
 
-Certain operations trigger side effects that should be handled:
+**Order Confirmed:**
+1. Decrease variant quantities ⚠️
+2. Remove cart items ⚠️
+3. Update metrics
+4. Check restock threshold
 
-### When Order Confirmed
-
-1. Decrease variant quantities ⚠️ **Critical**
-2. Remove items from cart ⚠️ **Critical**
-3. Update product metrics (total_purchase)
-4. Send order confirmation email
-5. Trigger inventory restock check
-
-### When Order Cancelled
-
+**Order Cancelled:**
 1. Restore variant quantities
-2. Update product metrics
+2. Update metrics
 3. Process refund
-4. Send cancellation email
 
-### When Review Created/Updated
-
+**Review Created/Updated:**
 1. Recalculate product rating
 2. Update trending score
 
-### When Product Viewed
-
+**Product Viewed:**
 1. Increment views_count
 2. Update trending score
 
----
+## Concurrency
 
-## Business Constraints
+**Problem:** Multiple users order last item  
+**Solution:** Use `SELECT ... FOR UPDATE` with transactions  
+**Pattern:** Row-level locking during order confirmation
 
-### Concurrency Handling
+## Testing Critical Paths
 
-- **Problem:** Multiple users order last available item simultaneously
-- **Solution:** Use database transactions with row-level locking
-- **Implementation:** `SELECT ... FOR UPDATE` when confirming order
+1. ✅ Order confirmation atomically decreases inventory + clears cart
+2. ✅ Handles insufficient inventory gracefully
+3. ✅ Transaction rollback on failure
+4. ✅ Variant partial matrix creation
+5. ✅ One cart per user
+6. ✅ Hard delete cart items
+7. ✅ Soft delete behavior
 
-### Data Consistency
-
-- **Rule:** Order confirmation MUST be atomic (all-or-nothing)
-- **Rule:** Inventory decrease and cart cleanup happen in same transaction
-- **Rule:** Use database constraints to enforce business rules where possible
-
-### Audit Trail
-
-- **Rule:** Soft-deleted entities retain history
-- **Rule:** Order items are immutable snapshots
-- **Rule:** Track order status changes with timestamps
-
----
-
-## Testing Requirements
-
-### Critical Paths to Test
-
-1. **Order Confirmation Flow:**
-   - ✅ Inventory decreases correctly
-   - ✅ Cart items are removed
-   - ✅ Handles insufficient inventory gracefully
-   - ✅ Transaction rollback on failure
-
-2. **Variant Creation:**
-   - ✅ Partial matrix is allowed
-   - ✅ Duplicate SKU is rejected
-   - ✅ Price and quantity validations
-
-3. **Cart Management:**
-   - ✅ One cart per user
-   - ✅ Cannot exceed available quantity
-   - ✅ Hard delete cart items
-
-4. **Soft Delete Behavior:**
-   - ✅ Deleted entities don't appear in listings
-   - ✅ Deleted entities remain accessible by ID (for orders/history)
-   - ✅ Can restore soft-deleted entities
-
----
-
-## Rules Summary
+## Quick Rules
 
 1. ✅ Soft delete by default (except CartItem)
-2. ✅ One cart per user
+2. ✅ One cart per user, persists across sessions
 3. ✅ Product has 1 category, multiple attributes
-4. ✅ Variants are partial matrix of option values
-5. ✅ Order confirmation decreases inventory atomically
-6. ✅ Order confirmation removes cart items
-7. ✅ Order items are immutable snapshots
-8. ✅ Reviews update product rating
-9. ✅ Inventory tracked at variant level
-10. ✅ All critical operations use transactions
+4. ✅ Variants = partial matrix of option values
+5. ✅ Order confirmation = atomic (inventory - cart + metrics)
+6. ✅ Order items = immutable snapshots
+7. ✅ Reviews update product rating
+8. ✅ Inventory at variant level
+9. ✅ All critical ops use transactions
+10. ✅ Concurrency: row-level locking

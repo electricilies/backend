@@ -1,63 +1,30 @@
-# Repository Layer Rules
+# Repository Layer (`internal/infrastructure/repository`)
 
-## Overview
+## Purpose
 
-The repository layer implements domain repository interfaces using PostgreSQL and sqlc. Repositories are responsible for:
+Implement domain repositories using PostgreSQL + sqlc
 
-- Persisting domain entities
-- Querying data with filters and pagination
-- Mapping infrastructure errors to domain errors
-
-## Structure
-
-**Note:** Based on the current structure analysis, repository implementations appear to be missing from `internal/infrastructure/repository`. This document describes the expected patterns.
-
-### Repository Organization
-
-```
-internal/infrastructure/repository/
-├── postgres/              # sqlc generated code
-│   ├── models.go
-│   ├── product.sql.go
-│   └── querier.go
-└── product_repository.go  # Repository implementation
-```
-
-## Implementation Pattern
+## Implementation
 
 ```go
-package repository
-
-import (
-	"context"
-
-	"backend/internal/domain"
-	"backend/internal/infrastructure/repository/postgres"
-
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
-)
-
 type ProductRepository struct {
-	db      *pgxpool.Pool
-	queries *postgres.Queries
+    db      *pgxpool.Pool
+    queries *postgres.Queries
 }
 
 func ProvideProductRepository(db *pgxpool.Pool) *ProductRepository {
-	return &ProductRepository{
-		db:      db,
-		queries: postgres.New(db),
-	}
+    return &ProductRepository{
+        db:      db,
+        queries: postgres.New(db),
+    }
 }
 
 var _ domain.ProductRepository = &ProductRepository{}
 ```
 
-## Repository Methods
+## CRUD Methods
 
 ### Save (Upsert)
-
-The `Save` method uses PostgreSQL's `ON CONFLICT DO UPDATE` for upsert logic:
 
 ```go
 func (r *ProductRepository) Save(ctx context.Context, entity domain.Product) error {
@@ -70,21 +37,9 @@ func (r *ProductRepository) Save(ctx context.Context, entity domain.Product) err
         UpdatedAt:   entity.UpdatedAt,
         DeletedAt:   entity.DeletedAt,
     })
-
-    if err != nil {
-        return mapError(err)
-    }
-
-    return nil
+    return mapError(err)
 }
 ```
-
-**Conventions:**
-
-- Use sqlc-generated `Upsert*` query
-- Map domain entity to sqlc params
-- Always map errors with `mapError()`
-- Handle aggregate relationships (save children)
 
 ### Get
 
@@ -97,17 +52,10 @@ func (r *ProductRepository) Get(ctx context.Context, id uuid.UUID) (*domain.Prod
         }
         return nil, mapError(err)
     }
-
     entity := mapRowToProduct(row)
     return &entity, nil
 }
 ```
-
-**Conventions:**
-
-- Map `pgx.ErrNoRows` to `domain.ErrNotFound`
-- Use mapper function to convert sqlc types to domain entities
-- Load related entities if needed (joins or separate queries)
 
 ### List
 
@@ -127,26 +75,17 @@ func (r *ProductRepository) List(
         Limit:   int32(limit),
         Offset:  int32(offset),
     })
-
     if err != nil {
         return nil, mapError(err)
     }
-
+    
     entities := make([]domain.Product, len(rows))
     for i, row := range rows {
         entities[i] = mapRowToProduct(row)
     }
-
     return &entities, nil
 }
 ```
-
-**Conventions:**
-
-- Convert pointer parameters for sqlc (handle nullability)
-- Use `int32` for limit/offset (PostgreSQL convention)
-- Map all rows to domain entities
-- Return pointer to slice
 
 ### Count
 
@@ -160,11 +99,9 @@ func (r *ProductRepository) Count(
         IDs:     ids,
         Deleted: string(deleted),
     })
-
     if err != nil {
         return nil, mapError(err)
     }
-
     result := int(count)
     return &result, nil
 }
@@ -172,15 +109,12 @@ func (r *ProductRepository) Count(
 
 ## Error Mapping
 
-Map PostgreSQL errors to domain errors:
-
 ```go
-import (
-    "github.com/jackc/pgerrcode"
-    "github.com/jackc/pgx/v5/pgconn"
-)
-
 func mapError(err error) error {
+    if err == nil {
+        return nil
+    }
+    
     var pgErr *pgconn.PgError
     if errors.As(err, &pgErr) {
         switch pgErr.Code {
@@ -196,16 +130,28 @@ func mapError(err error) error {
             return domain.ErrInternal
         }
     }
-
-    if errors.Is(err, context.Canceled) {
+    
+    if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
         return domain.ErrTimeout
     }
-
-    if errors.Is(err, context.DeadlineExceeded) {
-        return domain.ErrTimeout
-    }
-
+    
     return domain.ErrInternal
+}
+```
+
+## Type Mapping
+
+```go
+func mapRowToProduct(row postgres.Product) domain.Product {
+    return domain.Product{
+        ID:          row.ID,
+        Name:        row.Name,
+        Description: row.Description,
+        Price:       row.Price,
+        CreatedAt:   row.CreatedAt,
+        UpdatedAt:   row.UpdatedAt,
+        DeletedAt:   row.DeletedAt,
+    }
 }
 ```
 
@@ -230,7 +176,9 @@ sql:
 
 ## SQL Queries
 
-Queries are defined in `database/queries/*.sql`:
+**Location:** `database/queries/*.sql`
+
+### Upsert
 
 ```sql
 -- name: UpsertProduct :exec
@@ -252,10 +200,18 @@ ON CONFLICT (id) DO UPDATE SET
   price = EXCLUDED.price,
   updated_at = EXCLUDED.updated_at,
   deleted_at = EXCLUDED.deleted_at;
+```
 
+### Get
+
+```sql
 -- name: GetProduct :one
 SELECT * FROM products WHERE id = $1;
+```
 
+### List with Filters
+
+```sql
 -- name: ListProducts :many
 SELECT * FROM products
 WHERE
@@ -269,8 +225,12 @@ WHERE
     END
   )
 ORDER BY created_at DESC
-LIMIT $1 OFFSET $2;
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+```
 
+### Count
+
+```sql
 -- name: CountProducts :one
 SELECT COUNT(*) FROM products
 WHERE
@@ -284,56 +244,10 @@ WHERE
   );
 ```
 
-**Conventions:**
-
-- Use `sqlc.arg()` for required parameters
-- Use `sqlc.narg()` for nullable parameters
-- Filter patterns: `(param IS NULL OR condition)`
-- Use `ILIKE` for case-insensitive search with `%` wildcards
-- Implement soft delete with `deleted_at` filtering
-- Use `LIMIT` and `OFFSET` for pagination
-
-## Type Mapping
-
-Map sqlc types to domain types:
-
-```go
-func mapRowToProduct(row postgres.Product) domain.Product {
-    return domain.Product{
-        ID:          row.ID,
-        Name:        row.Name,
-        Description: row.Description,
-        Price:       row.Price,
-        CreatedAt:   row.CreatedAt,
-        UpdatedAt:   row.UpdatedAt,
-        DeletedAt:   row.DeletedAt,
-    }
-}
-
-// For nullable fields
-func mapNullableString(s pgtype.Text) *string {
-    if !s.Valid {
-        return nil
-    }
-    return &s.String
-}
-
-func mapNullableTime(t pgtype.Timestamp) *time.Time {
-    if !t.Valid {
-        return nil
-    }
-    return &t.Time
-}
-```
-
 ## Transactions
 
-For complex operations spanning multiple repositories:
-
 ```go
-import "github.com/Thiht/transactor/pgx"
-
-func (r *ProductRepository) SaveWithVariants(
+func (r *ProductRepository) SaveWithRelated(
     ctx context.Context,
     product domain.Product,
     variants []domain.ProductVariant,
@@ -343,36 +257,36 @@ func (r *ProductRepository) SaveWithVariants(
         return mapError(err)
     }
     defer tx.Rollback(ctx)
-
+    
     queries := r.queries.WithTx(tx)
-
+    
     // Save product
-    err = queries.UpsertProduct(ctx, /* params */)
+    err = queries.UpsertProduct(ctx, ...)
     if err != nil {
         return mapError(err)
     }
-
+    
     // Save variants
-    for _, variant := range variants {
-        err = queries.UpsertProductVariant(ctx, /* params */)
+    for _, v := range variants {
+        err = queries.UpsertVariant(ctx, ...)
         if err != nil {
             return mapError(err)
         }
     }
-
+    
     return tx.Commit(ctx)
 }
 ```
 
-## Rules Summary
+## Quick Rules
 
-1. ✅ Repository implements domain repository interface
-2. ✅ Use sqlc for type-safe SQL queries
-3. ✅ Implement Save as upsert (`ON CONFLICT DO UPDATE`)
-4. ✅ Map `pgx.ErrNoRows` to `domain.ErrNotFound`
-5. ✅ Map all PostgreSQL errors to domain errors
-6. ✅ Use mapper functions for type conversion
-7. ✅ Handle nullable fields with `sqlc.narg()`
-8. ✅ Implement soft delete filtering
-9. ✅ Use `LIMIT/OFFSET` for pagination
-10. ✅ Use transactions for multi-entity operations
+1. ✅ Use sqlc for type-safe queries
+2. ✅ Save = upsert (`ON CONFLICT DO UPDATE`)
+3. ✅ Map `pgx.ErrNoRows` → `domain.ErrNotFound`
+4. ✅ Map all PG errors to domain errors
+5. ✅ Use `sqlc.arg()` for required params
+6. ✅ Use `sqlc.narg()` for optional params
+7. ✅ Filter pattern: `(param IS NULL OR condition)`
+8. ✅ Use `int32` for limit/offset
+9. ✅ Transactions for multi-entity ops
+10. ✅ Mapper functions for type conversion

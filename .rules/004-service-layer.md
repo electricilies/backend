@@ -1,62 +1,30 @@
-# Service Layer Rules
+# Service Layer (`internal/service`)
 
-## Overview
+## Purpose
 
-The service layer (`internal/service`) implements domain service interfaces defined in `internal/domain`. It contains **pure business logic** for entity creation, validation, and domain operations.
+Pure business logic. **ONLY dependency: `*validator.Validate`**
 
-**Important:** Services do NOT have repositories. They are pure business logic without any infrastructure dependencies. Repository access happens in the application layer.
-
-## Structure
-
-Each domain service implementation:
-
-- Implements a domain service interface
-- Contains factory methods for creating entities
-- Performs validation using `go-playground/validator`
-- Wraps errors with domain errors
-- **Contains NO repository dependencies** (pure business logic)
-- **Contains NO external adapter dependencies** (S3, Redis, etc.)
-
-## Service Implementation
+## Implementation
 
 ```go
-package service
-
-import (
-	"backend/internal/domain"
-	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
-	"github.com/hashicorp/go-multierror"
-)
-
 type Product struct {
-	validate *validator.Validate
+    validate *validator.Validate  // ONLY dependency
 }
 
 func ProvideProduct(validate *validator.Validate) *Product {
-	return &Product{
-		validate: validate,
-	}
+    return &Product{validate: validate}
 }
 
-// Ensure implementation satisfies interface
-var _ domain.ProductService = &Product{}
+var _ domain.ProductService = &Product{}  // Assert interface
 ```
 
-**Conventions:**
-
-- Service struct matches domain entity name (e.g., `Product`, `Category`)
-- Provider function: `Provide<Entity>(validate *validator.Validate) *<Entity>`
-- Assert interface implementation: `var _ domain.<Entity>Service = &<Entity>{}`
-- **Only dependency is validator** - no repositories or adapters
-- Services are pure business logic
+❌ **NO repositories**  
+❌ **NO external adapters** (S3, Redis, etc.)
 
 ## Factory Methods
 
-Factory methods create new domain entities with generated IDs and default values:
-
 ```go
-func (p *Product) Create(
+func (s *Product) Create(
     name string,
     description string,
     category domain.Category,
@@ -66,135 +34,96 @@ func (p *Product) Create(
     if err != nil {
         return nil, multierror.Append(domain.ErrInternal, err)
     }
-
-    // 2. Create entity with required fields
+    
+    // 2. Build entity
     product := &domain.Product{
-        ID:          id,
-        Name:        name,
-        Description: description,
-        Category:    &category,
-        ViewsCount:  0,
+        ID:            id,
+        Name:          name,
+        Description:   description,
+        Category:      &category,
+        ViewsCount:    0,
         TotalPurchase: 0,
-        Rating:      0.0,
-        CreatedAt:   time.Now(),
-        UpdatedAt:   time.Now(),
+        Rating:        0.0,
+        CreatedAt:     time.Now(),
+        UpdatedAt:     time.Now(),
     }
-
-    // 3. Validate entity
-    if err := p.validate.Struct(product); err != nil {
+    
+    // 3. Validate
+    if err := s.validate.Struct(product); err != nil {
         return nil, multierror.Append(domain.ErrInvalid, err)
     }
-
+    
     return product, nil
 }
 ```
 
-**Conventions:**
-
-- Generate UUIDs with `uuid.NewV7()` (time-ordered, better for DB indexes)
-- Wrap UUID errors with `domain.ErrInternal`
-- Set default values (counts to 0, timestamps to `time.Now()`)
-- Always validate with `p.validate.Struct(entity)`
-- Wrap validation errors with `domain.ErrInvalid`
-- Return pointer to entity
-
 ## Business Logic Methods
 
-Domain services also contain business logic that operates on entities:
-
 ```go
-func (p *Product) AddVariant(
+func (s *Product) AddVariant(
     product *domain.Product,
     variant domain.ProductVariant,
 ) error {
-    // 1. Validate business rules
+    // 1. Business rules
     if product.DeletedAt != nil {
         return domain.ErrInvalid
     }
-
-    // 2. Validate variant
-    if err := p.validate.Struct(variant); err != nil {
+    
+    // 2. Validate input
+    if err := s.validate.Struct(variant); err != nil {
         return multierror.Append(domain.ErrInvalid, err)
     }
-
+    
     // 3. Modify entity
     if product.Variants == nil {
         product.Variants = &[]domain.ProductVariant{}
     }
     *product.Variants = append(*product.Variants, variant)
-
-    // 4. Update timestamps
+    
+    // 4. Update timestamp
     product.UpdatedAt = time.Now()
-
+    
     return nil
 }
 ```
 
 **Pattern:**
-
 1. Validate business rules
-2. Validate input with `go-playground/validator`
+2. Validate input
 3. Modify entity state
 4. Update timestamps
-5. Return error or nil
 
-## Error Handling
-
-### Wrapping Errors
-
-Always wrap errors with domain errors:
+## Error Wrapping
 
 ```go
-// Internal errors (UUID generation, unexpected failures)
+// Internal errors (UUID generation)
 if err != nil {
     return nil, multierror.Append(domain.ErrInternal, err)
 }
 
 // Validation errors
-if err := p.validate.Struct(entity); err != nil {
+if err := s.validate.Struct(entity); err != nil {
     return nil, multierror.Append(domain.ErrInvalid, err)
 }
 
 // Business rule violations
 if product.Quantity < 0 {
-    return multierror.Append(domain.ErrInvalid, errors.New("quantity cannot be negative"))
+    return multierror.Append(domain.ErrInvalid, errors.New("negative quantity"))
 }
 ```
 
-### Domain Error Usage
+## Error Usage
 
-| Domain Error   | Use Case                                            |
-| -------------- | --------------------------------------------------- |
-| `ErrInvalid`   | Validation failures, business rule violations       |
-| `ErrInternal`  | Unexpected system errors (UUID gen, panic recovery) |
-| `ErrNotFound`  | Entity not found (typically from repository)        |
-| `ErrExists`    | Duplicate entity creation                           |
-| `ErrConflict`  | Concurrent modification conflicts                   |
-| `ErrForbidden` | Authorization failures                              |
+| Error | When |
+|-------|------|
+| `ErrInvalid` | Validation/business rule failures |
+| `ErrInternal` | UUID generation, unexpected errors |
+| `ErrNotFound` | Repo layer (not service) |
+| `ErrExists` | Duplicate detection |
+| `ErrConflict` | Concurrent modifications |
+| `ErrForbidden` | Authorization failures |
 
-## Validation
-
-### Struct Validation
-
-Use `go-playground/validator` for struct validation:
-
-```go
-if err := p.validate.Struct(product); err != nil {
-    return nil, multierror.Append(domain.ErrInvalid, err)
-}
-```
-
-### Field Validation
-
-Entities use validation tags:
-
-- `required` - Field must be present
-- `omitempty` - Optional field
-- `omitnil` - Pointer field, validate if not nil
-- `gt=0`, `gte=0` - Numeric constraints
-- `lte=100`, `lt=100` - Maximum values
-- `dive` - Validate slice elements
-- `gtefield=OtherField` - Field comparison
+## Validation Tags
 
 ```go
 type Product struct {
@@ -205,36 +134,41 @@ type Product struct {
 }
 ```
 
-## Testing
+- `required` - Must be present
+- `omitempty` - Optional
+- `omitnil` - Pointer, validate if not nil
+- `gt=0`, `gte=0`, `lte=100` - Numeric constraints
+- `dive` - Validate slice elements
+- `gtefield=X` - Field comparison
 
-Service layer should be unit tested with mock validator:
+## Testing
 
 ```go
 func TestProduct_Create(t *testing.T) {
     validate := validator.New()
     service := ProvideProduct(validate)
-
+    
     category := domain.Category{ID: uuid.New(), Name: "Electronics"}
     product, err := service.Create("Laptop", "Gaming laptop", category)
-
+    
     assert.NoError(t, err)
     assert.NotNil(t, product)
     assert.NotEqual(t, uuid.Nil, product.ID)
-    assert.Equal(t, "Laptop", product.Name)
 }
 ```
 
-## Rules Summary
+✅ **No mocks needed** - only validator  
+✅ **No database** - pure logic testing  
 
-1. ✅ Service structs implement domain service interfaces
-2. ✅ Provider function: `Provide<Entity>(validate *validator.Validate)`
-3. ✅ **Services have NO repositories** - pure business logic only
-4. ✅ **Services have NO external adapters** - no S3, Redis, etc.
-5. ✅ Factory methods generate UUIDs with `uuid.NewV7()`
-6. ✅ Always validate entities with `p.validate.Struct()`
-7. ✅ Wrap UUID errors with `domain.ErrInternal`
-8. ✅ Wrap validation errors with `domain.ErrInvalid`
-9. ✅ Business logic methods modify entities in place
-10. ✅ Update timestamps after modifications
-11. ✅ Use `multierror.Append()` for error wrapping
-12. ✅ Assert interface implementation with `var _`
+## Quick Rules
+
+1. ✅ ONLY dependency: `*validator.Validate`
+2. ❌ NO repositories or adapters
+3. ✅ Provider: `Provide<Entity>(validate *validator.Validate)`
+4. ✅ Generate IDs with `uuid.NewV7()`
+5. ✅ Always validate with `s.validate.Struct()`
+6. ✅ Wrap UUID errors with `ErrInternal`
+7. ✅ Wrap validation errors with `ErrInvalid`
+8. ✅ Update timestamps after modifications
+9. ✅ Use `multierror.Append()` for wrapping
+10. ✅ Assert interface: `var _ domain.XService = &X{}`

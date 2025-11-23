@@ -1,338 +1,92 @@
-# Architecture Overview
+# DDD Architecture: Layer Responsibilities
 
-## Core Principles
+## Five-Layer Structure
 
-This project follows **Domain-Driven Design (DDD)** with clear separation of concerns:
+1. **Domain** - Interfaces, models, errors (no implementations)
+2. **Service** - Pure business logic (ONLY validator dependency)
+3. **Application** - Orchestration (repos + services + adapters)
+4. **Repository** - Data persistence (PostgreSQL + sqlc)
+5. **Delivery** - HTTP handlers (Gin)
 
-1. **Domain Layer** - Pure business logic, no infrastructure
-2. **Service Layer** - Business logic implementations, **NO repositories or adapters**
-3. **Application Layer** - Orchestration, injects multiple repositories and adapters
-4. **Repository Layer** - Data persistence
-5. **Delivery Layer** - HTTP handlers
+## Critical Layer Rules
 
-## Layer Responsibilities
+| Layer | Dependencies | Purpose | Testing |
+|-------|-------------|---------|----------|
+| **Domain** | None | Define contracts | N/A (interfaces) |
+| **Service** | `*validator.Validate` ONLY | Pure business logic | Unit (no mocks) |
+| **Application** | Multiple repos + services + adapters | Coordinate workflows | Unit (all mocked) |
+| **Repository** | `*pgxpool.Pool` + sqlc | Persist data | Integration (test containers) |
+| **Delivery** | Application interfaces | HTTP/REST API | E2E |
 
-### 🎯 Domain Layer (`internal/domain`)
+## Service vs Application
 
-**Contains:**
-
-- Domain models (entities, value objects)
-- Repository interfaces
-- Service interfaces
-- Domain errors
-- Enums and common types
-
-**Rules:**
-
-- ✅ Pure Go structs with validation tags
-- ✅ Interfaces only, no implementations
-- ✅ No infrastructure dependencies
-- ✅ Define all domain errors here
-
-**Example:**
-
-```go
-// Domain model
-type Product struct {
-    ID          uuid.UUID  `json:"id" validate:"required"`
-    Name        string     `json:"name" validate:"required,gte=3"`
-}
-
-// Repository interface (minimal CRUD)
-type ProductRepository interface {
-    List(ctx context.Context, ...) (*[]Product, error)
-    Count(ctx context.Context, ...) (*int, error)
-    Get(ctx context.Context, id uuid.UUID) (*Product, error)
-    Save(ctx context.Context, entity Product) error
-}
-
-// Service interface (business logic)
-type ProductService interface {
-    Create(name string, description string) (*Product, error)
-}
-```
-
----
-
-### ⚙️ Service Layer (`internal/service`)
-
-**Contains:**
-
-- Domain service implementations
-- Factory methods for entities
-- Business logic and validation
-
-**Dependencies:**
-
-- ✅ **ONLY** `*validator.Validate`
-- ❌ **NO** repositories
-- ❌ **NO** external adapters (S3, Redis, etc.)
-
-**Why no repos?** Services contain pure business logic that should be testable without any infrastructure.
-
-**Example:**
-
+**Service (Pure Logic):**
 ```go
 type Product struct {
     validate *validator.Validate  // ONLY dependency
 }
 
-func ProvideProduct(validate *validator.Validate) *Product {
-    return &Product{validate: validate}
-}
-
-func (p *Product) Create(name string, description string) (*domain.Product, error) {
-    // Generate ID
-    id, err := uuid.NewV7()
-    if err != nil {
-        return nil, multierror.Append(domain.ErrInternal, err)
-    }
-
-    // Create entity
-    product := &domain.Product{
-        ID:          id,
-        Name:        name,
-        Description: description,
-        CreatedAt:   time.Now(),
-        UpdatedAt:   time.Now(),
-    }
-
-    // Validate (pure business logic)
-    if err := p.validate.Struct(product); err != nil {
-        return nil, multierror.Append(domain.ErrInvalid, err)
-    }
-
-    return product, nil
+func (s *Product) Create(name string) (*domain.Product, error) {
+    id, _ := uuid.NewV7()
+    product := &domain.Product{ID: id, Name: name}
+    return product, s.validate.Struct(product)
 }
 ```
 
----
-
-### 🔄 Application Layer (`internal/application`)
-
-**Contains:**
-
-- Use case implementations
-- Workflow orchestration
-- Parameter objects (DTOs)
-
-**Dependencies:**
-
-- ✅ Multiple repositories (for different aggregates)
-- ✅ Domain services
-- ✅ External adapters (S3, Redis, Keycloak, etc.)
-
-**Why multiple repos?** Application layer coordinates between different aggregates and external systems.
-
-**Example:**
-
+**Application (Orchestration):**
 ```go
 type ProductImpl struct {
-    // Multiple repositories
-    productRepo   domain.ProductRepository
-    categoryRepo  domain.CategoryRepository
-    attributeRepo domain.AttributeRepository
-
-    // Domain service (pure logic)
-    productService domain.ProductService
-
-    // External adapters
-    s3Client    *s3.Client
-    redisClient *redis.Client
+    productRepo    domain.ProductRepository
+    categoryRepo   domain.CategoryRepository  // Multiple repos
+    productService domain.ProductService      // Inject service
+    s3Client       *s3.Client                 // External adapters
+    redisClient    *redis.Client
 }
 
-func ProvideProduct(
-    productRepo domain.ProductRepository,
-    categoryRepo domain.CategoryRepository,
-    attributeRepo domain.AttributeRepository,
-    productService domain.ProductService,
-    s3Client *s3.Client,
-    redisClient *redis.Client,
-) *ProductImpl {
-    return &ProductImpl{
-        productRepo:    productRepo,
-        categoryRepo:   categoryRepo,
-        attributeRepo:  attributeRepo,
-        productService: productService,
-        s3Client:       s3Client,
-        redisClient:    redisClient,
-    }
-}
-
-func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*domain.Product, error) {
-    // 1. Fetch from multiple repos
-    category, err := p.categoryRepo.Get(ctx, param.Data.CategoryID)
-    if err != nil {
-        return nil, err
-    }
-
-    attributes, err := p.attributeRepo.List(ctx, param.Data.AttributeIDs, ...)
-    if err != nil {
-        return nil, err
-    }
-
-    // 2. Call domain service (pure logic)
-    product, err := p.productService.Create(param.Data.Name, param.Data.Description)
-    if err != nil {
-        return nil, err
-    }
-
-    // 3. Use adapters
-    _, err = p.s3Client.PutObject(ctx, ...)
-    if err != nil {
-        return nil, err
-    }
-
+func (a *ProductImpl) Create(ctx context.Context, param CreateParam) (*domain.Product, error) {
+    // 1. Fetch dependencies from multiple repos
+    category, _ := a.categoryRepo.Get(ctx, param.CategoryID)
+    
+    // 2. Business logic via service
+    product, _ := a.productService.Create(param.Name, param.Description)
+    
+    // 3. External operations
+    a.s3Client.PutObject(ctx, ...)
+    
     // 4. Persist
-    err = p.productRepo.Save(ctx, *product)
-    if err != nil {
-        return nil, err
-    }
-
-    // 5. Post-operations
-    p.redisClient.Del(ctx, "products:list")
-
+    a.productRepo.Save(ctx, *product)
+    
+    // 5. Cache invalidation
+    a.redisClient.Del(ctx, "products:list")
+    
     return product, nil
 }
 ```
 
----
-
-### 💾 Repository Layer (`internal/infrastructure/repository`)
-
-**Contains:**
-
-- Domain repository implementations
-- sqlc integration
-- Error mapping
-
-**Dependencies:**
-
-- ✅ Database connection pool (`*pgxpool.Pool`)
-- ✅ sqlc generated queries
-
-**Example:**
-
-```go
-type ProductRepository struct {
-    db      *pgxpool.Pool
-    queries *postgres.Queries
-}
-
-func (r *ProductRepository) Save(ctx context.Context, entity domain.Product) error {
-    err := r.queries.UpsertProduct(ctx, postgres.UpsertProductParams{
-        ID:   entity.ID,
-        Name: entity.Name,
-        // ...
-    })
-
-    if err != nil {
-        return mapError(err)  // Map to domain errors
-    }
-
-    return nil
-}
-```
-
----
-
-## Data Flow Examples
-
-### Create Product Flow
+## Data Flow Pattern
 
 ```
-HTTP Request
-    ↓
-[Delivery] Parse request, validate params
-    ↓
-[Application] ProductImpl.Create()
-    │
-    ├→ CategoryRepo.Get()        ← Fetch related data
-    ├→ AttributeRepo.List()      ← Fetch related data
-    │
-    ├→ ProductService.Create()   ← Pure business logic
-    │   ├─ uuid.NewV7()
-    │   ├─ validate.Struct()
-    │   └─ return Product
-    │
-    ├→ S3Client.PutObject()      ← Upload images
-    ├→ ProductRepo.Save()        ← Persist
-    └→ RedisClient.Del()         ← Invalidate cache
-    ↓
-[Delivery] Return response
+[Delivery] → [Application] → [Service] → [Domain]
+                    ↓             ↓
+              [Repository]    [Validator]
+                    ↓
+               [Database]
 ```
 
-### Why This Separation?
+**Application Orchestration Flow:**
+1. Fetch dependencies (multiple repos)
+2. Execute business logic (service)
+3. External operations (S3, Redis, etc.)
+4. Persist changes (repo)
+5. Post-operations (cache, events)
 
-**Service Layer (Pure Logic):**
+## Key Principles
 
-```go
-// ✅ Can test without database, S3, Redis
-func TestProductService_Create(t *testing.T) {
-    validate := validator.New()
-    service := ProvideProduct(validate)
+✅ **Service = Pure Logic** (testable without infrastructure)  
+✅ **Application = Coordinator** (brings everything together)  
+✅ **Repository = Data Access** (maps domain ↔ database)  
+✅ **Domain = Contracts** (interfaces, no implementations)  
 
-    product, err := service.Create("Laptop", "Gaming laptop")
-
-    assert.NoError(t, err)
-    assert.NotNil(t, product)
-}
-```
-
-**Application Layer (Orchestration):**
-
-```go
-// ✅ Test with mocked dependencies
-func TestProductImpl_Create(t *testing.T) {
-    mockProductRepo := domain.NewMockProductRepository(t)
-    mockCategoryRepo := domain.NewMockCategoryRepository(t)
-    mockProductService := domain.NewMockProductService(t)
-    // ... setup mocks
-
-    app := ProvideProduct(mockProductRepo, mockCategoryRepo, ..., mockProductService, ...)
-    result, err := app.Create(ctx, param)
-    // ... assertions
-}
-```
-
----
-
-## Testing Strategy
-
-### Service Layer Tests
-
-- **Type:** Unit tests
-- **Dependencies:** Only validator (no mocks needed)
-- **Pattern:** Table-driven tests
-- **Focus:** Business logic correctness
-
-### Application Layer Tests
-
-- **Type:** Unit tests
-- **Dependencies:** Mock all repos, services, adapters
-- **Pattern:** Table-driven tests with mock setup
-- **Focus:** Orchestration logic
-
-### Repository Layer Tests
-
-- **Type:** Integration tests
-- **Dependencies:** Test containers (real PostgreSQL)
-- **Pattern:** Setup DB → test query → assert
-- **Focus:** Data persistence correctness
-
----
-
-## Key Takeaways
-
-| Layer           | Has Repos?           | Has Adapters?      | Has Services?        | Purpose               |
-| --------------- | -------------------- | ------------------ | -------------------- | --------------------- |
-| **Domain**      | ❌ (interfaces only) | ❌                 | ❌ (interfaces only) | Define contracts      |
-| **Service**     | ❌ NO                | ❌ NO              | ✅ Implements        | Pure business logic   |
-| **Application** | ✅ Multiple          | ✅ S3, Redis, etc. | ✅ Injects           | Orchestrate workflows |
-| **Repository**  | ✅ Implements        | ❌                 | ❌                   | Data persistence      |
-
-**Remember:**
-
-- Service = Pure logic (testable without infrastructure)
-- Application = Coordinator (brings everything together)
-- Repository = Data access (maps to domain)
+❌ Services NEVER have repos/adapters  
+❌ Repositories NEVER contain business logic  
+❌ Application NEVER duplicates service logic
