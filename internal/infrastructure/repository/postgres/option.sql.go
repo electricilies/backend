@@ -90,9 +90,8 @@ FROM
   option_values
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
-    ELSE option_values.id = ANY ($1::uuid[])
+    WHEN $1::uuid IS NULL THEN TRUE
+    ELSE option_values.id = $1::uuid
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
@@ -110,13 +109,13 @@ ORDER BY
 `
 
 type ListOptionValuesParams struct {
-	IDs       []uuid.UUID
+	ID        pgtype.UUID
 	OptionIds []uuid.UUID
 	Deleted   string
 }
 
 func (q *Queries) ListOptionValues(ctx context.Context, arg ListOptionValuesParams) ([]OptionValue, error) {
-	rows, err := q.db.Query(ctx, listOptionValues, arg.IDs, arg.OptionIds, arg.Deleted)
+	rows, err := q.db.Query(ctx, listOptionValues, arg.ID, arg.OptionIds, arg.Deleted)
 	if err != nil {
 		return nil, err
 	}

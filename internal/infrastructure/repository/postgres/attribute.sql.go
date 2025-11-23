@@ -370,7 +370,7 @@ WHEN NOT MATCHED THEN
     source.deleted_at
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.attribute_id IN (SELECT DISTINCT attribute_id FROM temp_attribute_values) THEN
+  AND target.attribute_id IN (SELECT DISTINCT attribute_id FROM source) THEN
   DELETE
 `
 

@@ -78,9 +78,8 @@ FROM
   option_values
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
-    ELSE option_values.id = ANY (sqlc.narg('ids')::uuid[])
+    WHEN sqlc.narg('id')::uuid IS NULL THEN TRUE
+    ELSE option_values.id = sqlc.narg('id')::uuid
   END
   AND CASE
     WHEN sqlc.narg('option_ids')::uuid[] IS NULL THEN TRUE

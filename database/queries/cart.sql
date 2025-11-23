@@ -60,5 +60,6 @@ WHEN NOT MATCHED THEN
     source.cart_id,
     source.product_variant_id
   )
-WHEN NOT MATCHED BY SOURCE AND target.cart_id = sqlc.arg('cart_id')::uuid THEN
+WHEN NOT MATCHED BY SOURCE
+  AND target.cart_id IN (SELECT DISTINCT cart_id FROM source) THEN
   DELETE;
