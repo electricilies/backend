@@ -26,9 +26,10 @@ type Product struct {
 }
 
 type Option struct {
-	ID     uuid.UUID     `json:"id"     binding:"required"        validate:"required"`
-	Name   string        `json:"name"   binding:"required"        validate:"required"`
-	Values []OptionValue `json:"values" validate:"omitempty,dive"`
+	ID        uuid.UUID     `json:"id"        binding:"required"        validate:"required"`
+	Name      string        `json:"name"      binding:"required"        validate:"required"`
+	Values    []OptionValue `json:"values"    validate:"omitempty,dive"`
+	DeletedAt *time.Time    `json:"deletedAt" validate:"omitempty"`
 }
 
 type OptionValue struct {

@@ -100,8 +100,9 @@ type AddProductVariantsData struct {
 }
 
 type UpdateProductVariantParam struct {
-	ID   uuid.UUID                `json:"id"   binding:"required"`
-	Data UpdateProductVariantData `json:"data" binding:"required"`
+	ProductID        uuid.UUID                `json:"productId"        binding:"required"`
+	ProductVariantID uuid.UUID                `json:"ProductVariantId" binding:"required"`
+	Data             UpdateProductVariantData `json:"data"             binding:"required"`
 }
 
 type UpdateProductVariantData struct {
@@ -110,7 +111,8 @@ type UpdateProductVariantData struct {
 }
 
 type UpdateProductOptionsParam struct {
-	Data []UpdateProductOptionsData `json:"data" binding:"required,dive"`
+	ProductID uuid.UUID                  `json:"productId" binding:"required"`
+	Data      []UpdateProductOptionsData `json:"data"      binding:"required,dive"`
 }
 
 type UpdateProductOptionsData struct {
@@ -119,7 +121,8 @@ type UpdateProductOptionsData struct {
 }
 
 type UpdateProductOptionValuesParam struct {
-	Data []UpdateProductOptionValuesData `json:"data" binding:"required,dive"`
+	ProductID uuid.UUID                       `json:"productId" binding:"required"`
+	Data      []UpdateProductOptionValuesData `json:"data"      binding:"required,dive"`
 }
 
 type UpdateProductOptionValuesData struct {

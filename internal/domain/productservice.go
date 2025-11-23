@@ -7,10 +7,6 @@ type ProductService interface {
 		category Category,
 	) (*Product, error)
 
-	CreateOption(
-		name string,
-	) (*Option, error)
-
 	CreateImage(
 		url string,
 		order int,
@@ -25,4 +21,47 @@ type ProductService interface {
 	CreateOptionValue(
 		value string,
 	) (*OptionValue, error)
+
+	Update(
+		product *Product,
+		name *string,
+		description *string,
+		category *Category,
+	) error
+
+	UpdateOption(
+		option *Option,
+		name *string,
+	) error
+
+	UpdateOptionValue(
+		optionValue *OptionValue,
+		value *string,
+	) error
+
+	AddImage(
+		product *Product,
+		images ProductImage,
+	) error
+
+	AddVariant(
+		product *Product,
+		variant ProductVariant,
+	) error
+
+	Remove(
+		product *Product,
+	) error
+
+	RemoveVariant(
+		variant *ProductVariant,
+	) error
+
+	RemoveImage(
+		image *ProductImage,
+	) error
+
+	RemoveOptionsAndOptionValue(
+		option *Option,
+	) error
 }
