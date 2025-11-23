@@ -7,8 +7,6 @@ import (
 
 	"backend/internal/constant"
 	"backend/internal/domain"
-
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -87,16 +85,13 @@ func (a *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeVa
 }
 
 func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*Pagination[domain.Attribute], error) {
-	// Build cache key
-	var ids *[]uuid.UUID
-	if param.AttributeIDs != nil {
-		ids = param.AttributeIDs
-	}
-	searchStr := ""
-	if param.Search != nil {
-		searchStr = *param.Search
-	}
-	cacheKey := constant.AttributeListKey(ids, searchStr, string(param.Deleted), *param.Limit, *param.Page)
+	cacheKey := constant.AttributeListKey(
+		param.AttributeIDs,
+		param.Search,
+		param.Deleted,
+		param.Limit,
+		param.Page,
+	)
 
 	// Try to get from cache
 	if a.redisClient != nil {
@@ -114,8 +109,8 @@ func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*P
 		param.AttributeIDs,
 		param.Search,
 		param.Deleted,
-		*param.Limit,
-		*param.Page,
+		param.Limit,
+		param.Page,
 	)
 	if err != nil {
 		return nil, err
@@ -128,7 +123,12 @@ func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*P
 	if err != nil {
 		return nil, err
 	}
-	pagination := newPagination(*attributes, *count, *param.Page, *param.Limit)
+	pagination := newPagination(
+		*attributes,
+		*count,
+		param.Page,
+		param.Limit,
+	)
 
 	// Cache the result
 	if a.redisClient != nil {
@@ -171,20 +171,13 @@ func (a *AttributeImpl) Get(ctx context.Context, param GetAttributeParam) (*doma
 }
 
 func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValuesParam) (*Pagination[domain.AttributeValue], error) {
-	// Build cache key
-	var valueIDs *[]uuid.UUID
-	if param.AttributeValueIDs != nil {
-		valueIDs = param.AttributeValueIDs
-	}
-	searchStr := ""
-	if param.Search != nil {
-		searchStr = *param.Search
-	}
-	attributeID := uuid.Nil
-	if param.AttributeID != nil {
-		attributeID = *param.AttributeID
-	}
-	cacheKey := constant.AttributeValueListKey(attributeID, valueIDs, searchStr, *param.Limit, *param.Page)
+	cacheKey := constant.AttributeValueListKey(
+		param.AttributeID,
+		param.AttributeValueIDs,
+		param.Search,
+		param.Limit,
+		param.Page,
+	)
 
 	// Try to get from cache
 	if a.redisClient != nil {
@@ -203,8 +196,8 @@ func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValue
 		param.AttributeValueIDs,
 		param.Search,
 		param.Deleted,
-		*param.Limit,
-		*param.Page,
+		param.Limit,
+		param.Page,
 	)
 	if err != nil {
 		return nil, err
@@ -217,7 +210,12 @@ func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValue
 	if err != nil {
 		return nil, err
 	}
-	pagination := newPagination(*attribute, *count, *param.Page, *param.Limit)
+	pagination := newPagination(
+		*attribute,
+		*count,
+		param.Page,
+		param.Limit,
+	)
 
 	// Cache the result
 	if a.redisClient != nil {

@@ -24,7 +24,7 @@ type AttributeRepository interface {
 
 	ListValues(
 		ctx context.Context,
-		attributeID *uuid.UUID,
+		attributeID uuid.UUID,
 		attributeValueIDs *[]uuid.UUID,
 		search *string,
 		deleted DeletedParam,
@@ -34,7 +34,7 @@ type AttributeRepository interface {
 
 	CountValues(
 		ctx context.Context,
-		attributeID *uuid.UUID,
+		attributeID uuid.UUID,
 		attributeValueIDs *[]uuid.UUID,
 	) (*int, error)
 

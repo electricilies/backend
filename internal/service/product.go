@@ -33,16 +33,36 @@ func (p *Product) Create(
 	if err != nil {
 		return nil, multierror.Append(domain.ErrInternal, err)
 	}
+	now := time.Now()
 	product := &domain.Product{
 		ID:          id,
 		Name:        name,
 		Description: description,
+		CreatedAt:   now,
+		UpdatedAt:   now,
 		Category:    &category,
 	}
 	if err := p.validate.Struct(product); err != nil {
 		return nil, multierror.Append(domain.ErrInvalid, err)
 	}
 	return product, nil
+}
+
+func (p *Product) CreateOption(
+	name string,
+) (*domain.Option, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return nil, multierror.Append(domain.ErrInternal, err)
+	}
+	option := &domain.Option{
+		ID:   id,
+		Name: name,
+	}
+	if err := p.validate.Struct(option); err != nil {
+		return nil, multierror.Append(domain.ErrInvalid, err)
+	}
+	return option, nil
 }
 
 func (p *Product) CreateOptionValue(
@@ -62,6 +82,38 @@ func (p *Product) CreateOptionValue(
 	return optionValue, nil
 }
 
+func (p *Product) AddOptions(product *domain.Product, option ...domain.Option) error {
+	product.Options = append(product.Options, option...)
+	if err := p.validate.Struct(product); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
+func (p *Product) AddOptionValues(option *domain.Option, optionValue ...domain.OptionValue) error {
+	option.Values = append(option.Values, optionValue...)
+	if err := p.validate.Struct(option); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
+func (p *Product) AddVariants(product *domain.Product, variant ...domain.ProductVariant) error {
+	product.Variants = append(product.Variants, variant...)
+	if err := p.validate.Struct(product); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
+func (p *Product) AddImages(product *domain.Product, image ...domain.ProductImage) error {
+	product.Images = append(product.Images, image...)
+	if err := p.validate.Struct(product); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
 func (p *Product) CreateImage(
 	url string,
 	order int,
@@ -71,9 +123,10 @@ func (p *Product) CreateImage(
 		return nil, multierror.Append(domain.ErrInternal, err)
 	}
 	productImage := &domain.ProductImage{
-		ID:    id,
-		URL:   url,
-		Order: order,
+		ID:        id,
+		URL:       url,
+		Order:     order,
+		CreatedAt: time.Now(),
 	}
 	if err := p.validate.Struct(productImage); err != nil {
 		return nil, multierror.Append(domain.ErrInvalid, err)
@@ -96,6 +149,7 @@ func (p *Product) CreateVariant(
 		Price:         price,
 		Quantity:      quantity,
 		PurchaseCount: 0,
+		CreatedAt:     time.Now(),
 	}
 	if err := p.validate.Struct(productVariant); err != nil {
 		return nil, multierror.Append(domain.ErrInvalid, err)
@@ -109,6 +163,7 @@ func (p *Product) Update(
 	description *string,
 	Category *domain.Category,
 ) error {
+	updated := false
 	if name != nil {
 		product.Name = *name
 	}
@@ -117,6 +172,10 @@ func (p *Product) Update(
 	}
 	if Category != nil {
 		product.Category = Category
+		updated = true
+	}
+	if updated {
+		product.UpdatedAt = time.Now()
 	}
 	if err := p.validate.Struct(product); err != nil {
 		return multierror.Append(domain.ErrInvalid, err)
@@ -167,25 +226,10 @@ func (p *Product) UpdateOptionValue(
 	return nil
 }
 
-func (p *Product) AddImage(product *domain.Product, image domain.ProductImage) error {
-	product.Images = append(product.Images, image)
-	if err := p.validate.Struct(product); err != nil {
-		return multierror.Append(domain.ErrInvalid, err)
-	}
-	return nil
-}
-
-func (p *Product) AddVariant(product *domain.Product, variant domain.ProductVariant) error {
-	product.Variants = append(product.Variants, variant)
-	if err := p.validate.Struct(product); err != nil {
-		return multierror.Append(domain.ErrInvalid, err)
-	}
-	return nil
-}
-
 func (p *Product) Remove(product *domain.Product) error {
 	now := time.Now()
 	if product.DeletedAt == nil {
+		product.UpdatedAt = now
 		product.DeletedAt = &now
 	}
 	for _, option := range product.Options {

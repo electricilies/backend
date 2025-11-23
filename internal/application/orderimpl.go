@@ -92,15 +92,15 @@ func (o *OrderImpl) Delete(ctx context.Context, param DeleteOrderParam) error {
 }
 
 func (o *OrderImpl) List(ctx context.Context, param ListOrderParam) (*Pagination[domain.Order], error) {
-	// OrderRepository.List uses search and deleted params, not userIDs and statusIDs
+	// TODO: OrderRepository.List uses search and deleted params, not userIDs and statusIDs
 	// We need to adapt the parameters
 	orders, err := o.orderRepo.List(
 		ctx,
 		param.IDs,
 		nil, // search parameter - not in ListOrderParam
 		domain.DeletedExcludeParam,
-		*param.Limit,
-		*param.Page,
+		param.Limit,
+		param.Page,
 	)
 	if err != nil {
 		return nil, err
@@ -115,6 +115,11 @@ func (o *OrderImpl) List(ctx context.Context, param ListOrderParam) (*Pagination
 		return nil, err
 	}
 
-	pagination := newPagination(*orders, *count, *param.Page, *param.Limit)
+	pagination := newPagination(
+		*orders,
+		*count,
+		param.Page,
+		param.Limit,
+	)
 	return pagination, nil
 }

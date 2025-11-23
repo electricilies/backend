@@ -136,11 +136,11 @@ func (h *AttributeHandlerImpl) ListValues(ctx *gin.Context) {
 		return
 	}
 
-	var attributeID *uuid.UUID
+	var attributeID uuid.UUID
 	if attributeIDQuery, ok := ctx.GetQuery("attribute_id"); ok {
 		parsedID, err := uuid.Parse(attributeIDQuery)
 		if err == nil {
-			attributeID = &parsedID
+			attributeID = parsedID
 		}
 	}
 

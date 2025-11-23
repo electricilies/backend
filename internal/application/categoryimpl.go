@@ -50,12 +50,11 @@ func (c *CategoryImpl) Create(ctx context.Context, param CreateCategoryParam) (*
 }
 
 func (c *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*Pagination[domain.Category], error) {
-	// Build cache key
-	searchStr := ""
-	if param.Search != nil {
-		searchStr = *param.Search
-	}
-	cacheKey := constant.CategoryListKey(searchStr, *param.Limit, *param.Page)
+	cacheKey := constant.CategoryListKey(
+		param.Search,
+		param.Limit,
+		param.Page,
+	)
 
 	// Try to get from cache
 	if c.redisClient != nil {
@@ -71,8 +70,8 @@ func (c *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*Pagi
 	categories, err := c.categoryRepo.List(
 		ctx,
 		param.Search,
-		*param.Limit,
-		*param.Page,
+		param.Limit,
+		param.Page,
 	)
 	if err != nil {
 		return nil, err
@@ -84,7 +83,12 @@ func (c *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*Pagi
 		return nil, err
 	}
 
-	pagination := newPagination(*categories, *count, *param.Page, *param.Limit)
+	pagination := newPagination(
+		*categories,
+		*count,
+		param.Page,
+		param.Limit,
+	)
 
 	// Cache the result
 	if c.redisClient != nil {

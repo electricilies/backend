@@ -108,7 +108,7 @@ func (a *Attribute) Remove(
 	now := time.Now()
 	attribute.DeletedAt = &now
 	for i := range attribute.Values {
-		(attribute.Values)[i].DeletedAt = &now
+		attribute.Values[i].DeletedAt = &now
 	}
 	if err := a.validate.Struct(attribute); err != nil {
 		return multierror.Append(domain.ErrInvalid, err)

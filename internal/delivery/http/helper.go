@@ -47,7 +47,7 @@ func createPaginationParamsFromQuery(ctx *gin.Context) (*application.PaginationP
 		}
 	}
 	return &application.PaginationParam{
-		Page:  &page,
-		Limit: &limit,
+		Page:  page,
+		Limit: limit,
 	}, nil
 }

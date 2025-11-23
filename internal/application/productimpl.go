@@ -7,8 +7,6 @@ import (
 
 	"backend/internal/constant"
 	"backend/internal/domain"
-
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -27,44 +25,18 @@ func ProvideProduct(productRepo domain.ProductRepository, productService domain.
 }
 
 func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagination[domain.Product], error) {
-	// Build cache key
-	var ids *[]uuid.UUID
-	if param.ProductIDs != nil {
-		ids = param.ProductIDs
-	}
-	searchStr := ""
-	if param.Search != nil {
-		searchStr = *param.Search
-	}
-	var rating *float64
-	if param.Rating != nil {
-		ratingFloat := float64(*param.Rating)
-		rating = &ratingFloat
-	}
-	sortRatingStr := ""
-	if param.SortRating != nil {
-		sortRatingStr = *param.SortRating
-	}
-	sortPriceStr := ""
-	if param.SortPrice != nil {
-		sortPriceStr = *param.SortPrice
-	}
-	deletedStr := string(domain.DeletedExcludeParam)
-	if param.Deleted != nil {
-		deletedStr = *param.Deleted
-	}
 	cacheKey := constant.ProductListKey(
-		ids,
-		searchStr,
+		param.ProductIDs,
+		param.Search,
 		param.MinPrice,
 		param.MaxPrice,
-		rating,
+		param.Rating,
 		param.CategoryIDs,
-		deletedStr,
-		sortRatingStr,
-		sortPriceStr,
-		*param.Limit,
-		*param.Page,
+		param.Deleted,
+		param.SortRating,
+		param.SortPrice,
+		param.Limit,
+		param.Page,
 	)
 
 	// Try to get from cache
@@ -78,22 +50,19 @@ func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagina
 		}
 	}
 
-	// Calculate offset
-	offset := *param.Page * *param.Limit
-
 	products, err := p.productRepo.List(
 		ctx,
-		ids,
+		param.ProductIDs,
 		param.Search,
 		param.MinPrice,
 		param.MaxPrice,
-		rating,
+		param.Rating,
 		param.CategoryIDs,
-		domain.DeletedParam(deletedStr),
+		param.Deleted,
 		param.SortRating,
 		param.SortPrice,
-		*param.Limit,
-		offset,
+		param.Limit,
+		param.Page*param.Limit,
 	)
 	if err != nil {
 		return nil, err
@@ -101,18 +70,23 @@ func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagina
 
 	count, err := p.productRepo.Count(
 		ctx,
-		ids,
+		param.ProductIDs,
 		param.MinPrice,
 		param.MaxPrice,
-		rating,
+		param.Rating,
 		param.CategoryIDs,
-		domain.DeletedParam(deletedStr),
+		param.Deleted,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	pagination := newPagination(*products, *count, *param.Page, *param.Limit)
+	pagination := newPagination(
+		*products,
+		*count,
+		param.Page,
+		param.Limit,
+	)
 
 	// Cache the result
 	if p.redisClient != nil {

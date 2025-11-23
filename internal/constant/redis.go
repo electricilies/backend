@@ -3,6 +3,8 @@ package constant
 import (
 	"fmt"
 
+	"backend/internal/domain"
+
 	"github.com/google/uuid"
 )
 
@@ -21,8 +23,15 @@ const (
 	CategoryGetPrefix  = "category:get:"
 )
 
-func CategoryListKey(search string, limit, page int) string {
-	return fmt.Sprintf("%s%s:%d:%d", CategoryListPrefix, search, limit, page)
+func CategoryListKey(
+	search *string,
+	limit, page int,
+) string {
+	var searchStr string
+	if search != nil {
+		searchStr = *search
+	}
+	return fmt.Sprintf("%s%s:%d:%d", CategoryListPrefix, searchStr, limit, page)
 }
 
 func CategoryGetKey(id uuid.UUID) string {
@@ -36,28 +45,62 @@ const (
 	AttributeValueListPrefix = "attribute_value:list:"
 )
 
-func AttributeListKey(ids *[]uuid.UUID, search string, deleted string, limit, page int) string {
-	idsStr := ""
+func AttributeListKey(
+	ids *[]uuid.UUID,
+	search *string,
+	deleted domain.DeletedParam,
+	limit, page int,
+) string {
+	var idsStr string
 	if ids != nil && len(*ids) > 0 {
 		for _, id := range *ids {
 			idsStr += id.String() + ","
 		}
 	}
-	return fmt.Sprintf("%s%s:%s:%s:%d:%d", AttributeListPrefix, idsStr, search, deleted, limit, page)
+	var searchStr string
+	if search != nil {
+		searchStr = *search
+	}
+	return fmt.Sprintf(
+		"%s%s:%s:%s:%d:%d",
+		AttributeListPrefix,
+		idsStr,
+		searchStr,
+		deleted,
+		limit,
+		page,
+	)
 }
 
 func AttributeGetKey(id uuid.UUID) string {
 	return fmt.Sprintf("%s%s", AttributeGetPrefix, id.String())
 }
 
-func AttributeValueListKey(attributeID uuid.UUID, valueIDs *[]uuid.UUID, search string, limit, page int) string {
-	valueIDsStr := ""
+func AttributeValueListKey(
+	attributeID uuid.UUID,
+	valueIDs *[]uuid.UUID,
+	search *string,
+	limit, page int,
+) string {
+	var valueIDsStr string
 	if valueIDs != nil && len(*valueIDs) > 0 {
 		for _, id := range *valueIDs {
 			valueIDsStr += id.String() + ","
 		}
 	}
-	return fmt.Sprintf("%s%s:%s:%s:%d:%d", AttributeValueListPrefix, attributeID.String(), valueIDsStr, search, limit, page)
+	var searchStr string
+	if search != nil {
+		searchStr = *search
+	}
+	return fmt.Sprintf(
+		"%s%s:%s:%s:%d:%d",
+		AttributeValueListPrefix,
+		attributeID.String(),
+		valueIDsStr,
+		searchStr,
+		limit,
+		page,
+	)
 }
 
 // Review cache keys
@@ -65,7 +108,13 @@ const (
 	ReviewListPrefix = "review:list:"
 )
 
-func ReviewListKey(orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted string, limit, page int) string {
+func ReviewListKey(
+	orderItemIDs *[]uuid.UUID,
+	productVariantID *uuid.UUID,
+	userIDs *[]uuid.UUID,
+	deleted domain.DeletedParam,
+	limit, page int,
+) string {
 	orderItemIDsStr := ""
 	if orderItemIDs != nil && len(*orderItemIDs) > 0 {
 		for _, id := range *orderItemIDs {
@@ -85,7 +134,16 @@ func ReviewListKey(orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userI
 		}
 	}
 
-	return fmt.Sprintf("%s%s:%s:%s:%s:%d:%d", ReviewListPrefix, orderItemIDsStr, productVariantIDStr, userIDsStr, deleted, limit, page)
+	return fmt.Sprintf(
+		"%s%s:%s:%s:%s:%d:%d",
+		ReviewListPrefix,
+		orderItemIDsStr,
+		productVariantIDStr,
+		userIDsStr,
+		deleted,
+		limit,
+		page,
+	)
 }
 
 // Product cache keys
@@ -96,57 +154,72 @@ const (
 
 func ProductListKey(
 	ids *[]uuid.UUID,
-	search string,
+	search *string,
 	minPrice *int64,
 	maxPrice *int64,
 	rating *float64,
 	categoryIDs *[]uuid.UUID,
-	deleted string,
-	sortRating string,
-	sortPrice string,
+	deleted domain.DeletedParam,
+	sortRating *string,
+	sortPrice *string,
 	limit, page int,
 ) string {
-	idsStr := ""
+	var idsStr string
 	if ids != nil && len(*ids) > 0 {
 		for _, id := range *ids {
 			idsStr += id.String() + ","
 		}
 	}
 
-	minPriceStr := ""
+	var searchStr string
+	if search != nil {
+		searchStr = *search
+	}
+
+	var minPriceStr string
 	if minPrice != nil {
 		minPriceStr = fmt.Sprintf("%d", *minPrice)
 	}
 
-	maxPriceStr := ""
+	var maxPriceStr string
 	if maxPrice != nil {
 		maxPriceStr = fmt.Sprintf("%d", *maxPrice)
 	}
 
-	ratingStr := ""
+	var ratingStr string
 	if rating != nil {
 		ratingStr = fmt.Sprintf("%.2f", *rating)
 	}
 
-	categoryIDsStr := ""
+	var categoryIDsStr string
 	if categoryIDs != nil && len(*categoryIDs) > 0 {
 		for _, id := range *categoryIDs {
 			categoryIDsStr += id.String() + ","
 		}
 	}
 
+	var sortRatingStr string
+	if sortRating != nil {
+		sortRatingStr = *sortRating
+	}
+
+	var sortPriceStr string
+	if sortPrice != nil {
+		sortPriceStr = *sortPrice
+	}
+
 	return fmt.Sprintf(
 		"%s%s:%s:%s:%s:%s:%s:%s:%s:%s:%d:%d",
 		ProductListPrefix,
 		idsStr,
-		search,
+		searchStr,
 		minPriceStr,
 		maxPriceStr,
 		ratingStr,
 		categoryIDsStr,
 		deleted,
-		sortRating,
-		sortPrice,
+		sortRatingStr,
+		sortPriceStr,
 		limit,
 		page,
 	)

@@ -1,18 +1,22 @@
 package application
 
-import "github.com/google/uuid"
+import (
+	"backend/internal/domain"
+
+	"github.com/google/uuid"
+)
 
 type ListProductParam struct {
 	PaginationParam
-	ProductIDs  *[]uuid.UUID `binding:"omitempty"`
-	CategoryIDs *[]uuid.UUID `binding:"omitempty"`
-	MinPrice    *int64       `binding:"omitempty"`
-	MaxPrice    *int64       `binding:"omitempty"`
-	Rating      *float64     `binding:"omitempty"`
-	SortPrice   *string      `binding:"omitempty,oneof=asc desc"`
-	SortRating  *string      `binding:"omitempty,oneof=asc desc"`
-	Search      *string      `binding:"omitempty"`
-	Deleted     *string      `binding:"omitempty,oneof=exclude only all"`
+	ProductIDs  *[]uuid.UUID        `binding:"omitempty"`
+	CategoryIDs *[]uuid.UUID        `binding:"omitempty"`
+	MinPrice    *int64              `binding:"omitempty"`
+	MaxPrice    *int64              `binding:"omitempty"`
+	Rating      *float64            `binding:"omitempty"`
+	SortPrice   *string             `binding:"omitempty,oneof=asc desc"`
+	SortRating  *string             `binding:"omitempty,oneof=asc desc"`
+	Search      *string             `binding:"omitempty"`
+	Deleted     domain.DeletedParam `binding:"omitempty,oneof=exclude only all"`
 }
 
 type CreateProductParam struct {

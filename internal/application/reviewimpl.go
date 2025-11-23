@@ -57,7 +57,14 @@ func (r *ReviewImpl) Create(ctx context.Context, param CreateReviewParam) (*doma
 
 func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Pagination[domain.Review], error) {
 	// Build cache key
-	cacheKey := constant.ReviewListKey(param.OrderItemIDs, param.ProductVariantID, param.UserIDs, string(param.Deleted), *param.Limit, *param.Page)
+	cacheKey := constant.ReviewListKey(
+		param.OrderItemIDs,
+		param.ProductVariantID,
+		param.UserIDs,
+		param.Deleted,
+		param.Limit,
+		param.Page,
+	)
 
 	// Try to get from cache
 	if r.redisClient != nil {
@@ -76,8 +83,8 @@ func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Paginat
 		param.ProductVariantID,
 		param.UserIDs,
 		param.Deleted,
-		*param.Limit,
-		*param.Page,
+		param.Limit,
+		param.Page,
 	)
 	if err != nil {
 		return nil, err
@@ -94,7 +101,12 @@ func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Paginat
 		return nil, err
 	}
 
-	pagination := newPagination(*reviews, *count, *param.Page, *param.Limit)
+	pagination := newPagination(
+		*reviews,
+		*count,
+		param.Page,
+		param.Limit,
+	)
 
 	// Cache the result
 	if r.redisClient != nil {

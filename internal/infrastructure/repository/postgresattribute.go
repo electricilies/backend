@@ -89,7 +89,7 @@ func (r *PostgresAttribute) List(
 
 func (r *PostgresAttribute) ListValues(
 	ctx context.Context,
-	attributeID *uuid.UUID,
+	attributeID uuid.UUID,
 	attributeValueIDs *[]uuid.UUID,
 	search *string,
 	deleted domain.DeletedParam,
@@ -101,8 +101,8 @@ func (r *PostgresAttribute) ListValues(
 		postgres.ListAttributeValuesParams{
 			IDs: ptr.Deref(attributeValueIDs, []uuid.UUID{}),
 			AttributeID: pgtype.UUID{
-				Bytes: ptr.Deref(attributeID, uuid.UUID{}),
-				Valid: attributeID != nil,
+				Bytes: attributeID,
+				Valid: true,
 			},
 			Search:  search,
 			Deleted: string(deleted),
@@ -127,13 +127,17 @@ func (r *PostgresAttribute) ListValues(
 	return &result, nil
 }
 
-func (r *PostgresAttribute) CountValues(ctx context.Context, attributeID *uuid.UUID, attributeValueIDs *[]uuid.UUID) (*int, error) {
+func (r *PostgresAttribute) CountValues(
+	ctx context.Context,
+	attributeID uuid.UUID,
+	attributeValueIDs *[]uuid.UUID,
+) (*int, error) {
 	count, err := r.queries.CountAttributeValues(ctx, postgres.CountAttributeValuesParams{
 		IDs:     ptr.Deref(attributeValueIDs, []uuid.UUID{}),
 		Deleted: string(domain.DeletedExcludeParam),
 		AttributeID: pgtype.UUID{
-			Bytes: ptr.Deref(attributeID, uuid.UUID{}),
-			Valid: attributeID != nil,
+			Bytes: attributeID,
+			Valid: true,
 		},
 	})
 	return ptr.To(int(count)), err
@@ -147,7 +151,7 @@ func (r *PostgresAttribute) Get(ctx context.Context, id uuid.UUID) (*domain.Attr
 		return nil, ToDomainErrorFromPostgres(err)
 	}
 
-	attributeValues, err := r.ListValues(ctx, &id, nil, nil, domain.DeletedExcludeParam, 0, 0)
+	attributeValues, err := r.ListValues(ctx, id, nil, nil, domain.DeletedExcludeParam, 0, 0)
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
 	}

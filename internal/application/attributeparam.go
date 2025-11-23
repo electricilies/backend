@@ -15,7 +15,7 @@ type ListAttributesParam struct {
 
 type ListAttributeValuesParam struct {
 	PaginationParam
-	AttributeID       *uuid.UUID
+	AttributeID       uuid.UUID
 	AttributeValueIDs *[]uuid.UUID        `binding:"omitnil"`
 	Deleted           domain.DeletedParam `binding:"required,oneof=exclude only all"`
 	Search            *string             `binding:"omitnil"`
