@@ -1,0 +1,73 @@
+DO $$
+BEGIN
+  EXECUTE 'ALTER TABLE categories DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE products DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE attributes DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE attribute_values DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE products_attribute_values DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE product_variants DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE product_images DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE options DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE option_values DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE option_values_product_variants DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE carts DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE cart_items DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE order_statuses DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE order_providers DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE orders DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE order_items DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE reviews DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE return_request_statuses DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE return_requests DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE refund_statuses DISABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE refunds DISABLE TRIGGER ALL';
+END $$;
+
+TRUNCATE TABLE
+refunds,
+refund_statuses,
+return_requests,
+return_request_statuses,
+reviews,
+order_items,
+orders,
+order_statuses,
+order_providers,
+cart_items,
+carts,
+option_values_product_variants,
+option_values,
+options,
+product_images,
+product_variants,
+products_attribute_values,
+attribute_values,
+attributes,
+products,
+categories
+CASCADE;
+
+DO $$
+BEGIN
+  EXECUTE 'ALTER TABLE categories ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE products ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE attributes ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE attribute_values ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE products_attribute_values ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE product_variants ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE product_images ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE options ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE option_values ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE option_values_product_variants ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE carts ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE cart_items ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE order_statuses ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE order_providers ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE orders ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE order_items ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE reviews ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE return_request_statuses ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE return_requests ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE refund_statuses ENABLE TRIGGER ALL';
+  EXECUTE 'ALTER TABLE refunds ENABLE TRIGGER ALL';
+END $$;
