@@ -329,7 +329,11 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
                         "description": "Product ID",
                         "name": "attribute_value_id",
                         "in": "query"

@@ -114,12 +114,12 @@ func (h *GinAttributeHandler) List(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			page				query		int		false	"Page for pagination"	default(1)
-//	@Param			limit				query		int		false	"Limit for pagination"	default(20)
-//	@Param			attribute_id		path		string	true	"Attribute ID"
-//	@Param			attribute_value_id	query		string	false	"Product ID"
-//	@Param			search				query		string	false	"Search term"
-//	@Param			deleted				query		string	false	"Filter by deletion status"	Enums(exclude, only, all)
+//	@Param			page				query		int			false	"Page for pagination"	default(1)
+//	@Param			limit				query		int			false	"Limit for pagination"	default(20)
+//	@Param			attribute_id		path		string		true	"Attribute ID"
+//	@Param			attribute_value_id	query		[]string	false	"Product ID"	collectionFormat(csv)
+//	@Param			search				query		string		false	"Search term"
+//	@Param			deleted				query		string		false	"Filter by deletion status"	Enums(exclude, only, all)
 //	@Success		200					{object}	application.Pagination[domain.AttributeValue]
 //	@Failure		500					{object}	Error
 //	@Router			/attributes/{attribute_id}/values [get]
