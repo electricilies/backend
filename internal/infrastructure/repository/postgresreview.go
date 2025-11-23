@@ -19,7 +19,15 @@ func ProvidePostgresReview(q *postgres.Queries) *PostgresReview {
 	return &PostgresReview{queries: q}
 }
 
-func (r *PostgresReview) List(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted domain.DeletedParam, limit int, offset int) (*[]domain.Review, error) {
+func (r *PostgresReview) List(
+	ctx context.Context,
+	orderItemIDs *[]uuid.UUID,
+	productVariantID *uuid.UUID,
+	userIDs *[]uuid.UUID,
+	deleted domain.DeletedParam,
+	limit int,
+	offset int,
+) (*[]domain.Review, error) {
 	panic("implement me")
 }
 

@@ -3,10 +3,12 @@ package application
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"time"
 
 	"backend/internal/constant"
 	"backend/internal/domain"
+
 	"github.com/redis/go-redis/v9"
 )
 
@@ -92,6 +94,7 @@ func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*P
 		param.Limit,
 		param.Page,
 	)
+	log.Println("Attribute List Cache Key:", cacheKey)
 
 	// Try to get from cache
 	if a.redisClient != nil {

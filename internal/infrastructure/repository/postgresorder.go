@@ -31,6 +31,6 @@ func (r *PostgresOrder) Get(ctx context.Context, id uuid.UUID) (*domain.Order, e
 	panic("implement me")
 }
 
-func (r *PostgresOrder) Save(ctx context.Context, order domain.Order) (*domain.Order, error) {
+func (r *PostgresOrder) Save(ctx context.Context, order domain.Order) error {
 	panic("implement me")
 }

@@ -30,5 +30,5 @@ type OrderRepository interface {
 	Save(
 		ctx context.Context,
 		order Order,
-	) (*Order, error)
+	) error
 }

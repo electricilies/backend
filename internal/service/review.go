@@ -49,18 +49,26 @@ func (r *Review) Create(
 
 func (r *Review) Update(
 	review *domain.Review,
+	userID uuid.UUID,
 	rating *int,
 	content *string,
 	imageURL *string,
 ) error {
+	updated := false
 	if rating != nil {
 		review.Rating = *rating
+		updated = true
 	}
 	if content != nil {
 		review.Content = content
+		updated = true
 	}
 	if imageURL != nil {
 		review.ImageURL = imageURL
+		updated = true
+	}
+	if !updated {
+		return nil
 	}
 	if err := r.validate.Struct(review); err != nil {
 		return multierror.Append(domain.ErrInvalid, err)

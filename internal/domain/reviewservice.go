@@ -13,6 +13,7 @@ type ReviewService interface {
 
 	Update(
 		review *Review,
+		userID uuid.UUID,
 		rating *int,
 		content *string,
 		imageURL *string,
