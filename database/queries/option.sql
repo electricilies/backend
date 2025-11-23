@@ -117,13 +117,14 @@ WHEN NOT MATCHED THEN
     source.option_id,
     source.deleted_at
   )
-WHEN NOT MATCHED BY SOURCE AND target.option_id = sqlc.arg('option_id')::uuid THEN
+WHEN NOT MATCHED BY SOURCE
+  AND target.option_id = (SELECT DISTINCT option_id FROM source) THEN
   DELETE;
 
 -- name: MergeOptionValuesProductVariantsFromTemp :exec
 MERGE INTO option_values_product_variants AS target
 USING temp_option_values_product_variants AS source
-  ON target.product_variant_id = source.product_variant_id AND target.option_value_id = source.option_value_id
+  ON target.option_value_id = source.option_value_id
 WHEN NOT MATCHED THEN
   INSERT (
     product_variant_id,
@@ -133,7 +134,6 @@ WHEN NOT MATCHED THEN
     source.product_variant_id,
     source.option_value_id
   )
-WHEN NOT MATCHED BY SOURCE AND target.option_value_id IN (
-  SELECT id FROM option_values WHERE option_id = sqlc.arg('option_id')::uuid
-) THEN
+WHEN NOT MATCHED BY SOURCE
+  AND target.option_value_id IN (SELECT id FROM option_values) THEN
   DELETE;
