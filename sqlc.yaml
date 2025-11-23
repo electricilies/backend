@@ -28,6 +28,7 @@ sql:
               type: UUID
         emit_pointers_for_null_types: true
         emit_interface: true
+        emit_result_struct_pointers: false
         initialisms:
           - id
           - url

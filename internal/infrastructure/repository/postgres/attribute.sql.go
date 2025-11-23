@@ -350,12 +350,8 @@ func (q *Queries) ListProductsAttributeValues(ctx context.Context, arg ListProdu
 const mergeAttributeValuesFromTemp = `-- name: MergeAttributeValuesFromTemp :exec
 MERGE INTO attribute_values AS target
 USING temp_attribute_values AS source
-ON target.id = source.id
-   OR (
-        target.attribute_id = source.attribute_id
-        AND source.id IS NULL
-      )
-WHEN MATCHED AND source.id IS NOT NULL THEN
+  ON target.id = source.id
+WHEN MATCHED THEN
   UPDATE SET
     attribute_id = source.attribute_id,
     value = source.value,
@@ -373,7 +369,8 @@ WHEN NOT MATCHED THEN
     source.value,
     source.deleted_at
   )
-WHEN MATCHED AND source.id IS NULL THEN
+WHEN NOT MATCHED BY SOURCE
+  AND target.attribute_id IN (SELECT DISTINCT attribute_id FROM temp_attribute_values) THEN
   DELETE
 `
 

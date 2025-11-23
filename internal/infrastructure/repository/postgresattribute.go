@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"backend/internal/domain"
@@ -75,7 +74,7 @@ func (r *PostgresAttribute) List(
 			ID:   attribute.ID,
 			Code: attribute.Code,
 			Name: attribute.Name,
-			Values: *buildAttributeValues(
+			Values: buildAttributeValues(
 				attribute.ID,
 				attributeValues,
 			),
@@ -144,7 +143,6 @@ func (r *PostgresAttribute) Get(ctx context.Context, id uuid.UUID) (*domain.Attr
 	attribute, err := r.queries.GetAttribute(ctx, postgres.GetAttributeParams{
 		ID: id,
 	})
-	log.Println("Fetched attribute:", attribute, "Id", id)
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
 	}
@@ -190,7 +188,7 @@ func (r *PostgresAttribute) Save(ctx context.Context, attribute domain.Attribute
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	_, err = qtx.InsertTempTableAttributeValues(ctx, buildInsertTempTableAttributeValuesParams(ptr.To(attribute.Values)))
+	_, err = qtx.InsertTempTableAttributeValues(ctx, buildInsertTempTableAttributeValuesParams(attribute))
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
@@ -205,7 +203,7 @@ func (r *PostgresAttribute) Save(ctx context.Context, attribute domain.Attribute
 	return nil
 }
 
-func buildAttributeValues(attributeID uuid.UUID, attributeValues []postgres.AttributeValue) *[]domain.AttributeValue {
+func buildAttributeValues(attributeID uuid.UUID, attributeValues []postgres.AttributeValue) []domain.AttributeValue {
 	values := make([]domain.AttributeValue, 0)
 	for _, val := range attributeValues {
 		if val.AttributeID == attributeID {
@@ -219,15 +217,16 @@ func buildAttributeValues(attributeID uuid.UUID, attributeValues []postgres.Attr
 			})
 		}
 	}
-	return &values
+	return values
 }
 
-func buildInsertTempTableAttributeValuesParams(values *[]domain.AttributeValue) []postgres.InsertTempTableAttributeValuesParams {
-	params := make([]postgres.InsertTempTableAttributeValuesParams, 0, len(*values))
-	for _, val := range *values {
+func buildInsertTempTableAttributeValuesParams(attribute domain.Attribute) []postgres.InsertTempTableAttributeValuesParams {
+	params := make([]postgres.InsertTempTableAttributeValuesParams, 0, len(attribute.Values))
+	for _, val := range attribute.Values {
 		params = append(params, postgres.InsertTempTableAttributeValuesParams{
-			ID:    val.ID,
-			Value: val.Value,
+			ID:          val.ID,
+			Value:       val.Value,
+			AttributeID: attribute.ID,
 		})
 	}
 	return params
