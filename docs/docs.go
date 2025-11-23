@@ -2624,7 +2624,6 @@ const docTemplate = `{
                 },
                 "items": {
                     "type": "array",
-                    "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/OrderItem"
                     }
@@ -2872,7 +2871,6 @@ const docTemplate = `{
                 },
                 "images": {
                     "type": "array",
-                    "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/ProductImage"
                     }
@@ -2909,7 +2907,6 @@ const docTemplate = `{
                 },
                 "variants": {
                     "type": "array",
-                    "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/ProductVariant"
                     }
@@ -2975,7 +2972,6 @@ const docTemplate = `{
                 },
                 "optionValues": {
                     "type": "array",
-                    "minItems": 1,
                     "items": {
                         "$ref": "#/definitions/OptionValue"
                     }
