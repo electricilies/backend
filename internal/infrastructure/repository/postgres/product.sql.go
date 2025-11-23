@@ -735,9 +735,9 @@ type UpsertProductParams struct {
 	Rating        float32
 	TrendingScore float32
 	CategoryID    uuid.UUID
-	CreatedAt     pgtype.Timestamp
-	UpdatedAt     pgtype.Timestamp
-	DeletedAt     pgtype.Timestamp
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
+	DeletedAt     pgtype.Timestamptz
 }
 
 func (q *Queries) UpsertProduct(ctx context.Context, arg UpsertProductParams) error {

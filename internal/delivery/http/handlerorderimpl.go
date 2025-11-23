@@ -33,7 +33,7 @@ func ProvideOrderHandler(orderApp application.Order) *OrderHandlerImpl {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order_id	path		int	true	"Order ID"
+//	@Param			order_id	path		int	true	"Order ID"	format(uuid)
 //	@Success		200			{object}	domain.Order
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
@@ -66,9 +66,9 @@ func (h *OrderHandlerImpl) Get(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order_ids	query		[]string	false	"Filter by order IDs"	collectionFormat(csv)
-//	@Param			user_ids	query		[]string	false	"Filter by user IDs"	collectionFormat(csv)
-//	@Param			status_ids	query		[]string	false	"Filter by status IDs"	collectionFormat(csv)
+//	@Param			order_ids	query		[]string	false	"Filter by order IDs"	collectionFormat(csv)	format(uuid)
+//	@Param			user_ids	query		[]string	false	"Filter by user IDs"	collectionFormat(csv)	format(uuid)
+//	@Param			status_ids	query		[]string	false	"Filter by status IDs"	collectionFormat(csv)	format(uuid)
 //	@Success		200			{array}		domain.Order
 //	@Failure		500			{object}	Error
 //	@Router			/orders [get]
@@ -148,7 +148,7 @@ func (h *OrderHandlerImpl) Create(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order_id	path		int							true	"Order ID"
+//	@Param			order_id	path		int							true	"Order ID"	format(uuid)
 //	@Param			status		body		application.UpdateOrderData	true	"Update order status request"
 //	@Success		200			{object}	domain.Order
 //	@Failure		400			{object}	Error
@@ -192,7 +192,7 @@ func (h *OrderHandlerImpl) Update(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order_id	path	int	true	"Order ID"
+//	@Param			order_id	path	int	true	"Order ID"	format(uuid)
 //	@Success		204
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error

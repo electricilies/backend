@@ -155,9 +155,9 @@ ON CONFLICT (id) DO UPDATE SET
 type UpsertCategoryParams struct {
 	ID        uuid.UUID
 	Name      string
-	CreatedAt pgtype.Timestamp
-	UpdatedAt pgtype.Timestamp
-	DeletedAt pgtype.Timestamp
+	CreatedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
+	DeletedAt pgtype.Timestamptz
 }
 
 func (q *Queries) UpsertCategory(ctx context.Context, arg UpsertCategoryParams) error {

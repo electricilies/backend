@@ -316,7 +316,7 @@ type UpsertOptionParams struct {
 	ID        uuid.UUID
 	Name      string
 	ProductID uuid.UUID
-	DeletedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamptz
 }
 
 func (q *Queries) UpsertOption(ctx context.Context, arg UpsertOptionParams) error {

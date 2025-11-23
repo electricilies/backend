@@ -116,7 +116,7 @@ func (h *CartHandlerImpl) CreateItem(ctx *gin.Context) {
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
-//	@Param			cart_item_id	path		int								true	"Cart Item ID"
+//	@Param			cart_item_id	path		int								true	"Cart Item ID"	format(uuid)
 //	@Param			item			body		application.UpdateCartItemData	true	"Update cart item request"
 //	@Success		200				{object}	domain.CartItem
 //	@Failure		400				{object}	Error
@@ -175,7 +175,7 @@ func (h *CartHandlerImpl) UpdateItem(ctx *gin.Context) {
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
-//	@Param			item_id	path	int	true	"Cart Item ID"
+//	@Param			item_id	path	int	true	"Cart Item ID"	format(uuid)
 //	@Success		204
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error

@@ -215,9 +215,9 @@ type UpsertReviewParams struct {
 	ImageURL    string
 	UserID      uuid.UUID
 	OrderItemID uuid.UUID
-	CreatedAt   pgtype.Timestamp
-	UpdatedAt   pgtype.Timestamp
-	DeletedAt   pgtype.Timestamp
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
+	DeletedAt   pgtype.Timestamptz
 }
 
 func (q *Queries) UpsertReview(ctx context.Context, arg UpsertReviewParams) error {

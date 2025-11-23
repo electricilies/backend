@@ -45,6 +45,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "array",
+                        "format": "uuid",
                         "items": {
                             "type": "string"
                         },
@@ -163,6 +164,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "uuid",
                         "description": "Attribute ID",
                         "name": "attribute_id",
                         "in": "path",
@@ -205,6 +207,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "uuid",
                         "description": "Attribute ID",
                         "name": "attribute_id",
                         "in": "path",
@@ -244,6 +247,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "uuid",
                         "description": "Attribute ID",
                         "name": "attribute_id",
                         "in": "path",
@@ -330,6 +334,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "array",
+                        "format": "uuid",
                         "items": {
                             "type": "string"
                         },
@@ -386,6 +391,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "uuid",
                         "description": "Attribute ID",
                         "name": "attribute_id",
                         "in": "path",
@@ -449,6 +455,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "uuid",
                         "description": "Attribute ID",
                         "name": "attribute_id",
                         "in": "path",
@@ -520,6 +527,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "format": "uuid",
                         "description": "Attribute ID",
                         "name": "attribute_id",
                         "in": "path",
@@ -663,6 +671,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Cart Item ID",
                         "name": "item_id",
                         "in": "path",
@@ -702,6 +711,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Cart Item ID",
                         "name": "cart_item_id",
                         "in": "path",
@@ -855,7 +865,8 @@ const docTemplate = `{
                 "summary": "Get category by ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "description": "Category ID",
                         "name": "category_id",
                         "in": "path",
@@ -897,7 +908,8 @@ const docTemplate = `{
                 "summary": "Update a category",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "description": "Category ID",
                         "name": "category_id",
                         "in": "path",
@@ -963,6 +975,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "array",
+                        "format": "uuid",
                         "items": {
                             "type": "string"
                         },
@@ -973,6 +986,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "array",
+                        "format": "uuid",
                         "items": {
                             "type": "string"
                         },
@@ -983,6 +997,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "array",
+                        "format": "uuid",
                         "items": {
                             "type": "string"
                         },
@@ -1077,6 +1092,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Order ID",
                         "name": "order_id",
                         "in": "path",
@@ -1119,6 +1135,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Order ID",
                         "name": "order_id",
                         "in": "path",
@@ -1158,6 +1175,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Order ID",
                         "name": "order_id",
                         "in": "path",
@@ -1268,6 +1286,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "array",
+                        "format": "uuid",
                         "items": {
                             "type": "integer"
                         },
@@ -1376,6 +1395,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Product Image ID",
                         "name": "image_id",
                         "in": "path",
@@ -1448,6 +1468,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
                         "in": "path",
@@ -1490,6 +1511,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
                         "in": "path",
@@ -1529,6 +1551,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
                         "in": "path",
@@ -1657,6 +1680,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
                         "in": "path",
@@ -1709,6 +1733,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
                         "in": "path",
@@ -1914,6 +1939,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "array",
+                        "format": "uuid",
                         "items": {
                             "type": "integer"
                         },
@@ -2030,6 +2056,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Review ID",
                         "name": "review_id",
                         "in": "path",
@@ -2072,6 +2099,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Review ID",
                         "name": "review_id",
                         "in": "path",
@@ -2111,6 +2139,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "uuid",
                         "description": "Review ID",
                         "name": "review_id",
                         "in": "path",

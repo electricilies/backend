@@ -363,8 +363,8 @@ type UpsertOrderParams struct {
 	IsPaid      bool
 	ProviderID  uuid.UUID
 	StatusID    uuid.UUID
-	CreatedAt   pgtype.Timestamp
-	UpdatedAt   pgtype.Timestamp
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
 }
 
 func (q *Queries) UpsertOrder(ctx context.Context, arg UpsertOrderParams) error {

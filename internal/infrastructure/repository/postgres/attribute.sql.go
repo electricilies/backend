@@ -347,7 +347,7 @@ type UpsertAttributeParams struct {
 	ID        uuid.UUID
 	Code      string
 	Name      string
-	DeletedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamptz
 }
 
 func (q *Queries) UpsertAttribute(ctx context.Context, arg UpsertAttributeParams) error {

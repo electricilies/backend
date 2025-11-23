@@ -6,3 +6,10 @@ func fromPgValidToPtr[T any](value T, valid bool) *T {
 	}
 	return &value
 }
+
+func fromPgValidToNonPtr[T any](value T, valid bool, defaultValue T) T {
+	if !valid {
+		return defaultValue
+	}
+	return value
+}

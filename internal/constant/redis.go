@@ -94,7 +94,18 @@ const (
 	ProductGetPrefix  = "product:get:"
 )
 
-func ProductListKey(ids *[]uuid.UUID, search string, minPrice *int64, maxPrice *int64, rating *float64, categoryIDs *[]uuid.UUID, deleted string, sortRating string, sortPrice string, limit, page int) string {
+func ProductListKey(
+	ids *[]uuid.UUID,
+	search string,
+	minPrice *int64,
+	maxPrice *int64,
+	rating *float64,
+	categoryIDs *[]uuid.UUID,
+	deleted string,
+	sortRating string,
+	sortPrice string,
+	limit, page int,
+) string {
 	idsStr := ""
 	if ids != nil && len(*ids) > 0 {
 		for _, id := range *ids {
@@ -124,7 +135,21 @@ func ProductListKey(ids *[]uuid.UUID, search string, minPrice *int64, maxPrice *
 		}
 	}
 
-	return fmt.Sprintf("%s%s:%s:%s:%s:%s:%s:%s:%s:%s:%d:%d", ProductListPrefix, idsStr, search, minPriceStr, maxPriceStr, ratingStr, categoryIDsStr, deleted, sortRating, sortPrice, limit, page)
+	return fmt.Sprintf(
+		"%s%s:%s:%s:%s:%s:%s:%s:%s:%s:%d:%d",
+		ProductListPrefix,
+		idsStr,
+		search,
+		minPriceStr,
+		maxPriceStr,
+		ratingStr,
+		categoryIDsStr,
+		deleted,
+		sortRating,
+		sortPrice,
+		limit,
+		page,
+	)
 }
 
 func ProductGetKey(id uuid.UUID) string {

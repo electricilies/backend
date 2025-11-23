@@ -152,7 +152,7 @@ ON CONFLICT (id) DO UPDATE SET
 type UpsertCartParams struct {
 	ID        uuid.UUID
 	UserID    uuid.UUID
-	UpdatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamptz
 }
 
 func (q *Queries) UpsertCart(ctx context.Context, arg UpsertCartParams) error {

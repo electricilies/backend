@@ -33,7 +33,7 @@ func ProvideReviewHandler(reviewApp application.Review) *ReviewHandlerImpl {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			review_id	path		int	true	"Review ID"
+//	@Param			review_id	path		int	true	"Review ID"	format(uuid)
 //	@Success		200			{object}	domain.Review
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
@@ -66,7 +66,7 @@ func (h *ReviewHandlerImpl) Get(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_ids	query		[]int	false	"Product IDs"				collectionFormat(csv)
+//	@Param			product_ids	query		[]int	false	"Product IDs"				collectionFormat(csv)	format(uuid)
 //	@Param			deleted		query		string	false	"Include deleted reviews"	Enums(include, only, exclude)
 //	@Param			page		query		int		false	"Page for pagination"		default(1)
 //	@Param			limit		query		int		false	"Limit for pagination"		default(20)
@@ -160,7 +160,7 @@ func (h *ReviewHandlerImpl) Create(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			review_id	path		int								true	"Review ID"
+//	@Param			review_id	path		int								true	"Review ID"	format(uuid)
 //	@Param			review		body		application.UpdateReviewData	true	"Update review request"
 //	@Success		204			{object}	domain.Review
 //	@Failure		400			{object}	Error
@@ -204,7 +204,7 @@ func (h *ReviewHandlerImpl) Update(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			review_id	path	int	true	"Review ID"
+//	@Param			review_id	path	int	true	"Review ID"	format(uuid)
 //	@Success		204
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error

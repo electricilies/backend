@@ -13,20 +13,20 @@ type Attribute struct {
 	ID        uuid.UUID
 	Code      string
 	Name      string
-	DeletedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamptz
 }
 
 type AttributeValue struct {
 	ID          uuid.UUID
 	AttributeID uuid.UUID
 	Value       string
-	DeletedAt   pgtype.Timestamp
+	DeletedAt   pgtype.Timestamptz
 }
 
 type Cart struct {
 	ID        uuid.UUID
 	UserID    uuid.UUID
-	UpdatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamptz
 }
 
 type CartItem struct {
@@ -39,22 +39,22 @@ type CartItem struct {
 type Category struct {
 	ID        uuid.UUID
 	Name      string
-	CreatedAt pgtype.Timestamp
-	UpdatedAt pgtype.Timestamp
-	DeletedAt pgtype.Timestamp
+	CreatedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
+	DeletedAt pgtype.Timestamptz
 }
 
 type Option struct {
 	ID        uuid.UUID
 	Name      string
 	ProductID uuid.UUID
-	DeletedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamptz
 }
 
 type OptionValue struct {
 	ID        uuid.UUID
 	Value     string
-	DeletedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamptz
 	OptionID  uuid.UUID
 }
 
@@ -66,8 +66,8 @@ type OptionValuesProductVariant struct {
 type Order struct {
 	ID          uuid.UUID
 	Address     string
-	CreatedAt   pgtype.Timestamp
-	UpdatedAt   pgtype.Timestamp
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
 	TotalAmount pgtype.Numeric
 	IsPaid      bool
 	UserID      uuid.UUID
@@ -103,17 +103,17 @@ type Product struct {
 	Rating        float32
 	TrendingScore float32
 	CategoryID    uuid.UUID
-	CreatedAt     pgtype.Timestamp
-	UpdatedAt     pgtype.Timestamp
-	DeletedAt     pgtype.Timestamp
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
+	DeletedAt     pgtype.Timestamptz
 }
 
 type ProductImage struct {
 	ID               uuid.UUID
 	URL              string
 	Order            int32
-	CreatedAt        pgtype.Timestamp
-	DeletedAt        pgtype.Timestamp
+	CreatedAt        pgtype.Timestamptz
+	DeletedAt        pgtype.Timestamptz
 	ProductID        pgtype.UUID
 	ProductVariantID pgtype.UUID
 }
@@ -125,9 +125,9 @@ type ProductVariant struct {
 	Quantity      int32
 	PurchaseCount int32
 	ProductID     uuid.UUID
-	CreatedAt     pgtype.Timestamp
-	UpdatedAt     pgtype.Timestamp
-	DeletedAt     pgtype.Timestamp
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
+	DeletedAt     pgtype.Timestamptz
 }
 
 type ProductsAttributeValue struct {
@@ -137,8 +137,8 @@ type ProductsAttributeValue struct {
 
 type Refund struct {
 	ID              uuid.UUID
-	CreatedAt       pgtype.Timestamp
-	UpdatedAt       pgtype.Timestamp
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
 	StatusID        uuid.UUID
 	OrderItemID     uuid.UUID
 	ReturnRequestID uuid.UUID
@@ -152,8 +152,8 @@ type RefundStatus struct {
 type ReturnRequest struct {
 	ID          uuid.UUID
 	Reason      string
-	CreatedAt   pgtype.Timestamp
-	UpdatedAt   pgtype.Timestamp
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
 	StatusID    uuid.UUID
 	UserID      uuid.UUID
 	OrderItemID uuid.UUID
@@ -169,9 +169,9 @@ type Review struct {
 	Rating      int16
 	Content     *string
 	ImageURL    string
-	CreatedAt   pgtype.Timestamp
-	UpdatedAt   pgtype.Timestamp
-	DeletedAt   pgtype.Timestamp
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
+	DeletedAt   pgtype.Timestamptz
 	UserID      uuid.UUID
 	OrderItemID uuid.UUID
 }

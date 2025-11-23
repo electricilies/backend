@@ -24,7 +24,7 @@ func ProvideProductHandler() *ProductHandlerImpl {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id	path		int	true	"Product ID"
+//	@Param			product_id	path		int	true	"Product ID"	format(uuid)
 //	@Success		200			{object}	domain.Product
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
@@ -45,7 +45,7 @@ func (h *ProductHandlerImpl) Get(ctx *gin.Context) {
 //	@Param			deleted			query		string	false	"Filter by deleted status"	Enums(exclude, only, all)
 //	@Param			sort_price		query		string	false	"Sort by price"				Enums(asc, desc)
 //	@Param			sort_rating		query		string	false	"Sort by rating"			Enums(asc, desc)
-//	@Param			category_ids	query		[]int	false	"Filter by category ID"		CollectionFormat(csv)
+//	@Param			category_ids	query		[]int	false	"Filter by category ID"		CollectionFormat(csv)	format(uuid)
 //	@Param			min_price		query		int		false	"Minimum price filter"
 //	@Param			max_price		query		int		false	"Maximum price filter"
 //	@Success		200				{object}	application.Pagination[domain.Product]
@@ -78,7 +78,7 @@ func (h *ProductHandlerImpl) Create(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id	path		int								true	"Product ID"
+//	@Param			product_id	path		int								true	"Product ID"	format(uuid)
 //	@Param			product		body		application.UpdateProductData	true	"Update product request"
 //	@Success		200			{object}	domain.Product
 //	@Failure		400			{object}	Error
@@ -97,7 +97,7 @@ func (h *ProductHandlerImpl) Update(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id	path	int	true	"Product ID"
+//	@Param			product_id	path	int	true	"Product ID"	format(uuid)
 //	@Success		204
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
@@ -131,7 +131,7 @@ func (h *ProductHandlerImpl) AddImages(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id	path	int		true	"Product ID"
+//	@Param			product_id	path	int		true	"Product ID"	format(uuid)
 //	@Param			ids			query	[]int	true	"Product Image IDs"
 //	@Success		204
 //	@Failure		400	{object}	Error
@@ -186,7 +186,7 @@ func (h *ProductHandlerImpl) UpdateVariant(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id	path		int										true	"Product ID"
+//	@Param			product_id	path		int										true	"Product ID"	format(uuid)
 //	@Param			option		body		[]application.UpdateProductOptionsData	true	"Update product option request"
 //	@Success		200			{object}	domain.Option
 //	@Failure		400			{object}	Error
@@ -218,7 +218,7 @@ func (h *ProductHandlerImpl) GetUploadImageURL(ctx *gin.Context) {
 //	@Description	Get a presigned URL to delete product images
 //	@Tags			Product
 //	@Produce		json
-//	@Param			image_id	path		int	true	"Product Image ID"
+//	@Param			image_id	path		int	true	"Product Image ID"	format(uuid)
 //	@Success		204			{object}	application.DeleteImageURL
 //	@Failure		500			{object}	Error
 //	@Router			/products/images/delete-url/{image_id} [get]

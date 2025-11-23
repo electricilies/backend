@@ -176,7 +176,7 @@ func (r *PostgresAttribute) Save(ctx context.Context, attribute domain.Attribute
 		ID:   attribute.ID,
 		Code: attribute.Code,
 		Name: attribute.Name,
-		DeletedAt: pgtype.Timestamp{
+		DeletedAt: pgtype.Timestamptz{
 			Time:  ptr.Deref(attribute.DeletedAt, time.Time{}),
 			Valid: attribute.DeletedAt != nil,
 		},
