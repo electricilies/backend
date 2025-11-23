@@ -520,6 +520,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Attribute ID",
+                        "name": "attribute_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Attribute Value ID",
                         "name": "value_id",
                         "in": "path",
@@ -2568,6 +2575,9 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "deletedAt": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },

@@ -324,12 +324,18 @@ func (h *AttributeHandlerImpl) Delete(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			value_id	path	string	true	"Attribute Value ID"
+//	@Param			attribute_id	path	string	true	"Attribute ID"
+//	@Param			value_id		path	string	true	"Attribute Value ID"
 //	@Success		204
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/attributes/{attribute_id}/values/{value_id} [delete]
 func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
+	attributeIDString := ctx.Param("attribute_id")
+	if attributeIDString == "" {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
+		return
+	}
 	valueIDString := ctx.Param("value_id")
 	if valueIDString == "" {
 		ctx.JSON(http.StatusBadRequest, NewError("value_id is required"))
@@ -341,11 +347,6 @@ func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
 		return
 	}
 
-	attributeIDString := ctx.Param("attribute_id")
-	if attributeIDString == "" {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
-		return
-	}
 	attributeID, err := uuid.Parse(attributeIDString)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
