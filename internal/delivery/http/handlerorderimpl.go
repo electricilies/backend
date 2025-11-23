@@ -38,6 +38,8 @@ func ProvideOrderHandler(orderApp application.Order) *OrderHandlerImpl {
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/orders/{order_id} [get]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *OrderHandlerImpl) Get(ctx *gin.Context) {
 	orderIDString := ctx.Param("order_id")
 	if orderIDString == "" {
@@ -72,6 +74,8 @@ func (h *OrderHandlerImpl) Get(ctx *gin.Context) {
 //	@Success		200			{array}		domain.Order
 //	@Failure		500			{object}	Error
 //	@Router			/orders [get]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *OrderHandlerImpl) List(ctx *gin.Context) {
 	paginateParam, err := createPaginationParamsFromQuery(ctx)
 	if err != nil {
@@ -120,6 +124,8 @@ func (h *OrderHandlerImpl) List(ctx *gin.Context) {
 //	@Failure		409		{object}	Error
 //	@Failure		500		{object}	Error
 //	@Router			/orders [post]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *OrderHandlerImpl) Create(ctx *gin.Context) {
 	var data application.CreateOrderData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
@@ -156,6 +162,8 @@ func (h *OrderHandlerImpl) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/orders/{order_id} [patch]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *OrderHandlerImpl) Update(ctx *gin.Context) {
 	orderIDString := ctx.Param("order_id")
 	if orderIDString == "" {
@@ -197,6 +205,8 @@ func (h *OrderHandlerImpl) Update(ctx *gin.Context) {
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/orders/{order_id} [delete]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *OrderHandlerImpl) Delete(ctx *gin.Context) {
 	orderIDString := ctx.Param("order_id")
 	if orderIDString == "" {

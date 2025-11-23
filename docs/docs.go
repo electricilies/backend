@@ -17,6 +17,14 @@ const docTemplate = `{
     "paths": {
         "/attributes": {
             "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Get all attributes",
                 "consumes": [
                     "application/json"
@@ -98,6 +106,14 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Create a new attribute",
                 "consumes": [
                     "application/json"
@@ -150,6 +166,14 @@ const docTemplate = `{
         },
         "/attributes/{attribute_id}": {
             "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Get attribute details by ID",
                 "consumes": [
                     "application/json"
@@ -193,6 +217,14 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Delete attribute by ID",
                 "consumes": [
                     "application/json"
@@ -233,6 +265,14 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Update attribute by ID",
                 "consumes": [
                     "application/json"
@@ -299,6 +339,14 @@ const docTemplate = `{
         },
         "/attributes/{attribute_id}/values": {
             "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Get all attribute values",
                 "consumes": [
                     "application/json"
@@ -377,6 +425,14 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Create a new attribute value for a given attribute",
                 "consumes": [
                     "application/json"
@@ -441,6 +497,14 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Update attribute values for a given attribute",
                 "consumes": [
                     "application/json"
@@ -513,6 +577,14 @@ const docTemplate = `{
         },
         "/attributes/{attribute_id}/values/{value_id}": {
             "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Delete attribute value by ID",
                 "consumes": [
                     "application/json"
@@ -562,6 +634,14 @@ const docTemplate = `{
         },
         "/carts/{cart_id}": {
             "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Get cart by user ID",
                 "consumes": [
                     "application/json"
@@ -613,6 +693,14 @@ const docTemplate = `{
         },
         "/carts/{cart_id}/item": {
             "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Add a product item to the cart",
                 "consumes": [
                     "application/json"
@@ -657,6 +745,14 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Remove an item from the cart",
                 "consumes": [
                     "application/json"
@@ -697,6 +793,14 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Update quantity of a cart item",
                 "consumes": [
                     "application/json"
@@ -800,6 +904,14 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Create a new category",
                 "consumes": [
                     "application/json"
@@ -895,6 +1007,14 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Update category by ID",
                 "consumes": [
                     "application/json"
@@ -961,6 +1081,14 @@ const docTemplate = `{
         },
         "/orders": {
             "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Get all orders",
                 "consumes": [
                     "application/json"
@@ -1026,6 +1154,14 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Create a new order",
                 "consumes": [
                     "application/json"
@@ -1078,6 +1214,14 @@ const docTemplate = `{
         },
         "/orders/{order_id}": {
             "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Get order details by ID",
                 "consumes": [
                     "application/json"
@@ -1121,6 +1265,14 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Delete an order by ID",
                 "consumes": [
                     "application/json"
@@ -1161,6 +1313,14 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Update  order",
                 "consumes": [
                     "application/json"
@@ -1324,6 +1484,14 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Create a new product, including allllll",
                 "consumes": [
                     "application/json"
@@ -1497,6 +1665,14 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Delete product by ID",
                 "consumes": [
                     "application/json"
@@ -1537,6 +1713,14 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Update product by ID",
                 "consumes": [
                     "application/json"
@@ -1603,6 +1787,14 @@ const docTemplate = `{
         },
         "/products/{product_id}/images": {
             "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Create new images for an existing product",
                 "consumes": [
                     "application/json"
@@ -1666,6 +1858,14 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Delete images for an existing product",
                 "consumes": [
                     "application/json"
@@ -1719,6 +1919,14 @@ const docTemplate = `{
         },
         "/products/{product_id}/options": {
             "put": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Update a product options",
                 "consumes": [
                     "application/json"
@@ -1788,6 +1996,14 @@ const docTemplate = `{
         },
         "/products/{product_id}/variants": {
             "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Add a new variant for a existing product",
                 "consumes": [
                     "application/json"
@@ -1850,6 +2066,14 @@ const docTemplate = `{
         },
         "/products/{product_id}/variants/{variant_id}": {
             "patch": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Update a product variant by ID",
                 "consumes": [
                     "application/json"
@@ -1990,6 +2214,14 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Create a new review",
                 "consumes": [
                     "application/json"
@@ -2085,6 +2317,14 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Delete review by ID",
                 "consumes": [
                     "application/json"
@@ -2125,6 +2365,14 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
                 "description": "Update review by ID",
                 "consumes": [
                     "application/json"

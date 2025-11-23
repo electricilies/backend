@@ -107,6 +107,8 @@ func (h *CategoryHandlerImpl) Get(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/categories [post]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *CategoryHandlerImpl) Create(ctx *gin.Context) {
 	var data application.CreateCategoryData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
@@ -139,6 +141,8 @@ func (h *CategoryHandlerImpl) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/categories/{category_id} [patch]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *CategoryHandlerImpl) Update(ctx *gin.Context) {
 	categoryIDString := ctx.Param("category_id")
 	if categoryIDString == "" {

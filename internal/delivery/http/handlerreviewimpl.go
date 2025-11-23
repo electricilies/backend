@@ -130,6 +130,8 @@ func (h *ReviewHandlerImpl) List(ctx *gin.Context) {
 //	@Failure		409		{object}	Error
 //	@Failure		500		{object}	Error
 //	@Router			/reviews [post]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *ReviewHandlerImpl) Create(ctx *gin.Context) {
 	var data application.CreateReviewData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
@@ -168,6 +170,8 @@ func (h *ReviewHandlerImpl) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/reviews/{review_id} [patch]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *ReviewHandlerImpl) Update(ctx *gin.Context) {
 	reviewIDString := ctx.Param("review_id")
 	if reviewIDString == "" {
@@ -209,6 +213,8 @@ func (h *ReviewHandlerImpl) Update(ctx *gin.Context) {
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/reviews/{review_id} [delete]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *ReviewHandlerImpl) Delete(ctx *gin.Context) {
 	reviewIDString := ctx.Param("review_id")
 	if reviewIDString == "" {

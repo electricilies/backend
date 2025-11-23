@@ -67,6 +67,8 @@ func (h *ProductHandlerImpl) List(ctx *gin.Context) {
 //	@Failure		409		{object}	Error
 //	@Failure		500		{object}	Error
 //	@Router			/products [post]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *ProductHandlerImpl) Create(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -86,6 +88,8 @@ func (h *ProductHandlerImpl) Create(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/products/{product_id} [patch]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *ProductHandlerImpl) Update(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -102,6 +106,8 @@ func (h *ProductHandlerImpl) Update(ctx *gin.Context) {
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/products/{product_id} [delete]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *ProductHandlerImpl) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -120,6 +126,8 @@ func (h *ProductHandlerImpl) Delete(ctx *gin.Context) {
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/products/{product_id}/images [post]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *ProductHandlerImpl) AddImages(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -137,6 +145,8 @@ func (h *ProductHandlerImpl) AddImages(ctx *gin.Context) {
 //	@Failure		400	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/products/{product_id}/images [delete]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *ProductHandlerImpl) DeleteImages(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -155,6 +165,8 @@ func (h *ProductHandlerImpl) DeleteImages(ctx *gin.Context) {
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/products/{product_id}/variants [post]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *ProductHandlerImpl) AddVariants(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -175,6 +187,8 @@ func (h *ProductHandlerImpl) AddVariants(ctx *gin.Context) {
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/products/{product_id}/variants/{variant_id} [patch]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *ProductHandlerImpl) UpdateVariant(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
@@ -194,6 +208,8 @@ func (h *ProductHandlerImpl) UpdateVariant(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/products/{product_id}/options [put]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *ProductHandlerImpl) UpdateOptions(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }

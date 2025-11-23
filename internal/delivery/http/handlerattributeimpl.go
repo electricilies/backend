@@ -39,6 +39,8 @@ func ProvideAttributeHandler(attributeApp application.Attribute) *AttributeHandl
 //	@Failure		404				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/attributes/{attribute_id} [get]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Get(ctx *gin.Context) {
 	attributeIDString := ctx.Param("attribute_id")
 	if attributeIDString == "" {
@@ -76,6 +78,8 @@ func (h *AttributeHandlerImpl) Get(ctx *gin.Context) {
 //	@Success		200				{object}	application.Pagination[domain.Attribute]
 //	@Failure		500				{object}	Error
 //	@Router			/attributes [get]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) List(ctx *gin.Context) {
 	paginateParam, err := createPaginationParamsFromQuery(ctx)
 	if err != nil {
@@ -123,6 +127,8 @@ func (h *AttributeHandlerImpl) List(ctx *gin.Context) {
 //	@Success		200					{object}	application.Pagination[domain.AttributeValue]
 //	@Failure		500					{object}	Error
 //	@Router			/attributes/{attribute_id}/values [get]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) ListValues(ctx *gin.Context) {
 	paginateParam, err := createPaginationParamsFromQuery(ctx)
 	if err != nil {
@@ -178,6 +184,8 @@ func (h *AttributeHandlerImpl) ListValues(ctx *gin.Context) {
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/attributes [post]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Create(ctx *gin.Context) {
 	var data application.CreateAttributeData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
@@ -210,6 +218,8 @@ func (h *AttributeHandlerImpl) Create(ctx *gin.Context) {
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/attributes/{attribute_id}/values [post]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 	attributeIDString := ctx.Param("attribute_id")
 	if attributeIDString == "" {
@@ -254,6 +264,8 @@ func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/attributes/{attribute_id} [patch]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Update(ctx *gin.Context) {
 	attributeIDString := ctx.Param("attribute_id")
 	if attributeIDString == "" {
@@ -295,6 +307,8 @@ func (h *AttributeHandlerImpl) Update(ctx *gin.Context) {
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/attributes/{attribute_id} [delete]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Delete(ctx *gin.Context) {
 	attributeIDString := ctx.Param("attribute_id")
 	if attributeIDString == "" {
@@ -330,6 +344,8 @@ func (h *AttributeHandlerImpl) Delete(ctx *gin.Context) {
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/attributes/{attribute_id}/values/{value_id} [delete]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
 	attributeIDString := ctx.Param("attribute_id")
 	if attributeIDString == "" {
@@ -379,6 +395,8 @@ func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/attributes/{attribute_id}/values [patch]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) UpdateValue(ctx *gin.Context) {
 	attributeIDString := ctx.Param("attribute_id")
 	if attributeIDString == "" {

@@ -43,6 +43,8 @@ func ProvideCartHandler(cartApp application.Cart) *CartHandlerImpl {
 //	@Failure		404		{object}	Error
 //	@Failure		500		{object}	Error
 //	@Router			/carts/{cart_id} [get]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *CartHandlerImpl) Get(ctx *gin.Context) {
 	cartIDString := ctx.Param("cart_id")
 	if cartIDString == "" {
@@ -76,6 +78,8 @@ func (h *CartHandlerImpl) Get(ctx *gin.Context) {
 //	@Failure		400		{object}	Error
 //	@Failure		500		{object}	Error
 //	@Router			/carts/{cart_id}/item  [post]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *CartHandlerImpl) CreateItem(ctx *gin.Context) {
 	cartIDString := ctx.Param("cart_id")
 	if cartIDString == "" {
@@ -123,6 +127,8 @@ func (h *CartHandlerImpl) CreateItem(ctx *gin.Context) {
 //	@Failure		404				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/carts/{cart_id}/item [patch]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *CartHandlerImpl) UpdateItem(ctx *gin.Context) {
 	cartIDString := ctx.Param("cart_id")
 	if cartIDString == "" {
@@ -180,6 +186,8 @@ func (h *CartHandlerImpl) UpdateItem(ctx *gin.Context) {
 //	@Failure		404	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/carts/{cart_id}/item [delete]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
 func (h *CartHandlerImpl) RemoveItem(ctx *gin.Context) {
 	cartIDString := ctx.Param("cart_id")
 	if cartIDString == "" {
