@@ -49,14 +49,14 @@ type CreateProductImageData struct {
 }
 
 type CreateProductVariantData struct {
-	SKU          string                             `json:"sku"          binding:"required"`
-	Price        int64                              `json:"price"        binding:"required"`
-	Quantity     int                                `json:"quantity"     binding:"required"`
-	OptionValues *[]CreateProductVariantOptionValue `json:"optionValues" binding:"omitempty,dive"`
-	Images       *[]CreateProductVariantImage       `json:"images"       binding:"omitempty,dive"`
+	SKU      string                        `json:"sku"      binding:"required"`
+	Price    int64                         `json:"price"    binding:"required"`
+	Quantity int                           `json:"quantity" binding:"required"`
+	Options  *[]CreateProductVariantOption `json:"options"  binding:"omitempty,dive"`
+	Images   *[]CreateProductVariantImage  `json:"images"   binding:"omitempty,dive"`
 }
 
-type CreateProductVariantOptionValue struct {
+type CreateProductVariantOption struct {
 	Name  string `json:"name"  binding:"required"`
 	Value string `json:"value" binding:"required"`
 }

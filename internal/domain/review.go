@@ -7,12 +7,12 @@ import (
 )
 
 type Review struct {
-	ID        uuid.UUID  `json:"id"        binding:"required"                      validate:"required"`
-	Rating    int        `json:"rating"    binding:"required"                      validate:"required,gte=1,lte=5"`
+	ID        uuid.UUID  `json:"id"        binding:"required"            validate:"required"`
+	Rating    int        `json:"rating"    binding:"required"            validate:"required,gte=1,lte=5"`
 	Content   *string    `json:"content"   validate:"omitnil,gte=10"`
-	OrderItem *OrderItem `json:"orderItem" validate:"required"`
+	OrderItem *OrderItem `json:"orderItem"`
 	ImageURL  *string    `json:"imageUrl"  validate:"omitnil,url"`
-	CreatedAt time.Time  `json:"createdAt" binding:"required"                      validate:"required"`
-	UpdatedAt time.Time  `json:"updatedAt" binding:"required"                      validate:"required,gtefield=CreatedAt"`
-	DeletedAt *time.Time `json:"deletedAt" validate:"omitempty,gtefield=CreatedAt"`
+	CreatedAt time.Time  `json:"createdAt" binding:"required"            validate:"required"`
+	UpdatedAt time.Time  `json:"updatedAt" binding:"required"            validate:"required,gtefield=CreatedAt"`
+	DeletedAt *time.Time `json:"deletedAt" validate:"gtefield=CreatedAt"`
 }

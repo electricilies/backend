@@ -903,7 +903,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Pagination-backend_internal_domain_Category"
+                            "$ref": "#/definitions/Pagination-Category"
                         }
                     },
                     "500": {
@@ -3080,6 +3080,24 @@ const docTemplate = `{
                 }
             }
         },
+        "Pagination-Category": {
+            "type": "object",
+            "required": [
+                "data",
+                "meta"
+            ],
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Category"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/PaginationMeta"
+                }
+            }
+        },
         "Pagination-Product": {
             "type": "object",
             "required": [
@@ -3109,24 +3127,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/Review"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/PaginationMeta"
-                }
-            }
-        },
-        "Pagination-backend_internal_domain_Category": {
-            "type": "object",
-            "required": [
-                "data",
-                "meta"
-            ],
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Category"
                     }
                 },
                 "meta": {
