@@ -23,7 +23,7 @@ type AttributeService interface {
 	) (*AttributeValue, error)
 
 	UpdateValue(
-		attribute Attribute,
+		attribute *Attribute,
 		attributeValueID uuid.UUID,
 		value *string,
 	) error
@@ -33,7 +33,7 @@ type AttributeService interface {
 	) error
 
 	RemoveValue(
-		attribute Attribute,
+		attribute *Attribute,
 		attributeValueID uuid.UUID,
 	) error
 }

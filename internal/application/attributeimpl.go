@@ -264,7 +264,7 @@ func (a *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeVa
 		return nil, err
 	}
 	err = a.attributeService.UpdateValue(
-		*attribute,
+		attribute,
 		param.AttributeValueID,
 		param.Data.Value,
 	)
@@ -327,7 +327,7 @@ func (a *AttributeImpl) DeleteValue(ctx context.Context, param DeleteAttributeVa
 	if err != nil {
 		return err
 	}
-	err = a.attributeService.RemoveValue(*attribute, param.AttributeValueID)
+	err = a.attributeService.RemoveValue(attribute, param.AttributeValueID)
 	if err != nil {
 		return err
 	}

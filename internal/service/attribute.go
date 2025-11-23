@@ -84,7 +84,7 @@ func (a *Attribute) CreateValue(
 }
 
 func (a *Attribute) UpdateValue(
-	attribute domain.Attribute,
+	attribute *domain.Attribute,
 	attributeValueID uuid.UUID,
 	value *string,
 ) error {
@@ -105,9 +105,6 @@ func (a *Attribute) UpdateValue(
 func (a *Attribute) Remove(
 	attribute *domain.Attribute,
 ) error {
-	if attribute == nil {
-		return domain.ErrInvalid
-	}
 	now := time.Now()
 	attribute.DeletedAt = &now
 	for i := range attribute.Values {
@@ -120,11 +117,11 @@ func (a *Attribute) Remove(
 }
 
 func (a *Attribute) RemoveValue(
-	attribute domain.Attribute,
+	attribute *domain.Attribute,
 	attributeValueID uuid.UUID,
 ) error {
-	if attribute.Values == nil {
-		return nil
+	if attribute == nil {
+		return domain.ErrInvalid
 	}
 	newValues := []domain.AttributeValue{}
 	for _, v := range attribute.Values {
