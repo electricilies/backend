@@ -1,8 +1,6 @@
 package http
 
 import (
-	"net/http"
-
 	_ "backend/internal/application"
 	_ "backend/internal/domain"
 
@@ -23,5 +21,3 @@ type ProductHandler interface {
 	GetDeleteImageURL(*gin.Context)
 	GetUploadImageURL(*gin.Context)
 }
-
-

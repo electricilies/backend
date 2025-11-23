@@ -1,13 +1,9 @@
 package http
 
 import (
-	"net/http"
-
-	"backend/internal/application"
 	_ "backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type OrderHandler interface {
@@ -17,5 +13,3 @@ type OrderHandler interface {
 	Update(*gin.Context)
 	Delete(*gin.Context)
 }
-
-

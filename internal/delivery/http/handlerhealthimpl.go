@@ -15,8 +15,6 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-
-
 type GinHealthHandler struct {
 	keycloakClient *gocloak.GoCloak
 	redisClient    *redis.Client

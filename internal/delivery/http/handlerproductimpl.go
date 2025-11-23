@@ -9,8 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
-
 type GinProductHandler struct{}
 
 var _ ProductHandler = &GinProductHandler{}

@@ -10,8 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-
-
 type GinOrderHandler struct {
 	orderApp           application.Order
 	ErrRequiredOrderID string

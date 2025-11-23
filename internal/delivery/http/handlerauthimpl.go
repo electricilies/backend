@@ -9,8 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
-
 type GinAuthHandler struct {
 	cfgSrv *config.Server
 }

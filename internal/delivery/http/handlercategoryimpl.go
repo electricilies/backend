@@ -10,8 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-
-
 type GinCategoryHandler struct {
 	categoryApp           application.Category
 	ErrRequiredCategoryID string
@@ -35,7 +33,7 @@ func ProvideCategoryHandler(categoryApp application.Category) *GinCategoryHandle
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Param			page			query		int			false	"Page for pagination" default(1)
+//	@Param			page	query		int	false	"Page for pagination"	default(1)
 //	@Param			limit	query		int	false	"Limit for pagination"	default(20)
 //	@Success		200		{object}	application.Pagination[domain.Category]
 //	@Failure		500		{object}	Error

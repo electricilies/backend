@@ -10,8 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-
-
 type GinCartHandler struct {
 	cartApp               application.Cart
 	ErrRequiredCartID     string
