@@ -1,8 +1,3 @@
--- users
-CREATE TABLE users (
-  id UUID PRIMARY KEY
-);
-
 -- categories
 CREATE TABLE categories (
   id UUID PRIMARY KEY,
@@ -101,7 +96,7 @@ CREATE TABLE option_values_product_variants (
 -- carts
 CREATE TABLE carts (
   id UUID PRIMARY KEY,
-  user_id UUID UNIQUE NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+  user_id UUID UNIQUE NOT NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
@@ -135,7 +130,7 @@ CREATE TABLE orders (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   total_amount DECIMAL(12, 0) NOT NULL,
   is_paid BOOLEAN NOT NULL DEFAULT FALSE,
-  user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+  user_id UUID NOT NULL,
   status_id UUID NOT NULL REFERENCES order_statuses (id) ON UPDATE CASCADE,
   provider_id UUID NOT NULL REFERENCES order_providers (id) ON UPDATE CASCADE
 );
@@ -158,7 +153,7 @@ CREATE TABLE reviews (
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP,
-  user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+  user_id UUID NOT NULL,
   order_item_id UUID NOT NULL REFERENCES order_items (id) ON UPDATE CASCADE
 );
 
@@ -175,7 +170,7 @@ CREATE TABLE return_requests (
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   status_id UUID NOT NULL REFERENCES return_request_statuses (id) ON UPDATE CASCADE,
-  user_id UUID NOT NULL REFERENCES users (id) ON UPDATE CASCADE,
+  user_id UUID NOT NULL,
   order_item_id UUID NOT NULL REFERENCES order_items (id) ON UPDATE CASCADE
 );
 

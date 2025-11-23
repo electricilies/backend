@@ -292,61 +292,6 @@ func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) 
 	return items, nil
 }
 
-const listProductsAttributeValues = `-- name: ListProductsAttributeValues :many
-SELECT
-  product_id, attribute_value_id
-FROM
-  products_attribute_values
-WHERE
-  CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
-    ELSE product_id = ANY ($1::uuid[])
-  END
-  AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
-    ELSE attribute_value_id = ANY ($2::uuid[])
-  END
-ORDER BY
-  product_id ASC,
-  attribute_value_id ASC
-OFFSET $3::integer
-LIMIT NULLIF($4::integer, 0)
-`
-
-type ListProductsAttributeValuesParams struct {
-	ProductIDs        []uuid.UUID
-	AttributeValueIDs []uuid.UUID
-	Offset            int32
-	Limit             int32
-}
-
-func (q *Queries) ListProductsAttributeValues(ctx context.Context, arg ListProductsAttributeValuesParams) ([]ProductsAttributeValue, error) {
-	rows, err := q.db.Query(ctx, listProductsAttributeValues,
-		arg.ProductIDs,
-		arg.AttributeValueIDs,
-		arg.Offset,
-		arg.Limit,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ProductsAttributeValue
-	for rows.Next() {
-		var i ProductsAttributeValue
-		if err := rows.Scan(&i.ProductID, &i.AttributeValueID); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const mergeAttributeValuesFromTemp = `-- name: MergeAttributeValuesFromTemp :exec
 MERGE INTO attribute_values AS target
 USING temp_attribute_values AS source
@@ -370,7 +315,7 @@ WHEN NOT MATCHED THEN
     source.deleted_at
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.attribute_id IN (SELECT DISTINCT attribute_id FROM source) THEN
+  AND target.attribute_id IN (SELECT DISTINCT attribute_id FROM temp_attribute_values) THEN
   DELETE
 `
 

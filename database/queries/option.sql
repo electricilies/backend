@@ -135,5 +135,5 @@ WHEN NOT MATCHED THEN
     source.option_value_id
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.option_value_id IN (SELECT id FROM option_values) THEN
+  AND target.option_value_id IN (SELECT id FROM temp_option_values) THEN
   DELETE;

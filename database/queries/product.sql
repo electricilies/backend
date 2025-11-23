@@ -118,8 +118,8 @@ FROM
   products
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    ELSE products.id = ANY (sqlc.narg('ids')::uuid[])
+    WHEN sqlc.narg('id')::uuid IS NULL THEN TRUE
+    ELSE products.id = sqlc.narg('id')::uuid
   END
   AND CASE
     WHEN sqlc.narg('min_price')::decimal IS NULL THEN TRUE
@@ -165,11 +165,21 @@ FROM
   product_variants
 WHERE
   CASE
+    WHEN sqlc.narg('id')::uuid IS NULL THEN TRUE
+    ELSE id = sqlc.narg('id')::uuid
+  END
+  AND CASE
+    WHEN sqlc.narg('sku')::text IS NULL THEN TRUE
+    ELSE sku = sqlc.narg('sku')::text
+  END
+  AND CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('product_ids')::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
   END
   AND CASE
@@ -179,7 +189,9 @@ WHERE
     ELSE deleted_at IS NULL
   END
 ORDER BY
-  id;
+  id
+OFFSET sqlc.arg('offset')::integer
+LIMIT NULLIF(sqlc.arg('limit')::integer, 0);
 
 -- name: GetProductVariant :one
 SELECT
@@ -195,6 +207,26 @@ WHERE
     ELSE deleted_at IS NULL
   END;
 
+-- name: ListProductsAttributeValues :many
+SELECT
+  *
+FROM
+  products_attribute_values
+WHERE
+  CASE
+    WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('product_ids')::uuid[]) = 0 THEN TRUE
+    ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.narg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
+    ELSE attribute_value_id = ANY (sqlc.narg('attribute_value_ids')::uuid[])
+  END
+ORDER BY
+  product_id ASC,
+  attribute_value_id ASC;
+
 -- name: ListProductImages :many
 SELECT
   *
@@ -203,14 +235,17 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('product_variant_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('product_variant_ids')::uuid[]) = 0 THEN TRUE
     ELSE product_variant_id = ANY (sqlc.narg('product_variant_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('product_ids')::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
   END
 ORDER BY
@@ -261,7 +296,8 @@ WHEN NOT MATCHED THEN
     source.updated_at,
     source.deleted_at
   )
-WHEN NOT MATCHED BY SOURCE AND target.product_id = sqlc.arg('product_id')::uuid THEN
+WHEN NOT MATCHED BY SOURCE
+  AND target.product_id = (SELECT DISTINCT id FROM source) THEN
   DELETE;
 
 -- name: MergeProductImagesFromTemp :exec
@@ -295,13 +331,15 @@ WHEN NOT MATCHED THEN
     source.created_at,
     source.deleted_at
   )
-WHEN NOT MATCHED BY SOURCE AND target.product_id = sqlc.arg('product_id')::uuid THEN
+WHEN NOT MATCHED BY SOURCE
+  AND target.product_id = (SELECT DISTINCT product_id FROM source) THEN
   DELETE;
 
 -- name: MergeProductsAttributeValuesFromTemp :exec
 MERGE INTO products_attribute_values AS target
 USING temp_products_attribute_values AS source
-  ON target.product_id = source.product_id AND target.attribute_value_id = source.attribute_value_id
+  ON target.product_id = source.product_id
+    AND target.attribute_value_id = source.attribute_value_id
 WHEN NOT MATCHED THEN
   INSERT (
     product_id,
@@ -311,5 +349,6 @@ WHEN NOT MATCHED THEN
     source.product_id,
     source.attribute_value_id
   )
-WHEN NOT MATCHED BY SOURCE AND target.product_id = sqlc.arg('product_id')::uuid THEN
+WHEN NOT MATCHED BY SOURCE
+  AND target.product_id IN (SELECT DISTINCT product_id FROM source) THEN
   DELETE;

@@ -77,28 +77,6 @@ WHERE
     ELSE deleted_at IS NULL
   END;
 
--- name: ListProductsAttributeValues :many
-SELECT
-  *
-FROM
-  products_attribute_values
-WHERE
-  CASE
-    WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('product_ids')::uuid[]) = 0 THEN TRUE
-    ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
-  END
-  AND CASE
-    WHEN sqlc.narg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
-    ELSE attribute_value_id = ANY (sqlc.narg('attribute_value_ids')::uuid[])
-  END
-ORDER BY
-  product_id ASC,
-  attribute_value_id ASC
-OFFSET sqlc.arg('offset')::integer
-LIMIT NULLIF(sqlc.arg('limit')::integer, 0);
-
 -- name: ListAttributeValues :many
 SELECT
   *
@@ -185,5 +163,5 @@ WHEN NOT MATCHED THEN
     source.deleted_at
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.attribute_id IN (SELECT DISTINCT attribute_id FROM source) THEN
+  AND target.attribute_id IN (SELECT DISTINCT attribute_id FROM temp_attribute_values) THEN
   DELETE;

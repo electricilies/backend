@@ -19,8 +19,8 @@ FROM
   products
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
-    ELSE products.id = ANY ($1::uuid[])
+    WHEN $1::uuid IS NULL THEN TRUE
+    ELSE products.id = $1::uuid
   END
   AND CASE
     WHEN $2::decimal IS NULL THEN TRUE
@@ -47,7 +47,7 @@ WHERE
 `
 
 type CountProductsParams struct {
-	IDs         []uuid.UUID
+	ID          pgtype.UUID
 	MinPrice    pgtype.Numeric
 	MaxPrice    pgtype.Numeric
 	Rating      *float32
@@ -57,7 +57,7 @@ type CountProductsParams struct {
 
 func (q *Queries) CountProducts(ctx context.Context, arg CountProductsParams) (int64, error) {
 	row := q.db.QueryRow(ctx, countProducts,
-		arg.IDs,
+		arg.ID,
 		arg.MinPrice,
 		arg.MaxPrice,
 		arg.Rating,
@@ -258,14 +258,17 @@ FROM
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE product_variant_id = ANY ($2::uuid[])
   END
   AND CASE
     WHEN $3::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY ($3::uuid[])
   END
 ORDER BY
@@ -313,31 +316,55 @@ FROM
   product_variants
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
-    ELSE id = ANY ($1::uuid[])
+    WHEN $1::uuid IS NULL THEN TRUE
+    ELSE id = $1::uuid
   END
   AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
-    ELSE product_id = ANY ($2::uuid[])
+    WHEN $2::text IS NULL THEN TRUE
+    ELSE sku = $2::text
   END
   AND CASE
-    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
-    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
-    WHEN $3::text = 'all' THEN TRUE
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
+    ELSE id = ANY ($3::uuid[])
+  END
+  AND CASE
+    WHEN $4::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($4::uuid[]) = 0 THEN TRUE
+    ELSE product_id = ANY ($4::uuid[])
+  END
+  AND CASE
+    WHEN $5::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $5::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $5::text = 'all' THEN TRUE
     ELSE deleted_at IS NULL
   END
 ORDER BY
   id
+OFFSET $6::integer
+LIMIT NULLIF($7::integer, 0)
 `
 
 type ListProductVariantsParams struct {
+	ID         pgtype.UUID
+	SKU        *string
 	IDs        []uuid.UUID
 	ProductIDs []uuid.UUID
 	Deleted    string
+	Offset     int32
+	Limit      int32
 }
 
 func (q *Queries) ListProductVariants(ctx context.Context, arg ListProductVariantsParams) ([]ProductVariant, error) {
-	rows, err := q.db.Query(ctx, listProductVariants, arg.IDs, arg.ProductIDs, arg.Deleted)
+	rows, err := q.db.Query(ctx, listProductVariants,
+		arg.ID,
+		arg.SKU,
+		arg.IDs,
+		arg.ProductIDs,
+		arg.Deleted,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -497,6 +524,52 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]P
 	return items, nil
 }
 
+const listProductsAttributeValues = `-- name: ListProductsAttributeValues :many
+SELECT
+  product_id, attribute_value_id
+FROM
+  products_attribute_values
+WHERE
+  CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
+    ELSE product_id = ANY ($1::uuid[])
+  END
+  AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
+    ELSE attribute_value_id = ANY ($2::uuid[])
+  END
+ORDER BY
+  product_id ASC,
+  attribute_value_id ASC
+`
+
+type ListProductsAttributeValuesParams struct {
+	ProductIDs        []uuid.UUID
+	AttributeValueIDs []uuid.UUID
+}
+
+func (q *Queries) ListProductsAttributeValues(ctx context.Context, arg ListProductsAttributeValuesParams) ([]ProductsAttributeValue, error) {
+	rows, err := q.db.Query(ctx, listProductsAttributeValues, arg.ProductIDs, arg.AttributeValueIDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ProductsAttributeValue
+	for rows.Next() {
+		var i ProductsAttributeValue
+		if err := rows.Scan(&i.ProductID, &i.AttributeValueID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const mergeProductImagesFromTemp = `-- name: MergeProductImagesFromTemp :exec
 MERGE INTO product_images AS target
 USING temp_product_images AS source
@@ -528,7 +601,8 @@ WHEN NOT MATCHED THEN
     source.created_at,
     source.deleted_at
   )
-WHEN NOT MATCHED BY SOURCE AND target.product_id = sqlc.arg('product_id')::uuid THEN
+WHEN NOT MATCHED BY SOURCE
+  AND target.product_id = (SELECT DISTINCT product_id FROM source) THEN
   DELETE
 `
 
@@ -574,7 +648,8 @@ WHEN NOT MATCHED THEN
     source.updated_at,
     source.deleted_at
   )
-WHEN NOT MATCHED BY SOURCE AND target.product_id = sqlc.arg('product_id')::uuid THEN
+WHEN NOT MATCHED BY SOURCE
+  AND target.product_id = (SELECT DISTINCT id FROM source) THEN
   DELETE
 `
 
@@ -586,7 +661,8 @@ func (q *Queries) MergeProductVariantsFromTemp(ctx context.Context) error {
 const mergeProductsAttributeValuesFromTemp = `-- name: MergeProductsAttributeValuesFromTemp :exec
 MERGE INTO products_attribute_values AS target
 USING temp_products_attribute_values AS source
-  ON target.product_id = source.product_id AND target.attribute_value_id = source.attribute_value_id
+  ON target.product_id = source.product_id
+    AND target.attribute_value_id = source.attribute_value_id
 WHEN NOT MATCHED THEN
   INSERT (
     product_id,
@@ -596,7 +672,8 @@ WHEN NOT MATCHED THEN
     source.product_id,
     source.attribute_value_id
   )
-WHEN NOT MATCHED BY SOURCE AND target.product_id = sqlc.arg('product_id')::uuid THEN
+WHEN NOT MATCHED BY SOURCE
+  AND target.product_id IN (SELECT DISTINCT product_id FROM source) THEN
   DELETE
 `
 

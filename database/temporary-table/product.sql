@@ -79,4 +79,3 @@ INSERT INTO temp_products_attribute_values (
   @product_id,
   @attribute_value_id
 );
-

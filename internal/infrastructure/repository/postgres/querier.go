@@ -6,8 +6,6 @@ package postgres
 
 import (
 	"context"
-
-	"github.com/google/uuid"
 )
 
 type Querier interface {
@@ -36,7 +34,6 @@ type Querier interface {
 	GetProductImage(ctx context.Context, arg GetProductImageParams) (ProductImage, error)
 	GetProductVariant(ctx context.Context, arg GetProductVariantParams) (ProductVariant, error)
 	GetReview(ctx context.Context, arg GetReviewParams) (Review, error)
-	GetUserByID(ctx context.Context, arg GetUserByIDParams) (uuid.UUID, error)
 	InsertTempTableAttributeValues(ctx context.Context, arg []InsertTempTableAttributeValuesParams) (int64, error)
 	InsertTempTableCartItems(ctx context.Context, arg []InsertTempTableCartItemsParams) (int64, error)
 	InsertTempTableOptionValues(ctx context.Context, arg []InsertTempTableOptionValuesParams) (int64, error)
@@ -60,7 +57,6 @@ type Querier interface {
 	ListProducts(ctx context.Context, arg ListProductsParams) ([]Product, error)
 	ListProductsAttributeValues(ctx context.Context, arg ListProductsAttributeValuesParams) ([]ProductsAttributeValue, error)
 	ListReviews(ctx context.Context, arg ListReviewsParams) ([]Review, error)
-	ListUsers(ctx context.Context) ([]uuid.UUID, error)
 	MergeAttributeValuesFromTemp(ctx context.Context) error
 	MergeCartItemsFromTemp(ctx context.Context) error
 	MergeOptionValuesFromTemp(ctx context.Context) error
@@ -75,7 +71,6 @@ type Querier interface {
 	UpsertOrder(ctx context.Context, arg UpsertOrderParams) error
 	UpsertProduct(ctx context.Context, arg UpsertProductParams) error
 	UpsertReview(ctx context.Context, arg UpsertReviewParams) error
-	UpsertUser(ctx context.Context, arg UpsertUserParams) error
 }
 
 var _ Querier = (*Queries)(nil)

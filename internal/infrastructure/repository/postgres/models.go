@@ -228,7 +228,3 @@ type TempProductsAttributeValue struct {
 	ProductID        uuid.UUID
 	AttributeValueID uuid.UUID
 }
-
-type User struct {
-	ID uuid.UUID
-}
