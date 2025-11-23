@@ -33,8 +33,9 @@ func ProvideCategoryHandler(categoryApp application.Category) *CategoryHandlerIm
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Param			page	query		int	false	"Page for pagination"	default(1)
-//	@Param			limit	query		int	false	"Limit for pagination"	default(20)
+//	@Param			search	query		string	false	"Search term"
+//	@Param			page	query		int		false	"Page for pagination"	default(1)
+//	@Param			limit	query		int		false	"Limit for pagination"	default(20)
 //	@Success		200		{object}	application.Pagination[domain.Category]
 //	@Failure		500		{object}	Error
 //	@Router			/categories [get]

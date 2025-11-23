@@ -495,84 +495,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    },
-                    {
-                        "OAuth2Password": []
-                    }
-                ],
-                "description": "Update attribute values for a given attribute",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Attribute"
-                ],
-                "summary": "Update attribute values",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "format": "uuid",
-                        "description": "Attribute ID",
-                        "name": "attribute_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Update attribute values request",
-                        "name": "values",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/UpdateAttributeValueData"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Attribute"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
             }
         },
         "/attributes/{attribute_id}/values/{value_id}": {
@@ -619,6 +541,89 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
+                "description": "Update a attribute value for a given attribute",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attribute"
+                ],
+                "summary": "Update a attribute value",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Attribute ID",
+                        "name": "attribute_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Attribute Value ID",
+                        "name": "value_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update attribute values request",
+                        "name": "value",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateAttributeValueData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Attribute"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/Error"
                         }
@@ -874,6 +879,12 @@ const docTemplate = `{
                 "summary": "List all categories",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "default": 1,
                         "description": "Page for pagination",
@@ -892,7 +903,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Pagination-Category"
+                            "$ref": "#/definitions/Pagination-backend_internal_domain_Category"
                         }
                     },
                     "500": {
@@ -2674,6 +2685,21 @@ const docTemplate = `{
                 }
             }
         },
+        "CreateProductAttributesData": {
+            "type": "object",
+            "required": [
+                "attributeId",
+                "valueId"
+            ],
+            "properties": {
+                "attributeId": {
+                    "type": "string"
+                },
+                "valueId": {
+                    "type": "string"
+                }
+            }
+        },
         "CreateProductData": {
             "type": "object",
             "required": [
@@ -2685,10 +2711,10 @@ const docTemplate = `{
                 "variants"
             ],
             "properties": {
-                "attributeValueIds": {
+                "attributes": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/CreateProductAttributesData"
                     }
                 },
                 "categoryId": {
@@ -2738,11 +2764,18 @@ const docTemplate = `{
         "CreateProductOptionData": {
             "type": "object",
             "required": [
-                "name"
+                "name",
+                "values"
             ],
             "properties": {
                 "name": {
                     "type": "string"
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -3047,24 +3080,6 @@ const docTemplate = `{
                 }
             }
         },
-        "Pagination-Category": {
-            "type": "object",
-            "required": [
-                "data",
-                "meta"
-            ],
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Category"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/PaginationMeta"
-                }
-            }
-        },
         "Pagination-Product": {
             "type": "object",
             "required": [
@@ -3094,6 +3109,24 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/Review"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/PaginationMeta"
+                }
+            }
+        },
+        "Pagination-backend_internal_domain_Category": {
+            "type": "object",
+            "required": [
+                "data",
+                "meta"
+            ],
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Category"
                     }
                 },
                 "meta": {
@@ -3141,7 +3174,7 @@ const docTemplate = `{
                 "attributes": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/Attribute"
+                        "$ref": "#/definitions/AttributeValue"
                     }
                 },
                 "category": {
@@ -3243,7 +3276,8 @@ const docTemplate = `{
                 "price",
                 "purchaseCount",
                 "quantity",
-                "sku"
+                "sku",
+                "updatedAt"
             ],
             "properties": {
                 "createdAt": {
@@ -3282,6 +3316,9 @@ const docTemplate = `{
                     "minimum": 0
                 },
                 "sku": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }

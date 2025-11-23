@@ -382,19 +382,20 @@ func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
 
 // UpdateValues godoc
 //
-//	@Summary		Update attribute values
-//	@Description	Update attribute values for a given attribute
+//	@Summary		Update a attribute value
+//	@Description	Update a attribute value for a given attribute
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute_id	path		string									true	"Attribute ID"	format(uuid)
-//	@Param			values			body		[]application.UpdateAttributeValueData	true	"Update attribute values request"
+//	@Param			attribute_id	path		string									true	"Attribute ID"			format(uuid)
+//	@Param			value_id		path		string									true	"Attribute Value ID"	format(uuid)
+//	@Param			value			body		application.UpdateAttributeValueData	true	"Update attribute values request"
 //	@Success		200				{array}		domain.Attribute
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
-//	@Router			/attributes/{attribute_id}/values [patch]
+//	@Router			/attributes/{attribute_id}/values/{value_id} [patch]
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) UpdateValue(ctx *gin.Context) {

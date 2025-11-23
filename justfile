@@ -103,8 +103,8 @@ check-format: check-format-gofumpt
 pre-commit: gen check-static-type lint format
 
 [doc("Docker compose up")]
-compose *args="":
-  docker compose -f ./docker/compose.yaml up {{args}}
+compose profile="" *args="":
+  docker compose -f ./docker/compose.yaml --profile={{profile}} up {{args}}
 
 [private]
 [unix]

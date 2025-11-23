@@ -102,7 +102,7 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 			attributes.PATCH("/:attribute_id", r.attributeHandler.Update)
 			attributes.DELETE("/:attribute_id", r.attributeHandler.Delete)
 			attributes.DELETE("/:attribute_id/values/:value_id", r.attributeHandler.DeleteValue)
-			attributes.PATCH("/:attribute_id/values", r.attributeHandler.UpdateValue)
+			attributes.PATCH("/:attribute_id/values/:value_id", r.attributeHandler.UpdateValue)
 		}
 
 		orders := api.Group("/orders")

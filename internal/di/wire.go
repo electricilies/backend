@@ -12,6 +12,7 @@ import (
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
 	"backend/internal/infrastructure/cacheredis"
+	"backend/internal/infrastructure/objectstorages3"
 	"backend/internal/infrastructure/repository"
 	"backend/internal/service"
 	"backend/pkg/logger"
@@ -243,6 +244,14 @@ var CacheSet = wire.NewSet(
 	),
 )
 
+var ObjectStorageSet = wire.NewSet(
+	objectstorages3.ProvideS3Product,
+	wire.Bind(
+		new(application.ProductObjectStorage),
+		new(*objectstorages3.S3Product),
+	),
+)
+
 func InitializeServer(ctx context.Context) *http.Server {
 	wire.Build(
 		ApplicationSet,
@@ -254,9 +263,10 @@ func InitializeServer(ctx context.Context) *http.Server {
 		HandlerSet,
 		LoggerSet,
 		MiddlewareSet,
+		ObjectStorageSet,
+		RepositorySet,
 		RouterSet,
 		ServiceSet,
-		RepositorySet,
 		http.NewServer,
 	)
 	return nil

@@ -13,6 +13,7 @@ import (
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
 	"backend/internal/infrastructure/cacheredis"
+	"backend/internal/infrastructure/objectstorages3"
 	"backend/internal/infrastructure/repository"
 	"backend/internal/service"
 	"backend/pkg/logger"
@@ -202,5 +203,11 @@ var CacheSet = wire.NewSet(cacheredis.ProvideProductCache, wire.Bind(
 ), cacheredis.ProvideAttributeCache, wire.Bind(
 	new(application.AttributeCache),
 	new(*cacheredis.AttributeCache),
+),
+)
+
+var ObjectStorageSet = wire.NewSet(objectstorages3.ProvideS3Product, wire.Bind(
+	new(application.ProductObjectStorage),
+	new(*objectstorages3.S3Product),
 ),
 )
