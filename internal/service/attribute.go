@@ -57,10 +57,7 @@ func (a *Attribute) Update(
 	return nil
 }
 
-func (a *Attribute) AddValues(attribute domain.Attribute, attributeValues ...domain.AttributeValue) error {
-	if attribute.Values == nil {
-		attribute.Values = []domain.AttributeValue{}
-	}
+func (a *Attribute) AddValues(attribute *domain.Attribute, attributeValues ...domain.AttributeValue) error {
 	attribute.Values = append(attribute.Values, attributeValues...)
 	err := a.validate.Struct(attribute)
 	if err != nil {

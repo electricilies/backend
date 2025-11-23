@@ -14,7 +14,7 @@ type AttributeService interface {
 	) error
 
 	AddValues(
-		attribute Attribute,
+		attribute *Attribute,
 		attributeValues ...AttributeValue,
 	) error
 

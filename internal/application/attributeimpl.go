@@ -58,7 +58,7 @@ func (a *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeVa
 	if err != nil {
 		return nil, err
 	}
-	err = a.attributeService.AddValues(*attribute, *attributeValue)
+	err = a.attributeService.AddValues(attribute, *attributeValue)
 	if err != nil {
 		return nil, err
 	}
