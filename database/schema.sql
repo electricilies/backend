@@ -149,7 +149,7 @@ CREATE TABLE reviews (
   id UUID PRIMARY KEY,
   rating SMALLINT NOT NULL CHECK (rating >= 1 AND rating <= 5),
   content TEXT,
-  image_url TEXT NOT NULL,
+  image_url TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMPTZ,

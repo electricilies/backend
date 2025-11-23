@@ -212,7 +212,7 @@ type UpsertReviewParams struct {
 	ID          uuid.UUID
 	Rating      int16
 	Content     *string
-	ImageURL    string
+	ImageURL    *string
 	UserID      uuid.UUID
 	OrderItemID uuid.UUID
 	CreatedAt   pgtype.Timestamptz

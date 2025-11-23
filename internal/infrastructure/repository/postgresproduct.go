@@ -31,6 +31,6 @@ func (r *PostgresProduct) Get(ctx context.Context, productID uuid.UUID) (*domain
 	panic("implement me")
 }
 
-func (r *PostgresProduct) Save(ctx context.Context, product domain.Product) (*domain.Product, error) {
+func (r *PostgresProduct) Save(ctx context.Context, product domain.Product) error {
 	panic("implement me")
 }

@@ -1,5 +1,7 @@
 package domain
 
+import "github.com/google/uuid"
+
 type ProductService interface {
 	Create(
 		name string,
@@ -11,9 +13,17 @@ type ProductService interface {
 		name string,
 	) (*Option, error)
 
-	CreateOptionValue(
-		value string,
-	) (*OptionValue, error)
+	CreateOptions(
+		names []string,
+	) (*[]Option, error)
+
+	CreateOptionValues(
+		values []string,
+	) (*[]OptionValue, error)
+
+	CreateOptionsWithOptionValues(
+		optionsWithOptionValues map[string][]string,
+	) (*[]Option, error)
 
 	CreateImage(
 		url string,
@@ -25,6 +35,11 @@ type ProductService interface {
 		price int64,
 		quantity int,
 	) (*ProductVariant, error)
+
+	AddAttributeValues(
+		product *Product,
+		attributeValues ...AttributeValue,
+	) error
 
 	AddOptions(
 		product *Product,
@@ -46,6 +61,12 @@ type ProductService interface {
 		images ...ProductImage,
 	) error
 
+	AddVariantImages(
+		product *Product,
+		variant uuid.UUID,
+		images ...ProductImage,
+	) error
+
 	Update(
 		product *Product,
 		name *string,
@@ -54,17 +75,21 @@ type ProductService interface {
 	) error
 
 	UpdateOption(
-		option *Option,
+		product *Product,
+		optionID uuid.UUID,
 		name *string,
 	) error
 
 	UpdateOptionValue(
-		optionValue *OptionValue,
+		product *Product,
+		optionID uuid.UUID,
+		optionValueID uuid.UUID,
 		value *string,
 	) error
 
 	UpdateVariant(
-		variant *ProductVariant,
+		Product *Product,
+		VariantID uuid.UUID,
 		price *int64,
 		quantity *int,
 	) error
@@ -77,11 +102,19 @@ type ProductService interface {
 		variant *ProductVariant,
 	) error
 
+	RemoveVariants(
+		variants ...*ProductVariant,
+	) error
+
 	RemoveImage(
 		image *ProductImage,
 	) error
 
-	RemoveOptionsAndOptionValue(
-		option *Option,
+	RemoveImages(
+		images ...*ProductImage,
+	) error
+
+	RemoveOptionsAndOptionValues(
+		options ...*Option,
 	) error
 }

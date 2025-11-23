@@ -36,4 +36,9 @@ type AttributeService interface {
 		attribute *Attribute,
 		attributeValueID uuid.UUID,
 	) error
+
+	FilterAttributeValuesFromAttributes(
+		attributes []Attribute,
+		attributeValueIDs []uuid.UUID,
+	) []AttributeValue
 }

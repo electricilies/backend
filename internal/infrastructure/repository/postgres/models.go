@@ -168,7 +168,7 @@ type Review struct {
 	ID          uuid.UUID
 	Rating      int16
 	Content     *string
-	ImageURL    string
+	ImageURL    *string
 	CreatedAt   pgtype.Timestamptz
 	UpdatedAt   pgtype.Timestamptz
 	DeletedAt   pgtype.Timestamptz

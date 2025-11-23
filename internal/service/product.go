@@ -65,6 +65,20 @@ func (p *Product) CreateOption(
 	return option, nil
 }
 
+func (p *Product) CreateOptions(
+	names []string,
+) (*[]domain.Option, error) {
+	options := make([]domain.Option, 0, len(names))
+	for _, name := range names {
+		option, err := p.CreateOption(name)
+		if err != nil {
+			return nil, err
+		}
+		options = append(options, *option)
+	}
+	return &options, nil
+}
+
 func (p *Product) CreateOptionValue(
 	value string,
 ) (*domain.OptionValue, error) {
@@ -80,6 +94,39 @@ func (p *Product) CreateOptionValue(
 		return nil, multierror.Append(domain.ErrInvalid, err)
 	}
 	return optionValue, nil
+}
+
+func (p *Product) CreateOptionValues(
+	values []string,
+) (*[]domain.OptionValue, error) {
+	optionValues := make([]domain.OptionValue, 0, len(values))
+	for _, v := range values {
+		optionValue, err := p.CreateOptionValue(v)
+		if err != nil {
+			return nil, err
+		}
+		optionValues = append(optionValues, *optionValue)
+	}
+	return &optionValues, nil
+}
+
+func (p *Product) CreateOptionsWithOptionValues(
+	optionsWithOptionValues map[string][]string,
+) (*[]domain.Option, error) {
+	options := make([]domain.Option, 0, len(optionsWithOptionValues))
+	for name, values := range optionsWithOptionValues {
+		option, err := p.CreateOption(name)
+		if err != nil {
+			return nil, err
+		}
+		optionValues, err := p.CreateOptionValues(values)
+		if err != nil {
+			return nil, err
+		}
+		option.Values = *optionValues
+		options = append(options, *option)
+	}
+	return &options, nil
 }
 
 func (p *Product) AddOptions(product *domain.Product, option ...domain.Option) error {
@@ -109,6 +156,24 @@ func (p *Product) AddVariants(product *domain.Product, variant ...domain.Product
 func (p *Product) AddImages(product *domain.Product, image ...domain.ProductImage) error {
 	product.Images = append(product.Images, image...)
 	if err := p.validate.Struct(product); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
+func (p *Product) AddVariantImages(product *domain.Product, variantID uuid.UUID, image ...domain.ProductImage) error {
+	var variant *domain.ProductVariant
+	for i := range product.Variants {
+		if product.Variants[i].ID == variantID {
+			variant = &product.Variants[i]
+			break
+		}
+	}
+	if variant == nil {
+		return multierror.Append(domain.ErrNotFound, nil)
+	}
+	variant.Images = append(variant.Images, image...)
+	if err := p.validate.Struct(variant); err != nil {
 		return multierror.Append(domain.ErrInvalid, err)
 	}
 	return nil
@@ -157,6 +222,17 @@ func (p *Product) CreateVariant(
 	return productVariant, nil
 }
 
+func (p *Product) AddAttributeValues(
+	product *domain.Product,
+	attributeValues ...domain.AttributeValue,
+) error {
+	product.AttributeValues = append(product.AttributeValues, attributeValues...)
+	if err := p.validate.Struct(product); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
 func (p *Product) Update(
 	product *domain.Product,
 	name *string,
@@ -184,16 +260,25 @@ func (p *Product) Update(
 }
 
 func (p *Product) UpdateVariant(
-	productVariant *domain.ProductVariant,
+	product *domain.Product,
+	variantID uuid.UUID,
 	price *int64,
 	quantity *int,
 ) error {
+	productVariant := product.GetVariantByID(variantID)
+	update := false
 	if price != nil {
 		productVariant.Price = *price
+		update = true
 	}
 	if quantity != nil {
 		productVariant.Quantity = *quantity
+		update = true
 	}
+	if !update {
+		return nil
+	}
+	productVariant.UpdatedAt = time.Now()
 	if err := p.validate.Struct(productVariant); err != nil {
 		return multierror.Append(domain.ErrInvalid, err)
 	}
@@ -201,9 +286,14 @@ func (p *Product) UpdateVariant(
 }
 
 func (p *Product) UpdateOption(
-	option *domain.Option,
+	product *domain.Product,
+	optionID uuid.UUID,
 	name *string,
 ) error {
+	option := product.GetOptionByID(optionID)
+	if option == nil {
+		return multierror.Append(domain.ErrNotFound, nil)
+	}
 	if name != nil {
 		option.Name = *name
 	}
@@ -214,9 +304,19 @@ func (p *Product) UpdateOption(
 }
 
 func (p *Product) UpdateOptionValue(
-	optionValue *domain.OptionValue,
+	product *domain.Product,
+	optionID uuid.UUID,
+	optionValueID uuid.UUID,
 	value *string,
 ) error {
+	option := product.GetOptionByID(optionID)
+	if option == nil {
+		return multierror.Append(domain.ErrNotFound, nil)
+	}
+	optionValue := option.GetValueByID(optionValueID)
+	if optionValue == nil {
+		return multierror.Append(domain.ErrNotFound, nil)
+	}
 	if value != nil {
 		optionValue.Value = *value
 	}
@@ -233,7 +333,7 @@ func (p *Product) Remove(product *domain.Product) error {
 		product.DeletedAt = &now
 	}
 	for _, option := range product.Options {
-		if err := p.RemoveOptionsAndOptionValue(&option); err != nil {
+		if err := p.RemoveOptionsAndOptionValues(&option); err != nil {
 			return err
 		}
 	}
@@ -257,9 +357,20 @@ func (p *Product) RemoveVariant(variant *domain.ProductVariant) error {
 	now := time.Now()
 	if variant.DeletedAt == nil {
 		variant.DeletedAt = &now
+		variant.UpdatedAt = now
 	}
 	if err := p.validate.Struct(variant); err != nil {
 		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
+func (p *Product) RemoveVariants(variants ...*domain.ProductVariant) error {
+	for _, variant := range variants {
+		err := p.RemoveVariant(variant)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -275,18 +386,30 @@ func (p *Product) RemoveImage(image *domain.ProductImage) error {
 	return nil
 }
 
-func (p *Product) RemoveOptionsAndOptionValue(option *domain.Option) error {
-	now := time.Now()
-	if option.DeletedAt == nil {
-		option.DeletedAt = &now
-	}
-	for _, v := range option.Values {
-		if v.DeletedAt == nil {
-			v.DeletedAt = &now
+func (p *Product) RemoveImages(images ...*domain.ProductImage) error {
+	for _, image := range images {
+		err := p.RemoveImage(image)
+		if err != nil {
+			return err
 		}
 	}
-	if err := p.validate.Struct(option); err != nil {
-		return multierror.Append(domain.ErrInvalid, err)
+	return nil
+}
+
+func (p *Product) RemoveOptionsAndOptionValues(options ...*domain.Option) error {
+	now := time.Now()
+	for _, option := range options {
+		if option.DeletedAt == nil {
+			option.DeletedAt = &now
+		}
+		for _, v := range option.Values {
+			if v.DeletedAt == nil {
+				v.DeletedAt = &now
+			}
+		}
+		if err := p.validate.Struct(option); err != nil {
+			return multierror.Append(domain.ErrInvalid, err)
+		}
 	}
 	return nil
 }

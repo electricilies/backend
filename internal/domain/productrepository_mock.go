@@ -333,31 +333,20 @@ func (_c *MockProductRepository_List_Call) RunAndReturn(run func(ctx context.Con
 }
 
 // Save provides a mock function for the type MockProductRepository
-func (_mock *MockProductRepository) Save(ctx context.Context, product Product) (*Product, error) {
+func (_mock *MockProductRepository) Save(ctx context.Context, product Product) error {
 	ret := _mock.Called(ctx, product)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
-	var r0 *Product
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, Product) (*Product, error)); ok {
-		return returnFunc(ctx, product)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, Product) *Product); ok {
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, Product) error); ok {
 		r0 = returnFunc(ctx, product)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Product)
-		}
+		r0 = ret.Error(0)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, Product) error); ok {
-		r1 = returnFunc(ctx, product)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
+	return r0
 }
 
 // MockProductRepository_Save_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Save'
@@ -390,12 +379,12 @@ func (_c *MockProductRepository_Save_Call) Run(run func(ctx context.Context, pro
 	return _c
 }
 
-func (_c *MockProductRepository_Save_Call) Return(product1 *Product, err error) *MockProductRepository_Save_Call {
-	_c.Call.Return(product1, err)
+func (_c *MockProductRepository_Save_Call) Return(err error) *MockProductRepository_Save_Call {
+	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockProductRepository_Save_Call) RunAndReturn(run func(ctx context.Context, product Product) (*Product, error)) *MockProductRepository_Save_Call {
+func (_c *MockProductRepository_Save_Call) RunAndReturn(run func(ctx context.Context, product Product) error) *MockProductRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

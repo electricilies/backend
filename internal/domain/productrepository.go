@@ -40,5 +40,5 @@ type ProductRepository interface {
 	Save(
 		ctx context.Context,
 		product Product,
-	) (*Product, error)
+	) error
 }
