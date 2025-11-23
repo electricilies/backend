@@ -53,7 +53,19 @@ func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagina
 	if param.Deleted != nil {
 		deletedStr = *param.Deleted
 	}
-	cacheKey := constant.ProductListKey(ids, searchStr, param.MinPrice, param.MaxPrice, rating, param.CategoryIDs, deletedStr, sortRatingStr, sortPriceStr, *param.Limit, *param.Page)
+	cacheKey := constant.ProductListKey(
+		ids,
+		searchStr,
+		param.MinPrice,
+		param.MaxPrice,
+		rating,
+		param.CategoryIDs,
+		deletedStr,
+		sortRatingStr,
+		sortPriceStr,
+		*param.Limit,
+		*param.Page,
+	)
 
 	// Try to get from cache
 	if p.redisClient != nil {

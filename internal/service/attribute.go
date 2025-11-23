@@ -36,7 +36,7 @@ func (a *Attribute) Create(
 		ID:     id,
 		Code:   code,
 		Name:   name,
-		Values: &[]domain.AttributeValue{},
+		Values: []domain.AttributeValue{},
 	}
 	if err := a.validate.Struct(attribute); err != nil {
 		return nil, multierror.Append(domain.ErrInvalid, err)
@@ -59,9 +59,9 @@ func (a *Attribute) Update(
 
 func (a *Attribute) AddValues(attribute domain.Attribute, attributeValues ...domain.AttributeValue) error {
 	if attribute.Values == nil {
-		attribute.Values = &[]domain.AttributeValue{}
+		attribute.Values = []domain.AttributeValue{}
 	}
-	*attribute.Values = append(*attribute.Values, attributeValues...)
+	attribute.Values = append(attribute.Values, attributeValues...)
 	err := a.validate.Struct(attribute)
 	if err != nil {
 		return multierror.Append(domain.ErrInvalid, err)
@@ -91,10 +91,10 @@ func (a *Attribute) UpdateValue(
 	attributeValueID uuid.UUID,
 	value *string,
 ) error {
-	for i, v := range *attribute.Values {
+	for i, v := range attribute.Values {
 		if v.ID == attributeValueID {
 			if value != nil {
-				(*attribute.Values)[i].Value = *value
+				(attribute.Values)[i].Value = *value
 			}
 			break
 		}
@@ -113,8 +113,8 @@ func (a *Attribute) Remove(
 	}
 	now := time.Now()
 	attribute.DeletedAt = &now
-	for i := range *attribute.Values {
-		(*attribute.Values)[i].DeletedAt = &now
+	for i := range attribute.Values {
+		(attribute.Values)[i].DeletedAt = &now
 	}
 	if err := a.validate.Struct(attribute); err != nil {
 		return multierror.Append(domain.ErrInvalid, err)
@@ -130,12 +130,12 @@ func (a *Attribute) RemoveValue(
 		return nil
 	}
 	newValues := []domain.AttributeValue{}
-	for _, v := range *attribute.Values {
+	for _, v := range attribute.Values {
 		if v.ID != attributeValueID {
 			newValues = append(newValues, v)
 		}
 	}
-	attribute.Values = &newValues
+	attribute.Values = newValues
 	if err := a.validate.Struct(attribute); err != nil {
 		return multierror.Append(domain.ErrInvalid, err)
 	}

@@ -65,9 +65,9 @@ func (c *Cart) AddItem(
 	item domain.CartItem,
 ) error {
 	if cart.Items == nil {
-		cart.Items = &[]domain.CartItem{}
+		cart.Items = []domain.CartItem{}
 	}
-	*cart.Items = append(*cart.Items, item)
+	cart.Items = append(cart.Items, item)
 	if err := c.validate.Struct(cart); err != nil {
 		return multierror.Append(domain.ErrInvalid, err)
 	}
@@ -82,9 +82,9 @@ func (c *Cart) UpdateItem(
 	if cart.Items == nil {
 		return multierror.Append(domain.ErrInvalid, domain.ErrNotFound)
 	}
-	for i, item := range *cart.Items {
+	for i, item := range cart.Items {
 		if item.ID == itemID {
-			(*cart.Items)[i].Quantity = quantity
+			(cart.Items)[i].Quantity = quantity
 			if err := c.validate.Struct(cart); err != nil {
 				return multierror.Append(domain.ErrInvalid, err)
 			}
@@ -102,12 +102,12 @@ func (c *Cart) RemoveItem(
 		return nil
 	}
 	newItems := []domain.CartItem{}
-	for _, item := range *cart.Items {
+	for _, item := range cart.Items {
 		if item.ID != itemID {
 			newItems = append(newItems, item)
 		}
 	}
-	cart.Items = &newItems
+	cart.Items = newItems
 	if err := c.validate.Struct(cart); err != nil {
 		return multierror.Append(domain.ErrInvalid, err)
 	}

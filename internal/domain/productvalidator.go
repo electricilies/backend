@@ -19,8 +19,8 @@ func ProductVariantStructLevel(sl validator.StructLevel) {
 		return
 	}
 
-	optionValues := *variant.OptionValues
-	productOptions := *variant.Product.Options
+	optionValues := variant.OptionValues
+	productOptions := variant.Product.Options
 
 	// Validate: number of option values must equal number of product options
 	if len(optionValues) != len(productOptions) {
@@ -57,7 +57,7 @@ func findOptionIDForValue(options []Option, optionValueID uuid.UUID) uuid.UUID {
 			continue
 		}
 
-		for _, value := range *option.Values {
+		for _, value := range option.Values {
 			if value.ID == optionValueID {
 				return option.ID
 			}

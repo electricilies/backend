@@ -7,23 +7,23 @@ import (
 )
 
 type Order struct {
-	ID          uuid.UUID     `json:"id"          binding:"required"            validate:"required"`
-	Address     string        `json:"address"     binding:"required"            validate:"required"`
-	Provider    OrderProvider `json:"provider"    binding:"required"            validate:"required,oneof=COD VNPAY MOMO ZALOPAY"`
-	Status      OrderStatus   `json:"status"      binding:"required"            validate:"required,oneof=Pending Processing Shipped Delivered Cancelled"`
-	IsPaid      bool          `json:"isPaid"      binding:"required"            validate:"required"`
-	CreatedAt   time.Time     `json:"createdAt"   binding:"required"            validate:"required"`
-	UpdatedAt   time.Time     `json:"updatedAt"   binding:"required"            validate:"required,gtefield=CreatedAt"`
-	Items       *[]OrderItem  `json:"items"       validate:"omitnil,gte=1,dive"`
-	TotalAmount int64         `json:"totalAmount" binding:"required"            validate:"required"`
-	UserID      uuid.UUID     `json:"userId"      binding:"required"            validate:"required"`
+	ID          uuid.UUID     `json:"id"          binding:"required"        validate:"required"`
+	Address     string        `json:"address"     binding:"required"        validate:"required"`
+	Provider    OrderProvider `json:"provider"    binding:"required"        validate:"required,oneof=COD VNPAY MOMO ZALOPAY"`
+	Status      OrderStatus   `json:"status"      binding:"required"        validate:"required,oneof=Pending Processing Shipped Delivered Cancelled"`
+	IsPaid      bool          `json:"isPaid"      binding:"required"        validate:"required"`
+	CreatedAt   time.Time     `json:"createdAt"   binding:"required"        validate:"required"`
+	UpdatedAt   time.Time     `json:"updatedAt"   binding:"required"        validate:"required,gtefield=CreatedAt"`
+	Items       []OrderItem   `json:"items"       validate:"omitempty,dive"`
+	TotalAmount int64         `json:"totalAmount" binding:"required"        validate:"required"`
+	UserID      uuid.UUID     `json:"userId"      binding:"required"        validate:"required"`
 }
 
 func (o *Order) AddItems(items ...OrderItem) {
 	if o.Items == nil {
-		o.Items = &[]OrderItem{}
+		o.Items = []OrderItem{}
 	}
-	*o.Items = append(*o.Items, items...)
+	o.Items = append(o.Items, items...)
 }
 
 type OrderItem struct {

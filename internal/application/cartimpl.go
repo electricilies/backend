@@ -92,7 +92,7 @@ func (c *CartImpl) UpdateItem(ctx context.Context, param UpdateCartItemParam) (*
 
 	// Find and return updated item
 	if cart.Items != nil {
-		for _, item := range *cart.Items {
+		for _, item := range cart.Items {
 			if item.ID == param.ItemID {
 				return &item, nil
 			}

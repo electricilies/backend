@@ -40,7 +40,7 @@ func (o *Order) Create(
 		Status:      domain.OrderStatusPending,
 		IsPaid:      false,
 		TotalAmount: totalAmount,
-		Items:       &items,
+		Items:       items,
 	}
 	if err := o.validate.Struct(order); err != nil {
 		return nil, multierror.Append(domain.ErrInvalid, err)

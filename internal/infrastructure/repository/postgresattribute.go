@@ -75,7 +75,7 @@ func (r *PostgresAttribute) List(
 			ID:   attribute.ID,
 			Code: attribute.Code,
 			Name: attribute.Name,
-			Values: buildAttributeValues(
+			Values: *buildAttributeValues(
 				attribute.ID,
 				attributeValues,
 			),
@@ -158,7 +158,7 @@ func (r *PostgresAttribute) Get(ctx context.Context, id uuid.UUID) (*domain.Attr
 		ID:     attribute.ID,
 		Code:   attribute.Code,
 		Name:   attribute.Name,
-		Values: attributeValues,
+		Values: *attributeValues,
 		DeletedAt: fromPgValidToPtr(
 			attribute.DeletedAt.Time,
 			attribute.DeletedAt.Valid,
@@ -190,7 +190,7 @@ func (r *PostgresAttribute) Save(ctx context.Context, attribute domain.Attribute
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	_, err = qtx.InsertTempTableAttributeValues(ctx, buildInsertTempTableAttributeValuesParams(attribute.Values))
+	_, err = qtx.InsertTempTableAttributeValues(ctx, buildInsertTempTableAttributeValuesParams(ptr.To(attribute.Values)))
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
