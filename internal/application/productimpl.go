@@ -11,26 +11,32 @@ import (
 )
 
 type ProductImpl struct {
-	productRepo          domain.ProductRepository
-	productService       domain.ProductService
-	categoryRepo         domain.CategoryRepository
 	attributeRepo        domain.AttributeRepository
 	attributeService     domain.AttributeService
+	categoryRepo         domain.CategoryRepository
 	productCache         ProductCache
 	productObjectStorage ProductObjectStorage
+	productRepo          domain.ProductRepository
+	productService       domain.ProductService
 }
 
 func ProvideProduct(
-	productRepo domain.ProductRepository,
-	productService domain.ProductService,
+	attributeRepo domain.AttributeRepository,
+	attributeService domain.AttributeService,
+	categoryRepo domain.CategoryRepository,
 	productCache ProductCache,
 	productObjectStorage ProductObjectStorage,
+	productRepo domain.ProductRepository,
+	productService domain.ProductService,
 ) *ProductImpl {
 	return &ProductImpl{
-		productRepo:          productRepo,
-		productService:       productService,
+		attributeRepo:        attributeRepo,
+		attributeService:     attributeService,
+		categoryRepo:         categoryRepo,
 		productCache:         productCache,
 		productObjectStorage: productObjectStorage,
+		productRepo:          productRepo,
+		productService:       productService,
 	}
 }
 
@@ -68,7 +74,7 @@ func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagina
 		param.SortRating,
 		param.SortPrice,
 		param.Limit,
-		param.Page*param.Limit,
+		(param.Page-1)*param.Limit,
 	)
 	if err != nil {
 		return nil, err
@@ -119,7 +125,7 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 	if err != nil {
 		return nil, err
 	}
-	product, err := p.productService.Create(
+	product, err := domain.CreateProduct(
 		param.Data.Name,
 		param.Data.Description,
 		*category,
@@ -145,22 +151,25 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 			return nil, err
 		}
 		attributeValues := p.attributeService.FilterAttributeValuesFromAttributes(*attributes, attributeValueIDs)
-		err = p.productService.AddAttributeValues(product, attributeValues...)
+		product.AddAttributeValues(attributeValues...)
+	}
+	var options *[]domain.Option
+	if param.Data.Options != nil {
+		optionsWithOptionValues := make(map[string][]string, len(*param.Data.Options))
+		for _, optionData := range *param.Data.Options {
+			optionValues := make([]string, 0, len(optionData.Values))
+			optionValues = append(optionValues, optionData.Values...)
+			optionsWithOptionValues[optionData.Name] = optionValues
+		}
+		options, err = domain.CreateOptionsWithOptionValues(optionsWithOptionValues)
 		if err != nil {
 			return nil, err
 		}
-	}
-	optionsWithOptionValues := make(map[string][]string, len(param.Data.Options))
-	options, err := p.productService.CreateOptionsWithOptionValues(optionsWithOptionValues)
-	if err != nil {
-		return nil, err
-	}
-	if err := p.productService.AddOptions(product, *options...); err != nil {
-		return nil, err
+		product.AddOptions(*options...)
 	}
 	productImages := make([]domain.ProductImage, 0, len(param.Data.Images))
 	for _, imgData := range param.Data.Images {
-		image, err := p.productService.CreateImage(
+		image, err := domain.CreateImage(
 			imgData.URL,
 			imgData.Order,
 		)
@@ -169,12 +178,9 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 		}
 		productImages = append(productImages, *image)
 	}
-	if err := p.productService.AddImages(product, productImages...); err != nil {
-		return nil, err
-	}
-	productVariants := make([]domain.ProductVariant, 0, len(param.Data.Variants))
+	product.AddImages(productImages...)
 	for _, variantData := range param.Data.Variants {
-		variant, err := p.productService.CreateVariant(
+		variant, err := domain.CreateVariant(
 			variantData.SKU,
 			variantData.Price,
 			variantData.Quantity,
@@ -182,11 +188,11 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 		if err != nil {
 			return nil, err
 		}
-		productVariants = append(productVariants, *variant)
+		product.AddVariants(*variant)
 		if variantData.Images != nil {
 			variantImages := make([]domain.ProductImage, 0, len(*variantData.Images))
 			for _, imgData := range *variantData.Images {
-				image, err := p.productService.CreateImage(
+				image, err := domain.CreateImage(
 					imgData.URL,
 					imgData.Order,
 				)
@@ -195,18 +201,18 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 				}
 				variantImages = append(variantImages, *image)
 			}
-			if err := p.productService.AddVariantImages(product, variant.ID, variantImages...); err != nil {
+			if err := product.AddVariantImages(variant.ID, variantImages...); err != nil {
 				return nil, err
 			}
 		}
-		err = linkProductVariantsToOptionValues(&productVariants, *options, param)
-		if err != nil {
-			return nil, err
+		if options != nil {
+			err = linkProductVariantsToOptionValues(product, *options, param)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
-	if err = p.productService.AddVariants(product, productVariants...); err != nil {
-		return nil, err
-	}
+	product.UpdateMinPrice()
 	err = p.productService.Validate(*product)
 	if err != nil {
 		return nil, err
@@ -232,14 +238,11 @@ func (p *ProductImpl) Update(ctx context.Context, param UpdateProductParam) (*do
 	if err != nil {
 		return nil, err
 	}
-	if err := p.productService.Update(
-		product,
+	product.Update(
 		param.Data.Name,
 		param.Data.Description,
 		category,
-	); err != nil {
-		return nil, err
-	}
+	)
 	err = p.productRepo.Save(ctx, *product)
 	if err != nil {
 		return nil, err
@@ -254,7 +257,8 @@ func (p *ProductImpl) Delete(ctx context.Context, param DeleteProductParam) erro
 	if err != nil {
 		return err
 	}
-	err = p.productService.Remove(product)
+	product.Remove()
+	err = p.productRepo.Save(ctx, *product)
 	if err != nil {
 		return err
 	}
@@ -270,7 +274,7 @@ func (p *ProductImpl) AddVariants(ctx context.Context, param AddProductVariantsP
 	}
 	variants := make([]domain.ProductVariant, 0, len(param.Data))
 	for _, variantData := range param.Data {
-		variant, err := p.productService.CreateVariant(
+		variant, err := domain.CreateVariant(
 			variantData.SKU,
 			variantData.Price,
 			variantData.Quantity,
@@ -280,9 +284,7 @@ func (p *ProductImpl) AddVariants(ctx context.Context, param AddProductVariantsP
 		}
 		variants = append(variants, *variant)
 	}
-	if err := p.productService.AddVariants(product, variants...); err != nil {
-		return nil, err
-	}
+	product.AddVariants(variants...)
 	err = p.productRepo.Save(ctx, *product)
 	if err != nil {
 		return nil, err
@@ -297,8 +299,7 @@ func (p *ProductImpl) UpdateVariant(ctx context.Context, param UpdateProductVari
 	if err != nil {
 		return nil, err
 	}
-	if err := p.productService.UpdateVariant(
-		product,
+	if err := product.UpdateVariant(
 		param.ProductVariantID,
 		param.Data.Price,
 		param.Data.Quantity,
@@ -308,6 +309,9 @@ func (p *ProductImpl) UpdateVariant(ctx context.Context, param UpdateProductVari
 	variant := product.GetVariantByID(param.ProductVariantID)
 	if variant == nil {
 		return nil, domain.ErrNotFound
+	}
+	if err := p.productService.Validate(*product); err != nil {
+		return nil, err
 	}
 	err = p.productRepo.Save(ctx, *product)
 	if err != nil {
@@ -325,7 +329,7 @@ func (p *ProductImpl) AddImages(ctx context.Context, param AddProductImagesParam
 	}
 	images := make([]domain.ProductImage, 0, len(param.Data))
 	for _, imgData := range param.Data {
-		image, err := p.productService.CreateImage(
+		image, err := domain.CreateImage(
 			imgData.URL,
 			imgData.Order,
 		)
@@ -333,16 +337,14 @@ func (p *ProductImpl) AddImages(ctx context.Context, param AddProductImagesParam
 			return nil, err
 		}
 		if imgData.ProductVariantID != nil {
-			if err := p.productService.AddVariantImages(product, *imgData.ProductVariantID, *image); err != nil {
+			if err := product.AddVariantImages(*imgData.ProductVariantID, *image); err != nil {
 				return nil, err
 			}
 		} else {
 			images = append(images, *image)
 		}
 	}
-	if err := p.productService.AddImages(product, images...); err != nil {
-		return nil, err
-	}
+	product.AddImages(images...)
 	err = p.productRepo.Save(ctx, *product)
 	if err != nil {
 		return nil, err
@@ -361,21 +363,15 @@ func (p *ProductImpl) DeleteImages(ctx context.Context, param DeleteProductImage
 	for _, id := range param.ImageIDs {
 		imageIDs[id] = struct{}{}
 	}
-	for _, image := range product.Images {
-		if _, exists := imageIDs[image.ID]; exists {
-			err := p.productService.RemoveImage(&image)
-			if err != nil {
-				return err
-			}
+	for i := range product.Images {
+		if _, exists := imageIDs[product.Images[i].ID]; exists {
+			product.Images[i].Remove()
 		}
 	}
-	for _, variant := range product.Variants {
-		for _, image := range variant.Images {
-			if _, exists := imageIDs[image.ID]; exists {
-				err := p.productService.RemoveImage(&image)
-				if err != nil {
-					return err
-				}
+	for i := range product.Variants {
+		for j := range product.Variants[i].Images {
+			if _, exists := imageIDs[product.Variants[i].Images[j].ID]; exists {
+				product.Variants[i].Images[j].Remove()
 			}
 		}
 	}
@@ -394,8 +390,7 @@ func (p *ProductImpl) UpdateOptions(ctx context.Context, param UpdateProductOpti
 	}
 	optionIDs := make([]uuid.UUID, 0, len(param.Data))
 	for _, data := range param.Data {
-		if err := p.productService.UpdateOption(
-			product,
+		if err := product.UpdateOption(
 			data.ID,
 			data.Name,
 		); err != nil {
@@ -422,8 +417,7 @@ func (p *ProductImpl) UpdateOptionValues(ctx context.Context, param UpdateProduc
 	}
 	optionValueIDs := make([]uuid.UUID, 0, len(param.Data))
 	for _, data := range param.Data {
-		if err := p.productService.UpdateOptionValue(
-			product,
+		if err := product.UpdateOptionValue(
 			param.OptionID,
 			data.ID,
 			data.Value,
@@ -461,7 +455,7 @@ func (p *ProductImpl) GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) 
 }
 
 func linkProductVariantsToOptionValues(
-	variants *[]domain.ProductVariant,
+	product *domain.Product,
 	options []domain.Option,
 	param CreateProductParam,
 ) error {
@@ -471,16 +465,16 @@ func linkProductVariantsToOptionValues(
 			optionsMap[fmt.Sprintf("%s/%s", option.Name, optionValue.Value)] = optionValue
 		}
 	}
-	for i, variant := range *variants {
+	for i := range product.Variants {
 		optionValues := make([]domain.OptionValue, len(*param.Data.Variants[i].Options))
-		for j, optionName := range *param.Data.Variants[i].Options {
-			optionValue, exists := optionsMap[fmt.Sprintf("%s/%s", optionName.Name, optionName.Value)]
+		for j, optionData := range *param.Data.Variants[i].Options {
+			optionValue, exists := optionsMap[fmt.Sprintf("%s/%s", optionData.Name, optionData.Value)]
 			if !exists {
 				return domain.ErrInvalid
 			}
 			optionValues[j] = optionValue
 		}
-		variant.OptionValues = append(variant.OptionValues, optionValues...)
+		product.Variants[i].OptionValues = append(product.Variants[i].OptionValues, optionValues...)
 	}
 	return nil
 }

@@ -95,7 +95,7 @@ CREATE TEMPORARY TABLE temp_attribute_values (
   id UUID PRIMARY KEY,
   attribute_id UUID NOT NULL,
   value TEXT NOT NULL,
-  deleted_at TIMESTAMP
+  deleted_at TIMESTAMPTZ
 ) ON COMMIT DROP
 `
 
@@ -140,7 +140,7 @@ type InsertTempTableAttributeValuesParams struct {
 	ID          uuid.UUID
 	AttributeID uuid.UUID
 	Value       string
-	DeletedAt   pgtype.Timestamp
+	DeletedAt   pgtype.Timestamptz
 }
 
 const listAttributeValues = `-- name: ListAttributeValues :many
@@ -165,7 +165,7 @@ WHERE
   END
   AND CASE
     WHEN $4::text IS NULL THEN TRUE
-    ELSE value ||| ($4::text)::pdb.fuzzy(2)
+    ELSE value ||| ($4::text)
   END
   AND CASE
     WHEN $5::text = 'exclude' THEN deleted_at IS NULL
@@ -237,8 +237,8 @@ WHERE
   AND CASE
     WHEN $2::text IS NULL THEN TRUE
     ELSE
-      code ||| ($2::text)::pdb.fuzzy(2)
-      OR name ||| ($2::text)::pdb.fuzzy(2)
+      code ||| ($2::text)
+      OR name ||| ($2::text)
   END
   AND CASE
     WHEN $3::text = 'exclude' THEN deleted_at IS NULL

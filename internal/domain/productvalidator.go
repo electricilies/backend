@@ -5,48 +5,57 @@ import (
 	"github.com/google/uuid"
 )
 
-// LICENSE to Claude sonet 4.5 hehehe
-func ProductVariantStructLevel(sl validator.StructLevel) {
-	variant := sl.Current().Interface().(ProductVariant)
+// ProductStructLevel validates product-level rules including variants and options
+func ProductStructLevel(sl validator.StructLevel) {
+	product := sl.Current().Interface().(Product)
 
-	// Skip validation if Product or OptionValues are nil
-	if variant.Product == nil || variant.OptionValues == nil {
+	// Rule: Product must have at least 1 variant
+	if len(product.Variants) < 1 {
+		sl.ReportError(product.Variants, "Variants", "Variants", "minvariants", "")
 		return
 	}
 
-	// Skip validation if Product.Options is nil
-	if variant.Product.Options == nil {
+	// Case 1: No options → must have exactly 1 variant with no option values
+	if len(product.Options) == 0 {
+		if len(product.Variants) != 1 {
+			sl.ReportError(product.Variants, "Variants", "Variants", "nooptionssinglevariant", "")
+			return
+		}
+		if len(product.Variants[0].OptionValues) != 0 {
+			sl.ReportError(product.Variants[0].OptionValues, "OptionValues", "OptionValues", "nooptionsnooptionvalues", "")
+			return
+		}
 		return
 	}
 
-	optionValues := variant.OptionValues
-	productOptions := variant.Product.Options
-
-	// Validate: number of option values must equal number of product options
-	if len(optionValues) != len(productOptions) {
-		sl.ReportError(variant.OptionValues, "OptionValues", "OptionValues", "optionvalueslength", "")
-		return
-	}
-
-	// Validate: each option value must belong to a different option
-	optionIDsSeen := make(map[uuid.UUID]bool)
-
-	for _, optionValue := range optionValues {
-		// Find which option this option value belongs to
-		optionID := findOptionIDForValue(productOptions, optionValue.ID)
-
-		if optionID == uuid.Nil {
-			sl.ReportError(variant.OptionValues, "OptionValues", "OptionValues", "invalidoptionvalue", "")
+	// Case 2: Has options → validate each variant
+	for i, variant := range product.Variants {
+		// Each variant must have option values matching the number of product options
+		if len(variant.OptionValues) != len(product.Options) {
+			sl.ReportError(variant.OptionValues, "OptionValues", "OptionValues", "optionvalueslength", "")
 			return
 		}
 
-		// Check if we've already seen this option ID
-		if optionIDsSeen[optionID] {
-			sl.ReportError(variant.OptionValues, "OptionValues", "OptionValues", "duplicateoption", "")
-			return
-		}
+		// Validate: each option value must belong to a different option
+		optionIDsSeen := make(map[uuid.UUID]bool)
 
-		optionIDsSeen[optionID] = true
+		for _, optionValue := range variant.OptionValues {
+			// Find which option this option value belongs to
+			optionID := findOptionIDForValue(product.Options, optionValue.ID)
+
+			if optionID == uuid.Nil {
+				sl.ReportError(product.Variants[i].OptionValues, "OptionValues", "OptionValues", "invalidoptionvalue", "")
+				return
+			}
+
+			// Check if we've already seen this option ID
+			if optionIDsSeen[optionID] {
+				sl.ReportError(product.Variants[i].OptionValues, "OptionValues", "OptionValues", "duplicateoption", "")
+				return
+			}
+
+			optionIDsSeen[optionID] = true
+		}
 	}
 }
 

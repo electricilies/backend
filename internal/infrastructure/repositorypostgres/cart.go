@@ -9,20 +9,20 @@ import (
 	"github.com/google/uuid"
 )
 
-type PostgresCart struct {
+type Cart struct {
 	queries *sqlc.Queries
 }
 
-var _ domain.CartRepository = (*PostgresCart)(nil)
+var _ domain.CartRepository = (*Cart)(nil)
 
-func ProvidePostgresCart(q *sqlc.Queries) *PostgresCart {
-	return &PostgresCart{queries: q}
+func ProvideCart(q *sqlc.Queries) *Cart {
+	return &Cart{queries: q}
 }
 
-func (r *PostgresCart) Get(ctx context.Context, id uuid.UUID) (*domain.Cart, error) {
+func (r *Cart) Get(ctx context.Context, id uuid.UUID) (*domain.Cart, error) {
 	panic("implement me")
 }
 
-func (r *PostgresCart) Save(ctx context.Context, cart domain.Cart) error {
+func (r *Cart) Save(ctx context.Context, cart domain.Cart) error {
 	panic("implement me")
 }

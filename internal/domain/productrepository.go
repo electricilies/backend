@@ -11,13 +11,13 @@ type ProductRepository interface {
 		ctx context.Context,
 		ids *[]uuid.UUID,
 		search *string,
-		min_price *int64,
-		max_price *int64,
+		minPrice *int64,
+		maxPrice *int64,
 		rating *float64,
-		category_ids *[]uuid.UUID,
+		categoryIds *[]uuid.UUID,
 		deleted DeletedParam,
-		sort_rating *string,
-		sort_price *string,
+		sortRating *string,
+		sortPrice *string,
 		limit int,
 		offset int,
 	) (*[]Product, error)
@@ -25,10 +25,10 @@ type ProductRepository interface {
 	Count(
 		ctx context.Context,
 		ids *[]uuid.UUID,
-		min_price *int64,
-		max_price *int64,
+		minPrice *int64,
+		maxPrice *int64,
 		rating *float64,
-		category_ids *[]uuid.UUID,
+		categoryIDs *[]uuid.UUID,
 		deleted DeletedParam,
 	) (*int, error)
 

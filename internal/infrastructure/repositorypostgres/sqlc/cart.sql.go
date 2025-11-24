@@ -125,7 +125,7 @@ WHEN NOT MATCHED THEN
     source.product_variant_id
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.cart_id IN (SELECT DISTINCT cart_id FROM source) THEN
+  AND target.cart_id IN (SELECT DISTINCT cart_id FROM temp_cart_items) THEN
   DELETE
 `
 

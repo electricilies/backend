@@ -54,11 +54,12 @@ LEFT JOIN (
   INNER JOIN categories
     ON products.category_id = categories.id
   WHERE
-    sqlc.narg('search')::text IS NULL
-    OR (
-      categories.name ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
-      AND categories.deleted_at IS NULL
-    )
+    CASE WHEN sqlc.narg('search')::text IS NULL THEN TRUE
+      ELSE (
+        categories.name ||| sqlc.narg('search')::text
+        AND categories.deleted_at IS NULL
+      )
+    END
 ) AS category_scores
   ON products.id = category_scores.id
 WHERE
@@ -67,8 +68,13 @@ WHERE
     ELSE products.id = sqlc.narg('id')::uuid
   END
   AND CASE
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE products.id = ANY (sqlc.narg('ids')::uuid[])
+  END
+  AND CASE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE
-    ELSE products.name ||| (sqlc.narg('search')::text)::pdb.fuzzy(products.trending_score)
+    ELSE products.name ||| sqlc.narg('search')::text
   END
   AND CASE
     WHEN sqlc.narg('min_price')::decimal IS NULL THEN TRUE
@@ -84,17 +90,18 @@ WHERE
   END
   AND CASE
     WHEN sqlc.narg('category_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('category_ids')::uuid[]) = 0 THEN TRUE
     ELSE products.category_id = ANY (sqlc.narg('category_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN products.deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE products.deleted_at IS NOT NULL
+    ELSE products.deleted_at IS NULL
   END
 ORDER BY
   CASE WHEN
-    sqlc.narg('search') IS NOT NULL THEN pdb.score(products.id) + category_scores.category_score
+    sqlc.narg('search') IS NOT NULL THEN pdb.score(products.id) + category_scores.category_score + products.trending_score
   END DESC,
   CASE WHEN
     sqlc.narg('sort_rating')::text = 'asc' THEN products.rating
@@ -122,6 +129,11 @@ WHERE
     ELSE products.id = sqlc.narg('id')::uuid
   END
   AND CASE
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE products.id = ANY (sqlc.narg('ids')::uuid[])
+  END
+  AND CASE
     WHEN sqlc.narg('min_price')::decimal IS NULL THEN TRUE
     ELSE products.price >= sqlc.narg('min_price')::decimal
   END
@@ -135,13 +147,14 @@ WHERE
   END
   AND CASE
     WHEN sqlc.narg('category_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('category_ids')::uuid[]) = 0 THEN TRUE
     ELSE products.category_id = ANY (sqlc.narg('category_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN products.deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
-    ELSE products.deleted_at IS NOT NULL
+    ELSE products.deleted_at IS NULL
   END;
 
 -- name: GetProduct :one
@@ -176,6 +189,10 @@ WHERE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.narg('ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.narg('product_id')::uuid IS NULL THEN TRUE
+    ELSE product_id = sqlc.narg('product_id')::uuid
   END
   AND CASE
     WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
@@ -214,6 +231,10 @@ FROM
   products_attribute_values
 WHERE
   CASE
+    WHEN sqlc.narg('product_id')::uuid IS NULL THEN TRUE
+    ELSE product_id = sqlc.narg('product_id')::uuid
+  END
+  AND CASE
     WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.narg('product_ids')::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
@@ -267,9 +288,9 @@ CREATE TEMPORARY TABLE temp_product_variants (
   quantity INTEGER NOT NULL,
   purchase_count INTEGER NOT NULL,
   product_id UUID NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP NOT NULL,
-  deleted_at TIMESTAMP
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
+  deleted_at TIMESTAMPTZ
 ) ON COMMIT DROP;
 
 -- name: InsertTempTableProductVariants :copyfrom
@@ -333,7 +354,7 @@ WHEN NOT MATCHED THEN
     source.deleted_at
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.product_id = (SELECT DISTINCT id FROM source) THEN
+  AND target.product_id = (SELECT DISTINCT id FROM temp_product_variants) THEN
   DELETE;
 
 -- name: CreateTempTableProductImages :exec
@@ -341,10 +362,10 @@ CREATE TEMPORARY TABLE temp_product_images (
   id UUID PRIMARY KEY,
   url TEXT NOT NULL,
   "order" INTEGER NOT NULL,
-  product_id UUID,
+  product_id UUID NOT NULL,
   product_variant_id UUID,
-  created_at TIMESTAMP NOT NULL,
-  deleted_at TIMESTAMP
+  created_at TIMESTAMPTZ NOT NULL,
+  deleted_at TIMESTAMPTZ
 ) ON COMMIT DROP;
 
 -- name: InsertTempTableProductImages :copyfrom
@@ -398,7 +419,7 @@ WHEN NOT MATCHED THEN
     source.deleted_at
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.product_id = (SELECT DISTINCT product_id FROM source) THEN
+  AND target.product_id = (SELECT DISTINCT product_id FROM temp_product_images) THEN
   DELETE;
 
 -- name: CreateTempTableProductsAttributeValues :exec
@@ -432,7 +453,7 @@ WHEN NOT MATCHED THEN
     source.attribute_value_id
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.product_id IN (SELECT DISTINCT product_id FROM source) THEN
+  AND target.product_id IN (SELECT DISTINCT product_id FROM temp_products_attribute_values) THEN
   DELETE;
 
 -- name: CreateTempTableOptionValuesProductVariants :exec

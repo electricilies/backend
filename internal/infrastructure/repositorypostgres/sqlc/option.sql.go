@@ -17,12 +17,26 @@ CREATE TEMPORARY TABLE temp_option_values (
   id UUID PRIMARY KEY,
   value TEXT NOT NULL,
   option_id UUID NOT NULL,
-  deleted_at TIMESTAMP
+  deleted_at TIMESTAMPTZ
 ) ON COMMIT DROP
 `
 
 func (q *Queries) CreateTempTableOptionValues(ctx context.Context) error {
 	_, err := q.db.Exec(ctx, createTempTableOptionValues)
+	return err
+}
+
+const createTempTableOptions = `-- name: CreateTempTableOptions :exec
+CREATE TEMPORARY TABLE temp_options (
+  id UUID PRIMARY KEY,
+  name TEXT NOT NULL,
+  product_id UUID NOT NULL,
+  deleted_at TIMESTAMPTZ
+) ON COMMIT DROP
+`
+
+func (q *Queries) CreateTempTableOptions(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, createTempTableOptions)
 	return err
 }
 
@@ -62,7 +76,14 @@ type InsertTempTableOptionValuesParams struct {
 	ID        uuid.UUID
 	Value     string
 	OptionID  uuid.UUID
-	DeletedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamptz
+}
+
+type InsertTempTableOptionsParams struct {
+	ID        uuid.UUID
+	Name      string
+	ProductID uuid.UUID
+	DeletedAt pgtype.Timestamptz
 }
 
 const listOptionValues = `-- name: ListOptionValues :many
@@ -72,8 +93,9 @@ FROM
   option_values
 WHERE
   CASE
-    WHEN $1::uuid IS NULL THEN TRUE
-    ELSE option_values.id = $1::uuid
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
+    ELSE option_values.id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
@@ -91,13 +113,13 @@ ORDER BY
 `
 
 type ListOptionValuesParams struct {
-	ID        pgtype.UUID
+	IDs       []uuid.UUID
 	OptionIds []uuid.UUID
 	Deleted   string
 }
 
 func (q *Queries) ListOptionValues(ctx context.Context, arg ListOptionValuesParams) ([]OptionValue, error) {
-	rows, err := q.db.Query(ctx, listOptionValues, arg.ID, arg.OptionIds, arg.Deleted)
+	rows, err := q.db.Query(ctx, listOptionValues, arg.IDs, arg.OptionIds, arg.Deleted)
 	if err != nil {
 		return nil, err
 	}
@@ -243,12 +265,44 @@ WHEN NOT MATCHED THEN
     source.deleted_at
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.option_id = (SELECT DISTINCT option_id FROM source) THEN
+  AND target.option_id = (SELECT DISTINCT option_id FROM temp_option_values) THEN
   DELETE
 `
 
 func (q *Queries) MergeOptionValuesFromTemp(ctx context.Context) error {
 	_, err := q.db.Exec(ctx, mergeOptionValuesFromTemp)
+	return err
+}
+
+const mergeOptionsFromTemp = `-- name: MergeOptionsFromTemp :exec
+MERGE INTO options AS target
+USING temp_options AS source
+  ON target.id = source.id
+WHEN MATCHED THEN
+  UPDATE SET
+    name = source.name,
+    product_id = source.product_id,
+    deleted_at = source.deleted_at
+WHEN NOT MATCHED THEN
+  INSERT (
+    id,
+    name,
+    product_id,
+    deleted_at
+  )
+  VALUES (
+    source.id,
+    source.name,
+    source.product_id,
+    source.deleted_at
+  )
+WHEN NOT MATCHED BY SOURCE
+  AND target.product_id = (SELECT DISTINCT product_id FROM temp_options) THEN
+  DELETE
+`
+
+func (q *Queries) MergeOptionsFromTemp(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, mergeOptionsFromTemp)
 	return err
 }
 

@@ -82,7 +82,7 @@ func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*P
 		param.Search,
 		param.Deleted,
 		param.Limit,
-		param.Page,
+		(param.Page-1)*param.Limit,
 	)
 	if err != nil {
 		return nil, err
@@ -144,7 +144,7 @@ func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValue
 		param.Search,
 		param.Deleted,
 		param.Limit,
-		param.Page,
+		(param.Page-1)*param.Limit,
 	)
 	if err != nil {
 		return nil, err

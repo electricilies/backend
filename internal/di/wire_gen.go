@@ -37,36 +37,36 @@ func InitializeServer(ctx context.Context) *http.Server {
 	loggingMiddlewareImpl := http.ProvideLoggingMiddleware(zapLogger)
 	ginAuthMiddleware := http.ProvideAuthMiddleware(goCloak, server)
 	queries := client.NewDBQueries(pool)
-	postgresCategory := repositorypostgres.ProvidePostgresCategory(queries)
+	category := repositorypostgres.ProvideCategory(queries)
 	validate := client.NewValidate()
-	category := service.ProvideCategory(validate)
+	serviceCategory := service.ProvideCategory(validate)
 	cacheredisCategory := cacheredis.ProvideCategory(redisClient)
-	categoryImpl := application.ProvideCategory(postgresCategory, category, cacheredisCategory)
+	categoryImpl := application.ProvideCategory(category, serviceCategory, cacheredisCategory)
 	categoryHandlerImpl := http.ProvideCategoryHandler(categoryImpl)
-	postgresProduct := repositorypostgres.ProvidePostgresProduct(queries)
-	product := service.ProvideProduct(validate)
-	cacheredisProduct := cacheredis.ProvideProduct(redisClient)
-	presignClient := client.NewS3Presign(s3Client)
-	objectstorages3Product := objectstorages3.ProvideProduct(s3Client, presignClient)
-	productImpl := application.ProvideProduct(postgresProduct, product, cacheredisProduct, objectstorages3Product)
-	productHandlerImpl := http.ProvideProductHandler(productImpl)
 	attribute := repositorypostgres.ProvideAttribute(queries, pool)
 	serviceAttribute := service.ProvideAttribute(validate)
+	product := cacheredis.ProvideProduct(redisClient)
+	presignClient := client.NewS3Presign(s3Client)
+	objectstorages3Product := objectstorages3.ProvideProduct(s3Client, presignClient, server)
+	repositorypostgresProduct := repositorypostgres.ProvideProduct(queries, pool)
+	serviceProduct := service.ProvideProduct(validate)
+	productImpl := application.ProvideProduct(attribute, serviceAttribute, category, product, objectstorages3Product, repositorypostgresProduct, serviceProduct)
+	productHandlerImpl := http.ProvideProductHandler(productImpl)
 	cacheredisAttribute := cacheredis.ProvideAttribute(redisClient)
 	attributeImpl := application.ProvideAttribute(attribute, serviceAttribute, cacheredisAttribute)
 	attributeHandlerImpl := http.ProvideAttributeHandler(attributeImpl)
-	postgresOrder := repositorypostgres.ProvidePostgresOrder(queries)
-	order := service.ProvideOrder(validate)
-	orderImpl := application.ProvideOrder(postgresOrder, order)
+	order := repositorypostgres.ProvideOrder(queries)
+	serviceOrder := service.ProvideOrder(validate)
+	orderImpl := application.ProvideOrder(order, serviceOrder)
 	orderHandlerImpl := http.ProvideOrderHandler(orderImpl)
-	postgresReview := repositorypostgres.ProvidePostgresReview(queries)
-	review := service.ProvideReview(validate)
+	review := repositorypostgres.ProvideReview(queries)
+	serviceReview := service.ProvideReview(validate)
 	cacheredisReview := cacheredis.ProvideReview(redisClient)
-	reviewImpl := application.ProvideReview(postgresReview, review, cacheredisReview)
+	reviewImpl := application.ProvideReview(review, serviceReview, cacheredisReview)
 	reviewHandlerImpl := http.ProvideReviewHandler(reviewImpl)
-	postgresCart := repositorypostgres.ProvidePostgresCart(queries)
-	cart := service.ProvideCart(validate)
-	cartImpl := application.ProvideCart(postgresCart, cart)
+	cart := repositorypostgres.ProvideCart(queries)
+	serviceCart := service.ProvideCart(validate)
+	cartImpl := application.ProvideCart(cart, serviceCart)
 	cartHandlerImpl := http.ProvideCartHandler(cartImpl)
 	ginRouter := http.ProvideRouter(healthHandlerImpl, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, categoryHandlerImpl, productHandlerImpl, attributeHandlerImpl, orderHandlerImpl, reviewHandlerImpl, cartHandlerImpl)
 	authHandlerImpl := http.ProvideAuthHandler(server)
@@ -171,21 +171,21 @@ var ApplicationSet = wire.NewSet(application.ProvideAttribute, wire.Bind(
 var RepositorySet = wire.NewSet(repositorypostgres.ProvideAttribute, wire.Bind(
 	new(domain.AttributeRepository),
 	new(*repositorypostgres.Attribute),
-), repositorypostgres.ProvidePostgresCart, wire.Bind(
+), repositorypostgres.ProvideCart, wire.Bind(
 	new(domain.CartRepository),
-	new(*repositorypostgres.PostgresCart),
-), repositorypostgres.ProvidePostgresCategory, wire.Bind(
+	new(*repositorypostgres.Cart),
+), repositorypostgres.ProvideCategory, wire.Bind(
 	new(domain.CategoryRepository),
-	new(*repositorypostgres.PostgresCategory),
-), repositorypostgres.ProvidePostgresOrder, wire.Bind(
+	new(*repositorypostgres.Category),
+), repositorypostgres.ProvideOrder, wire.Bind(
 	new(domain.OrderRepository),
-	new(*repositorypostgres.PostgresOrder),
-), repositorypostgres.ProvidePostgresProduct, wire.Bind(
+	new(*repositorypostgres.Order),
+), repositorypostgres.ProvideProduct, wire.Bind(
 	new(domain.ProductRepository),
-	new(*repositorypostgres.PostgresProduct),
-), repositorypostgres.ProvidePostgresReview, wire.Bind(
+	new(*repositorypostgres.Product),
+), repositorypostgres.ProvideReview, wire.Bind(
 	new(domain.ReviewRepository),
-	new(*repositorypostgres.PostgresReview),
+	new(*repositorypostgres.Review),
 ),
 )
 

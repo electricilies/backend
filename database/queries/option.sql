@@ -78,8 +78,9 @@ FROM
   option_values
 WHERE
   CASE
-    WHEN sqlc.narg('id')::uuid IS NULL THEN TRUE
-    ELSE option_values.id = sqlc.narg('id')::uuid
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE option_values.id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('option_ids')::uuid[] IS NULL THEN TRUE
@@ -95,12 +96,59 @@ WHERE
 ORDER BY
   option_values.id;
 
+-- name: CreateTempTableOptions :exec
+CREATE TEMPORARY TABLE temp_options (
+  id UUID PRIMARY KEY,
+  name TEXT NOT NULL,
+  product_id UUID NOT NULL,
+  deleted_at TIMESTAMPTZ
+) ON COMMIT DROP;
+
+-- name: InsertTempTableOptions :copyfrom
+INSERT INTO temp_options (
+  id,
+  name,
+  product_id,
+  deleted_at
+) VALUES (
+  @id,
+  @name,
+  @product_id,
+  @deleted_at
+);
+
+-- name: MergeOptionsFromTemp :exec
+MERGE INTO options AS target
+USING temp_options AS source
+  ON target.id = source.id
+WHEN MATCHED THEN
+  UPDATE SET
+    name = source.name,
+    product_id = source.product_id,
+    deleted_at = source.deleted_at
+WHEN NOT MATCHED THEN
+  INSERT (
+    id,
+    name,
+    product_id,
+    deleted_at
+  )
+  VALUES (
+    source.id,
+    source.name,
+    source.product_id,
+    source.deleted_at
+  )
+WHEN NOT MATCHED BY SOURCE
+  AND target.product_id = (SELECT DISTINCT product_id FROM temp_options) THEN
+  DELETE;
+
 -- name: CreateTempTableOptionValues :exec
 CREATE TEMPORARY TABLE temp_option_values (
   id UUID PRIMARY KEY,
   value TEXT NOT NULL,
   option_id UUID NOT NULL,
-  deleted_at TIMESTAMP
+  deleted_at TIMESTAMPTZ
 ) ON COMMIT DROP;
 
 -- name: InsertTempTableOptionValues :copyfrom
@@ -139,5 +187,5 @@ WHEN NOT MATCHED THEN
     source.deleted_at
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.option_id = (SELECT DISTINCT option_id FROM source) THEN
+  AND target.option_id = (SELECT DISTINCT option_id FROM temp_option_values) THEN
   DELETE;

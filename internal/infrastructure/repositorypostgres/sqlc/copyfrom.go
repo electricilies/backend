@@ -147,6 +147,41 @@ func (q *Queries) InsertTempTableOptionValuesProductVariants(ctx context.Context
 	return q.db.CopyFrom(ctx, []string{"temp_option_values_product_variants"}, []string{"product_variant_id", "option_value_id"}, &iteratorForInsertTempTableOptionValuesProductVariants{rows: arg})
 }
 
+// iteratorForInsertTempTableOptions implements pgx.CopyFromSource.
+type iteratorForInsertTempTableOptions struct {
+	rows                 []InsertTempTableOptionsParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForInsertTempTableOptions) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForInsertTempTableOptions) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].ID,
+		r.rows[0].Name,
+		r.rows[0].ProductID,
+		r.rows[0].DeletedAt,
+	}, nil
+}
+
+func (r iteratorForInsertTempTableOptions) Err() error {
+	return nil
+}
+
+func (q *Queries) InsertTempTableOptions(ctx context.Context, arg []InsertTempTableOptionsParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"temp_options"}, []string{"id", "name", "product_id", "deleted_at"}, &iteratorForInsertTempTableOptions{rows: arg})
+}
+
 // iteratorForInsertTempTableProductImages implements pgx.CopyFromSource.
 type iteratorForInsertTempTableProductImages struct {
 	rows                 []InsertTempTableProductImagesParams

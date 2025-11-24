@@ -21,10 +21,12 @@ type Product struct {
 func ProvideProduct(
 	s3Client *s3.Client,
 	s3PresignClient *s3.PresignClient,
+	cfgSrv *config.Server,
 ) *Product {
 	return &Product{
 		s3Client:        s3Client,
 		s3PresignClient: s3PresignClient,
+		cfgSrv:          cfgSrv,
 	}
 }
 

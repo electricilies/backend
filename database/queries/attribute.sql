@@ -30,8 +30,8 @@ WHERE
   AND CASE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE
     ELSE
-      code ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
-      OR name ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
+      code ||| (sqlc.narg('search')::text)
+      OR name ||| (sqlc.narg('search')::text)
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
@@ -99,7 +99,7 @@ WHERE
   END
   AND CASE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE
-    ELSE value ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
+    ELSE value ||| (sqlc.narg('search')::text)
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
@@ -145,7 +145,7 @@ CREATE TEMPORARY TABLE temp_attribute_values (
   id UUID PRIMARY KEY,
   attribute_id UUID NOT NULL,
   value TEXT NOT NULL,
-  deleted_at TIMESTAMP
+  deleted_at TIMESTAMPTZ
 ) ON COMMIT DROP;
 
 -- name: InsertTempTableAttributeValues :copyfrom

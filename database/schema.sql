@@ -66,7 +66,7 @@ CREATE TABLE product_images (
   "order" INTEGER NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMPTZ,
-  product_id UUID REFERENCES products (id) ON UPDATE CASCADE,
+  product_id UUID NOT NULL REFERENCES products (id) ON UPDATE CASCADE,
   product_variant_id UUID REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 

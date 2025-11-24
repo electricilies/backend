@@ -178,30 +178,30 @@ var RepositorySet = wire.NewSet(
 		new(domain.AttributeRepository),
 		new(*repositorypostgres.Attribute),
 	),
-	repositorypostgres.ProvidePostgresCart,
+	repositorypostgres.ProvideCart,
 	wire.Bind(
 		new(domain.CartRepository),
-		new(*repositorypostgres.PostgresCart),
+		new(*repositorypostgres.Cart),
 	),
-	repositorypostgres.ProvidePostgresCategory,
+	repositorypostgres.ProvideCategory,
 	wire.Bind(
 		new(domain.CategoryRepository),
-		new(*repositorypostgres.PostgresCategory),
+		new(*repositorypostgres.Category),
 	),
-	repositorypostgres.ProvidePostgresOrder,
+	repositorypostgres.ProvideOrder,
 	wire.Bind(
 		new(domain.OrderRepository),
-		new(*repositorypostgres.PostgresOrder),
+		new(*repositorypostgres.Order),
 	),
-	repositorypostgres.ProvidePostgresProduct,
+	repositorypostgres.ProvideProduct,
 	wire.Bind(
 		new(domain.ProductRepository),
-		new(*repositorypostgres.PostgresProduct),
+		new(*repositorypostgres.Product),
 	),
-	repositorypostgres.ProvidePostgresReview,
+	repositorypostgres.ProvideReview,
 	wire.Bind(
 		new(domain.ReviewRepository),
-		new(*repositorypostgres.PostgresReview),
+		new(*repositorypostgres.Review),
 	),
 )
 

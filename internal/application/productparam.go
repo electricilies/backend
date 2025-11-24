@@ -27,7 +27,7 @@ type CreateProductData struct {
 	Name              string                         `json:"name"        binding:"required"`
 	Description       string                         `json:"description" binding:"required"`
 	AttributeValueIDs *[]CreateProductAttributesData `json:"attributes"`
-	Options           []CreateProductOptionData      `json:"options"     binding:"required,dive"`
+	Options           *[]CreateProductOptionData     `json:"options"     binding:"omitnil,dive"`
 	CategoryID        uuid.UUID                      `json:"categoryId"  binding:"required"`
 	Images            []CreateProductImageData       `json:"images"      binding:"required,dive"`
 	Variants          []CreateProductVariantData     `json:"variants"    binding:"required,dive"`

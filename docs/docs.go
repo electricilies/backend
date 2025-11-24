@@ -2571,9 +2571,6 @@ const docTemplate = `{
                 "value"
             ],
             "properties": {
-                "attribute": {
-                    "$ref": "#/definitions/Attribute"
-                },
                 "deletedAt": {
                     "type": "string"
                 },
@@ -2786,7 +2783,6 @@ const docTemplate = `{
                 "description",
                 "images",
                 "name",
-                "options",
                 "variants"
             ],
             "properties": {
@@ -3382,9 +3378,6 @@ const docTemplate = `{
                 },
                 "price": {
                     "type": "integer"
-                },
-                "product": {
-                    "$ref": "#/definitions/Product"
                 },
                 "purchaseCount": {
                     "type": "integer",

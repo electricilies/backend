@@ -23,31 +23,38 @@ WHERE
     ELSE products.id = $1::uuid
   END
   AND CASE
-    WHEN $2::decimal IS NULL THEN TRUE
-    ELSE products.price >= $2::decimal
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
+    ELSE products.id = ANY ($2::uuid[])
   END
   AND CASE
     WHEN $3::decimal IS NULL THEN TRUE
-    ELSE products.price <= $3::decimal
+    ELSE products.price >= $3::decimal
   END
   AND CASE
-    WHEN $4::real IS NULL THEN TRUE
-    ELSE products.rating >= $4::real
+    WHEN $4::decimal IS NULL THEN TRUE
+    ELSE products.price <= $4::decimal
   END
   AND CASE
-    WHEN $5::uuid[] IS NULL THEN TRUE
-    ELSE products.category_id = ANY ($5::uuid[])
+    WHEN $5::real IS NULL THEN TRUE
+    ELSE products.rating >= $5::real
   END
   AND CASE
-    WHEN $6::text = 'exclude' THEN products.deleted_at IS NULL
-    WHEN $6::text = 'only' THEN products.deleted_at IS NOT NULL
-    WHEN $6::text = 'all' THEN TRUE
-    ELSE products.deleted_at IS NOT NULL
+    WHEN $6::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($6::uuid[]) = 0 THEN TRUE
+    ELSE products.category_id = ANY ($6::uuid[])
+  END
+  AND CASE
+    WHEN $7::text = 'exclude' THEN products.deleted_at IS NULL
+    WHEN $7::text = 'only' THEN products.deleted_at IS NOT NULL
+    WHEN $7::text = 'all' THEN TRUE
+    ELSE products.deleted_at IS NULL
   END
 `
 
 type CountProductsParams struct {
 	ID          pgtype.UUID
+	IDs         []uuid.UUID
 	MinPrice    pgtype.Numeric
 	MaxPrice    pgtype.Numeric
 	Rating      *float32
@@ -58,6 +65,7 @@ type CountProductsParams struct {
 func (q *Queries) CountProducts(ctx context.Context, arg CountProductsParams) (int64, error) {
 	row := q.db.QueryRow(ctx, countProducts,
 		arg.ID,
+		arg.IDs,
 		arg.MinPrice,
 		arg.MaxPrice,
 		arg.Rating,
@@ -87,10 +95,10 @@ CREATE TEMPORARY TABLE temp_product_images (
   id UUID PRIMARY KEY,
   url TEXT NOT NULL,
   "order" INTEGER NOT NULL,
-  product_id UUID,
+  product_id UUID NOT NULL,
   product_variant_id UUID,
-  created_at TIMESTAMP NOT NULL,
-  deleted_at TIMESTAMP
+  created_at TIMESTAMPTZ NOT NULL,
+  deleted_at TIMESTAMPTZ
 ) ON COMMIT DROP
 `
 
@@ -107,9 +115,9 @@ CREATE TEMPORARY TABLE temp_product_variants (
   quantity INTEGER NOT NULL,
   purchase_count INTEGER NOT NULL,
   product_id UUID NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP NOT NULL,
-  deleted_at TIMESTAMP
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
+  deleted_at TIMESTAMPTZ
 ) ON COMMIT DROP
 `
 
@@ -245,10 +253,10 @@ type InsertTempTableProductImagesParams struct {
 	ID               uuid.UUID
 	URL              string
 	Order            int32
-	ProductID        pgtype.UUID
+	ProductID        uuid.UUID
 	ProductVariantID pgtype.UUID
-	CreatedAt        pgtype.Timestamp
-	DeletedAt        pgtype.Timestamp
+	CreatedAt        pgtype.Timestamptz
+	DeletedAt        pgtype.Timestamptz
 }
 
 type InsertTempTableProductVariantsParams struct {
@@ -258,9 +266,9 @@ type InsertTempTableProductVariantsParams struct {
 	Quantity      int32
 	PurchaseCount int32
 	ProductID     uuid.UUID
-	CreatedAt     pgtype.Timestamp
-	UpdatedAt     pgtype.Timestamp
-	DeletedAt     pgtype.Timestamp
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
+	DeletedAt     pgtype.Timestamptz
 }
 
 type InsertTempTableProductsAttributeValuesParams struct {
@@ -347,26 +355,31 @@ WHERE
     ELSE id = ANY ($3::uuid[])
   END
   AND CASE
-    WHEN $4::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($4::uuid[]) = 0 THEN TRUE
-    ELSE product_id = ANY ($4::uuid[])
+    WHEN $4::uuid IS NULL THEN TRUE
+    ELSE product_id = $4::uuid
   END
   AND CASE
-    WHEN $5::text = 'exclude' THEN deleted_at IS NULL
-    WHEN $5::text = 'only' THEN deleted_at IS NOT NULL
-    WHEN $5::text = 'all' THEN TRUE
+    WHEN $5::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($5::uuid[]) = 0 THEN TRUE
+    ELSE product_id = ANY ($5::uuid[])
+  END
+  AND CASE
+    WHEN $6::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $6::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $6::text = 'all' THEN TRUE
     ELSE deleted_at IS NULL
   END
 ORDER BY
   id
-OFFSET $6::integer
-LIMIT NULLIF($7::integer, 0)
+OFFSET $7::integer
+LIMIT NULLIF($8::integer, 0)
 `
 
 type ListProductVariantsParams struct {
 	ID         pgtype.UUID
 	SKU        *string
 	IDs        []uuid.UUID
+	ProductID  pgtype.UUID
 	ProductIDs []uuid.UUID
 	Deleted    string
 	Offset     int32
@@ -378,6 +391,7 @@ func (q *Queries) ListProductVariants(ctx context.Context, arg ListProductVarian
 		arg.ID,
 		arg.SKU,
 		arg.IDs,
+		arg.ProductID,
 		arg.ProductIDs,
 		arg.Deleted,
 		arg.Offset,
@@ -424,11 +438,12 @@ LEFT JOIN (
   INNER JOIN categories
     ON products.category_id = categories.id
   WHERE
-    $1::text IS NULL
-    OR (
-      categories.name ||| ($1::text)::pdb.fuzzy(2)
-      AND categories.deleted_at IS NULL
-    )
+    CASE WHEN $1::text IS NULL THEN TRUE
+      ELSE (
+        categories.name ||| $1::text
+        AND categories.deleted_at IS NULL
+      )
+    END
 ) AS category_scores
   ON products.id = category_scores.id
 WHERE
@@ -437,54 +452,61 @@ WHERE
     ELSE products.id = $2::uuid
   END
   AND CASE
-    WHEN $1::text IS NULL THEN TRUE
-    ELSE products.name ||| ($1::text)::pdb.fuzzy(products.trending_score)
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
+    ELSE products.id = ANY ($3::uuid[])
   END
   AND CASE
-    WHEN $3::decimal IS NULL THEN TRUE
-    ELSE products.price >= $3::decimal
+    WHEN $1::text IS NULL THEN TRUE
+    ELSE products.name ||| $1::text
   END
   AND CASE
     WHEN $4::decimal IS NULL THEN TRUE
-    ELSE products.price <= $4::decimal
+    ELSE products.price >= $4::decimal
   END
   AND CASE
-    WHEN $5::real IS NULL THEN TRUE
-    ELSE products.rating >= $5::real
+    WHEN $5::decimal IS NULL THEN TRUE
+    ELSE products.price <= $5::decimal
   END
   AND CASE
-    WHEN $6::uuid[] IS NULL THEN TRUE
-    ELSE products.category_id = ANY ($6::uuid[])
+    WHEN $6::real IS NULL THEN TRUE
+    ELSE products.rating >= $6::real
   END
   AND CASE
-    WHEN $7::text = 'exclude' THEN products.deleted_at IS NULL
-    WHEN $7::text = 'only' THEN products.deleted_at IS NOT NULL
-    WHEN $7::text = 'all' THEN TRUE
-    ELSE products.deleted_at IS NOT NULL
+    WHEN $7::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($7::uuid[]) = 0 THEN TRUE
+    ELSE products.category_id = ANY ($7::uuid[])
+  END
+  AND CASE
+    WHEN $8::text = 'exclude' THEN products.deleted_at IS NULL
+    WHEN $8::text = 'only' THEN products.deleted_at IS NOT NULL
+    WHEN $8::text = 'all' THEN TRUE
+    ELSE products.deleted_at IS NULL
   END
 ORDER BY
   CASE WHEN
-    $1 IS NOT NULL THEN pdb.score(products.id) + category_scores.category_score
+    $1 IS NOT NULL THEN pdb.score(products.id) + category_scores.category_score + products.trending_score
   END DESC,
   CASE WHEN
-    $8::text = 'asc' THEN products.rating
+    $9::text = 'asc' THEN products.rating
   END ASC,
   CASE WHEN
-    $8::text = 'desc' THEN products.rating
+    $9::text = 'desc' THEN products.rating
   END DESC,
   CASE WHEN
-   $9::text = 'asc' THEN products.price
+   $10::text = 'asc' THEN products.price
   END ASC,
   CASE WHEN
-   $9::text = 'desc' THEN products.price
+   $10::text = 'desc' THEN products.price
   END DESC
-OFFSET $10::integer
-LIMIT NULLIF($11::integer, 0)
+OFFSET $11::integer
+LIMIT NULLIF($12::integer, 0)
 `
 
 type ListProductsParams struct {
 	Search      *string
 	ID          pgtype.UUID
+	IDs         []uuid.UUID
 	MinPrice    pgtype.Numeric
 	MaxPrice    pgtype.Numeric
 	Rating      *float32
@@ -501,6 +523,7 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]P
 	rows, err := q.db.Query(ctx, listProducts,
 		arg.Search,
 		arg.ID,
+		arg.IDs,
 		arg.MinPrice,
 		arg.MaxPrice,
 		arg.Rating,
@@ -549,14 +572,18 @@ FROM
   products_attribute_values
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
-    ELSE product_id = ANY ($1::uuid[])
+    WHEN $1::uuid IS NULL THEN TRUE
+    ELSE product_id = $1::uuid
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
-    ELSE attribute_value_id = ANY ($2::uuid[])
+    ELSE product_id = ANY ($2::uuid[])
+  END
+  AND CASE
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
+    ELSE attribute_value_id = ANY ($3::uuid[])
   END
 ORDER BY
   product_id ASC,
@@ -564,12 +591,13 @@ ORDER BY
 `
 
 type ListProductsAttributeValuesParams struct {
+	ProductID         pgtype.UUID
 	ProductIDs        []uuid.UUID
 	AttributeValueIDs []uuid.UUID
 }
 
 func (q *Queries) ListProductsAttributeValues(ctx context.Context, arg ListProductsAttributeValuesParams) ([]ProductsAttributeValue, error) {
-	rows, err := q.db.Query(ctx, listProductsAttributeValues, arg.ProductIDs, arg.AttributeValueIDs)
+	rows, err := q.db.Query(ctx, listProductsAttributeValues, arg.ProductID, arg.ProductIDs, arg.AttributeValueIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -643,7 +671,7 @@ WHEN NOT MATCHED THEN
     source.deleted_at
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.product_id = (SELECT DISTINCT product_id FROM source) THEN
+  AND target.product_id = (SELECT DISTINCT product_id FROM temp_product_images) THEN
   DELETE
 `
 
@@ -690,7 +718,7 @@ WHEN NOT MATCHED THEN
     source.deleted_at
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.product_id = (SELECT DISTINCT id FROM source) THEN
+  AND target.product_id = (SELECT DISTINCT id FROM temp_product_variants) THEN
   DELETE
 `
 
@@ -714,7 +742,7 @@ WHEN NOT MATCHED THEN
     source.attribute_value_id
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.product_id IN (SELECT DISTINCT product_id FROM source) THEN
+  AND target.product_id IN (SELECT DISTINCT product_id FROM temp_products_attribute_values) THEN
   DELETE
 `
 

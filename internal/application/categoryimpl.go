@@ -54,7 +54,7 @@ func (c *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*Pagi
 		ctx,
 		param.Search,
 		param.Limit,
-		param.Page,
+		(param.Page-1)*param.Limit,
 	)
 	if err != nil {
 		return nil, err

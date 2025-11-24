@@ -27,7 +27,7 @@ FROM
 WHERE
   CASE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE
-    ELSE name ||| (sqlc.narg('search')::text)::pdb.fuzzy(2)
+    ELSE name ||| (sqlc.narg('search')::text)
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL

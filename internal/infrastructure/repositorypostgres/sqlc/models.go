@@ -114,7 +114,7 @@ type ProductImage struct {
 	Order            int32
 	CreatedAt        pgtype.Timestamptz
 	DeletedAt        pgtype.Timestamptz
-	ProductID        pgtype.UUID
+	ProductID        uuid.UUID
 	ProductVariantID pgtype.UUID
 }
 
@@ -180,7 +180,7 @@ type TempAttributeValue struct {
 	ID          uuid.UUID
 	AttributeID uuid.UUID
 	Value       string
-	DeletedAt   pgtype.Timestamp
+	DeletedAt   pgtype.Timestamptz
 }
 
 type TempCartItem struct {
@@ -190,11 +190,18 @@ type TempCartItem struct {
 	ProductVariantID uuid.UUID
 }
 
+type TempOption struct {
+	ID        uuid.UUID
+	Name      string
+	ProductID uuid.UUID
+	DeletedAt pgtype.Timestamptz
+}
+
 type TempOptionValue struct {
 	ID        uuid.UUID
 	Value     string
 	OptionID  uuid.UUID
-	DeletedAt pgtype.Timestamp
+	DeletedAt pgtype.Timestamptz
 }
 
 type TempOptionValuesProductVariant struct {
@@ -206,10 +213,10 @@ type TempProductImage struct {
 	ID               uuid.UUID
 	URL              string
 	Order            int32
-	ProductID        pgtype.UUID
+	ProductID        uuid.UUID
 	ProductVariantID pgtype.UUID
-	CreatedAt        pgtype.Timestamp
-	DeletedAt        pgtype.Timestamp
+	CreatedAt        pgtype.Timestamptz
+	DeletedAt        pgtype.Timestamptz
 }
 
 type TempProductVariant struct {
@@ -219,9 +226,9 @@ type TempProductVariant struct {
 	Quantity      int32
 	PurchaseCount int32
 	ProductID     uuid.UUID
-	CreatedAt     pgtype.Timestamp
-	UpdatedAt     pgtype.Timestamp
-	DeletedAt     pgtype.Timestamp
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
+	DeletedAt     pgtype.Timestamptz
 }
 
 type TempProductsAttributeValue struct {

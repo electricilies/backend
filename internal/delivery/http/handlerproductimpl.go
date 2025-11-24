@@ -517,7 +517,7 @@ func (h *ProductHandlerImpl) UpdateOptions(ctx *gin.Context) {
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *ProductHandlerImpl) GetUploadImageURL(ctx *gin.Context) {
-	uploadURL, err := h.productApp.GetUploadImageURL(ctx.Request.Context())
+	uploadURL, err := h.productApp.GetUploadImageURL(ctx)
 	if err != nil {
 		SendError(ctx, err)
 		return

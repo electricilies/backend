@@ -3,7 +3,7 @@ CREATE TEMPORARY TABLE temp_attribute_values (
   id UUID PRIMARY KEY,
   attribute_id UUID NOT NULL,
   value TEXT NOT NULL,
-  deleted_at TIMESTAMP
+  deleted_at TIMESTAMPTZ
 );
 
 -- cart_items_temp
@@ -22,9 +22,9 @@ CREATE TEMPORARY TABLE temp_product_variants (
   quantity INTEGER NOT NULL,
   purchase_count INTEGER NOT NULL,
   product_id UUID NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP NOT NULL,
-  deleted_at TIMESTAMP
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
+  deleted_at TIMESTAMPTZ
 );
 
 -- product_images_temp
@@ -32,10 +32,10 @@ CREATE TEMPORARY TABLE temp_product_images (
   id UUID PRIMARY KEY,
   url TEXT NOT NULL,
   "order" INTEGER NOT NULL,
-  product_id UUID,
+  product_id UUID NOT NULL,
   product_variant_id UUID,
-  created_at TIMESTAMP NOT NULL,
-  deleted_at TIMESTAMP
+  created_at TIMESTAMPTZ NOT NULL,
+  deleted_at TIMESTAMPTZ
 );
 
 -- products_attribute_values_temp
@@ -45,12 +45,20 @@ CREATE TEMPORARY TABLE temp_products_attribute_values (
   PRIMARY KEY (product_id, attribute_value_id)
 );
 
+-- name: CreateTempTableOptions :exec
+CREATE TEMPORARY TABLE temp_options (
+  id UUID PRIMARY KEY,
+  name TEXT NOT NULL,
+  product_id UUID NOT NULL,
+  deleted_at TIMESTAMPTZ
+) ON COMMIT DROP;
+
 -- option_values_temp
 CREATE TEMPORARY TABLE temp_option_values (
   id UUID PRIMARY KEY,
   value TEXT NOT NULL,
   option_id UUID NOT NULL,
-  deleted_at TIMESTAMP
+  deleted_at TIMESTAMPTZ
 );
 
 -- option_values_product_variants_temp

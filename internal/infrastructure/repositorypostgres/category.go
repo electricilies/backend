@@ -11,24 +11,24 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type PostgresCategory struct {
+type Category struct {
 	queries *sqlc.Queries
 }
 
-var _ domain.CategoryRepository = (*PostgresCategory)(nil)
+var _ domain.CategoryRepository = (*Category)(nil)
 
-func ProvidePostgresCategory(q *sqlc.Queries) *PostgresCategory {
-	return &PostgresCategory{queries: q}
+func ProvideCategory(q *sqlc.Queries) *Category {
+	return &Category{queries: q}
 }
 
-func (r *PostgresCategory) Count(ctx context.Context) (*int, error) {
+func (r *Category) Count(ctx context.Context) (*int, error) {
 	count, err := r.queries.CountCategories(ctx, sqlc.CountCategoriesParams{
 		Deleted: string(domain.DeletedExcludeParam),
 	})
 	return ptr.To(int(count)), err
 }
 
-func (r *PostgresCategory) List(ctx context.Context, search *string, limit int, offset int) (*[]domain.Category, error) {
+func (r *Category) List(ctx context.Context, search *string, limit int, offset int) (*[]domain.Category, error) {
 	categories, err := r.queries.ListCategories(ctx, sqlc.ListCategoriesParams{
 		Search:  search,
 		Deleted: string(domain.DeletedExcludeParam),
@@ -51,7 +51,7 @@ func (r *PostgresCategory) List(ctx context.Context, search *string, limit int, 
 	return &result, nil
 }
 
-func (r *PostgresCategory) Get(ctx context.Context, id uuid.UUID) (*domain.Category, error) {
+func (r *Category) Get(ctx context.Context, id uuid.UUID) (*domain.Category, error) {
 	cat, err := r.queries.GetCategory(ctx, sqlc.GetCategoryParams{
 		ID:      id,
 		Deleted: string(domain.DeletedExcludeParam),
@@ -69,7 +69,7 @@ func (r *PostgresCategory) Get(ctx context.Context, id uuid.UUID) (*domain.Categ
 	return &result, nil
 }
 
-func (r *PostgresCategory) Save(ctx context.Context, category domain.Category) error {
+func (r *Category) Save(ctx context.Context, category domain.Category) error {
 	return r.queries.UpsertCategory(ctx, sqlc.UpsertCategoryParams{
 		ID:   category.ID,
 		Name: category.Name,

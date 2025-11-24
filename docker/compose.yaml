@@ -18,7 +18,8 @@ services:
       - ./volume/seed.sql:/docker-entrypoint-initdb.d/20-seed.sql
       - ./volume/paradedb-index.sql:/docker-entrypoint-initdb.d/30-paradedb-index.sql
     healthcheck:
-      test: [CMD, pg_isready, -U, postgres, -h, localhost]
+      test:
+        [CMD, pg_isready, -U, "${DB_USERNAME:-electricilies}", -h, localhost]
     restart: unless-stopped
 
   keycloak-db:

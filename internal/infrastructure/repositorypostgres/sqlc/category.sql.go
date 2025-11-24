@@ -78,7 +78,7 @@ FROM
 WHERE
   CASE
     WHEN $1::text IS NULL THEN TRUE
-    ELSE name ||| ($1::text)::pdb.fuzzy(2)
+    ELSE name ||| ($1::text)
   END
   AND CASE
     WHEN $2::text = 'exclude' THEN deleted_at IS NULL

@@ -11,8 +11,8 @@ func NewValidate() *validator.Validate {
 		validator.WithRequiredStructEnabled(),
 	)
 	validate.RegisterStructValidation(
-		domain.ProductVariantStructLevel,
-		domain.ProductVariant{},
+		domain.ProductStructLevel,
+		domain.Product{},
 	)
 	return validate
 }

@@ -26,7 +26,7 @@ lsp.config("postgres_lsp", {
   end,
 })
 
-map("n", "<localleader>lb", function()
+map("n", "<localleader>b", function()
   vim.ui.select({
     "none",
     "integration",
