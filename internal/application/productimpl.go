@@ -95,7 +95,7 @@ func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagina
 	)
 
 	// Cache the result
-	p.productCache.SetProductList(ctx, cacheKey, pagination)
+	_ = p.productCache.SetProductList(ctx, cacheKey, pagination)
 
 	return pagination, nil
 }
@@ -112,7 +112,7 @@ func (p *ProductImpl) Get(ctx context.Context, param GetProductParam) (*domain.P
 	}
 
 	// Cache the result
-	p.productCache.SetProduct(ctx, param.ProductID, product)
+	_ = p.productCache.SetProduct(ctx, param.ProductID, product)
 
 	return product, nil
 }
@@ -148,14 +148,19 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 			return nil, err
 		}
 		attributeValues := p.attributeService.FilterAttributeValuesFromAttributes(*attributes, attributeValueIDs)
-		p.productService.AddAttributeValues(product, attributeValues...)
+		err = p.productService.AddAttributeValues(product, attributeValues...)
+		if err != nil {
+			return nil, err
+		}
 	}
 	optionsWithOptionValues := make(map[string][]string, len(param.Data.Options))
 	options, err := p.productService.CreateOptionsWithOptionValues(optionsWithOptionValues)
 	if err != nil {
 		return nil, err
 	}
-	p.productService.AddOptions(product, *options...)
+	if err := p.productService.AddOptions(product, *options...); err != nil {
+		return nil, err
+	}
 	productImages := make([]domain.ProductImage, 0, len(param.Data.Images))
 	for _, imgData := range param.Data.Images {
 		image, err := p.productService.CreateImage(
@@ -167,7 +172,9 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 		}
 		productImages = append(productImages, *image)
 	}
-	p.productService.AddImages(product, productImages...)
+	if err := p.productService.AddImages(product, productImages...); err != nil {
+		return nil, err
+	}
 	productVariants := make([]domain.ProductVariant, 0, len(param.Data.Variants))
 	for _, variantData := range param.Data.Variants {
 		variant, err := p.productService.CreateVariant(
@@ -191,16 +198,20 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 				}
 				variantImages = append(variantImages, *image)
 			}
-			p.productService.AddVariantImages(product, variant.ID, variantImages...)
+			if err := p.productService.AddVariantImages(product, variant.ID, variantImages...); err != nil {
+				return nil, err
+			}
 		}
 	}
-	p.productService.AddVariants(product, productVariants...)
+	if err := p.productService.AddVariants(product, productVariants...); err != nil {
+		return nil, err
+	}
 	err = p.productRepo.Save(ctx, *product)
 	if err != nil {
 		return nil, err
 	}
 	// Invalidate cache after create
-	p.productCache.InvalidateProductList(ctx)
+	_ = p.productCache.InvalidateProductList(ctx)
 	return product, nil
 }
 
@@ -217,18 +228,20 @@ func (p *ProductImpl) Update(ctx context.Context, param UpdateProductParam) (*do
 	if err != nil {
 		return nil, err
 	}
-	p.productService.Update(
+	if err := p.productService.Update(
 		product,
 		param.Data.Name,
 		param.Data.Description,
 		category,
-	)
+	); err != nil {
+		return nil, err
+	}
 	err = p.productRepo.Save(ctx, *product)
 	if err != nil {
 		return nil, err
 	}
-	p.productCache.InvalidateProduct(ctx, param.ProductID)
-	p.productCache.InvalidateProductList(ctx)
+	_ = p.productCache.InvalidateProduct(ctx, param.ProductID)
+	_ = p.productCache.InvalidateProductList(ctx)
 	return product, nil
 }
 
@@ -241,8 +254,8 @@ func (p *ProductImpl) Delete(ctx context.Context, param DeleteProductParam) erro
 	if err != nil {
 		return err
 	}
-	p.productCache.InvalidateProduct(ctx, param.ProductID)
-	p.productCache.InvalidateProductList(ctx)
+	_ = p.productCache.InvalidateProduct(ctx, param.ProductID)
+	_ = p.productCache.InvalidateProductList(ctx)
 	return nil
 }
 
@@ -263,13 +276,15 @@ func (p *ProductImpl) AddVariants(ctx context.Context, param AddProductVariantsP
 		}
 		variants = append(variants, *variant)
 	}
-	p.productService.AddVariants(product, variants...)
+	if err := p.productService.AddVariants(product, variants...); err != nil {
+		return nil, err
+	}
 	err = p.productRepo.Save(ctx, *product)
 	if err != nil {
 		return nil, err
 	}
-	p.productCache.InvalidateProduct(ctx, param.ProductID)
-	p.productCache.InvalidateProductList(ctx)
+	_ = p.productCache.InvalidateProduct(ctx, param.ProductID)
+	_ = p.productCache.InvalidateProductList(ctx)
 	return &variants, nil
 }
 
@@ -278,12 +293,14 @@ func (p *ProductImpl) UpdateVariant(ctx context.Context, param UpdateProductVari
 	if err != nil {
 		return nil, err
 	}
-	p.productService.UpdateVariant(
+	if err := p.productService.UpdateVariant(
 		product,
 		param.ProductVariantID,
 		param.Data.Price,
 		param.Data.Quantity,
-	)
+	); err != nil {
+		return nil, err
+	}
 	variant := product.GetVariantByID(param.ProductVariantID)
 	if variant == nil {
 		return nil, domain.ErrNotFound
@@ -293,7 +310,7 @@ func (p *ProductImpl) UpdateVariant(ctx context.Context, param UpdateProductVari
 		return nil, err
 	}
 	// Invalidate product list caches
-	p.productCache.InvalidateProductList(ctx)
+	_ = p.productCache.InvalidateProductList(ctx)
 	return variant, nil
 }
 
@@ -312,18 +329,22 @@ func (p *ProductImpl) AddImages(ctx context.Context, param AddProductImagesParam
 			return nil, err
 		}
 		if imgData.ProductVariantID != nil {
-			p.productService.AddVariantImages(product, *imgData.ProductVariantID, *image)
+			if err := p.productService.AddVariantImages(product, *imgData.ProductVariantID, *image); err != nil {
+				return nil, err
+			}
 		} else {
 			images = append(images, *image)
 		}
 	}
-	p.productService.AddImages(product, images...)
+	if err := p.productService.AddImages(product, images...); err != nil {
+		return nil, err
+	}
 	err = p.productRepo.Save(ctx, *product)
 	if err != nil {
 		return nil, err
 	}
 	// Invalidate product caches
-	p.productCache.InvalidateAllProducts(ctx)
+	_ = p.productCache.InvalidateAllProducts(ctx)
 	return &images, nil
 }
 
@@ -358,7 +379,7 @@ func (p *ProductImpl) DeleteImages(ctx context.Context, param DeleteProductImage
 	if err != nil {
 		return err
 	}
-	p.productCache.InvalidateAllProducts(ctx)
+	_ = p.productCache.InvalidateAllProducts(ctx)
 	return nil
 }
 
@@ -369,11 +390,13 @@ func (p *ProductImpl) UpdateOptions(ctx context.Context, param UpdateProductOpti
 	}
 	optionIDs := make([]uuid.UUID, 0, len(param.Data))
 	for _, data := range param.Data {
-		p.productService.UpdateOption(
+		if err := p.productService.UpdateOption(
 			product,
 			data.ID,
 			data.Name,
-		)
+		); err != nil {
+			return nil, err
+		}
 		optionIDs = append(optionIDs, data.ID)
 	}
 	options := product.GetOptionsByIDs(optionIDs)
@@ -384,7 +407,7 @@ func (p *ProductImpl) UpdateOptions(ctx context.Context, param UpdateProductOpti
 	if err != nil {
 		return nil, err
 	}
-	p.productCache.InvalidateAllProducts(ctx)
+	_ = p.productCache.InvalidateAllProducts(ctx)
 	return slice.SlicePtrToPtrSlice(options), nil
 }
 
@@ -395,12 +418,14 @@ func (p *ProductImpl) UpdateOptionValues(ctx context.Context, param UpdateProduc
 	}
 	optionValueIDs := make([]uuid.UUID, 0, len(param.Data))
 	for _, data := range param.Data {
-		p.productService.UpdateOptionValue(
+		if err := p.productService.UpdateOptionValue(
 			product,
 			param.OptionID,
 			data.ID,
 			data.Value,
-		)
+		); err != nil {
+			return nil, err
+		}
 	}
 	option := product.GetOptionByID(param.OptionID)
 	if option == nil {
@@ -411,7 +436,7 @@ func (p *ProductImpl) UpdateOptionValues(ctx context.Context, param UpdateProduc
 	if err != nil {
 		return nil, err
 	}
-	p.productCache.InvalidateAllProducts(ctx)
+	_ = p.productCache.InvalidateAllProducts(ctx)
 	return slice.SlicePtrToPtrSlice(optionValues), nil
 }
 

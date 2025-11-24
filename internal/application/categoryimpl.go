@@ -33,8 +33,7 @@ func (c *CategoryImpl) Create(ctx context.Context, param CreateCategoryParam) (*
 		return nil, err
 	}
 
-	// Invalidate list cache
-	c.categoryCache.InvalidateCategoryList(ctx)
+	_ = c.categoryCache.InvalidateCategoryList(ctx)
 
 	return category, nil
 }
@@ -74,14 +73,12 @@ func (c *CategoryImpl) List(ctx context.Context, param ListCategoryParam) (*Pagi
 		param.Limit,
 	)
 
-	// Cache the result
-	c.categoryCache.SetCategoryList(ctx, cacheKey, pagination)
+	_ = c.categoryCache.SetCategoryList(ctx, cacheKey, pagination)
 
 	return pagination, nil
 }
 
 func (c *CategoryImpl) Get(ctx context.Context, param GetCategoryParam) (*domain.Category, error) {
-	// Try to get from cache
 	if cachedCategory, err := c.categoryCache.GetCategory(ctx, param.CategoryID); err == nil {
 		return cachedCategory, nil
 	}
@@ -91,8 +88,7 @@ func (c *CategoryImpl) Get(ctx context.Context, param GetCategoryParam) (*domain
 		return nil, err
 	}
 
-	// Cache the result
-	c.categoryCache.SetCategory(ctx, param.CategoryID, category)
+	_ = c.categoryCache.SetCategory(ctx, param.CategoryID, category)
 
 	return category, nil
 }
@@ -113,9 +109,8 @@ func (c *CategoryImpl) Update(ctx context.Context, param UpdateCategoryParam) (*
 		return nil, err
 	}
 
-	// Invalidate cache
-	c.categoryCache.InvalidateCategory(ctx, param.CategoryID)
-	c.categoryCache.InvalidateCategoryList(ctx)
+	_ = c.categoryCache.InvalidateCategory(ctx, param.CategoryID)
+	_ = c.categoryCache.InvalidateCategoryList(ctx)
 
 	return category, nil
 }
