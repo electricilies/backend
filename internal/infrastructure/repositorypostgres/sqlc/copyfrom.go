@@ -3,7 +3,7 @@
 //   sqlc v1.30.0
 // source: copyfrom.go
 
-package postgres
+package sqlc
 
 import (
 	"context"

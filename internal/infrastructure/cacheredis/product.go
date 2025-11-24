@@ -12,22 +12,22 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// ProductCache implements application.ProductCache interface using Redis
-type ProductCache struct {
+// Product implements application.Product interface using Redis
+type Product struct {
 	redisClient *redis.Client
 }
 
-// ProvideProductCache creates a new ProductCache instance
-func ProvideProductCache(redisClient *redis.Client) *ProductCache {
-	return &ProductCache{
+// ProvideProduct creates a new ProductCache instance
+func ProvideProduct(redisClient *redis.Client) *Product {
+	return &Product{
 		redisClient: redisClient,
 	}
 }
 
-var _ application.ProductCache = (*ProductCache)(nil)
+var _ application.ProductCache = (*Product)(nil)
 
 // GetProduct retrieves a cached product by ID
-func (c *ProductCache) GetProduct(ctx context.Context, productID uuid.UUID) (*domain.Product, error) {
+func (c *Product) GetProduct(ctx context.Context, productID uuid.UUID) (*domain.Product, error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -51,7 +51,7 @@ func (c *ProductCache) GetProduct(ctx context.Context, productID uuid.UUID) (*do
 }
 
 // SetProduct caches a product with the specified TTL in seconds
-func (c *ProductCache) SetProduct(ctx context.Context, productID uuid.UUID, product *domain.Product) error {
+func (c *Product) SetProduct(ctx context.Context, productID uuid.UUID, product *domain.Product) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -66,7 +66,7 @@ func (c *ProductCache) SetProduct(ctx context.Context, productID uuid.UUID, prod
 }
 
 // GetProductList retrieves a cached product list pagination result
-func (c *ProductCache) GetProductList(ctx context.Context, cacheKey string) (*application.Pagination[domain.Product], error) {
+func (c *Product) GetProductList(ctx context.Context, cacheKey string) (*application.Pagination[domain.Product], error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -89,7 +89,7 @@ func (c *ProductCache) GetProductList(ctx context.Context, cacheKey string) (*ap
 }
 
 // SetProductList caches a product list pagination result with the specified TTL in seconds
-func (c *ProductCache) SetProductList(ctx context.Context, cacheKey string, pagination *application.Pagination[domain.Product]) error {
+func (c *Product) SetProductList(ctx context.Context, cacheKey string, pagination *application.Pagination[domain.Product]) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -103,7 +103,7 @@ func (c *ProductCache) SetProductList(ctx context.Context, cacheKey string, pagi
 }
 
 // InvalidateProduct removes the cached product by ID
-func (c *ProductCache) InvalidateProduct(ctx context.Context, productID uuid.UUID) error {
+func (c *Product) InvalidateProduct(ctx context.Context, productID uuid.UUID) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -113,7 +113,7 @@ func (c *ProductCache) InvalidateProduct(ctx context.Context, productID uuid.UUI
 }
 
 // InvalidateProductList removes all cached product list entries
-func (c *ProductCache) InvalidateProductList(ctx context.Context) error {
+func (c *Product) InvalidateProductList(ctx context.Context) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -128,7 +128,7 @@ func (c *ProductCache) InvalidateProductList(ctx context.Context) error {
 }
 
 // InvalidateAllProducts removes all product-related caches (both get and list)
-func (c *ProductCache) InvalidateAllProducts(ctx context.Context) error {
+func (c *Product) InvalidateAllProducts(ctx context.Context) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -149,7 +149,7 @@ func (c *ProductCache) InvalidateAllProducts(ctx context.Context) error {
 }
 
 // BuildListCacheKey builds a cache key for product list queries
-func (c *ProductCache) BuildListCacheKey(
+func (c *Product) BuildListCacheKey(
 	ids *[]uuid.UUID,
 	search *string,
 	minPrice *int64,

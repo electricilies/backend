@@ -13,7 +13,7 @@ import (
 	"backend/internal/domain"
 	"backend/internal/infrastructure/cacheredis"
 	"backend/internal/infrastructure/objectstorages3"
-	"backend/internal/infrastructure/repository"
+	"backend/internal/infrastructure/repositorypostgres"
 	"backend/internal/service"
 	"backend/pkg/logger"
 
@@ -173,35 +173,35 @@ var ApplicationSet = wire.NewSet(
 )
 
 var RepositorySet = wire.NewSet(
-	repository.ProvidePostgresAttribute,
+	repositorypostgres.ProvideAttribute,
 	wire.Bind(
 		new(domain.AttributeRepository),
-		new(*repository.PostgresAttribute),
+		new(*repositorypostgres.Attribute),
 	),
-	repository.ProvidePostgresCart,
+	repositorypostgres.ProvidePostgresCart,
 	wire.Bind(
 		new(domain.CartRepository),
-		new(*repository.PostgresCart),
+		new(*repositorypostgres.PostgresCart),
 	),
-	repository.ProvidePostgresCategory,
+	repositorypostgres.ProvidePostgresCategory,
 	wire.Bind(
 		new(domain.CategoryRepository),
-		new(*repository.PostgresCategory),
+		new(*repositorypostgres.PostgresCategory),
 	),
-	repository.ProvidePostgresOrder,
+	repositorypostgres.ProvidePostgresOrder,
 	wire.Bind(
 		new(domain.OrderRepository),
-		new(*repository.PostgresOrder),
+		new(*repositorypostgres.PostgresOrder),
 	),
-	repository.ProvidePostgresProduct,
+	repositorypostgres.ProvidePostgresProduct,
 	wire.Bind(
 		new(domain.ProductRepository),
-		new(*repository.PostgresProduct),
+		new(*repositorypostgres.PostgresProduct),
 	),
-	repository.ProvidePostgresReview,
+	repositorypostgres.ProvidePostgresReview,
 	wire.Bind(
 		new(domain.ReviewRepository),
-		new(*repository.PostgresReview),
+		new(*repositorypostgres.PostgresReview),
 	),
 )
 
@@ -214,41 +214,41 @@ var RouterSet = wire.NewSet(
 )
 
 var ClientSet = wire.NewSet(
+	client.NewKeycloak,
 	client.NewRedis,
 	client.NewS3,
-	client.NewKeycloak,
 	client.NewS3Presign,
 	client.NewValidate,
 )
 
 var CacheSet = wire.NewSet(
-	cacheredis.ProvideProductCache,
+	cacheredis.ProvideProduct,
 	wire.Bind(
 		new(application.ProductCache),
-		new(*cacheredis.ProductCache),
+		new(*cacheredis.Product),
 	),
-	cacheredis.ProvideReviewCache,
+	cacheredis.ProvideReview,
 	wire.Bind(
 		new(application.ReviewCache),
-		new(*cacheredis.ReviewCache),
+		new(*cacheredis.Review),
 	),
-	cacheredis.ProvideCategoryCache,
+	cacheredis.ProvideCategory,
 	wire.Bind(
 		new(application.CategoryCache),
-		new(*cacheredis.CategoryCache),
+		new(*cacheredis.Category),
 	),
-	cacheredis.ProvideAttributeCache,
+	cacheredis.ProvideAttribute,
 	wire.Bind(
 		new(application.AttributeCache),
-		new(*cacheredis.AttributeCache),
+		new(*cacheredis.Attribute),
 	),
 )
 
 var ObjectStorageSet = wire.NewSet(
-	objectstorages3.ProvideS3Product,
+	objectstorages3.ProvideProduct,
 	wire.Bind(
 		new(application.ProductObjectStorage),
-		new(*objectstorages3.S3Product),
+		new(*objectstorages3.Product),
 	),
 )
 

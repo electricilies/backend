@@ -1,35 +1,35 @@
-package repository
+package repositorypostgres
 
 import (
 	"context"
 
 	"backend/internal/domain"
 	"backend/internal/helper/ptr"
-	"backend/internal/infrastructure/repository/postgres"
+	"backend/internal/infrastructure/repositorypostgres/sqlc"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type PostgresCategory struct {
-	queries *postgres.Queries
+	queries *sqlc.Queries
 }
 
 var _ domain.CategoryRepository = (*PostgresCategory)(nil)
 
-func ProvidePostgresCategory(q *postgres.Queries) *PostgresCategory {
+func ProvidePostgresCategory(q *sqlc.Queries) *PostgresCategory {
 	return &PostgresCategory{queries: q}
 }
 
 func (r *PostgresCategory) Count(ctx context.Context) (*int, error) {
-	count, err := r.queries.CountCategories(ctx, postgres.CountCategoriesParams{
+	count, err := r.queries.CountCategories(ctx, sqlc.CountCategoriesParams{
 		Deleted: string(domain.DeletedExcludeParam),
 	})
 	return ptr.To(int(count)), err
 }
 
 func (r *PostgresCategory) List(ctx context.Context, search *string, limit int, offset int) (*[]domain.Category, error) {
-	categories, err := r.queries.ListCategories(ctx, postgres.ListCategoriesParams{
+	categories, err := r.queries.ListCategories(ctx, sqlc.ListCategoriesParams{
 		Search:  search,
 		Deleted: string(domain.DeletedExcludeParam),
 		Limit:   int32(limit),
@@ -52,7 +52,7 @@ func (r *PostgresCategory) List(ctx context.Context, search *string, limit int, 
 }
 
 func (r *PostgresCategory) Get(ctx context.Context, id uuid.UUID) (*domain.Category, error) {
-	cat, err := r.queries.GetCategory(ctx, postgres.GetCategoryParams{
+	cat, err := r.queries.GetCategory(ctx, sqlc.GetCategoryParams{
 		ID:      id,
 		Deleted: string(domain.DeletedExcludeParam),
 	})
@@ -70,7 +70,7 @@ func (r *PostgresCategory) Get(ctx context.Context, id uuid.UUID) (*domain.Categ
 }
 
 func (r *PostgresCategory) Save(ctx context.Context, category domain.Category) error {
-	return r.queries.UpsertCategory(ctx, postgres.UpsertCategoryParams{
+	return r.queries.UpsertCategory(ctx, sqlc.UpsertCategoryParams{
 		ID:   category.ID,
 		Name: category.Name,
 		CreatedAt: pgtype.Timestamptz{

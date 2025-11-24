@@ -12,25 +12,25 @@ import (
 	"github.com/google/uuid"
 )
 
-type S3Product struct {
+type Product struct {
 	s3Client        *s3.Client
 	s3PresignClient *s3.PresignClient
 	cfgSrv          *config.Server
 }
 
-func ProvideS3Product(
+func ProvideProduct(
 	s3Client *s3.Client,
 	s3PresignClient *s3.PresignClient,
-) *S3Product {
-	return &S3Product{
+) *Product {
+	return &Product{
 		s3Client:        s3Client,
 		s3PresignClient: s3PresignClient,
 	}
 }
 
-var _ application.ProductObjectStorage = (*S3Product)(nil)
+var _ application.ProductObjectStorage = (*Product)(nil)
 
-func (p *S3Product) GetUploadURL(ctx context.Context) (*application.UploadImageURL, error) {
+func (p *Product) GetUploadImageURL(ctx context.Context) (*application.UploadImageURL, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, ToDomainErrorFromS3(err)
@@ -53,7 +53,7 @@ func (p *S3Product) GetUploadURL(ctx context.Context) (*application.UploadImageU
 	}, nil
 }
 
-func (p *S3Product) GetDeleteURL(ctx context.Context, imageID uuid.UUID) (*application.DeleteImageURL, error) {
+func (p *Product) GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) (*application.DeleteImageURL, error) {
 	url, err := p.s3PresignClient.PresignDeleteObject(
 		ctx,
 		&s3.DeleteObjectInput{
@@ -70,7 +70,7 @@ func (p *S3Product) GetDeleteURL(ctx context.Context, imageID uuid.UUID) (*appli
 	}, nil
 }
 
-func (p *S3Product) PersistImageFromTemp(ctx context.Context, key string, imageID uuid.UUID) error {
+func (p *Product) PersistImageFromTemp(ctx context.Context, key string, imageID uuid.UUID) error {
 	_, err := p.s3Client.CopyObject(ctx, &s3.CopyObjectInput{
 		Bucket:     aws.String(p.cfgSrv.S3Bucket),
 		CopySource: aws.String(p.cfgSrv.S3Bucket + "/" + S3ProductImageFolderTemp + key),

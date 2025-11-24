@@ -1,21 +1,21 @@
-package repository
+package repositorypostgres
 
 import (
 	"context"
 
 	"backend/internal/domain"
-	"backend/internal/infrastructure/repository/postgres"
+	"backend/internal/infrastructure/repositorypostgres/sqlc"
 
 	"github.com/google/uuid"
 )
 
 type PostgresCart struct {
-	queries *postgres.Queries
+	queries *sqlc.Queries
 }
 
 var _ domain.CartRepository = (*PostgresCart)(nil)
 
-func ProvidePostgresCart(q *postgres.Queries) *PostgresCart {
+func ProvidePostgresCart(q *sqlc.Queries) *PostgresCart {
 	return &PostgresCart{queries: q}
 }
 

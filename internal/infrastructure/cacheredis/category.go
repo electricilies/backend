@@ -12,22 +12,22 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// CategoryCache implements application.CategoryCache interface using Redis
-type CategoryCache struct {
+// Category implements application.Category interface using Redis
+type Category struct {
 	redisClient *redis.Client
 }
 
-// ProvideCategoryCache creates a new CategoryCache instance
-func ProvideCategoryCache(redisClient *redis.Client) *CategoryCache {
-	return &CategoryCache{
+// ProvideCategory creates a new CategoryCache instance
+func ProvideCategory(redisClient *redis.Client) *Category {
+	return &Category{
 		redisClient: redisClient,
 	}
 }
 
-var _ application.CategoryCache = (*CategoryCache)(nil)
+var _ application.CategoryCache = (*Category)(nil)
 
 // GetCategory retrieves a cached category by ID
-func (c *CategoryCache) GetCategory(ctx context.Context, categoryID uuid.UUID) (*domain.Category, error) {
+func (c *Category) GetCategory(ctx context.Context, categoryID uuid.UUID) (*domain.Category, error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -51,7 +51,7 @@ func (c *CategoryCache) GetCategory(ctx context.Context, categoryID uuid.UUID) (
 }
 
 // SetCategory caches a category with the specified TTL in seconds
-func (c *CategoryCache) SetCategory(ctx context.Context, categoryID uuid.UUID, category *domain.Category) error {
+func (c *Category) SetCategory(ctx context.Context, categoryID uuid.UUID, category *domain.Category) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -66,7 +66,7 @@ func (c *CategoryCache) SetCategory(ctx context.Context, categoryID uuid.UUID, c
 }
 
 // GetCategoryList retrieves a cached category list pagination result
-func (c *CategoryCache) GetCategoryList(ctx context.Context, cacheKey string) (*application.Pagination[domain.Category], error) {
+func (c *Category) GetCategoryList(ctx context.Context, cacheKey string) (*application.Pagination[domain.Category], error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -89,7 +89,7 @@ func (c *CategoryCache) GetCategoryList(ctx context.Context, cacheKey string) (*
 }
 
 // SetCategoryList caches a category list pagination result with the specified TTL in seconds
-func (c *CategoryCache) SetCategoryList(ctx context.Context, cacheKey string, pagination *application.Pagination[domain.Category]) error {
+func (c *Category) SetCategoryList(ctx context.Context, cacheKey string, pagination *application.Pagination[domain.Category]) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -103,7 +103,7 @@ func (c *CategoryCache) SetCategoryList(ctx context.Context, cacheKey string, pa
 }
 
 // InvalidateCategory removes the cached category by ID
-func (c *CategoryCache) InvalidateCategory(ctx context.Context, categoryID uuid.UUID) error {
+func (c *Category) InvalidateCategory(ctx context.Context, categoryID uuid.UUID) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -113,7 +113,7 @@ func (c *CategoryCache) InvalidateCategory(ctx context.Context, categoryID uuid.
 }
 
 // InvalidateCategoryList removes all cached category list entries
-func (c *CategoryCache) InvalidateCategoryList(ctx context.Context) error {
+func (c *Category) InvalidateCategoryList(ctx context.Context) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -128,7 +128,7 @@ func (c *CategoryCache) InvalidateCategoryList(ctx context.Context) error {
 }
 
 // BuildListCacheKey builds a cache key for category list queries
-func (c *CategoryCache) BuildListCacheKey(
+func (c *Category) BuildListCacheKey(
 	search *string,
 	limit, page int,
 ) string {

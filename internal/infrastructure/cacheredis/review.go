@@ -12,22 +12,22 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// ReviewCache implements application.ReviewCache interface using Redis
-type ReviewCache struct {
+// Review implements application.Review interface using Redis
+type Review struct {
 	redisClient *redis.Client
 }
 
-// ProvideReviewCache creates a new ReviewCache instance
-func ProvideReviewCache(redisClient *redis.Client) *ReviewCache {
-	return &ReviewCache{
+// ProvideReview creates a new ReviewCache instance
+func ProvideReview(redisClient *redis.Client) *Review {
+	return &Review{
 		redisClient: redisClient,
 	}
 }
 
-var _ application.ReviewCache = (*ReviewCache)(nil)
+var _ application.ReviewCache = (*Review)(nil)
 
 // GetReviewList retrieves a cached review list pagination result
-func (c *ReviewCache) GetReviewList(ctx context.Context, cacheKey string) (*application.Pagination[domain.Review], error) {
+func (c *Review) GetReviewList(ctx context.Context, cacheKey string) (*application.Pagination[domain.Review], error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -50,7 +50,7 @@ func (c *ReviewCache) GetReviewList(ctx context.Context, cacheKey string) (*appl
 }
 
 // SetReviewList caches a review list pagination result with the specified TTL in seconds
-func (c *ReviewCache) SetReviewList(ctx context.Context, cacheKey string, pagination *application.Pagination[domain.Review]) error {
+func (c *Review) SetReviewList(ctx context.Context, cacheKey string, pagination *application.Pagination[domain.Review]) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -64,7 +64,7 @@ func (c *ReviewCache) SetReviewList(ctx context.Context, cacheKey string, pagina
 }
 
 // InvalidateReviewList removes all cached review list entries
-func (c *ReviewCache) InvalidateReviewList(ctx context.Context) error {
+func (c *Review) InvalidateReviewList(ctx context.Context) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -79,7 +79,7 @@ func (c *ReviewCache) InvalidateReviewList(ctx context.Context) error {
 }
 
 // BuildListCacheKey builds a cache key for review list queries
-func (c *ReviewCache) BuildListCacheKey(
+func (c *Review) BuildListCacheKey(
 	orderItemIDs *[]uuid.UUID,
 	productVariantID *uuid.UUID,
 	userIDs *[]uuid.UUID,

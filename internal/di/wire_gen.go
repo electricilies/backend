@@ -7,6 +7,8 @@
 package di
 
 import (
+	"context"
+
 	"backend/config"
 	"backend/internal/application"
 	"backend/internal/client"
@@ -17,7 +19,7 @@ import (
 	"backend/internal/infrastructure/repository"
 	"backend/internal/service"
 	"backend/pkg/logger"
-	"context"
+
 	"github.com/google/wire"
 )
 
@@ -202,7 +204,7 @@ var CacheSet = wire.NewSet(cacheredis.ProvideProductCache, wire.Bind(
 	new(*cacheredis.CategoryCache),
 ), cacheredis.ProvideAttributeCache, wire.Bind(
 	new(application.AttributeCache),
-	new(*cacheredis.AttributeCache),
+	new(*cacheredis.Attribute),
 ),
 )
 

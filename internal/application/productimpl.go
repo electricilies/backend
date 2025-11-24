@@ -5,32 +5,30 @@ import (
 
 	"backend/internal/domain"
 	"backend/internal/helper/slice"
-
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
 )
 
 type ProductImpl struct {
-	productRepo      domain.ProductRepository
-	productService   domain.ProductService
-	categoryRepo     domain.CategoryRepository
-	attributeRepo    domain.AttributeRepository
-	attributeService domain.AttributeService
-	productCache     ProductCache
-	s3Client         *s3.Client
+	productRepo          domain.ProductRepository
+	productService       domain.ProductService
+	categoryRepo         domain.CategoryRepository
+	attributeRepo        domain.AttributeRepository
+	attributeService     domain.AttributeService
+	productCache         ProductCache
+	productObjectStorage ProductObjectStorage
 }
 
 func ProvideProduct(
 	productRepo domain.ProductRepository,
 	productService domain.ProductService,
 	productCache ProductCache,
-	s3Client *s3.Client,
+	productObjectStorage ProductObjectStorage,
 ) *ProductImpl {
 	return &ProductImpl{
-		productRepo:    productRepo,
-		productService: productService,
-		productCache:   productCache,
-		s3Client:       s3Client,
+		productRepo:          productRepo,
+		productService:       productService,
+		productCache:         productCache,
+		productObjectStorage: productObjectStorage,
 	}
 }
 
@@ -441,10 +439,17 @@ func (p *ProductImpl) UpdateOptionValues(ctx context.Context, param UpdateProduc
 }
 
 func (p *ProductImpl) GetUploadImageURL(ctx context.Context) (*UploadImageURL, error) {
-	return nil, domain.ErrNotImplemented
+	url, err := p.productObjectStorage.GetUploadImageURL(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return url, nil
 }
 
-func (p *ProductImpl) GetDeleteImageURL(ctx context.Context, imageID int) (*DeleteImageURL, error) {
-	// TODO: Implement get delete image URL logic
-	return nil, domain.ErrNotImplemented
+func (p *ProductImpl) GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) (*DeleteImageURL, error) {
+	url, err := p.productObjectStorage.GetDeleteImageURL(ctx, imageID)
+	if err != nil {
+		return nil, err
+	}
+	return url, nil
 }

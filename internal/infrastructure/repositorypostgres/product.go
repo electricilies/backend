@@ -1,21 +1,21 @@
-package repository
+package repositorypostgres
 
 import (
 	"context"
 
 	"backend/internal/domain"
-	"backend/internal/infrastructure/repository/postgres"
+	"backend/internal/infrastructure/repositorypostgres/sqlc"
 
 	"github.com/google/uuid"
 )
 
 type PostgresProduct struct {
-	queries *postgres.Queries
+	queries *sqlc.Queries
 }
 
 var _ domain.ProductRepository = (*PostgresProduct)(nil)
 
-func ProvidePostgresProduct(q *postgres.Queries) *PostgresProduct {
+func ProvidePostgresProduct(q *sqlc.Queries) *PostgresProduct {
 	return &PostgresProduct{queries: q}
 }
 

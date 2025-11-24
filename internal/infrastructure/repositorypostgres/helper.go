@@ -1,4 +1,4 @@
-package repository
+package repositorypostgres
 
 func fromPgValidToPtr[T any](value T, valid bool) *T {
 	if !valid {

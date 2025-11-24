@@ -1,21 +1,21 @@
-package repository
+package repositorypostgres
 
 import (
 	"context"
 
 	"backend/internal/domain"
-	"backend/internal/infrastructure/repository/postgres"
+	"backend/internal/infrastructure/repositorypostgres/sqlc"
 
 	"github.com/google/uuid"
 )
 
 type PostgresReview struct {
-	queries *postgres.Queries
+	queries *sqlc.Queries
 }
 
 var _ domain.ReviewRepository = (*PostgresReview)(nil)
 
-func ProvidePostgresReview(q *postgres.Queries) *PostgresReview {
+func ProvidePostgresReview(q *sqlc.Queries) *PostgresReview {
 	return &PostgresReview{queries: q}
 }
 

@@ -1,4 +1,4 @@
-package repository
+package repositorypostgres
 
 import (
 	"context"
@@ -6,40 +6,40 @@ import (
 
 	"backend/internal/domain"
 	"backend/internal/helper/ptr"
-	"backend/internal/infrastructure/repository/postgres"
+	"backend/internal/infrastructure/repositorypostgres/sqlc"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type PostgresAttribute struct {
-	queries *postgres.Queries
+type Attribute struct {
+	queries *sqlc.Queries
 	conn    *pgxpool.Pool
 }
 
-var _ domain.AttributeRepository = (*PostgresAttribute)(nil)
+var _ domain.AttributeRepository = (*Attribute)(nil)
 
-func ProvidePostgresAttribute(q *postgres.Queries, conn *pgxpool.Pool) *PostgresAttribute {
-	return &PostgresAttribute{
+func ProvideAttribute(q *sqlc.Queries, conn *pgxpool.Pool) *Attribute {
+	return &Attribute{
 		queries: q,
 		conn:    conn,
 	}
 }
 
-func (r *PostgresAttribute) Count(
+func (r *Attribute) Count(
 	ctx context.Context,
 	ids *[]uuid.UUID,
 	deleted domain.DeletedParam,
 ) (*int, error) {
-	count, err := r.queries.CountAttributes(ctx, postgres.CountAttributesParams{
+	count, err := r.queries.CountAttributes(ctx, sqlc.CountAttributesParams{
 		IDs:     ptr.Deref(ids, []uuid.UUID{}),
 		Deleted: string(deleted),
 	})
 	return ptr.To(int(count)), err
 }
 
-func (r *PostgresAttribute) List(
+func (r *Attribute) List(
 	ctx context.Context,
 	ids *[]uuid.UUID,
 	search *string,
@@ -47,7 +47,7 @@ func (r *PostgresAttribute) List(
 	limit int,
 	offset int,
 ) (*[]domain.Attribute, error) {
-	attributes, err := r.queries.ListAttributes(ctx, postgres.ListAttributesParams{
+	attributes, err := r.queries.ListAttributes(ctx, sqlc.ListAttributesParams{
 		IDs:     ptr.Deref(ids, []uuid.UUID{}),
 		Search:  search,
 		Deleted: string(deleted),
@@ -61,7 +61,7 @@ func (r *PostgresAttribute) List(
 	for _, attr := range attributes {
 		attributeIDs = append(attributeIDs, attr.ID)
 	}
-	attributeValues, err := r.queries.ListAttributeValues(ctx, postgres.ListAttributeValuesParams{
+	attributeValues, err := r.queries.ListAttributeValues(ctx, sqlc.ListAttributeValuesParams{
 		AttributeIDs: attributeIDs,
 		Deleted:      string(deleted),
 	})
@@ -87,7 +87,7 @@ func (r *PostgresAttribute) List(
 	return &result, err
 }
 
-func (r *PostgresAttribute) ListValues(
+func (r *Attribute) ListValues(
 	ctx context.Context,
 	attributeID uuid.UUID,
 	attributeValueIDs *[]uuid.UUID,
@@ -98,7 +98,7 @@ func (r *PostgresAttribute) ListValues(
 ) (*[]domain.AttributeValue, error) {
 	attributeValues, err := r.queries.ListAttributeValues(
 		ctx,
-		postgres.ListAttributeValuesParams{
+		sqlc.ListAttributeValuesParams{
 			IDs: ptr.Deref(attributeValueIDs, []uuid.UUID{}),
 			AttributeID: pgtype.UUID{
 				Bytes: attributeID,
@@ -127,12 +127,12 @@ func (r *PostgresAttribute) ListValues(
 	return &result, nil
 }
 
-func (r *PostgresAttribute) CountValues(
+func (r *Attribute) CountValues(
 	ctx context.Context,
 	attributeID uuid.UUID,
 	attributeValueIDs *[]uuid.UUID,
 ) (*int, error) {
-	count, err := r.queries.CountAttributeValues(ctx, postgres.CountAttributeValuesParams{
+	count, err := r.queries.CountAttributeValues(ctx, sqlc.CountAttributeValuesParams{
 		IDs:     ptr.Deref(attributeValueIDs, []uuid.UUID{}),
 		Deleted: string(domain.DeletedExcludeParam),
 		AttributeID: pgtype.UUID{
@@ -143,8 +143,8 @@ func (r *PostgresAttribute) CountValues(
 	return ptr.To(int(count)), err
 }
 
-func (r *PostgresAttribute) Get(ctx context.Context, id uuid.UUID) (*domain.Attribute, error) {
-	attribute, err := r.queries.GetAttribute(ctx, postgres.GetAttributeParams{
+func (r *Attribute) Get(ctx context.Context, id uuid.UUID) (*domain.Attribute, error) {
+	attribute, err := r.queries.GetAttribute(ctx, sqlc.GetAttributeParams{
 		ID: id,
 	})
 	if err != nil {
@@ -169,14 +169,14 @@ func (r *PostgresAttribute) Get(ctx context.Context, id uuid.UUID) (*domain.Attr
 	return &result, nil
 }
 
-func (r *PostgresAttribute) Save(ctx context.Context, attribute domain.Attribute) error {
+func (r *Attribute) Save(ctx context.Context, attribute domain.Attribute) error {
 	tx, err := r.conn.Begin(ctx)
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	qtx := r.queries.WithTx(tx)
-	err = qtx.UpsertAttribute(ctx, postgres.UpsertAttributeParams{
+	err = qtx.UpsertAttribute(ctx, sqlc.UpsertAttributeParams{
 		ID:   attribute.ID,
 		Code: attribute.Code,
 		Name: attribute.Name,
@@ -207,7 +207,7 @@ func (r *PostgresAttribute) Save(ctx context.Context, attribute domain.Attribute
 	return nil
 }
 
-func buildAttributeValues(attributeID uuid.UUID, attributeValues []postgres.AttributeValue) []domain.AttributeValue {
+func buildAttributeValues(attributeID uuid.UUID, attributeValues []sqlc.AttributeValue) []domain.AttributeValue {
 	values := make([]domain.AttributeValue, 0)
 	for _, val := range attributeValues {
 		if val.AttributeID == attributeID {
@@ -224,10 +224,10 @@ func buildAttributeValues(attributeID uuid.UUID, attributeValues []postgres.Attr
 	return values
 }
 
-func buildInsertTempTableAttributeValuesParams(attribute domain.Attribute) []postgres.InsertTempTableAttributeValuesParams {
-	params := make([]postgres.InsertTempTableAttributeValuesParams, 0, len(attribute.Values))
+func buildInsertTempTableAttributeValuesParams(attribute domain.Attribute) []sqlc.InsertTempTableAttributeValuesParams {
+	params := make([]sqlc.InsertTempTableAttributeValuesParams, 0, len(attribute.Values))
 	for _, val := range attribute.Values {
-		params = append(params, postgres.InsertTempTableAttributeValuesParams{
+		params = append(params, sqlc.InsertTempTableAttributeValuesParams{
 			ID:          val.ID,
 			Value:       val.Value,
 			AttributeID: attribute.ID,

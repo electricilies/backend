@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"backend/config"
-	"backend/internal/infrastructure/repository/postgres"
+	"backend/internal/infrastructure/repositorypostgres/sqlc"
 
 	"github.com/Thiht/transactor"
 	transactorpgx "github.com/Thiht/transactor/pgx"
@@ -34,8 +34,8 @@ func NewDBConnection(ctx context.Context, srvCfg *config.Server) *pgxpool.Pool {
 	return conn
 }
 
-func NewDBQueries(c *pgxpool.Pool) *postgres.Queries {
-	q := postgres.New(c)
+func NewDBQueries(c *pgxpool.Pool) *sqlc.Queries {
+	q := sqlc.New(c)
 	return q
 }
 

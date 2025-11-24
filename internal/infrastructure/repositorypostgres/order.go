@@ -1,21 +1,21 @@
-package repository
+package repositorypostgres
 
 import (
 	"context"
 
 	"backend/internal/domain"
-	"backend/internal/infrastructure/repository/postgres"
+	"backend/internal/infrastructure/repositorypostgres/sqlc"
 
 	"github.com/google/uuid"
 )
 
 type PostgresOrder struct {
-	queries *postgres.Queries
+	queries *sqlc.Queries
 }
 
 var _ domain.OrderRepository = (*PostgresOrder)(nil)
 
-func ProvidePostgresOrder(q *postgres.Queries) *PostgresOrder {
+func ProvidePostgresOrder(q *sqlc.Queries) *PostgresOrder {
 	return &PostgresOrder{queries: q}
 }
 
