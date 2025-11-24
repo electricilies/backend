@@ -150,7 +150,7 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 		if err != nil {
 			return nil, err
 		}
-		attributeValues := p.attributeService.FilterAttributeValuesFromAttributes(*attributes, attributeValueIDs)
+		attributeValues := domain.FilterAttributeValuesFromAttributes(*attributes, attributeValueIDs)
 		product.AddAttributeValues(attributeValues...)
 	}
 	var options *[]domain.Option

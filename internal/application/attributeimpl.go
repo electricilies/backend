@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"log"
 
 	"backend/internal/domain"
 )
@@ -24,8 +23,11 @@ func ProvideAttribute(attributeRepo domain.AttributeRepository, attributeService
 var _ Attribute = &AttributeImpl{}
 
 func (a *AttributeImpl) Create(ctx context.Context, param CreateAttributeParam) (*domain.Attribute, error) {
-	attribute, err := a.attributeService.Create(param.Data.Code, param.Data.Name)
+	attribute, err := domain.CreateAttribute(param.Data.Code, param.Data.Name)
 	if err != nil {
+		return nil, err
+	}
+	if err := a.attributeService.Validate(*attribute); err != nil {
 		return nil, err
 	}
 	err = a.attributeRepo.Save(ctx, *attribute)
@@ -43,12 +45,12 @@ func (a *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeVa
 	if err != nil {
 		return nil, err
 	}
-	attributeValue, err := a.attributeService.CreateValue(param.Data.Value)
+	attributeValue, err := domain.CreateAttributeValue(param.Data.Value)
 	if err != nil {
 		return nil, err
 	}
-	err = a.attributeService.AddValues(attribute, *attributeValue)
-	if err != nil {
+	attribute.AddValues(*attributeValue)
+	if err := a.attributeService.Validate(*attribute); err != nil {
 		return nil, err
 	}
 	err = a.attributeRepo.Save(ctx, *attribute)
@@ -69,7 +71,6 @@ func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*P
 		param.Limit,
 		param.Page,
 	)
-	log.Println("Attribute List Cache Key:", cacheKey)
 
 	// Try to get from cache
 	if cachedPagination, err := a.attributeCache.GetAttributeList(ctx, cacheKey); err == nil {
@@ -172,11 +173,8 @@ func (a *AttributeImpl) Update(ctx context.Context, param UpdateAttributeParam) 
 	if err != nil {
 		return nil, err
 	}
-	err = a.attributeService.Update(
-		attribute,
-		param.Data.Name,
-	)
-	if err != nil {
+	attribute.Update(param.Data.Name)
+	if err := a.attributeService.Validate(*attribute); err != nil {
 		return nil, err
 	}
 	err = a.attributeRepo.Save(ctx, *attribute)
@@ -193,12 +191,10 @@ func (a *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeVa
 	if err != nil {
 		return nil, err
 	}
-	err = a.attributeService.UpdateValue(
-		attribute,
-		param.AttributeValueID,
-		param.Data.Value,
-	)
-	if err != nil {
+	if err := attribute.UpdateValue(param.AttributeValueID, param.Data.Value); err != nil {
+		return nil, err
+	}
+	if err := a.attributeService.Validate(*attribute); err != nil {
 		return nil, err
 	}
 	err = a.attributeRepo.Save(ctx, *attribute)
@@ -218,8 +214,8 @@ func (a *AttributeImpl) Delete(ctx context.Context, param DeleteAttributeParam) 
 	if err != nil {
 		return err
 	}
-	err = a.attributeService.Remove(attribute)
-	if err != nil {
+	attribute.Remove()
+	if err := a.attributeService.Validate(*attribute); err != nil {
 		return err
 	}
 	err = a.attributeRepo.Save(ctx, *attribute)
@@ -236,8 +232,10 @@ func (a *AttributeImpl) DeleteValue(ctx context.Context, param DeleteAttributeVa
 	if err != nil {
 		return err
 	}
-	err = a.attributeService.RemoveValue(attribute, param.AttributeValueID)
-	if err != nil {
+	if err := attribute.RemoveValue(param.AttributeValueID); err != nil {
+		return err
+	}
+	if err := a.attributeService.Validate(*attribute); err != nil {
 		return err
 	}
 	err = a.attributeRepo.Save(ctx, *attribute)

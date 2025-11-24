@@ -23,8 +23,11 @@ func ProvideCategory(categoryRepo domain.CategoryRepository, categoryService dom
 var _ Category = &CategoryImpl{}
 
 func (c *CategoryImpl) Create(ctx context.Context, param CreateCategoryParam) (*domain.Category, error) {
-	category, err := c.categoryService.Create(param.Data.Name)
+	category, err := domain.CreateCategory(param.Data.Name)
 	if err != nil {
+		return nil, err
+	}
+	if err := c.categoryService.Validate(*category); err != nil {
 		return nil, err
 	}
 
@@ -99,8 +102,8 @@ func (c *CategoryImpl) Update(ctx context.Context, param UpdateCategoryParam) (*
 		return nil, err
 	}
 
-	err = c.categoryService.Update(category, param.Data.Name)
-	if err != nil {
+	category.Update(param.Data.Name)
+	if err := c.categoryService.Validate(*category); err != nil {
 		return nil, err
 	}
 

@@ -26,6 +26,105 @@ func (a *Attribute) GetValueByID(id uuid.UUID) *AttributeValue {
 	return nil
 }
 
+func CreateAttribute(
+	code string,
+	name string,
+) (*Attribute, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
+	}
+	attribute := &Attribute{
+		ID:     id,
+		Code:   code,
+		Name:   name,
+		Values: []AttributeValue{},
+	}
+	return attribute, nil
+}
+
+func (a *Attribute) Update(name *string) {
+	if name != nil {
+		a.Name = *name
+	}
+}
+
+func (a *Attribute) AddValues(attributeValues ...AttributeValue) {
+	a.Values = append(a.Values, attributeValues...)
+}
+
+func CreateAttributeValue(value string) (*AttributeValue, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
+	}
+	attributeValue := &AttributeValue{
+		ID:    id,
+		Value: value,
+	}
+	return attributeValue, nil
+}
+
+func (a *Attribute) UpdateValue(
+	attributeValueID uuid.UUID,
+	value *string,
+) error {
+	for i, v := range a.Values {
+		if v.ID == attributeValueID {
+			if value != nil {
+				a.Values[i].Value = *value
+			}
+			return nil
+		}
+	}
+	return ErrNotFound
+}
+
+func (a *Attribute) Remove() {
+	now := time.Now()
+	if a.DeletedAt == nil {
+		a.DeletedAt = &now
+	}
+	for i := range a.Values {
+		if a.Values[i].DeletedAt == nil {
+			a.Values[i].DeletedAt = &now
+		}
+	}
+}
+
+func (a *Attribute) RemoveValue(attributeValueID uuid.UUID) error {
+	if a == nil {
+		return ErrInvalid
+	}
+	newValues := []AttributeValue{}
+	for _, v := range a.Values {
+		if v.ID != attributeValueID {
+			newValues = append(newValues, v)
+		}
+	}
+	a.Values = newValues
+	return nil
+}
+
+func FilterAttributeValuesFromAttributes(
+	attributes []Attribute,
+	attributeValueIDs []uuid.UUID,
+) []AttributeValue {
+	attributeValueIDSet := make(map[uuid.UUID]struct{}, len(attributeValueIDs))
+	for _, id := range attributeValueIDs {
+		attributeValueIDSet[id] = struct{}{}
+	}
+	result := []AttributeValue{}
+	for _, attribute := range attributes {
+		for _, value := range attribute.Values {
+			if _, exists := attributeValueIDSet[value.ID]; exists {
+				result = append(result, value)
+			}
+		}
+	}
+	return result
+}
+
 type AttributeValue struct {
 	ID        uuid.UUID  `json:"id"        binding:"required"   validate:"required"               example:"1"`
 	Value     string     `json:"value"     binding:"required"   validate:"required,gte=1,lte=100" example:"Red"`

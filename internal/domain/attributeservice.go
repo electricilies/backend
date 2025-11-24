@@ -1,44 +1,7 @@
 package domain
 
-import "github.com/google/uuid"
-
 type AttributeService interface {
-	Create(
-		code string,
-		name string,
-	) (*Attribute, error)
-
-	Update(
-		attribute *Attribute,
-		name *string,
+	Validate(
+		attribute Attribute,
 	) error
-
-	AddValues(
-		attribute *Attribute,
-		attributeValues ...AttributeValue,
-	) error
-
-	CreateValue(
-		value string,
-	) (*AttributeValue, error)
-
-	UpdateValue(
-		attribute *Attribute,
-		attributeValueID uuid.UUID,
-		value *string,
-	) error
-
-	Remove(
-		attribute *Attribute,
-	) error
-
-	RemoveValue(
-		attribute *Attribute,
-		attributeValueID uuid.UUID,
-	) error
-
-	FilterAttributeValuesFromAttributes(
-		attributes []Attribute,
-		attributeValueIDs []uuid.UUID,
-	) []AttributeValue
 }

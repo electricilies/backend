@@ -13,3 +13,32 @@ type Category struct {
 	UpdatedAt time.Time  `json:"updatedAt" binding:"required"                    validate:"required,gtefield=CreatedAt"`
 	DeletedAt *time.Time `json:"deletedAt" validate:"omitnil,gtefield=CreatedAt"`
 }
+
+func CreateCategory(name string) (*Category, error) {
+	now := time.Now()
+	id, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
+	}
+	category := &Category{
+		ID:        id,
+		Name:      name,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	return category, nil
+}
+
+func (c *Category) Update(name *string) {
+	if c == nil {
+		return
+	}
+	updated := false
+	if name != nil {
+		c.Name = *name
+		updated = true
+	}
+	if updated {
+		c.UpdatedAt = time.Now()
+	}
+}
