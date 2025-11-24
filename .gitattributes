@@ -1,5 +1,5 @@
 *.sql linguist-language=PLpgSQL linguist-detectable
-seed-fake.sql -linguist-detectable
+seed.sql -linguist-detectable
 
 internal/**/mock.go linguist-generated
 internal/infrastructure/repository/postgres/ linguist-generated
