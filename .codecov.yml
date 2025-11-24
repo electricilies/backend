@@ -11,8 +11,7 @@ coverage:
         informational: true
         paths:
           - internal/domain/
-          - internal/infrastructure/
-          - internal/di/
+          - internal/service/
     patch:
       informational: true
 component_management:
@@ -21,24 +20,19 @@ component_management:
       name: Business Logic
       paths:
         - internal/domain/
-        - internal/infrastructure/
-        - internal/di/
-    - component_id: Domain
-      name: domain
-      paths:
-        - internal/domain/
+        - internal/service/
     - component_id: infrastructure
       name: Infrastructure
       paths:
         - internal/infrastructure/
-        - internal/di/
     - component_id: application
       name: Application
       paths:
-        - internal/application/
-        - internal/interface/
-        - internal/server/
         - cmd/
+        - internal/application/
+        - internal/client/
+        - internal/delivery/
+        - internal/server/
         - pkg/
 ignore:
   - test/
