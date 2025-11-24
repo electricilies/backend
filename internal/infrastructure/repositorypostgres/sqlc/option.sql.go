@@ -26,19 +26,6 @@ func (q *Queries) CreateTempTableOptionValues(ctx context.Context) error {
 	return err
 }
 
-const createTempTableOptionValuesProductVariants = `-- name: CreateTempTableOptionValuesProductVariants :exec
-CREATE TEMPORARY TABLE temp_option_values_product_variants (
-  product_variant_id UUID NOT NULL,
-  option_value_id UUID NOT NULL,
-  PRIMARY KEY (product_variant_id, option_value_id)
-) ON COMMIT DROP
-`
-
-func (q *Queries) CreateTempTableOptionValuesProductVariants(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, createTempTableOptionValuesProductVariants)
-	return err
-}
-
 const getOption = `-- name: GetOption :one
 SELECT
   id, name, product_id, deleted_at
@@ -76,11 +63,6 @@ type InsertTempTableOptionValuesParams struct {
 	Value     string
 	OptionID  uuid.UUID
 	DeletedAt pgtype.Timestamp
-}
-
-type InsertTempTableOptionValuesProductVariantsParams struct {
-	ProductVariantID uuid.UUID
-	OptionValueID    uuid.UUID
 }
 
 const listOptionValues = `-- name: ListOptionValues :many
@@ -267,29 +249,6 @@ WHEN NOT MATCHED BY SOURCE
 
 func (q *Queries) MergeOptionValuesFromTemp(ctx context.Context) error {
 	_, err := q.db.Exec(ctx, mergeOptionValuesFromTemp)
-	return err
-}
-
-const mergeOptionValuesProductVariantsFromTemp = `-- name: MergeOptionValuesProductVariantsFromTemp :exec
-MERGE INTO option_values_product_variants AS target
-USING temp_option_values_product_variants AS source
-  ON target.option_value_id = source.option_value_id
-WHEN NOT MATCHED THEN
-  INSERT (
-    product_variant_id,
-    option_value_id
-  )
-  VALUES (
-    source.product_variant_id,
-    source.option_value_id
-  )
-WHEN NOT MATCHED BY SOURCE
-  AND target.option_value_id IN (SELECT id FROM temp_option_values) THEN
-  DELETE
-`
-
-func (q *Queries) MergeOptionValuesProductVariantsFromTemp(ctx context.Context) error {
-	_, err := q.db.Exec(ctx, mergeOptionValuesProductVariantsFromTemp)
 	return err
 }
 

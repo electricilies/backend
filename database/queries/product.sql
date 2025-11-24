@@ -259,6 +259,42 @@ FROM
 WHERE
   id = sqlc.arg('id');
 
+-- name: CreateTempTableProductVariants :exec
+CREATE TEMPORARY TABLE temp_product_variants (
+  id UUID PRIMARY KEY,
+  sku TEXT NOT NULL,
+  price DECIMAL(12, 0) NOT NULL,
+  quantity INTEGER NOT NULL,
+  purchase_count INTEGER NOT NULL,
+  product_id UUID NOT NULL,
+  created_at TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP NOT NULL,
+  deleted_at TIMESTAMP
+) ON COMMIT DROP;
+
+-- name: InsertTempTableProductVariants :copyfrom
+INSERT INTO temp_product_variants (
+  id,
+  sku,
+  price,
+  quantity,
+  purchase_count,
+  product_id,
+  created_at,
+  updated_at,
+  deleted_at
+) VALUES (
+  @id,
+  @sku,
+  @price,
+  @quantity,
+  @purchase_count,
+  @product_id,
+  @created_at,
+  @updated_at,
+  @deleted_at
+);
+
 -- name: MergeProductVariantsFromTemp :exec
 MERGE INTO product_variants AS target
 USING temp_product_variants AS source
@@ -300,6 +336,36 @@ WHEN NOT MATCHED BY SOURCE
   AND target.product_id = (SELECT DISTINCT id FROM source) THEN
   DELETE;
 
+-- name: CreateTempTableProductImages :exec
+CREATE TEMPORARY TABLE temp_product_images (
+  id UUID PRIMARY KEY,
+  url TEXT NOT NULL,
+  "order" INTEGER NOT NULL,
+  product_id UUID,
+  product_variant_id UUID,
+  created_at TIMESTAMP NOT NULL,
+  deleted_at TIMESTAMP
+) ON COMMIT DROP;
+
+-- name: InsertTempTableProductImages :copyfrom
+INSERT INTO temp_product_images (
+  id,
+  url,
+  "order",
+  product_id,
+  product_variant_id,
+  created_at,
+  deleted_at
+) VALUES (
+  $1,
+  $2,
+  $3,
+  $4,
+  $5,
+  $6,
+  $7
+);
+
 -- name: MergeProductImagesFromTemp :exec
 MERGE INTO product_images AS target
 USING temp_product_images AS source
@@ -335,6 +401,22 @@ WHEN NOT MATCHED BY SOURCE
   AND target.product_id = (SELECT DISTINCT product_id FROM source) THEN
   DELETE;
 
+-- name: CreateTempTableProductsAttributeValues :exec
+CREATE TEMPORARY TABLE temp_products_attribute_values (
+  product_id UUID NOT NULL,
+  attribute_value_id UUID NOT NULL,
+  PRIMARY KEY (product_id, attribute_value_id)
+) ON COMMIT DROP;
+
+-- name: InsertTempTableProductsAttributeValues :copyfrom
+INSERT INTO temp_products_attribute_values (
+  product_id,
+  attribute_value_id
+) VALUES (
+  @product_id,
+  @attribute_value_id
+);
+
 -- name: MergeProductsAttributeValuesFromTemp :exec
 MERGE INTO products_attribute_values AS target
 USING temp_products_attribute_values AS source
@@ -351,4 +433,37 @@ WHEN NOT MATCHED THEN
   )
 WHEN NOT MATCHED BY SOURCE
   AND target.product_id IN (SELECT DISTINCT product_id FROM source) THEN
+  DELETE;
+
+-- name: CreateTempTableOptionValuesProductVariants :exec
+CREATE TEMPORARY TABLE temp_option_values_product_variants (
+  product_variant_id UUID NOT NULL,
+  option_value_id UUID NOT NULL,
+  PRIMARY KEY (product_variant_id, option_value_id)
+) ON COMMIT DROP;
+
+-- name: InsertTempTableOptionValuesProductVariants :copyfrom
+INSERT INTO temp_option_values_product_variants (
+  product_variant_id,
+  option_value_id
+) VALUES (
+  @product_variant_id,
+  @option_value_id
+);
+
+-- name: MergeOptionValuesProductVariantsFromTemp :exec
+MERGE INTO option_values_product_variants AS target
+USING temp_option_values_product_variants AS source
+  ON target.option_value_id = source.option_value_id
+WHEN NOT MATCHED THEN
+  INSERT (
+    product_variant_id,
+    option_value_id
+  )
+  VALUES (
+    source.product_variant_id,
+    source.option_value_id
+  )
+WHEN NOT MATCHED BY SOURCE
+  AND target.option_value_id IN (SELECT id FROM temp_option_values) THEN
   DELETE;

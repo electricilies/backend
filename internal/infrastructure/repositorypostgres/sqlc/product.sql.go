@@ -69,6 +69,19 @@ func (q *Queries) CountProducts(ctx context.Context, arg CountProductsParams) (i
 	return count, err
 }
 
+const createTempTableOptionValuesProductVariants = `-- name: CreateTempTableOptionValuesProductVariants :exec
+CREATE TEMPORARY TABLE temp_option_values_product_variants (
+  product_variant_id UUID NOT NULL,
+  option_value_id UUID NOT NULL,
+  PRIMARY KEY (product_variant_id, option_value_id)
+) ON COMMIT DROP
+`
+
+func (q *Queries) CreateTempTableOptionValuesProductVariants(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, createTempTableOptionValuesProductVariants)
+	return err
+}
+
 const createTempTableProductImages = `-- name: CreateTempTableProductImages :exec
 CREATE TEMPORARY TABLE temp_product_images (
   id UUID PRIMARY KEY,
@@ -221,6 +234,11 @@ func (q *Queries) GetProductVariant(ctx context.Context, arg GetProductVariantPa
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+type InsertTempTableOptionValuesProductVariantsParams struct {
+	ProductVariantID uuid.UUID
+	OptionValueID    uuid.UUID
 }
 
 type InsertTempTableProductImagesParams struct {
@@ -568,6 +586,29 @@ func (q *Queries) ListProductsAttributeValues(ctx context.Context, arg ListProdu
 		return nil, err
 	}
 	return items, nil
+}
+
+const mergeOptionValuesProductVariantsFromTemp = `-- name: MergeOptionValuesProductVariantsFromTemp :exec
+MERGE INTO option_values_product_variants AS target
+USING temp_option_values_product_variants AS source
+  ON target.option_value_id = source.option_value_id
+WHEN NOT MATCHED THEN
+  INSERT (
+    product_variant_id,
+    option_value_id
+  )
+  VALUES (
+    source.product_variant_id,
+    source.option_value_id
+  )
+WHEN NOT MATCHED BY SOURCE
+  AND target.option_value_id IN (SELECT id FROM temp_option_values) THEN
+  DELETE
+`
+
+func (q *Queries) MergeOptionValuesProductVariantsFromTemp(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, mergeOptionValuesProductVariantsFromTemp)
+	return err
 }
 
 const mergeProductImagesFromTemp = `-- name: MergeProductImagesFromTemp :exec

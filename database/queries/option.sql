@@ -95,6 +95,27 @@ WHERE
 ORDER BY
   option_values.id;
 
+-- name: CreateTempTableOptionValues :exec
+CREATE TEMPORARY TABLE temp_option_values (
+  id UUID PRIMARY KEY,
+  value TEXT NOT NULL,
+  option_id UUID NOT NULL,
+  deleted_at TIMESTAMP
+) ON COMMIT DROP;
+
+-- name: InsertTempTableOptionValues :copyfrom
+INSERT INTO temp_option_values (
+  id,
+  value,
+  option_id,
+  deleted_at
+) VALUES (
+  @id,
+  @value,
+  @option_id,
+  @deleted_at
+);
+
 -- name: MergeOptionValuesFromTemp :exec
 MERGE INTO option_values AS target
 USING temp_option_values AS source
@@ -119,21 +140,4 @@ WHEN NOT MATCHED THEN
   )
 WHEN NOT MATCHED BY SOURCE
   AND target.option_id = (SELECT DISTINCT option_id FROM source) THEN
-  DELETE;
-
--- name: MergeOptionValuesProductVariantsFromTemp :exec
-MERGE INTO option_values_product_variants AS target
-USING temp_option_values_product_variants AS source
-  ON target.option_value_id = source.option_value_id
-WHEN NOT MATCHED THEN
-  INSERT (
-    product_variant_id,
-    option_value_id
-  )
-  VALUES (
-    source.product_variant_id,
-    source.option_value_id
-  )
-WHEN NOT MATCHED BY SOURCE
-  AND target.option_value_id IN (SELECT id FROM temp_option_values) THEN
   DELETE;
