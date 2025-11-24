@@ -7,8 +7,6 @@
 package di
 
 import (
-	"context"
-
 	"backend/config"
 	"backend/internal/application"
 	"backend/internal/client"
@@ -16,10 +14,10 @@ import (
 	"backend/internal/domain"
 	"backend/internal/infrastructure/cacheredis"
 	"backend/internal/infrastructure/objectstorages3"
-	"backend/internal/infrastructure/repository"
+	"backend/internal/infrastructure/repositorypostgres"
 	"backend/internal/service"
 	"backend/pkg/logger"
-
+	"context"
 	"github.com/google/wire"
 )
 
@@ -39,28 +37,34 @@ func InitializeServer(ctx context.Context) *http.Server {
 	loggingMiddlewareImpl := http.ProvideLoggingMiddleware(zapLogger)
 	ginAuthMiddleware := http.ProvideAuthMiddleware(goCloak, server)
 	queries := client.NewDBQueries(pool)
-	postgresCategory := repository.ProvidePostgresCategory(queries)
+	postgresCategory := repositorypostgres.ProvidePostgresCategory(queries)
 	validate := client.NewValidate()
 	category := service.ProvideCategory(validate)
-	categoryCache := cacheredis.ProvideCategoryCache(redisClient)
-	categoryImpl := application.ProvideCategory(postgresCategory, category, categoryCache)
+	cacheredisCategory := cacheredis.ProvideCategory(redisClient)
+	categoryImpl := application.ProvideCategory(postgresCategory, category, cacheredisCategory)
 	categoryHandlerImpl := http.ProvideCategoryHandler(categoryImpl)
-	productHandlerImpl := http.ProvideProductHandler()
-	postgresAttribute := repository.ProvidePostgresAttribute(queries, pool)
-	attribute := service.ProvideAttribute(validate)
-	attributeCache := cacheredis.ProvideAttributeCache(redisClient)
-	attributeImpl := application.ProvideAttribute(postgresAttribute, attribute, attributeCache)
+	postgresProduct := repositorypostgres.ProvidePostgresProduct(queries)
+	product := service.ProvideProduct(validate)
+	cacheredisProduct := cacheredis.ProvideProduct(redisClient)
+	presignClient := client.NewS3Presign(s3Client)
+	objectstorages3Product := objectstorages3.ProvideProduct(s3Client, presignClient)
+	productImpl := application.ProvideProduct(postgresProduct, product, cacheredisProduct, objectstorages3Product)
+	productHandlerImpl := http.ProvideProductHandler(productImpl)
+	attribute := repositorypostgres.ProvideAttribute(queries, pool)
+	serviceAttribute := service.ProvideAttribute(validate)
+	cacheredisAttribute := cacheredis.ProvideAttribute(redisClient)
+	attributeImpl := application.ProvideAttribute(attribute, serviceAttribute, cacheredisAttribute)
 	attributeHandlerImpl := http.ProvideAttributeHandler(attributeImpl)
-	postgresOrder := repository.ProvidePostgresOrder(queries)
+	postgresOrder := repositorypostgres.ProvidePostgresOrder(queries)
 	order := service.ProvideOrder(validate)
 	orderImpl := application.ProvideOrder(postgresOrder, order)
 	orderHandlerImpl := http.ProvideOrderHandler(orderImpl)
-	postgresReview := repository.ProvidePostgresReview(queries)
+	postgresReview := repositorypostgres.ProvidePostgresReview(queries)
 	review := service.ProvideReview(validate)
-	reviewCache := cacheredis.ProvideReviewCache(redisClient)
-	reviewImpl := application.ProvideReview(postgresReview, review, reviewCache)
+	cacheredisReview := cacheredis.ProvideReview(redisClient)
+	reviewImpl := application.ProvideReview(postgresReview, review, cacheredisReview)
 	reviewHandlerImpl := http.ProvideReviewHandler(reviewImpl)
-	postgresCart := repository.ProvidePostgresCart(queries)
+	postgresCart := repositorypostgres.ProvidePostgresCart(queries)
 	cart := service.ProvideCart(validate)
 	cartImpl := application.ProvideCart(postgresCart, cart)
 	cartHandlerImpl := http.ProvideCartHandler(cartImpl)
@@ -164,24 +168,24 @@ var ApplicationSet = wire.NewSet(application.ProvideAttribute, wire.Bind(
 ),
 )
 
-var RepositorySet = wire.NewSet(repository.ProvidePostgresAttribute, wire.Bind(
+var RepositorySet = wire.NewSet(repositorypostgres.ProvideAttribute, wire.Bind(
 	new(domain.AttributeRepository),
-	new(*repository.PostgresAttribute),
-), repository.ProvidePostgresCart, wire.Bind(
+	new(*repositorypostgres.Attribute),
+), repositorypostgres.ProvidePostgresCart, wire.Bind(
 	new(domain.CartRepository),
-	new(*repository.PostgresCart),
-), repository.ProvidePostgresCategory, wire.Bind(
+	new(*repositorypostgres.PostgresCart),
+), repositorypostgres.ProvidePostgresCategory, wire.Bind(
 	new(domain.CategoryRepository),
-	new(*repository.PostgresCategory),
-), repository.ProvidePostgresOrder, wire.Bind(
+	new(*repositorypostgres.PostgresCategory),
+), repositorypostgres.ProvidePostgresOrder, wire.Bind(
 	new(domain.OrderRepository),
-	new(*repository.PostgresOrder),
-), repository.ProvidePostgresProduct, wire.Bind(
+	new(*repositorypostgres.PostgresOrder),
+), repositorypostgres.ProvidePostgresProduct, wire.Bind(
 	new(domain.ProductRepository),
-	new(*repository.PostgresProduct),
-), repository.ProvidePostgresReview, wire.Bind(
+	new(*repositorypostgres.PostgresProduct),
+), repositorypostgres.ProvidePostgresReview, wire.Bind(
 	new(domain.ReviewRepository),
-	new(*repository.PostgresReview),
+	new(*repositorypostgres.PostgresReview),
 ),
 )
 
@@ -191,25 +195,25 @@ var RouterSet = wire.NewSet(http.ProvideRouter, wire.Bind(
 ),
 )
 
-var ClientSet = wire.NewSet(client.NewRedis, client.NewS3, client.NewKeycloak, client.NewS3Presign, client.NewValidate)
+var ClientSet = wire.NewSet(client.NewKeycloak, client.NewRedis, client.NewS3, client.NewS3Presign, client.NewValidate)
 
-var CacheSet = wire.NewSet(cacheredis.ProvideProductCache, wire.Bind(
+var CacheSet = wire.NewSet(cacheredis.ProvideProduct, wire.Bind(
 	new(application.ProductCache),
-	new(*cacheredis.ProductCache),
-), cacheredis.ProvideReviewCache, wire.Bind(
+	new(*cacheredis.Product),
+), cacheredis.ProvideReview, wire.Bind(
 	new(application.ReviewCache),
-	new(*cacheredis.ReviewCache),
-), cacheredis.ProvideCategoryCache, wire.Bind(
+	new(*cacheredis.Review),
+), cacheredis.ProvideCategory, wire.Bind(
 	new(application.CategoryCache),
-	new(*cacheredis.CategoryCache),
-), cacheredis.ProvideAttributeCache, wire.Bind(
+	new(*cacheredis.Category),
+), cacheredis.ProvideAttribute, wire.Bind(
 	new(application.AttributeCache),
 	new(*cacheredis.Attribute),
 ),
 )
 
-var ObjectStorageSet = wire.NewSet(objectstorages3.ProvideS3Product, wire.Bind(
+var ObjectStorageSet = wire.NewSet(objectstorages3.ProvideProduct, wire.Bind(
 	new(application.ProductObjectStorage),
-	new(*objectstorages3.S3Product),
+	new(*objectstorages3.Product),
 ),
 )

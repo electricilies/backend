@@ -3,18 +3,22 @@ package http
 import (
 	"net/http"
 
-	_ "backend/internal/application"
+	"backend/internal/application"
 	_ "backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
 )
 
-type ProductHandlerImpl struct{}
+type ProductHandlerImpl struct {
+	productApp application.Product
+}
 
 var _ ProductHandler = &ProductHandlerImpl{}
 
-func ProvideProductHandler() *ProductHandlerImpl {
-	return &ProductHandlerImpl{}
+func ProvideProductHandler(productApp application.Product) *ProductHandlerImpl {
+	return &ProductHandlerImpl{
+		productApp: productApp,
+	}
 }
 
 // GetProduct godoc

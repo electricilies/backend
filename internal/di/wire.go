@@ -263,10 +263,10 @@ func InitializeServer(ctx context.Context) *http.Server {
 		HandlerSet,
 		LoggerSet,
 		MiddlewareSet,
-		ObjectStorageSet,
 		RepositorySet,
 		RouterSet,
 		ServiceSet,
+		ObjectStorageSet,
 		http.NewServer,
 	)
 	return nil
