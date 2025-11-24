@@ -26,6 +26,18 @@ func queryArrayToUUIDSlice(ctx *gin.Context, key string) (*[]uuid.UUID, bool) {
 	return &ids, true
 }
 
+func queryToUUID(ctx *gin.Context, key string) (*uuid.UUID, bool) {
+	idStr := ctx.Query(key)
+	if idStr == "" {
+		return nil, false
+	}
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		return nil, false
+	}
+	return &id, true
+}
+
 func createPaginationParamsFromQuery(ctx *gin.Context) (*application.PaginationParam, error) {
 	page := 1
 	limit := 20

@@ -1411,6 +1411,12 @@ const docTemplate = `{
                 "summary": "List all products",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "default": 1,
                         "description": "Page for pagination",
@@ -2793,10 +2799,10 @@ const docTemplate = `{
                         "$ref": "#/definitions/CreateProductVariantImage"
                     }
                 },
-                "optionValues": {
+                "options": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/CreateProductVariantOptionValue"
+                        "$ref": "#/definitions/CreateProductVariantOption"
                     }
                 },
                 "price": {
@@ -2825,7 +2831,7 @@ const docTemplate = `{
                 }
             }
         },
-        "CreateProductVariantOptionValue": {
+        "CreateProductVariantOption": {
             "type": "object",
             "required": [
                 "name",
@@ -3328,7 +3334,6 @@ const docTemplate = `{
             "required": [
                 "createdAt",
                 "id",
-                "orderItem",
                 "rating",
                 "updatedAt"
             ],

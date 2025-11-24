@@ -40,6 +40,7 @@ func (h *ProductHandlerImpl) Get(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
+//	@Param			search			query		string	false	"Search term"
 //	@Param			page			query		int		false	"Page for pagination"		default(1)
 //	@Param			limit			query		int		false	"Limit for pagination"		default(20)
 //	@Param			deleted			query		string	false	"Filter by deleted status"	Enums(exclude, only, all)
@@ -52,6 +53,10 @@ func (h *ProductHandlerImpl) Get(ctx *gin.Context) {
 //	@Failure		500				{object}	Error
 //	@Router			/products [get]
 func (h *ProductHandlerImpl) List(ctx *gin.Context) {
+	// var search *string
+	// if searchQuery, ok := ctx.GetQuery("search"); ok {
+	// 	search = &searchQuery
+	// }
 }
 
 // CreateProduct godoc
