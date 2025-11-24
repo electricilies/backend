@@ -29,3 +29,22 @@ func (p *Product) Validate(
 	}
 	return nil
 }
+
+func (p *Product) CreateOptionsWithOptionValues(
+	optionsWithOptionValues map[string][]string,
+) (*[]domain.Option, error) {
+	options := make([]domain.Option, 0, len(optionsWithOptionValues))
+	for name, values := range optionsWithOptionValues {
+		option, err := domain.NewProductOption(name)
+		if err != nil {
+			return nil, err
+		}
+		optionValues, err := domain.CreateOptionValues(values)
+		if err != nil {
+			return nil, err
+		}
+		option.Values = *optionValues
+		options = append(options, *option)
+	}
+	return &options, nil
+}

@@ -23,7 +23,7 @@ func ProvideCategory(categoryRepo domain.CategoryRepository, categoryService dom
 var _ Category = &CategoryImpl{}
 
 func (c *CategoryImpl) Create(ctx context.Context, param CreateCategoryParam) (*domain.Category, error) {
-	category, err := domain.CreateCategory(param.Data.Name)
+	category, err := domain.NewCategory(param.Data.Name)
 	if err != nil {
 		return nil, err
 	}

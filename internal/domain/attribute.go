@@ -14,19 +14,13 @@ type Attribute struct {
 	DeletedAt *time.Time       `json:"deletedAt"`
 }
 
-func (a *Attribute) GetValueByID(id uuid.UUID) *AttributeValue {
-	if a.Values == nil {
-		return nil
-	}
-	for _, value := range a.Values {
-		if value.ID == id {
-			return &value
-		}
-	}
-	return nil
+type AttributeValue struct {
+	ID        uuid.UUID  `json:"id"        binding:"required"   validate:"required"               example:"1"`
+	Value     string     `json:"value"     binding:"required"   validate:"required,gte=1,lte=100" example:"Red"`
+	DeletedAt *time.Time `json:"deletedAt" validate:"omitempty"`
 }
 
-func CreateAttribute(
+func NewAttribute(
 	code string,
 	name string,
 ) (*Attribute, error) {
@@ -43,17 +37,7 @@ func CreateAttribute(
 	return attribute, nil
 }
 
-func (a *Attribute) Update(name *string) {
-	if name != nil {
-		a.Name = *name
-	}
-}
-
-func (a *Attribute) AddValues(attributeValues ...AttributeValue) {
-	a.Values = append(a.Values, attributeValues...)
-}
-
-func CreateAttributeValue(value string) (*AttributeValue, error) {
+func NewAttributeValue(value string) (*AttributeValue, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, err
@@ -63,6 +47,28 @@ func CreateAttributeValue(value string) (*AttributeValue, error) {
 		Value: value,
 	}
 	return attributeValue, nil
+}
+
+func (a *Attribute) Update(name *string) {
+	if name != nil {
+		a.Name = *name
+	}
+}
+
+func (a *Attribute) GetValueByID(id uuid.UUID) *AttributeValue {
+	if a.Values == nil {
+		return nil
+	}
+	for _, value := range a.Values {
+		if value.ID == id {
+			return &value
+		}
+	}
+	return nil
+}
+
+func (a *Attribute) AddValues(attributeValues ...AttributeValue) {
+	a.Values = append(a.Values, attributeValues...)
 }
 
 func (a *Attribute) UpdateValue(
@@ -104,29 +110,4 @@ func (a *Attribute) RemoveValue(attributeValueID uuid.UUID) error {
 	}
 	a.Values = newValues
 	return nil
-}
-
-func FilterAttributeValuesFromAttributes(
-	attributes []Attribute,
-	attributeValueIDs []uuid.UUID,
-) []AttributeValue {
-	attributeValueIDSet := make(map[uuid.UUID]struct{}, len(attributeValueIDs))
-	for _, id := range attributeValueIDs {
-		attributeValueIDSet[id] = struct{}{}
-	}
-	result := []AttributeValue{}
-	for _, attribute := range attributes {
-		for _, value := range attribute.Values {
-			if _, exists := attributeValueIDSet[value.ID]; exists {
-				result = append(result, value)
-			}
-		}
-	}
-	return result
-}
-
-type AttributeValue struct {
-	ID        uuid.UUID  `json:"id"        binding:"required"   validate:"required"               example:"1"`
-	Value     string     `json:"value"     binding:"required"   validate:"required,gte=1,lte=100" example:"Red"`
-	DeletedAt *time.Time `json:"deletedAt" validate:"omitempty"`
 }

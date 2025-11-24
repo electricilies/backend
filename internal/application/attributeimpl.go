@@ -23,7 +23,7 @@ func ProvideAttribute(attributeRepo domain.AttributeRepository, attributeService
 var _ Attribute = &AttributeImpl{}
 
 func (a *AttributeImpl) Create(ctx context.Context, param CreateAttributeParam) (*domain.Attribute, error) {
-	attribute, err := domain.CreateAttribute(param.Data.Code, param.Data.Name)
+	attribute, err := domain.NewAttribute(param.Data.Code, param.Data.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (a *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeVa
 	if err != nil {
 		return nil, err
 	}
-	attributeValue, err := domain.CreateAttributeValue(param.Data.Value)
+	attributeValue, err := domain.NewAttributeValue(param.Data.Value)
 	if err != nil {
 		return nil, err
 	}

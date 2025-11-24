@@ -14,7 +14,7 @@ type Category struct {
 	DeletedAt *time.Time `json:"deletedAt" validate:"omitnil,gtefield=CreatedAt"`
 }
 
-func CreateCategory(name string) (*Category, error) {
+func NewCategory(name string) (*Category, error) {
 	now := time.Now()
 	id, err := uuid.NewV7()
 	if err != nil {

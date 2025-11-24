@@ -60,7 +60,7 @@ type ProductImage struct {
 	DeletedAt *time.Time `json:"deletedAt " validate:"omitempty,gtefield=CreatedAt"`
 }
 
-func CreateProduct(
+func NewProduct(
 	name string,
 	description string,
 	category Category,
@@ -81,7 +81,7 @@ func CreateProduct(
 	return product, nil
 }
 
-func CreateOption(
+func NewProductOption(
 	name string,
 ) (*Option, error) {
 	id, err := uuid.NewV7()
@@ -95,7 +95,7 @@ func CreateOption(
 	return option, nil
 }
 
-func CreateImage(
+func NewProductImage(
 	url string,
 	order int,
 ) (*ProductImage, error) {
@@ -112,7 +112,7 @@ func CreateImage(
 	return productImage, nil
 }
 
-func CreateVariant(
+func NewVariant(
 	sku string,
 	price int64,
 	quantity int,
@@ -245,6 +245,51 @@ func (p *Product) UpdateOptionValue(
 	return nil
 }
 
+func (p *Product) GetOptionByID(optionID uuid.UUID) *Option {
+	for _, option := range p.Options {
+		if option.ID == optionID {
+			return &option
+		}
+	}
+	return nil
+}
+
+func (p *Product) GetOptionsByIDs(optionIDs []uuid.UUID) []*Option {
+	var options []*Option
+	optionIDSet := make(map[uuid.UUID]struct{})
+	for _, id := range optionIDs {
+		optionIDSet[id] = struct{}{}
+	}
+	for _, option := range p.Options {
+		if _, exists := optionIDSet[option.ID]; exists {
+			options = append(options, &option)
+		}
+	}
+	return options
+}
+
+func (p *Product) GetVariantByID(variantID uuid.UUID) *ProductVariant {
+	for _, variant := range p.Variants {
+		if variant.ID == variantID {
+			return &variant
+		}
+	}
+	return nil
+}
+
+func (p *Product) UpdateMinPrice() {
+	if len(p.Variants) == 0 {
+		return
+	}
+	minPrice := p.Variants[0].Price
+	for _, variant := range p.Variants {
+		if variant.Price < minPrice {
+			minPrice = variant.Price
+		}
+	}
+	p.Price = minPrice
+}
+
 func (p *Product) Remove() {
 	now := time.Now()
 	if p.DeletedAt == nil {
@@ -314,70 +359,6 @@ func CreateOptionValues(
 		optionValues = append(optionValues, optionValue)
 	}
 	return &optionValues, nil
-}
-
-func CreateOptionsWithOptionValues(
-	optionsWithOptionValues map[string][]string,
-) (*[]Option, error) {
-	options := make([]Option, 0, len(optionsWithOptionValues))
-	for name, values := range optionsWithOptionValues {
-		option, err := CreateOption(name)
-		if err != nil {
-			return nil, err
-		}
-		optionValues, err := CreateOptionValues(values)
-		if err != nil {
-			return nil, err
-		}
-		option.Values = *optionValues
-		options = append(options, *option)
-	}
-	return &options, nil
-}
-
-func (p *Product) GetOptionByID(optionID uuid.UUID) *Option {
-	for _, option := range p.Options {
-		if option.ID == optionID {
-			return &option
-		}
-	}
-	return nil
-}
-
-func (p *Product) GetOptionsByIDs(optionIDs []uuid.UUID) []*Option {
-	var options []*Option
-	optionIDSet := make(map[uuid.UUID]struct{})
-	for _, id := range optionIDs {
-		optionIDSet[id] = struct{}{}
-	}
-	for _, option := range p.Options {
-		if _, exists := optionIDSet[option.ID]; exists {
-			options = append(options, &option)
-		}
-	}
-	return options
-}
-
-func (p *Product) GetVariantByID(variantID uuid.UUID) *ProductVariant {
-	for _, variant := range p.Variants {
-		if variant.ID == variantID {
-			return &variant
-		}
-	}
-	return nil
-}
-
-func (p *Product) UpdateMinPrice() {
-	if len(p.Variants) == 0 {
-		return
-	}
-	minPrice := p.Variants[0].Price
-	for _, variant := range p.Variants {
-		if variant.Price < minPrice {
-			minPrice = variant.Price
-		}
-	}
-	p.Price = minPrice
 }
 
 func (o *Option) GetValueByID(optionValueID uuid.UUID) *OptionValue {

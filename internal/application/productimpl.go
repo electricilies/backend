@@ -125,7 +125,7 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 	if err != nil {
 		return nil, err
 	}
-	product, err := domain.CreateProduct(
+	product, err := domain.NewProduct(
 		param.Data.Name,
 		param.Data.Description,
 		*category,
@@ -150,7 +150,7 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 		if err != nil {
 			return nil, err
 		}
-		attributeValues := domain.FilterAttributeValuesFromAttributes(*attributes, attributeValueIDs)
+		attributeValues := p.attributeService.FilterAttributeValuesFromAttributes(*attributes, attributeValueIDs)
 		product.AddAttributeValues(attributeValues...)
 	}
 	var options *[]domain.Option
@@ -161,7 +161,7 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 			optionValues = append(optionValues, optionData.Values...)
 			optionsWithOptionValues[optionData.Name] = optionValues
 		}
-		options, err = domain.CreateOptionsWithOptionValues(optionsWithOptionValues)
+		options, err = p.productService.CreateOptionsWithOptionValues(optionsWithOptionValues)
 		if err != nil {
 			return nil, err
 		}
@@ -169,7 +169,7 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 	}
 	productImages := make([]domain.ProductImage, 0, len(param.Data.Images))
 	for _, imgData := range param.Data.Images {
-		image, err := domain.CreateImage(
+		image, err := domain.NewProductImage(
 			imgData.URL,
 			imgData.Order,
 		)
@@ -180,7 +180,7 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 	}
 	product.AddImages(productImages...)
 	for _, variantData := range param.Data.Variants {
-		variant, err := domain.CreateVariant(
+		variant, err := domain.NewVariant(
 			variantData.SKU,
 			variantData.Price,
 			variantData.Quantity,
@@ -192,7 +192,7 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 		if variantData.Images != nil {
 			variantImages := make([]domain.ProductImage, 0, len(*variantData.Images))
 			for _, imgData := range *variantData.Images {
-				image, err := domain.CreateImage(
+				image, err := domain.NewProductImage(
 					imgData.URL,
 					imgData.Order,
 				)
@@ -274,7 +274,7 @@ func (p *ProductImpl) AddVariants(ctx context.Context, param AddProductVariantsP
 	}
 	variants := make([]domain.ProductVariant, 0, len(param.Data))
 	for _, variantData := range param.Data {
-		variant, err := domain.CreateVariant(
+		variant, err := domain.NewVariant(
 			variantData.SKU,
 			variantData.Price,
 			variantData.Quantity,
@@ -329,7 +329,7 @@ func (p *ProductImpl) AddImages(ctx context.Context, param AddProductImagesParam
 	}
 	images := make([]domain.ProductImage, 0, len(param.Data))
 	for _, imgData := range param.Data {
-		image, err := domain.CreateImage(
+		image, err := domain.NewProductImage(
 			imgData.URL,
 			imgData.Order,
 		)
