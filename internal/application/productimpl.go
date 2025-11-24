@@ -2,9 +2,11 @@ package application
 
 import (
 	"context"
+	"fmt"
 
 	"backend/internal/domain"
 	"backend/internal/helper/slice"
+
 	"github.com/google/uuid"
 )
 
@@ -99,17 +101,14 @@ func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagina
 }
 
 func (p *ProductImpl) Get(ctx context.Context, param GetProductParam) (*domain.Product, error) {
-	// Try to get from cache
 	if cachedProduct, err := p.productCache.GetProduct(ctx, param.ProductID); err == nil {
 		return cachedProduct, nil
 	}
-
+	// HACK: we assume that product repo also get the category :v
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return nil, err
 	}
-
-	// Cache the result
 	_ = p.productCache.SetProduct(ctx, param.ProductID, product)
 
 	return product, nil
@@ -200,15 +199,22 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 				return nil, err
 			}
 		}
+		err = linkProductVariantsToOptionValues(&productVariants, *options, param)
+		if err != nil {
+			return nil, err
+		}
 	}
-	if err := p.productService.AddVariants(product, productVariants...); err != nil {
+	if err = p.productService.AddVariants(product, productVariants...); err != nil {
+		return nil, err
+	}
+	err = p.productService.Validate(*product)
+	if err != nil {
 		return nil, err
 	}
 	err = p.productRepo.Save(ctx, *product)
 	if err != nil {
 		return nil, err
 	}
-	// Invalidate cache after create
 	_ = p.productCache.InvalidateProductList(ctx)
 	return product, nil
 }
@@ -452,4 +458,29 @@ func (p *ProductImpl) GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) 
 		return nil, err
 	}
 	return url, nil
+}
+
+func linkProductVariantsToOptionValues(
+	variants *[]domain.ProductVariant,
+	options []domain.Option,
+	param CreateProductParam,
+) error {
+	optionsMap := make(map[string]domain.OptionValue, 0)
+	for _, option := range options {
+		for _, optionValue := range option.Values {
+			optionsMap[fmt.Sprintf("%s/%s", option.Name, optionValue.Value)] = optionValue
+		}
+	}
+	for i, variant := range *variants {
+		optionValues := make([]domain.OptionValue, len(*param.Data.Variants[i].Options))
+		for j, optionName := range *param.Data.Variants[i].Options {
+			optionValue, exists := optionsMap[fmt.Sprintf("%s/%s", optionName.Name, optionName.Value)]
+			if !exists {
+				return domain.ErrInvalid
+			}
+			optionValues[j] = optionValue
+		}
+		variant.OptionValues = append(variant.OptionValues, optionValues...)
+	}
+	return nil
 }

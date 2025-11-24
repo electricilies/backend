@@ -24,6 +24,15 @@ func ProvideProduct(
 
 var _ domain.ProductService = &Product{}
 
+func (p *Product) Validate(
+	product domain.Product,
+) error {
+	if err := p.validate.Struct(product); err != nil {
+		return multierror.Append(domain.ErrInvalid, err)
+	}
+	return nil
+}
+
 func (p *Product) Create(
 	name string,
 	description string,

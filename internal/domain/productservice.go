@@ -3,6 +3,10 @@ package domain
 import "github.com/google/uuid"
 
 type ProductService interface {
+	Validate(
+		product Product,
+	) error
+
 	Create(
 		name string,
 		description string,
