@@ -11,21 +11,23 @@ import (
 )
 
 type AttributeHandlerImpl struct {
-	attributeApp               application.Attribute
-	ErrRequiredAttributeID     string
-	ErrInvalidAttributeID      string
-	ErrInvalidAttributeValueID string
-	ErrInvalidProductID        string
+	attributeApp                application.Attribute
+	ErrRequiredAttributeID      string
+	ErrRequiredAttributeValueID string
+	ErrInvalidAttributeID       string
+	ErrInvalidAttributeValueID  string
+	ErrInvalidProductID         string
 }
 
 var _ AttributeHandler = &AttributeHandlerImpl{}
 
 func ProvideAttributeHandler(attributeApp application.Attribute) *AttributeHandlerImpl {
 	return &AttributeHandlerImpl{
-		attributeApp:               attributeApp,
-		ErrRequiredAttributeID:     "attribute_id is required",
-		ErrInvalidAttributeValueID: "invalid value_id",
-		ErrInvalidAttributeID:      "invalid attribute_id",
+		attributeApp:                attributeApp,
+		ErrRequiredAttributeID:      "attribute_id is required",
+		ErrRequiredAttributeValueID: "attribute_value_id is required",
+		ErrInvalidAttributeValueID:  "invalid value_id",
+		ErrInvalidAttributeID:       "invalid attribute_id",
 	}
 }
 
@@ -45,6 +47,10 @@ func ProvideAttributeHandler(attributeApp application.Attribute) *AttributeHandl
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Get(ctx *gin.Context) {
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
+	if *attributeID == uuid.Nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
+		return
+	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
@@ -134,6 +140,10 @@ func (h *AttributeHandlerImpl) ListValues(ctx *gin.Context) {
 	}
 
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
+	if *attributeID == uuid.Nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
+		return
+	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 	}
@@ -216,10 +226,15 @@ func (h *AttributeHandlerImpl) Create(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
+	if *attributeID == uuid.Nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
+		return
+	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
+
 	var data application.CreateAttributeValueData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
@@ -256,10 +271,15 @@ func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Update(ctx *gin.Context) {
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
+	if *attributeID == uuid.Nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
+		return
+	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
+
 	var data application.UpdateAttributeData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
@@ -293,6 +313,10 @@ func (h *AttributeHandlerImpl) Update(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Delete(ctx *gin.Context) {
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
+	if *attributeID == uuid.Nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
+		return
+	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
@@ -325,12 +349,20 @@ func (h *AttributeHandlerImpl) Delete(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
+	if *attributeID == uuid.Nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
+		return
+	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
 
 	valueID, ok := pathToUUID(ctx, "value_id")
+	if *valueID == uuid.Nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeValueID))
+		return
+	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeValueID))
 		return
@@ -367,12 +399,20 @@ func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) UpdateValue(ctx *gin.Context) {
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
+	if *attributeID == uuid.Nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
+		return
+	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
 
 	valueID, ok := pathToUUID(ctx, "value_id")
+	if *valueID == uuid.Nil {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeValueID))
+		return
+	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeValueID))
 		return

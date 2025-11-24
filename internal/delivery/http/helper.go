@@ -5,6 +5,7 @@ import (
 
 	"backend/internal/application"
 	"backend/internal/domain"
+	"backend/internal/helper/ptr"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -41,7 +42,7 @@ func queryToUUID(ctx *gin.Context, key string) (*uuid.UUID, bool) {
 func pathToUUID(ctx *gin.Context, key string) (*uuid.UUID, bool) {
 	idStr := ctx.Param(key)
 	if idStr == "" {
-		return nil, false
+		return ptr.To(uuid.Nil), false
 	}
 	id, err := uuid.Parse(idStr)
 	if err != nil {

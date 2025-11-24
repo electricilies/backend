@@ -1465,11 +1465,22 @@ const docTemplate = `{
                         "type": "array",
                         "format": "uuid",
                         "items": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "collectionFormat": "csv",
                         "description": "Filter by category ID",
                         "name": "category_ids",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "format": "uuid",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Filter by product ID",
+                        "name": "product_ids",
                         "in": "query"
                     },
                     {
@@ -1482,6 +1493,12 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Maximum price filter",
                         "name": "max_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Filter by minimum rating",
+                        "name": "rating",
                         "in": "query"
                     }
                 ],
@@ -1579,7 +1596,7 @@ const docTemplate = `{
                 "summary": "Get presigned URL for image deletion",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "format": "uuid",
                         "description": "Product Image ID",
                         "name": "image_id",
@@ -1588,10 +1605,16 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/DeleteImageURL"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
                         }
                     },
                     "500": {
@@ -1652,7 +1675,7 @@ const docTemplate = `{
                 "summary": "Get product by ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
@@ -1703,7 +1726,7 @@ const docTemplate = `{
                 "summary": "Delete a product",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
@@ -1751,7 +1774,7 @@ const docTemplate = `{
                 "summary": "Update a product",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
@@ -1825,7 +1848,8 @@ const docTemplate = `{
                 "summary": "Add product images",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
                         "in": "path",
@@ -1839,7 +1863,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/CreateProductImageData"
+                                "$ref": "#/definitions/AddProductImageData"
                             }
                         }
                     }
@@ -1896,7 +1920,7 @@ const docTemplate = `{
                 "summary": "Delete product images",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
@@ -1905,8 +1929,9 @@ const docTemplate = `{
                     },
                     {
                         "type": "array",
+                        "format": "uuid",
                         "items": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "collectionFormat": "csv",
                         "description": "Product Image IDs",
@@ -1957,7 +1982,7 @@ const docTemplate = `{
                 "summary": "Update options",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
@@ -1981,7 +2006,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Option"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Option"
+                            }
                         }
                     },
                     "400": {
@@ -2034,7 +2062,8 @@ const docTemplate = `{
                 "summary": "Add a new product variant",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
                         "in": "path",
@@ -2048,7 +2077,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/CreateProductVariantData"
+                                "$ref": "#/definitions/AddProductVariantsData"
                             }
                         }
                     }
@@ -2057,7 +2086,10 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/ProductVariant"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ProductVariant"
+                            }
                         }
                     },
                     "400": {
@@ -2104,14 +2136,16 @@ const docTemplate = `{
                 "summary": "Update a product variant",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "description": "Product ID",
                         "name": "product_id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "description": "Product Variant ID",
                         "name": "variant_id",
                         "in": "path",
@@ -2131,10 +2165,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/ProductVariant"
-                            }
+                            "$ref": "#/definitions/ProductVariant"
                         }
                     },
                     "400": {
@@ -2456,6 +2487,48 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "AddProductImageData": {
+            "type": "object",
+            "required": [
+                "url"
+            ],
+            "properties": {
+                "order": {
+                    "type": "integer"
+                },
+                "productVariantId": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "AddProductVariantsData": {
+            "type": "object",
+            "required": [
+                "price",
+                "quantity",
+                "sku"
+            ],
+            "properties": {
+                "optionValueIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            }
+        },
         "Attribute": {
             "type": "object",
             "required": [
