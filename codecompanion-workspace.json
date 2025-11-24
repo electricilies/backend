@@ -3,12 +3,19 @@
   "name": "Electricilies Backend",
   "version": "0.0.0",
   "system_prompt": "You are expert in golang backend development, postgres database",
+  "description": "Electricilies - Website for Selling Electronic Products",
   "groups": [
     {
       "name": "Swaggo Ask",
       "system_prompt": "",
       "description": "",
       "data": ["swaggo-doc"]
+    },
+    {
+      "name": "Mockery Ask",
+      "system_prompt": "",
+      "description": "",
+      "data": ["context7-mockery"]
     }
   ],
   "data": {
@@ -16,6 +23,11 @@
       "type": "url",
       "path": "https://raw.githubusercontent.com/swaggo/swag/refs/heads/master/README.md",
       "description": "This is documentation for swaggo"
+    },
+    "context7-mockery": {
+      "type": "url",
+      "path": "https://context7.com/websites/vektra_github_io-mockery/llms.txt?tokens=8000",
+      "description": "This is documentation for mockery, a mock code autogeneration tool for golang, with frameworks support like testify"
     }
   }
 }
