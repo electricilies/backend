@@ -125,9 +125,9 @@ db-apply-data:
   psql {{db-connection}} -f ./database/seed.sql
   psql {{db-connection}} -f ./database/paradedb-index.sql
 
-[doc("Seed fake data into the database")]
-db-seed-fake:
-  psql {{db-connection}} -f ./database/seed-fake.sql
+[doc("Seed data into the database")]
+db-seed:
+  psql {{db-connection}} -f ./database/seed.sql
 
 [doc("Apply schema for local development")]
 atlas-apply-schema env="local" *args='':

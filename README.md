@@ -55,7 +55,7 @@ Read at [mise.toml](./mise.toml)
 4. MinIO
    1. `cd ./terraform/minio/`
    2. `terraform apply -auto-aprove`
-5. `just db-seed-fake` to seed fake data to backend database (optional)
+5. `just db-seed` to seed data to backend database (optional)
 
 ### Note
 

@@ -1,1 +1,0 @@
-../../../database/seed-fake.sql
