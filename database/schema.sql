@@ -108,7 +108,6 @@ CREATE TABLE cart_items (
   product_variant_id UUID NOT NULL REFERENCES product_variants (id) ON UPDATE CASCADE
 );
 
-
 -- order_statuses
 CREATE TABLE order_statuses (
   id UUID PRIMARY KEY,
