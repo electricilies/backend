@@ -76,8 +76,8 @@ CREATE OR REPLACE FUNCTION ele_update_product_rating()
 RETURNS TRIGGER AS $$
 DECLARE
   avg_rating REAL;
-  product_id INTEGER;
-  ref_order_item_id INTEGER;
+  target_product_id UUID;
+  ref_order_item_id UUID;
 BEGIN
   -- Determine the order_item_id based on the operation
   IF TG_OP = 'DELETE' THEN
@@ -85,14 +85,22 @@ BEGIN
   ELSE
     ref_order_item_id := NEW.order_item_id;
   END IF;
-  -- Get the product_id from the order_item_id
+  -- Get the target_product_id from the order_item_id
   SELECT
     product_variants.product_id
-  INTO product_id
+  INTO target_product_id
   FROM product_variants
   INNER JOIN order_items
     ON product_variants.id = order_items.product_variant_id
   WHERE order_items.id = ref_order_item_id;
+  -- Exit early if product not found
+  IF target_product_id IS NULL THEN
+    IF TG_OP = 'DELETE' THEN
+      RETURN OLD;
+    ELSE
+      RETURN NEW;
+    END IF;
+  END IF;
   -- Calculate the average rating for the product
   SELECT AVG(reviews.rating) INTO avg_rating
   FROM reviews
@@ -100,12 +108,15 @@ BEGIN
     ON reviews.order_item_id = order_items.id
   INNER JOIN product_variants
     ON order_items.product_variant_id = product_variants.id
-  WHERE product_variants.product_id = product_id AND reviews.deleted_at IS NULL;
-  -- Update the product's rating
-  IF avg_rating IS NOT NULL THEN
-    UPDATE products SET rating = avg_rating WHERE id = product_id;
+  WHERE product_variants.product_id = target_product_id AND reviews.deleted_at IS NULL;
+  -- Update the product's rating (handles NULL case for no reviews)
+  UPDATE products SET rating = COALESCE(avg_rating, 0) WHERE id = target_product_id;
+  -- Return the appropriate row
+  IF TG_OP = 'DELETE' THEN
+    RETURN OLD;
+  ELSE
+    RETURN NEW;
   END IF;
-  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
