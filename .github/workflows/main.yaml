@@ -328,7 +328,6 @@ jobs:
   swagger:
     name: Deploy swagger page
     runs-on: ubuntu-latest
-    needs: check
     concurrency: swagger
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
     permissions:
