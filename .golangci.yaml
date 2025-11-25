@@ -30,3 +30,10 @@ formatters:
 run:
   build-tags:
     - integration
+severity:
+  default: error
+  rules:
+    - severity: info
+      linters:
+        - unused
+        - lll
