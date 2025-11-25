@@ -3,26 +3,27 @@ package application
 import (
 	"context"
 
+	"backend/internal/delivery/http"
 	"backend/internal/domain"
 )
 
-type ReviewImpl struct {
+type Review struct {
 	reviewRepo    domain.ReviewRepository
 	reviewService domain.ReviewService
 	reviewCache   ReviewCache
 }
 
-func ProvideReview(reviewRepo domain.ReviewRepository, reviewService domain.ReviewService, reviewCache ReviewCache) *ReviewImpl {
-	return &ReviewImpl{
+func ProvideReview(reviewRepo domain.ReviewRepository, reviewService domain.ReviewService, reviewCache ReviewCache) *Review {
+	return &Review{
 		reviewRepo:    reviewRepo,
 		reviewService: reviewService,
 		reviewCache:   reviewCache,
 	}
 }
 
-var _ Review = &ReviewImpl{}
+var _ http.ReviewApplication = &Review{}
 
-func (r *ReviewImpl) Create(ctx context.Context, param CreateReviewParam) (*domain.Review, error) {
+func (r *Review) Create(ctx context.Context, param http.CreateReviewRequestDto) (*domain.Review, error) {
 	review, err := r.reviewService.Create(
 		param.OrderItemID,
 		param.UserID,
@@ -45,7 +46,7 @@ func (r *ReviewImpl) Create(ctx context.Context, param CreateReviewParam) (*doma
 	return review, nil
 }
 
-func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Pagination[domain.Review], error) {
+func (r *Review) List(ctx context.Context, param http.ListReviewsRequestDto) (*http.PaginationResponseDto[domain.Review], error) {
 	// Build cache key
 	cacheKey := r.reviewCache.BuildListCacheKey(
 		param.OrderItemIDs,
@@ -85,7 +86,7 @@ func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Paginat
 		return nil, err
 	}
 
-	pagination := newPagination(
+	pagination := newPaginationResponseDto(
 		*reviews,
 		*count,
 		param.Page,
@@ -98,7 +99,7 @@ func (r *ReviewImpl) List(ctx context.Context, param ListReviewsParam) (*Paginat
 	return pagination, nil
 }
 
-func (r *ReviewImpl) Get(ctx context.Context, param GetReviewParam) (*domain.Review, error) {
+func (r *Review) Get(ctx context.Context, param http.GetReviewRequestDto) (*domain.Review, error) {
 	review, err := r.reviewRepo.Get(ctx, param.ReviewID)
 	if err != nil {
 		return nil, err
@@ -106,7 +107,7 @@ func (r *ReviewImpl) Get(ctx context.Context, param GetReviewParam) (*domain.Rev
 	return review, nil
 }
 
-func (r *ReviewImpl) Update(ctx context.Context, param UpdateReviewParam) (*domain.Review, error) {
+func (r *Review) Update(ctx context.Context, param http.UpdateReviewRequestDto) (*domain.Review, error) {
 	review, err := r.reviewRepo.Get(ctx, param.ReviewID)
 	if err != nil {
 		return nil, err
@@ -134,7 +135,7 @@ func (r *ReviewImpl) Update(ctx context.Context, param UpdateReviewParam) (*doma
 	return review, nil
 }
 
-func (r *ReviewImpl) Delete(ctx context.Context, param DeleteReviewParam) error {
+func (r *Review) Delete(ctx context.Context, param http.DeleteReviewRequestDto) error {
 	review, err := r.reviewRepo.Get(ctx, param.ReviewID)
 	if err != nil {
 		return err

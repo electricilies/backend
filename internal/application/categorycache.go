@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 
+	"backend/internal/delivery/http"
 	"backend/internal/domain"
 
 	"github.com/google/uuid"
@@ -17,10 +18,10 @@ type CategoryCache interface {
 	SetCategory(ctx context.Context, categoryID uuid.UUID, category *domain.Category) error
 
 	// GetCategoryList retrieves a cached category list pagination result
-	GetCategoryList(ctx context.Context, cacheKey string) (*Pagination[domain.Category], error)
+	GetCategoryList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.Category], error)
 
 	// SetCategoryList caches a category list pagination result with the specified TTL in seconds
-	SetCategoryList(ctx context.Context, cacheKey string, pagination *Pagination[domain.Category]) error
+	SetCategoryList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.Category]) error
 
 	// InvalidateCategory removes the cached category by ID
 	InvalidateCategory(ctx context.Context, categoryID uuid.UUID) error

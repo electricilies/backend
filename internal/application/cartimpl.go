@@ -3,24 +3,25 @@ package application
 import (
 	"context"
 
+	"backend/internal/delivery/http"
 	"backend/internal/domain"
 )
 
-type CartImpl struct {
+type Cart struct {
 	cartRepo    domain.CartRepository
 	cartService domain.CartService
 }
 
-func ProvideCart(cartRepo domain.CartRepository, cartService domain.CartService) *CartImpl {
-	return &CartImpl{
+func ProvideCart(cartRepo domain.CartRepository, cartService domain.CartService) *Cart {
+	return &Cart{
 		cartRepo:    cartRepo,
 		cartService: cartService,
 	}
 }
 
-var _ Cart = &CartImpl{}
+var _ http.CartApplication = &Cart{}
 
-func (c *CartImpl) Get(ctx context.Context, param GetCartParam) (*domain.Cart, error) {
+func (c *Cart) Get(ctx context.Context, param http.GetCartRequestDto) (*domain.Cart, error) {
 	cart, err := c.cartRepo.Get(ctx, param.CartID)
 	if err != nil {
 		return nil, err
@@ -28,7 +29,7 @@ func (c *CartImpl) Get(ctx context.Context, param GetCartParam) (*domain.Cart, e
 	return cart, nil
 }
 
-func (c *CartImpl) Create(ctx context.Context, param CreateCartParam) (*domain.Cart, error) {
+func (c *Cart) Create(ctx context.Context, param http.CreateCartRequestDto) (*domain.Cart, error) {
 	cart, err := c.cartService.Create(param.UserID)
 	if err != nil {
 		return nil, err
@@ -40,7 +41,7 @@ func (c *CartImpl) Create(ctx context.Context, param CreateCartParam) (*domain.C
 	return cart, nil
 }
 
-func (c *CartImpl) CreateItem(ctx context.Context, param CreateCartItemParam) (*domain.CartItem, error) {
+func (c *Cart) CreateItem(ctx context.Context, param http.CreateCartItemRequestDto) (*domain.CartItem, error) {
 	cart, err := c.cartRepo.Get(ctx, param.CartID)
 	if err != nil {
 		return nil, err
@@ -69,7 +70,7 @@ func (c *CartImpl) CreateItem(ctx context.Context, param CreateCartItemParam) (*
 	return cartItem, nil
 }
 
-func (c *CartImpl) UpdateItem(ctx context.Context, param UpdateCartItemParam) (*domain.CartItem, error) {
+func (c *Cart) UpdateItem(ctx context.Context, param http.UpdateCartItemRequestDto) (*domain.CartItem, error) {
 	cart, err := c.cartRepo.Get(ctx, param.CartID)
 	if err != nil {
 		return nil, err
@@ -102,7 +103,7 @@ func (c *CartImpl) UpdateItem(ctx context.Context, param UpdateCartItemParam) (*
 	return nil, domain.ErrNotFound
 }
 
-func (c *CartImpl) DeleteItem(ctx context.Context, param DeleteCartItemParam) error {
+func (c *Cart) DeleteItem(ctx context.Context, param http.DeleteCartItemRequestDto) error {
 	cart, err := c.cartRepo.Get(ctx, param.CartID)
 	if err != nil {
 		return err

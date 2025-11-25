@@ -3,7 +3,6 @@ package http
 import (
 	"strconv"
 
-	"backend/internal/application"
 	"backend/internal/domain"
 	"backend/internal/helper/ptr"
 
@@ -51,7 +50,7 @@ func pathToUUID(ctx *gin.Context, key string) (*uuid.UUID, bool) {
 	return &id, true
 }
 
-func createPaginationParamsFromQuery(ctx *gin.Context) (*application.PaginationParam, error) {
+func createPaginationRequestDtoFromQuery(ctx *gin.Context) (*PaginationRequestDto, error) {
 	page := 1
 	limit := 20
 	var err error
@@ -71,7 +70,7 @@ func createPaginationParamsFromQuery(ctx *gin.Context) (*application.PaginationP
 			return nil, domain.ErrInvalid
 		}
 	}
-	return &application.PaginationParam{
+	return &PaginationRequestDto{
 		Page:  page,
 		Limit: limit,
 	}, nil

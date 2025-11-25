@@ -3,7 +3,6 @@ package http
 import (
 	"net/http"
 
-	"backend/internal/application"
 	"backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +10,7 @@ import (
 )
 
 type AttributeHandlerImpl struct {
-	attributeApp                application.Attribute
+	attributeApp                AttributeApplication
 	ErrRequiredAttributeID      string
 	ErrRequiredAttributeValueID string
 	ErrInvalidAttributeID       string
@@ -21,7 +20,7 @@ type AttributeHandlerImpl struct {
 
 var _ AttributeHandler = &AttributeHandlerImpl{}
 
-func ProvideAttributeHandler(attributeApp application.Attribute) *AttributeHandlerImpl {
+func ProvideAttributeHandler(attributeApp AttributeApplication) *AttributeHandlerImpl {
 	return &AttributeHandlerImpl{
 		attributeApp:                attributeApp,
 		ErrRequiredAttributeID:      "attribute_id is required",
@@ -55,7 +54,7 @@ func (h *AttributeHandlerImpl) Get(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
-	attribute, err := h.attributeApp.Get(ctx, application.GetAttributeParam{
+	attribute, err := h.attributeApp.Get(ctx, GetAttributeRequestDto{
 		AttributeID: *attributeID,
 	})
 	if err != nil {
@@ -78,13 +77,13 @@ func (h *AttributeHandlerImpl) Get(ctx *gin.Context) {
 //	@Param			product_ids		query		[]string	false	"Product IDs"			collectionFormat(csv)
 //	@Param			search			query		string		false	"Search term"
 //	@Param			deleted			query		string		false	"Filter by deletion status"	Enums(exclude, only, all)
-//	@Success		200				{object}	application.Pagination[domain.Attribute]
+//	@Success		200				{object}	Pagination[domain.Attribute]
 //	@Failure		500				{object}	Error
 //	@Router			/attributes [get]
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) List(ctx *gin.Context) {
-	paginateParam, err := createPaginationParamsFromQuery(ctx)
+	paginateParam, err := createPaginationRequestDtoFromQuery(ctx)
 	if err != nil {
 		SendError(ctx, err)
 		return
@@ -101,11 +100,11 @@ func (h *AttributeHandlerImpl) List(ctx *gin.Context) {
 	if deletedQuery, ok := ctx.GetQuery("deleted"); ok {
 		deleted = domain.DeletedParam(deletedQuery)
 	}
-	attributes, err := h.attributeApp.List(ctx, application.ListAttributesParam{
-		PaginationParam: *paginateParam,
-		AttributeIDs:    attributeIDs,
-		Search:          search,
-		Deleted:         domain.DeletedParam(deleted),
+	attributes, err := h.attributeApp.List(ctx, ListAttributesRequestDto{
+		PaginationRequestDto: *paginateParam,
+		AttributeIDs:         attributeIDs,
+		Search:               search,
+		Deleted:              deleted,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -127,13 +126,13 @@ func (h *AttributeHandlerImpl) List(ctx *gin.Context) {
 //	@Param			attribute_value_id	query		[]string	false	"Product ID"	collectionFormat(csv)	format(uuid)
 //	@Param			search				query		string		false	"Search term"
 //	@Param			deleted				query		string		false	"Filter by deletion status"	Enums(exclude, only, all)
-//	@Success		200					{object}	application.Pagination[domain.AttributeValue]
+//	@Success		200					{object}	Pagination[domain.AttributeValue]
 //	@Failure		500					{object}	Error
 //	@Router			/attributes/{attribute_id}/values [get]
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) ListValues(ctx *gin.Context) {
-	paginateParam, err := createPaginationParamsFromQuery(ctx)
+	paginateParam, err := createPaginationRequestDtoFromQuery(ctx)
 	if err != nil {
 		SendError(ctx, err)
 		return
@@ -161,12 +160,12 @@ func (h *AttributeHandlerImpl) ListValues(ctx *gin.Context) {
 	if deletedQuery, ok := ctx.GetQuery("deleted"); ok {
 		deleted = domain.DeletedParam(deletedQuery)
 	}
-	attributeValues, err := h.attributeApp.ListValues(ctx, application.ListAttributeValuesParam{
-		PaginationParam:   *paginateParam,
-		AttributeID:       *attributeID,
-		AttributeValueIDs: attributeValueIDs,
-		Deleted:           deleted,
-		Search:            search,
+	attributeValues, err := h.attributeApp.ListValues(ctx, ListAttributeValuesRequestDto{
+		PaginationRequestDto: *paginateParam,
+		AttributeID:          *attributeID,
+		AttributeValueIDs:    attributeValueIDs,
+		Deleted:              deleted,
+		Search:               search,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -182,7 +181,7 @@ func (h *AttributeHandlerImpl) ListValues(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute	body		application.CreateAttributeData	true	"Attribute request"
+//	@Param			attribute	body		CreateAttributeData	true	"Attribute request"
 //	@Success		201			{object}	domain.Attribute
 //	@Failure		400			{object}	Error
 //	@Failure		409			{object}	Error
@@ -191,13 +190,13 @@ func (h *AttributeHandlerImpl) ListValues(ctx *gin.Context) {
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Create(ctx *gin.Context) {
-	var data application.CreateAttributeData
+	var data CreateAttributeData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	attribute, err := h.attributeApp.Create(ctx, application.CreateAttributeParam{
+	attribute, err := h.attributeApp.Create(ctx, CreateAttributeRequestDto{
 		Data: data,
 	})
 	if err != nil {
@@ -214,8 +213,8 @@ func (h *AttributeHandlerImpl) Create(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute_id	path		string									true	"Attribute ID"	format(uuid)
-//	@Param			value			body		application.CreateAttributeValueData	true	"Attribute value request"
+//	@Param			attribute_id	path		string						true	"Attribute ID"	format(uuid)
+//	@Param			value			body		CreateAttributeValueData	true	"Attribute value request"
 //	@Success		201				{object}	domain.AttributeValue
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
@@ -235,13 +234,13 @@ func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 		return
 	}
 
-	var data application.CreateAttributeValueData
+	var data CreateAttributeValueData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	attributeValue, err := h.attributeApp.CreateValue(ctx, application.CreateAttributeValueParam{
+	attributeValue, err := h.attributeApp.CreateValue(ctx, CreateAttributeValueRequestDto{
 		AttributeID: *attributeID,
 		Data:        data,
 	})
@@ -259,8 +258,8 @@ func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute_id	path		string									true	"Attribute ID"	format(uuid)
-//	@Param			attribute		body		application.UpdateAttributeValueData	true	"Update attribute request"
+//	@Param			attribute_id	path		string						true	"Attribute ID"	format(uuid)
+//	@Param			attribute		body		UpdateAttributeValueData	true	"Update attribute request"
 //	@Success		200				{object}	domain.Attribute
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
@@ -280,13 +279,13 @@ func (h *AttributeHandlerImpl) Update(ctx *gin.Context) {
 		return
 	}
 
-	var data application.UpdateAttributeData
+	var data UpdateAttributeData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	attribute, err := h.attributeApp.Update(ctx, application.UpdateAttributeParam{
+	attribute, err := h.attributeApp.Update(ctx, UpdateAttributeRequestDto{
 		AttributeID: *attributeID,
 		Data:        data,
 	})
@@ -322,7 +321,7 @@ func (h *AttributeHandlerImpl) Delete(ctx *gin.Context) {
 		return
 	}
 
-	err := h.attributeApp.Delete(ctx, application.DeleteAttributeParam{
+	err := h.attributeApp.Delete(ctx, DeleteAttributeRequestDto{
 		AttributeID: *attributeID,
 	})
 	if err != nil {
@@ -368,7 +367,7 @@ func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
 		return
 	}
 
-	err := h.attributeApp.DeleteValue(ctx, application.DeleteAttributeValueParam{
+	err := h.attributeApp.DeleteValue(ctx, DeleteAttributeValueRequestDto{
 		AttributeID:      *attributeID,
 		AttributeValueID: *valueID,
 	})
@@ -386,9 +385,9 @@ func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute_id	path		string									true	"Attribute ID"			format(uuid)
-//	@Param			value_id		path		string									true	"Attribute Value ID"	format(uuid)
-//	@Param			value			body		application.UpdateAttributeValueData	true	"Update attribute values request"
+//	@Param			attribute_id	path		string						true	"Attribute ID"			format(uuid)
+//	@Param			value_id		path		string						true	"Attribute Value ID"	format(uuid)
+//	@Param			value			body		UpdateAttributeValueData	true	"Update attribute values request"
 //	@Success		200				{array}		domain.Attribute
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
@@ -417,13 +416,13 @@ func (h *AttributeHandlerImpl) UpdateValue(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeValueID))
 		return
 	}
-	var data application.UpdateAttributeValueData
+	var data UpdateAttributeValueData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	attributeValue, err := h.attributeApp.UpdateValue(ctx, application.UpdateAttributeValueParam{
+	attributeValue, err := h.attributeApp.UpdateValue(ctx, UpdateAttributeValueRequestDto{
 		AttributeID:      *attributeID,
 		AttributeValueID: *valueID,
 		Data:             data,

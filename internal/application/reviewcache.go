@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 
+	"backend/internal/delivery/http"
 	"backend/internal/domain"
 
 	"github.com/google/uuid"
@@ -11,10 +12,10 @@ import (
 // ReviewCache defines the interface for review caching operations
 type ReviewCache interface {
 	// GetReviewList retrieves a cached review list pagination result
-	GetReviewList(ctx context.Context, cacheKey string) (*Pagination[domain.Review], error)
+	GetReviewList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.Review], error)
 
 	// SetReviewList caches a review list pagination result with the specified TTL in seconds
-	SetReviewList(ctx context.Context, cacheKey string, pagination *Pagination[domain.Review]) error
+	SetReviewList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.Review]) error
 
 	// InvalidateReviewList removes all cached review list entries
 	InvalidateReviewList(ctx context.Context) error

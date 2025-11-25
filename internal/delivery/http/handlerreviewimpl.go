@@ -3,7 +3,6 @@ package http
 import (
 	"net/http"
 
-	"backend/internal/application"
 	"backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
@@ -11,14 +10,14 @@ import (
 )
 
 type ReviewHandlerImpl struct {
-	reviewApp           application.Review
+	reviewApp           ReviewApplication
 	ErrRequiredReviewID string
 	ErrInvalidReviewID  string
 }
 
 var _ ReviewHandler = &ReviewHandlerImpl{}
 
-func ProvideReviewHandler(reviewApp application.Review) *ReviewHandlerImpl {
+func ProvideReviewHandler(reviewApp ReviewApplication) *ReviewHandlerImpl {
 	return &ReviewHandlerImpl{
 		reviewApp:           reviewApp,
 		ErrRequiredReviewID: "review_id is required",
@@ -49,7 +48,7 @@ func (h *ReviewHandlerImpl) Get(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidReviewID))
 		return
 	}
-	review, err := h.reviewApp.Get(ctx, application.GetReviewParam{
+	review, err := h.reviewApp.Get(ctx, GetReviewRequestDto{
 		ReviewID: reviewID,
 	})
 	if err != nil {
@@ -70,11 +69,11 @@ func (h *ReviewHandlerImpl) Get(ctx *gin.Context) {
 //	@Param			deleted		query		string	false	"Include deleted reviews"	Enums(include, only, exclude)
 //	@Param			page		query		int		false	"Page for pagination"		default(1)
 //	@Param			limit		query		int		false	"Limit for pagination"		default(20)
-//	@Success		200			{object}	application.Pagination[domain.Review]
+//	@Success		200			{object}	Pagination[domain.Review]
 //	@Failure		500			{object}	Error
 //	@Router			/reviews [get]
 func (h *ReviewHandlerImpl) List(ctx *gin.Context) {
-	paginateParam, err := createPaginationParamsFromQuery(ctx)
+	paginateParam, err := createPaginationRequestDtoFromQuery(ctx)
 	if err != nil {
 		SendError(ctx, err)
 		return
@@ -103,12 +102,12 @@ func (h *ReviewHandlerImpl) List(ctx *gin.Context) {
 		deleted = domain.DeletedParam(deletedQuery)
 	}
 
-	reviews, err := h.reviewApp.List(ctx, application.ListReviewsParam{
-		PaginationParam:  *paginateParam,
-		OrderItemIDs:     orderItemIDs,
-		ProductVariantID: productVariantID,
-		UserIDs:          userIDs,
-		Deleted:          deleted,
+	reviews, err := h.reviewApp.List(ctx, ListReviewsRequestDto{
+		PaginationRequestDto: *paginateParam,
+		OrderItemIDs:         orderItemIDs,
+		ProductVariantID:     productVariantID,
+		UserIDs:              userIDs,
+		Deleted:              deleted,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -124,7 +123,7 @@ func (h *ReviewHandlerImpl) List(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			review	body		application.CreateReviewData	true	"Review request"
+//	@Param			review	body		CreateReviewData	true	"Review request"
 //	@Success		201		{object}	domain.Review
 //	@Failure		400		{object}	Error
 //	@Failure		409		{object}	Error
@@ -133,7 +132,8 @@ func (h *ReviewHandlerImpl) List(ctx *gin.Context) {
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *ReviewHandlerImpl) Create(ctx *gin.Context) {
-	var data application.CreateReviewData
+	var data CreateReviewData
+
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
@@ -143,7 +143,7 @@ func (h *ReviewHandlerImpl) Create(ctx *gin.Context) {
 	orderItemID := uuid.New() // Placeholder
 	userID := uuid.New()      // Placeholder
 
-	review, err := h.reviewApp.Create(ctx, application.CreateReviewParam{
+	review, err := h.reviewApp.Create(ctx, CreateReviewRequestDto{
 		OrderItemID: orderItemID,
 		UserID:      userID,
 		Data:        data,
@@ -162,8 +162,8 @@ func (h *ReviewHandlerImpl) Create(ctx *gin.Context) {
 //	@Tags			Review
 //	@Accept			json
 //	@Produce		json
-//	@Param			review_id	path		int								true	"Review ID"	format(uuid)
-//	@Param			review		body		application.UpdateReviewData	true	"Update review request"
+//	@Param			review_id	path		int					true	"Review ID"	format(uuid)
+//	@Param			review		body		UpdateReviewData	true	"Update review request"
 //	@Success		204			{object}	domain.Review
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
@@ -184,13 +184,13 @@ func (h *ReviewHandlerImpl) Update(ctx *gin.Context) {
 		return
 	}
 
-	var data application.UpdateReviewData
+	var data UpdateReviewData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	review, err := h.reviewApp.Update(ctx, application.UpdateReviewParam{
+	review, err := h.reviewApp.Update(ctx, UpdateReviewRequestDto{
 		ReviewID: reviewID,
 		Data:     data,
 	})
@@ -227,7 +227,7 @@ func (h *ReviewHandlerImpl) Delete(ctx *gin.Context) {
 		return
 	}
 
-	err = h.reviewApp.Delete(ctx, application.DeleteReviewParam{
+	err = h.reviewApp.Delete(ctx, DeleteReviewRequestDto{
 		ReviewID: reviewID,
 	})
 	if err != nil {

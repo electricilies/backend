@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"backend/internal/application"
 	"backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
@@ -12,14 +11,14 @@ import (
 )
 
 type ProductHandlerImpl struct {
-	productApp           application.Product
+	productApp           ProductApplication
 	ErrRequiredProductID string
 	ErrInvalidProductID  string
 }
 
 var _ ProductHandler = &ProductHandlerImpl{}
 
-func ProvideProductHandler(productApp application.Product) *ProductHandlerImpl {
+func ProvideProductHandler(productApp ProductApplication) *ProductHandlerImpl {
 	return &ProductHandlerImpl{
 		productApp:           productApp,
 		ErrRequiredProductID: "product_id is required",
@@ -49,7 +48,7 @@ func (h *ProductHandlerImpl) Get(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidProductID))
 		return
 	}
-	product, err := h.productApp.Get(ctx.Request.Context(), application.GetProductParam{
+	product, err := h.productApp.Get(ctx.Request.Context(), GetProductRequestDto{
 		ProductID: *productID,
 	})
 	if err != nil {
@@ -77,11 +76,11 @@ func (h *ProductHandlerImpl) Get(ctx *gin.Context) {
 //	@Param			min_price		query		int			false	"Minimum price filter"
 //	@Param			max_price		query		int			false	"Maximum price filter"
 //	@Param			rating			query		number		false	"Filter by minimum rating"
-//	@Success		200				{object}	application.Pagination[domain.Product]
+//	@Success		200				{object}	Pagination[domain.Product]
 //	@Failure		500				{object}	Error
 //	@Router			/products [get]
 func (h *ProductHandlerImpl) List(ctx *gin.Context) {
-	paginateParam, err := createPaginationParamsFromQuery(ctx)
+	paginateParam, err := createPaginationRequestDtoFromQuery(ctx)
 	if err != nil {
 		SendError(ctx, err)
 		return
@@ -141,17 +140,17 @@ func (h *ProductHandlerImpl) List(ctx *gin.Context) {
 		deleted = domain.DeletedParam(deletedQuery)
 	}
 
-	products, err := h.productApp.List(ctx.Request.Context(), application.ListProductParam{
-		PaginationParam: *paginateParam,
-		ProductIDs:      productIDs,
-		CategoryIDs:     categoryIDs,
-		MinPrice:        minPrice,
-		MaxPrice:        maxPrice,
-		Rating:          rating,
-		SortPrice:       sortPrice,
-		SortRating:      sortRating,
-		Search:          search,
-		Deleted:         deleted,
+	products, err := h.productApp.List(ctx.Request.Context(), ListProductRequestDto{
+		PaginationRequestDto: *paginateParam,
+		ProductIDs:           productIDs,
+		CategoryIDs:          categoryIDs,
+		MinPrice:             minPrice,
+		MaxPrice:             maxPrice,
+		Rating:               rating,
+		SortPrice:            sortPrice,
+		SortRating:           sortRating,
+		Search:               search,
+		Deleted:              deleted,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -167,7 +166,7 @@ func (h *ProductHandlerImpl) List(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product	body		application.CreateProductData	true	"Product request"
+//	@Param			product	body		CreateProductData	true	"Product request"
 //	@Success		201		{object}	domain.Product
 //	@Failure		400		{object}	Error
 //	@Failure		409		{object}	Error
@@ -176,13 +175,13 @@ func (h *ProductHandlerImpl) List(ctx *gin.Context) {
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *ProductHandlerImpl) Create(ctx *gin.Context) {
-	var data application.CreateProductData
+	var data CreateProductData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	product, err := h.productApp.Create(ctx.Request.Context(), application.CreateProductParam{
+	product, err := h.productApp.Create(ctx.Request.Context(), CreateProductRequestDto{
 		Data: data,
 	})
 	if err != nil {
@@ -199,8 +198,8 @@ func (h *ProductHandlerImpl) Create(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id	path		string							true	"Product ID"	format(uuid)
-//	@Param			product		body		application.UpdateProductData	true	"Update product request"
+//	@Param			product_id	path		string				true	"Product ID"	format(uuid)
+//	@Param			product		body		UpdateProductData	true	"Update product request"
 //	@Success		200			{object}	domain.Product
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
@@ -220,13 +219,13 @@ func (h *ProductHandlerImpl) Update(ctx *gin.Context) {
 		return
 	}
 
-	var data application.UpdateProductData
+	var data UpdateProductData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	product, err := h.productApp.Update(ctx.Request.Context(), application.UpdateProductParam{
+	product, err := h.productApp.Update(ctx.Request.Context(), UpdateProductRequestDto{
 		ProductID: *productID,
 		Data:      data,
 	})
@@ -262,7 +261,7 @@ func (h *ProductHandlerImpl) Delete(ctx *gin.Context) {
 		return
 	}
 
-	err := h.productApp.Delete(ctx.Request.Context(), application.DeleteProductParam{
+	err := h.productApp.Delete(ctx.Request.Context(), DeleteProductRequestDto{
 		ProductID: *productID,
 	})
 	if err != nil {
@@ -279,8 +278,8 @@ func (h *ProductHandlerImpl) Delete(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id		path		string								true	"Product ID"	format(uuid)
-//	@Param			productImages	body		[]application.AddProductImageData	true	"Product images request"
+//	@Param			product_id		path		string					true	"Product ID"	format(uuid)
+//	@Param			productImages	body		[]AddProductImageData	true	"Product images request"
 //	@Success		201				{array}		domain.ProductImage
 //	@Failure		400				{object}	Error
 //	@Failure		409				{object}	Error
@@ -299,13 +298,13 @@ func (h *ProductHandlerImpl) AddImages(ctx *gin.Context) {
 		return
 	}
 
-	var data []application.AddProductImageData
+	var data []AddProductImageData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	images, err := h.productApp.AddImages(ctx.Request.Context(), application.AddProductImagesParam{
+	images, err := h.productApp.AddImages(ctx.Request.Context(), AddProductImagesRequestDto{
 		ProductID: *productID,
 		Data:      data,
 	})
@@ -348,7 +347,7 @@ func (h *ProductHandlerImpl) DeleteImages(ctx *gin.Context) {
 		return
 	}
 
-	err := h.productApp.DeleteImages(ctx.Request.Context(), application.DeleteProductImagesParam{
+	err := h.productApp.DeleteImages(ctx.Request.Context(), DeleteProductImagesRequestDto{
 		ProductID: *productID,
 		ImageIDs:  *imageIDs,
 	})
@@ -366,8 +365,8 @@ func (h *ProductHandlerImpl) DeleteImages(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id		path		string									true	"Product ID"	format(uuid)
-//	@Param			productVariant	body		[]application.AddProductVariantsData	true	"Product variant request"
+//	@Param			product_id		path		string						true	"Product ID"	format(uuid)
+//	@Param			productVariant	body		[]AddProductVariantsData	true	"Product variant request"
 //	@Success		201				{array}		domain.ProductVariant
 //	@Failure		400				{object}	Error
 //	@Failure		409				{object}	Error
@@ -386,13 +385,13 @@ func (h *ProductHandlerImpl) AddVariants(ctx *gin.Context) {
 		return
 	}
 
-	var data []application.AddProductVariantsData
+	var data []AddProductVariantsData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	variants, err := h.productApp.AddVariants(ctx.Request.Context(), application.AddProductVariantsParam{
+	variants, err := h.productApp.AddVariants(ctx.Request.Context(), AddProductVariantsRequestDto{
 		ProductID: *productID,
 		Data:      data,
 	})
@@ -410,9 +409,9 @@ func (h *ProductHandlerImpl) AddVariants(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id		path		string									true	"Product ID"			format(uuid)
-//	@Param			variant_id		path		string									true	"Product Variant ID"	format(uuid)
-//	@Param			productVariant	body		application.UpdateProductVariantData	true	"Update product variant request"
+//	@Param			product_id		path		string						true	"Product ID"			format(uuid)
+//	@Param			variant_id		path		string						true	"Product Variant ID"	format(uuid)
+//	@Param			productVariant	body		UpdateProductVariantData	true	"Update product variant request"
 //	@Success		200				{object}	domain.ProductVariant
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
@@ -442,13 +441,13 @@ func (h *ProductHandlerImpl) UpdateVariant(ctx *gin.Context) {
 		return
 	}
 
-	var data application.UpdateProductVariantData
+	var data UpdateProductVariantData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	variant, err := h.productApp.UpdateVariant(ctx.Request.Context(), application.UpdateProductVariantParam{
+	variant, err := h.productApp.UpdateVariant(ctx.Request.Context(), UpdateProductVariantRequestDto{
 		ProductID:        *productID,
 		ProductVariantID: *variantID,
 		Data:             data,
@@ -467,8 +466,8 @@ func (h *ProductHandlerImpl) UpdateVariant(ctx *gin.Context) {
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Param			product_id	path		string									true	"Product ID"	format(uuid)
-//	@Param			option		body		[]application.UpdateProductOptionsData	true	"Update product option request"
+//	@Param			product_id	path		string						true	"Product ID"	format(uuid)
+//	@Param			option		body		[]UpdateProductOptionsData	true	"Update product option request"
 //	@Success		200			{array}		domain.Option
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
@@ -488,13 +487,13 @@ func (h *ProductHandlerImpl) UpdateOptions(ctx *gin.Context) {
 		return
 	}
 
-	var data []application.UpdateProductOptionsData
+	var data []UpdateProductOptionsData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	options, err := h.productApp.UpdateOptions(ctx.Request.Context(), application.UpdateProductOptionsParam{
+	options, err := h.productApp.UpdateOptions(ctx.Request.Context(), UpdateProductOptionsRequestDto{
 		ProductID: *productID,
 		Data:      data,
 	})
@@ -511,7 +510,7 @@ func (h *ProductHandlerImpl) UpdateOptions(ctx *gin.Context) {
 //	@Description	Get a presigned URL to upload product images
 //	@Tags			Product
 //	@Produce		json
-//	@Success		200	{object}	application.UploadImageURL
+//	@Success		200	{object}	UploadImageURL
 //	@Failure		500	{object}	Error
 //	@Router			/products/images/upload-url [get]
 //	@Security		OAuth2AccessCode
@@ -532,7 +531,7 @@ func (h *ProductHandlerImpl) GetUploadImageURL(ctx *gin.Context) {
 //	@Tags			Product
 //	@Produce		json
 //	@Param			image_id	path		string	true	"Product Image ID"	format(uuid)
-//	@Success		200			{object}	application.DeleteImageURL
+//	@Success		200			{object}	DeleteImageURL
 //	@Failure		400			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/products/images/delete-url/{image_id} [get]

@@ -1,4 +1,4 @@
-package application
+package http
 
 import (
 	"backend/internal/domain"
@@ -6,15 +6,15 @@ import (
 	"github.com/google/uuid"
 )
 
-type ListReviewsParam struct {
-	PaginationParam
+type ListReviewsRequestDto struct {
+	PaginationRequestDto
 	OrderItemIDs     *[]uuid.UUID        `binding:"omitnil"`
 	ProductVariantID *uuid.UUID          `binding:"omitnil"`
 	UserIDs          *[]uuid.UUID        `binding:"omitnil"`
 	Deleted          domain.DeletedParam `binding:"required,oneof=exclude only all"`
 }
 
-type CreateReviewParam struct {
+type CreateReviewRequestDto struct {
 	OrderItemID uuid.UUID        `binding:"required"`
 	UserID      uuid.UUID        `binding:"required"`
 	Data        CreateReviewData `binding:"required"`
@@ -26,7 +26,7 @@ type CreateReviewData struct {
 	ImageURL string `json:"imageUrl" binding:"omitnil,url"`
 }
 
-type UpdateReviewParam struct {
+type UpdateReviewRequestDto struct {
 	ReviewID uuid.UUID        `binding:"required"`
 	UserID   uuid.UUID        `binding:"required"`
 	Data     UpdateReviewData `binding:"required"`
@@ -38,10 +38,10 @@ type UpdateReviewData struct {
 	ImageURL *string `json:"imageUrl" binding:"omitnil,url"`
 }
 
-type GetReviewParam struct {
+type GetReviewRequestDto struct {
 	ReviewID uuid.UUID `binding:"required"`
 }
 
-type DeleteReviewParam struct {
+type DeleteReviewRequestDto struct {
 	ReviewID uuid.UUID `binding:"required"`
 }

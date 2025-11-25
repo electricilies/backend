@@ -6,6 +6,7 @@ import (
 
 	"backend/config"
 	"backend/internal/application"
+	"backend/internal/delivery/http"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -32,7 +33,7 @@ func ProvideProduct(
 
 var _ application.ProductObjectStorage = (*Product)(nil)
 
-func (p *Product) GetUploadImageURL(ctx context.Context) (*application.UploadImageURL, error) {
+func (p *Product) GetUploadImageURL(ctx context.Context) (*http.UploadImageURLResponseDto, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, ToDomainErrorFromS3(err)
@@ -49,13 +50,13 @@ func (p *Product) GetUploadImageURL(ctx context.Context) (*application.UploadIma
 	if err != nil {
 		return nil, ToDomainErrorFromS3(err)
 	}
-	return &application.UploadImageURL{
+	return &http.UploadImageURLResponseDto{
 		URL: url.URL,
 		Key: idStr,
 	}, nil
 }
 
-func (p *Product) GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) (*application.DeleteImageURL, error) {
+func (p *Product) GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) (*http.DeleteImageURLResponseDto, error) {
 	url, err := p.s3PresignClient.PresignDeleteObject(
 		ctx,
 		&s3.DeleteObjectInput{
@@ -67,7 +68,7 @@ func (p *Product) GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) (*ap
 	if err != nil {
 		return nil, ToDomainErrorFromS3(err)
 	}
-	return &application.DeleteImageURL{
+	return &http.DeleteImageURLResponseDto{
 		URL: url.URL,
 	}, nil
 }

@@ -1,4 +1,4 @@
-package application
+package http
 
 import (
 	"backend/internal/domain"
@@ -6,14 +6,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type ListOrderParam struct {
-	PaginationParam
+type ListOrderRequestDto struct {
+	PaginationRequestDto
 	IDs       *[]uuid.UUID `binding:"omitnil"`
 	UserIDs   *[]uuid.UUID `binding:"omitnil"`
 	StatusIDs *[]uuid.UUID `binding:"omitnil"`
 }
 
-type CreateOrderParam struct {
+type CreateOrderRequestDto struct {
 	UserID uuid.UUID       `binding:"required"`
 	Data   CreateOrderData `binding:"required"`
 }
@@ -31,7 +31,7 @@ type CreateOrderItemData struct {
 	Price            int64     `json:"price"            binding:"required"`
 }
 
-type UpdateOrderParam struct {
+type UpdateOrderRequestDto struct {
 	OrderID uuid.UUID       `binding:"required"`
 	Data    UpdateOrderData `binding:"required"`
 }
@@ -41,10 +41,10 @@ type UpdateOrderData struct {
 	Address *string             `json:"address" binding:"omitnil"`
 }
 
-type GetOrderParam struct {
+type GetOrderRequestDto struct {
 	OrderID uuid.UUID `binding:"required"`
 }
 
-type DeleteOrderParam struct {
+type DeleteOrderRequestDto struct {
 	OrderID uuid.UUID `binding:"required"`
 }

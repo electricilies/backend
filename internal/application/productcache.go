@@ -3,6 +3,8 @@ package application
 import (
 	"context"
 
+	"backend/internal/delivery/http"
+
 	"backend/internal/domain"
 
 	"github.com/google/uuid"
@@ -17,10 +19,10 @@ type ProductCache interface {
 	SetProduct(ctx context.Context, productID uuid.UUID, product *domain.Product) error
 
 	// GetProductList retrieves a cached product list pagination result
-	GetProductList(ctx context.Context, cacheKey string) (*Pagination[domain.Product], error)
+	GetProductList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.Product], error)
 
 	// SetProductList caches a product list pagination result with the specified TTL in seconds
-	SetProductList(ctx context.Context, cacheKey string, pagination *Pagination[domain.Product]) error
+	SetProductList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.Product]) error
 
 	// InvalidateProduct removes the cached product by ID
 	InvalidateProduct(ctx context.Context, productID uuid.UUID) error

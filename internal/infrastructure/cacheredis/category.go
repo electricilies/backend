@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"backend/internal/application"
+	"backend/internal/delivery/http"
 	"backend/internal/domain"
 
 	"github.com/google/uuid"
@@ -66,7 +67,7 @@ func (c *Category) SetCategory(ctx context.Context, categoryID uuid.UUID, catego
 }
 
 // GetCategoryList retrieves a cached category list pagination result
-func (c *Category) GetCategoryList(ctx context.Context, cacheKey string) (*application.Pagination[domain.Category], error) {
+func (c *Category) GetCategoryList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.Category], error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -80,7 +81,7 @@ func (c *Category) GetCategoryList(ctx context.Context, cacheKey string) (*appli
 		return nil, redis.Nil
 	}
 
-	var pagination application.Pagination[domain.Category]
+	var pagination http.PaginationResponseDto[domain.Category]
 	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
 		return nil, err
 	}
@@ -89,7 +90,7 @@ func (c *Category) GetCategoryList(ctx context.Context, cacheKey string) (*appli
 }
 
 // SetCategoryList caches a category list pagination result with the specified TTL in seconds
-func (c *Category) SetCategoryList(ctx context.Context, cacheKey string, pagination *application.Pagination[domain.Category]) error {
+func (c *Category) SetCategoryList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.Category]) error {
 	if c.redisClient == nil {
 		return nil
 	}

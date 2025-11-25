@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"backend/internal/delivery/http"
 	"backend/internal/domain"
 	"backend/internal/helper/slice"
 
 	"github.com/google/uuid"
 )
 
-type ProductImpl struct {
+type Product struct {
 	attributeRepo        domain.AttributeRepository
 	attributeService     domain.AttributeService
 	categoryRepo         domain.CategoryRepository
@@ -28,8 +29,8 @@ func ProvideProduct(
 	productObjectStorage ProductObjectStorage,
 	productRepo domain.ProductRepository,
 	productService domain.ProductService,
-) *ProductImpl {
-	return &ProductImpl{
+) *Product {
+	return &Product{
 		attributeRepo:        attributeRepo,
 		attributeService:     attributeService,
 		categoryRepo:         categoryRepo,
@@ -40,9 +41,9 @@ func ProvideProduct(
 	}
 }
 
-var _ Product = (*ProductImpl)(nil)
+var _ http.ProductApplication = (*Product)(nil)
 
-func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagination[domain.Product], error) {
+func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*http.PaginationResponseDto[domain.Product], error) {
 	cacheKey := p.productCache.BuildListCacheKey(
 		param.ProductIDs,
 		param.Search,
@@ -93,7 +94,7 @@ func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagina
 		return nil, err
 	}
 
-	pagination := newPagination(
+	pagination := newPaginationResponseDto(
 		*products,
 		*count,
 		param.Page,
@@ -106,7 +107,7 @@ func (p *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagina
 	return pagination, nil
 }
 
-func (p *ProductImpl) Get(ctx context.Context, param GetProductParam) (*domain.Product, error) {
+func (p *Product) Get(ctx context.Context, param http.GetProductRequestDto) (*domain.Product, error) {
 	if cachedProduct, err := p.productCache.GetProduct(ctx, param.ProductID); err == nil {
 		return cachedProduct, nil
 	}
@@ -120,7 +121,7 @@ func (p *ProductImpl) Get(ctx context.Context, param GetProductParam) (*domain.P
 	return product, nil
 }
 
-func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*domain.Product, error) {
+func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto) (*domain.Product, error) {
 	category, err := p.categoryRepo.Get(ctx, param.Data.CategoryID)
 	if err != nil {
 		return nil, err
@@ -225,7 +226,7 @@ func (p *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
 	return product, nil
 }
 
-func (p *ProductImpl) Update(ctx context.Context, param UpdateProductParam) (*domain.Product, error) {
+func (p *Product) Update(ctx context.Context, param http.UpdateProductRequestDto) (*domain.Product, error) {
 	var category *domain.Category
 	if param.Data.CategoryID != nil {
 		cat, err := p.categoryRepo.Get(ctx, *param.Data.CategoryID)
@@ -252,7 +253,7 @@ func (p *ProductImpl) Update(ctx context.Context, param UpdateProductParam) (*do
 	return product, nil
 }
 
-func (p *ProductImpl) Delete(ctx context.Context, param DeleteProductParam) error {
+func (p *Product) Delete(ctx context.Context, param http.DeleteProductRequestDto) error {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return err
@@ -267,7 +268,7 @@ func (p *ProductImpl) Delete(ctx context.Context, param DeleteProductParam) erro
 	return nil
 }
 
-func (p *ProductImpl) AddVariants(ctx context.Context, param AddProductVariantsParam) (*[]domain.ProductVariant, error) {
+func (p *Product) AddVariants(ctx context.Context, param http.AddProductVariantsRequestDto) (*[]domain.ProductVariant, error) {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return nil, err
@@ -294,7 +295,7 @@ func (p *ProductImpl) AddVariants(ctx context.Context, param AddProductVariantsP
 	return &variants, nil
 }
 
-func (p *ProductImpl) UpdateVariant(ctx context.Context, param UpdateProductVariantParam) (*domain.ProductVariant, error) {
+func (p *Product) UpdateVariant(ctx context.Context, param http.UpdateProductVariantRequestDto) (*domain.ProductVariant, error) {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return nil, err
@@ -322,7 +323,7 @@ func (p *ProductImpl) UpdateVariant(ctx context.Context, param UpdateProductVari
 	return variant, nil
 }
 
-func (p *ProductImpl) AddImages(ctx context.Context, param AddProductImagesParam) (*[]domain.ProductImage, error) {
+func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequestDto) (*[]domain.ProductImage, error) {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return nil, err
@@ -354,7 +355,7 @@ func (p *ProductImpl) AddImages(ctx context.Context, param AddProductImagesParam
 	return &images, nil
 }
 
-func (p *ProductImpl) DeleteImages(ctx context.Context, param DeleteProductImagesParam) error {
+func (p *Product) DeleteImages(ctx context.Context, param http.DeleteProductImagesRequestDto) error {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return err
@@ -383,7 +384,7 @@ func (p *ProductImpl) DeleteImages(ctx context.Context, param DeleteProductImage
 	return nil
 }
 
-func (p *ProductImpl) UpdateOptions(ctx context.Context, param UpdateProductOptionsParam) (*[]domain.Option, error) {
+func (p *Product) UpdateOptions(ctx context.Context, param http.UpdateProductOptionsRequestDto) (*[]domain.Option, error) {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return nil, err
@@ -410,7 +411,7 @@ func (p *ProductImpl) UpdateOptions(ctx context.Context, param UpdateProductOpti
 	return slice.SlicePtrToPtrSlice(options), nil
 }
 
-func (p *ProductImpl) UpdateOptionValues(ctx context.Context, param UpdateProductOptionValuesParam) (*[]domain.OptionValue, error) {
+func (p *Product) UpdateOptionValues(ctx context.Context, param http.UpdateProductOptionValuesRequestDto) (*[]domain.OptionValue, error) {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return nil, err
@@ -438,7 +439,7 @@ func (p *ProductImpl) UpdateOptionValues(ctx context.Context, param UpdateProduc
 	return slice.SlicePtrToPtrSlice(optionValues), nil
 }
 
-func (p *ProductImpl) GetUploadImageURL(ctx context.Context) (*UploadImageURL, error) {
+func (p *Product) GetUploadImageURL(ctx context.Context) (*http.UploadImageURLResponseDto, error) {
 	url, err := p.productObjectStorage.GetUploadImageURL(ctx)
 	if err != nil {
 		return nil, err
@@ -446,7 +447,7 @@ func (p *ProductImpl) GetUploadImageURL(ctx context.Context) (*UploadImageURL, e
 	return url, nil
 }
 
-func (p *ProductImpl) GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) (*DeleteImageURL, error) {
+func (p *Product) GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) (*http.DeleteImageURLResponseDto, error) {
 	url, err := p.productObjectStorage.GetDeleteImageURL(ctx, imageID)
 	if err != nil {
 		return nil, err
@@ -457,7 +458,7 @@ func (p *ProductImpl) GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) 
 func linkProductVariantsToOptionValues(
 	product *domain.Product,
 	options []domain.Option,
-	param CreateProductParam,
+	param http.CreateProductRequestDto,
 ) error {
 	optionsMap := make(map[string]domain.OptionValue, 0)
 	for _, option := range options {

@@ -1,13 +1,13 @@
-package application
+package http
 
 import "github.com/google/uuid"
 
-type ListCategoryParam struct {
-	PaginationParam
+type ListCategoryRequestDto struct {
+	PaginationRequestDto
 	Search *string `json:"search" binding:"omitnil"`
 }
 
-type CreateCategoryParam struct {
+type CreateCategoryRequestDto struct {
 	Data CreateCategoryData `binding:"required"`
 }
 
@@ -15,11 +15,11 @@ type CreateCategoryData struct {
 	Name string `json:"name" binding:"required"`
 }
 
-type GetCategoryParam struct {
+type GetCategoryRequestDto struct {
 	CategoryID uuid.UUID `binding:"required"`
 }
 
-type UpdateCategoryParam struct {
+type UpdateCategoryRequestDto struct {
 	CategoryID uuid.UUID          `binding:"required"`
 	Data       UpdateCategoryData `binding:"required"`
 }

@@ -1,16 +1,16 @@
-package application
+package http
 
 import "github.com/google/uuid"
 
-type GetCartParam struct {
+type GetCartRequestDto struct {
 	CartID uuid.UUID `binding:"required"`
 }
 
-type CreateCartParam struct {
+type CreateCartRequestDto struct {
 	UserID uuid.UUID `binding:"required"`
 }
 
-type CreateCartItemParam struct {
+type CreateCartItemRequestDto struct {
 	UserID uuid.UUID          `binding:"required"`
 	CartID uuid.UUID          `binding:"required"`
 	Data   CreateCartItemData `binding:"required"`
@@ -21,7 +21,7 @@ type CreateCartItemData struct {
 	Quantity         int       `json:"quantity"         binding:"required"`
 }
 
-type UpdateCartItemParam struct {
+type UpdateCartItemRequestDto struct {
 	UserID uuid.UUID          `binding:"required"`
 	CartID uuid.UUID          `binding:"required"`
 	ItemID uuid.UUID          `binding:"required"`
@@ -32,7 +32,7 @@ type UpdateCartItemData struct {
 	Quantity int `json:"quantity" binding:"required"`
 }
 
-type DeleteCartItemParam struct {
+type DeleteCartItemRequestDto struct {
 	UserID uuid.UUID `binding:"required"`
 	CartID uuid.UUID `binding:"required"`
 	ItemID uuid.UUID `binding:"required"`

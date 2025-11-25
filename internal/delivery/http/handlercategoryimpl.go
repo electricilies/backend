@@ -3,7 +3,6 @@ package http
 import (
 	"net/http"
 
-	"backend/internal/application"
 	_ "backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
@@ -11,14 +10,14 @@ import (
 )
 
 type CategoryHandlerImpl struct {
-	categoryApp           application.Category
+	categoryApp           CategoryApplication
 	ErrRequiredCategoryID string
 	ErrInvalidCategoryID  string
 }
 
 var _ CategoryHandler = &CategoryHandlerImpl{}
 
-func ProvideCategoryHandler(categoryApp application.Category) *CategoryHandlerImpl {
+func ProvideCategoryHandler(categoryApp CategoryApplication) *CategoryHandlerImpl {
 	return &CategoryHandlerImpl{
 		categoryApp:           categoryApp,
 		ErrRequiredCategoryID: "category_id is required",
@@ -36,11 +35,11 @@ func ProvideCategoryHandler(categoryApp application.Category) *CategoryHandlerIm
 //	@Param			search	query		string	false	"Search term"
 //	@Param			page	query		int		false	"Page for pagination"	default(1)
 //	@Param			limit	query		int		false	"Limit for pagination"	default(20)
-//	@Success		200		{object}	application.Pagination[domain.Category]
+//	@Success		200		{object}	Pagination[domain.Category]
 //	@Failure		500		{object}	Error
 //	@Router			/categories [get]
 func (h *CategoryHandlerImpl) List(ctx *gin.Context) {
-	paginateParam, err := createPaginationParamsFromQuery(ctx)
+	paginateParam, err := createPaginationRequestDtoFromQuery(ctx)
 	if err != nil {
 		SendError(ctx, err)
 		return
@@ -51,9 +50,9 @@ func (h *CategoryHandlerImpl) List(ctx *gin.Context) {
 		search = &searchQuery
 	}
 
-	categories, err := h.categoryApp.List(ctx, application.ListCategoryParam{
-		PaginationParam: *paginateParam,
-		Search:          search,
+	categories, err := h.categoryApp.List(ctx, ListCategoryRequestDto{
+		PaginationRequestDto: *paginateParam,
+		Search:               search,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -85,7 +84,7 @@ func (h *CategoryHandlerImpl) Get(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidCategoryID))
 		return
 	}
-	category, err := h.categoryApp.Get(ctx, application.GetCategoryParam{
+	category, err := h.categoryApp.Get(ctx, GetCategoryRequestDto{
 		CategoryID: categoryID,
 	})
 	if err != nil {
@@ -102,7 +101,7 @@ func (h *CategoryHandlerImpl) Get(ctx *gin.Context) {
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Param			category	body		application.CreateCategoryData	true	"Category request"
+//	@Param			category	body		CreateCategoryData	true	"Category request"
 //	@Success		201			{object}	domain.Category
 //	@Failure		400			{object}	Error
 //	@Failure		409			{object}	Error
@@ -111,13 +110,13 @@ func (h *CategoryHandlerImpl) Get(ctx *gin.Context) {
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *CategoryHandlerImpl) Create(ctx *gin.Context) {
-	var data application.CreateCategoryData
+	var data CreateCategoryData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	category, err := h.categoryApp.Create(ctx, application.CreateCategoryParam{
+	category, err := h.categoryApp.Create(ctx, CreateCategoryRequestDto{
 		Data: data,
 	})
 	if err != nil {
@@ -134,8 +133,8 @@ func (h *CategoryHandlerImpl) Create(ctx *gin.Context) {
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Param			category_id	path		string							true	"Category ID"	format(uuid)
-//	@Param			category	body		application.UpdateCategoryData	true	"Update category request"
+//	@Param			category_id	path		string				true	"Category ID"	format(uuid)
+//	@Param			category	body		UpdateCategoryData	true	"Update category request"
 //	@Success		200			{object}	domain.Category
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
@@ -156,13 +155,13 @@ func (h *CategoryHandlerImpl) Update(ctx *gin.Context) {
 		return
 	}
 
-	var data application.UpdateCategoryData
+	var data UpdateCategoryData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	category, err := h.categoryApp.Update(ctx, application.UpdateCategoryParam{
+	category, err := h.categoryApp.Update(ctx, UpdateCategoryRequestDto{
 		CategoryID: categoryID,
 		Data:       data,
 	})

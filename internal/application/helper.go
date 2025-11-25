@@ -1,12 +1,14 @@
 package application
 
-func newPagination[T interface{}](
+import "backend/internal/delivery/http"
+
+func newPaginationResponseDto[T interface{}](
 	data []T,
 	totalItems, currentPage, itemsPerPage int,
-) *Pagination[T] {
-	return &Pagination[T]{
+) *http.PaginationResponseDto[T] {
+	return &http.PaginationResponseDto[T]{
 		Data: data,
-		Meta: PaginationMeta{
+		Meta: http.PaginationMetaResponseDto{
 			TotalItems:   totalItems,
 			CurrentPage:  currentPage,
 			ItemsPerPage: itemsPerPage,

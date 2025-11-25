@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"backend/internal/application"
+	"backend/internal/delivery/http"
 	"backend/internal/domain"
 
 	"github.com/google/uuid"
@@ -66,7 +67,7 @@ func (c *Attribute) SetAttribute(ctx context.Context, attributeID uuid.UUID, att
 }
 
 // GetAttributeList retrieves a cached attribute list pagination result
-func (c *Attribute) GetAttributeList(ctx context.Context, cacheKey string) (*application.Pagination[domain.Attribute], error) {
+func (c *Attribute) GetAttributeList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.Attribute], error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -80,7 +81,7 @@ func (c *Attribute) GetAttributeList(ctx context.Context, cacheKey string) (*app
 		return nil, redis.Nil
 	}
 
-	var pagination application.Pagination[domain.Attribute]
+	var pagination http.PaginationResponseDto[domain.Attribute]
 	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
 		return nil, err
 	}
@@ -89,7 +90,7 @@ func (c *Attribute) GetAttributeList(ctx context.Context, cacheKey string) (*app
 }
 
 // SetAttributeList caches an attribute list pagination result with the specified TTL in seconds
-func (c *Attribute) SetAttributeList(ctx context.Context, cacheKey string, pagination *application.Pagination[domain.Attribute]) error {
+func (c *Attribute) SetAttributeList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.Attribute]) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -103,7 +104,7 @@ func (c *Attribute) SetAttributeList(ctx context.Context, cacheKey string, pagin
 }
 
 // GetAttributeValueList retrieves a cached attribute value list pagination result
-func (c *Attribute) GetAttributeValueList(ctx context.Context, cacheKey string) (*application.Pagination[domain.AttributeValue], error) {
+func (c *Attribute) GetAttributeValueList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.AttributeValue], error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -117,7 +118,7 @@ func (c *Attribute) GetAttributeValueList(ctx context.Context, cacheKey string) 
 		return nil, redis.Nil
 	}
 
-	var pagination application.Pagination[domain.AttributeValue]
+	var pagination http.PaginationResponseDto[domain.AttributeValue]
 	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
 		return nil, err
 	}
@@ -126,7 +127,7 @@ func (c *Attribute) GetAttributeValueList(ctx context.Context, cacheKey string) 
 }
 
 // SetAttributeValueList caches an attribute value list pagination result with the specified TTL in seconds
-func (c *Attribute) SetAttributeValueList(ctx context.Context, cacheKey string, pagination *application.Pagination[domain.AttributeValue]) error {
+func (c *Attribute) SetAttributeValueList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.AttributeValue]) error {
 	if c.redisClient == nil {
 		return nil
 	}

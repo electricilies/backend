@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"backend/internal/application"
+	"backend/internal/delivery/http"
 	"backend/internal/domain"
 
 	"github.com/google/uuid"
@@ -66,7 +67,7 @@ func (c *Product) SetProduct(ctx context.Context, productID uuid.UUID, product *
 }
 
 // GetProductList retrieves a cached product list pagination result
-func (c *Product) GetProductList(ctx context.Context, cacheKey string) (*application.Pagination[domain.Product], error) {
+func (c *Product) GetProductList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.Product], error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -80,7 +81,7 @@ func (c *Product) GetProductList(ctx context.Context, cacheKey string) (*applica
 		return nil, redis.Nil
 	}
 
-	var pagination application.Pagination[domain.Product]
+	var pagination http.PaginationResponseDto[domain.Product]
 	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
 		return nil, err
 	}
@@ -89,7 +90,7 @@ func (c *Product) GetProductList(ctx context.Context, cacheKey string) (*applica
 }
 
 // SetProductList caches a product list pagination result with the specified TTL in seconds
-func (c *Product) SetProductList(ctx context.Context, cacheKey string, pagination *application.Pagination[domain.Product]) error {
+func (c *Product) SetProductList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.Product]) error {
 	if c.redisClient == nil {
 		return nil
 	}

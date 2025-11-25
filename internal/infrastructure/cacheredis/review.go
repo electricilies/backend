@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"backend/internal/delivery/http"
+
 	"backend/internal/application"
 	"backend/internal/domain"
 
@@ -27,7 +29,7 @@ func ProvideReview(redisClient *redis.Client) *Review {
 var _ application.ReviewCache = (*Review)(nil)
 
 // GetReviewList retrieves a cached review list pagination result
-func (c *Review) GetReviewList(ctx context.Context, cacheKey string) (*application.Pagination[domain.Review], error) {
+func (c *Review) GetReviewList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.Review], error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -41,7 +43,7 @@ func (c *Review) GetReviewList(ctx context.Context, cacheKey string) (*applicati
 		return nil, redis.Nil
 	}
 
-	var pagination application.Pagination[domain.Review]
+	var pagination http.PaginationResponseDto[domain.Review]
 	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
 		return nil, err
 	}
@@ -50,7 +52,7 @@ func (c *Review) GetReviewList(ctx context.Context, cacheKey string) (*applicati
 }
 
 // SetReviewList caches a review list pagination result with the specified TTL in seconds
-func (c *Review) SetReviewList(ctx context.Context, cacheKey string, pagination *application.Pagination[domain.Review]) error {
+func (c *Review) SetReviewList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.Review]) error {
 	if c.redisClient == nil {
 		return nil
 	}

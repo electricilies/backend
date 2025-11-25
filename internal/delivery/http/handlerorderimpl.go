@@ -3,7 +3,6 @@ package http
 import (
 	"net/http"
 
-	"backend/internal/application"
 	_ "backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
@@ -11,14 +10,14 @@ import (
 )
 
 type OrderHandlerImpl struct {
-	orderApp           application.Order
+	orderApp           OrderApplication
 	ErrRequiredOrderID string
 	ErrInvalidOrderID  string
 }
 
 var _ OrderHandler = &OrderHandlerImpl{}
 
-func ProvideOrderHandler(orderApp application.Order) *OrderHandlerImpl {
+func ProvideOrderHandler(orderApp OrderApplication) *OrderHandlerImpl {
 	return &OrderHandlerImpl{
 		orderApp:           orderApp,
 		ErrRequiredOrderID: "order_id is required",
@@ -51,7 +50,7 @@ func (h *OrderHandlerImpl) Get(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidOrderID))
 		return
 	}
-	order, err := h.orderApp.Get(ctx, application.GetOrderParam{
+	order, err := h.orderApp.Get(ctx, GetOrderRequestDto{
 		OrderID: orderID,
 	})
 	if err != nil {
@@ -77,7 +76,7 @@ func (h *OrderHandlerImpl) Get(ctx *gin.Context) {
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *OrderHandlerImpl) List(ctx *gin.Context) {
-	paginateParam, err := createPaginationParamsFromQuery(ctx)
+	paginateRequestDto, err := createPaginationRequestDtoFromQuery(ctx)
 	if err != nil {
 		SendError(ctx, err)
 		return
@@ -98,11 +97,11 @@ func (h *OrderHandlerImpl) List(ctx *gin.Context) {
 		statusIDs = statusIDsQuery
 	}
 
-	orders, err := h.orderApp.List(ctx, application.ListOrderParam{
-		PaginationParam: *paginateParam,
-		IDs:             orderIDs,
-		UserIDs:         userIDs,
-		StatusIDs:       statusIDs,
+	orders, err := h.orderApp.List(ctx, ListOrderRequestDto{
+		PaginationRequestDto: *paginateRequestDto,
+		IDs:                  orderIDs,
+		UserIDs:              userIDs,
+		StatusIDs:            statusIDs,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -118,7 +117,7 @@ func (h *OrderHandlerImpl) List(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order	body		application.CreateOrderData	true	"Order request"
+//	@Param			order	body		CreateOrderData	true	"Order request"
 //	@Success		201		{object}	domain.Order
 //	@Failure		400		{object}	Error
 //	@Failure		409		{object}	Error
@@ -127,7 +126,7 @@ func (h *OrderHandlerImpl) List(ctx *gin.Context) {
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *OrderHandlerImpl) Create(ctx *gin.Context) {
-	var data application.CreateOrderData
+	var data CreateOrderData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
@@ -136,7 +135,7 @@ func (h *OrderHandlerImpl) Create(ctx *gin.Context) {
 	// TODO: Get userID from auth context
 	userID := uuid.New() // Placeholder
 
-	order, err := h.orderApp.Create(ctx, application.CreateOrderParam{
+	order, err := h.orderApp.Create(ctx, CreateOrderRequestDto{
 		UserID: userID,
 		Data:   data,
 	})
@@ -154,8 +153,8 @@ func (h *OrderHandlerImpl) Create(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order_id	path		int							true	"Order ID"	format(uuid)
-//	@Param			status		body		application.UpdateOrderData	true	"Update order status request"
+//	@Param			order_id	path		int				true	"Order ID"	format(uuid)
+//	@Param			status		body		UpdateOrderData	true	"Update order status request"
 //	@Success		200			{object}	domain.Order
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
@@ -176,13 +175,13 @@ func (h *OrderHandlerImpl) Update(ctx *gin.Context) {
 		return
 	}
 
-	var data application.UpdateOrderData
+	var data UpdateOrderData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
 	}
 
-	order, err := h.orderApp.Update(ctx, application.UpdateOrderParam{
+	order, err := h.orderApp.Update(ctx, UpdateOrderRequestDto{
 		OrderID: orderID,
 		Data:    data,
 	})
@@ -219,7 +218,7 @@ func (h *OrderHandlerImpl) Delete(ctx *gin.Context) {
 		return
 	}
 
-	err = h.orderApp.Delete(ctx, application.DeleteOrderParam{
+	err = h.orderApp.Delete(ctx, DeleteOrderRequestDto{
 		OrderID: orderID,
 	})
 	if err != nil {

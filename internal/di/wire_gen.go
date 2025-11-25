@@ -41,8 +41,8 @@ func InitializeServer(ctx context.Context) *http.Server {
 	validate := client.NewValidate()
 	serviceCategory := service.ProvideCategory(validate)
 	cacheredisCategory := cacheredis.ProvideCategory(redisClient)
-	categoryImpl := application.ProvideCategory(category, serviceCategory, cacheredisCategory)
-	categoryHandlerImpl := http.ProvideCategoryHandler(categoryImpl)
+	applicationCategory := application.ProvideCategory(category, serviceCategory, cacheredisCategory)
+	categoryHandlerImpl := http.ProvideCategoryHandler(applicationCategory)
 	attribute := repositorypostgres.ProvideAttribute(queries, pool)
 	serviceAttribute := service.ProvideAttribute(validate)
 	product := cacheredis.ProvideProduct(redisClient)
@@ -50,24 +50,24 @@ func InitializeServer(ctx context.Context) *http.Server {
 	objectstorages3Product := objectstorages3.ProvideProduct(s3Client, presignClient, server)
 	repositorypostgresProduct := repositorypostgres.ProvideProduct(queries, pool)
 	serviceProduct := service.ProvideProduct(validate)
-	productImpl := application.ProvideProduct(attribute, serviceAttribute, category, product, objectstorages3Product, repositorypostgresProduct, serviceProduct)
-	productHandlerImpl := http.ProvideProductHandler(productImpl)
+	applicationProduct := application.ProvideProduct(attribute, serviceAttribute, category, product, objectstorages3Product, repositorypostgresProduct, serviceProduct)
+	productHandlerImpl := http.ProvideProductHandler(applicationProduct)
 	cacheredisAttribute := cacheredis.ProvideAttribute(redisClient)
-	attributeImpl := application.ProvideAttribute(attribute, serviceAttribute, cacheredisAttribute)
-	attributeHandlerImpl := http.ProvideAttributeHandler(attributeImpl)
+	applicationAttribute := application.ProvideAttribute(attribute, serviceAttribute, cacheredisAttribute)
+	attributeHandlerImpl := http.ProvideAttributeHandler(applicationAttribute)
 	order := repositorypostgres.ProvideOrder(queries)
 	serviceOrder := service.ProvideOrder(validate)
-	orderImpl := application.ProvideOrder(order, serviceOrder)
-	orderHandlerImpl := http.ProvideOrderHandler(orderImpl)
+	applicationOrder := application.ProvideOrder(order, serviceOrder)
+	orderHandlerImpl := http.ProvideOrderHandler(applicationOrder)
 	review := repositorypostgres.ProvideReview(queries)
 	serviceReview := service.ProvideReview(validate)
 	cacheredisReview := cacheredis.ProvideReview(redisClient)
-	reviewImpl := application.ProvideReview(review, serviceReview, cacheredisReview)
-	reviewHandlerImpl := http.ProvideReviewHandler(reviewImpl)
+	applicationReview := application.ProvideReview(review, serviceReview, cacheredisReview)
+	reviewHandlerImpl := http.ProvideReviewHandler(applicationReview)
 	cart := repositorypostgres.ProvideCart(queries)
 	serviceCart := service.ProvideCart(validate)
-	cartImpl := application.ProvideCart(cart, serviceCart)
-	cartHandlerImpl := http.ProvideCartHandler(cartImpl)
+	applicationCart := application.ProvideCart(cart, serviceCart)
+	cartHandlerImpl := http.ProvideCartHandler(applicationCart)
 	ginRouter := http.ProvideRouter(healthHandlerImpl, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, categoryHandlerImpl, productHandlerImpl, attributeHandlerImpl, orderHandlerImpl, reviewHandlerImpl, cartHandlerImpl)
 	authHandlerImpl := http.ProvideAuthHandler(server)
 	httpServer := http.NewServer(engine, ginRouter, server, authHandlerImpl)
@@ -148,23 +148,23 @@ var HandlerSet = wire.NewSet(http.ProvideAttributeHandler, wire.Bind(
 )
 
 var ApplicationSet = wire.NewSet(application.ProvideAttribute, wire.Bind(
-	new(application.Attribute),
-	new(*application.AttributeImpl),
+	new(http.AttributeApplication),
+	new(*application.Attribute),
 ), application.ProvideCart, wire.Bind(
-	new(application.Cart),
-	new(*application.CartImpl),
+	new(http.CartApplication),
+	new(*application.Cart),
 ), application.ProvideCategory, wire.Bind(
-	new(application.Category),
-	new(*application.CategoryImpl),
+	new(http.CategoryApplication),
+	new(*application.Category),
 ), application.ProvideOrder, wire.Bind(
-	new(application.Order),
-	new(*application.OrderImpl),
+	new(http.OrderApplication),
+	new(*application.Order),
 ), application.ProvideProduct, wire.Bind(
-	new(application.Product),
-	new(*application.ProductImpl),
+	new(http.ProductApplication),
+	new(*application.Product),
 ), application.ProvideReview, wire.Bind(
-	new(application.Review),
-	new(*application.ReviewImpl),
+	new(http.ReviewApplication),
+	new(*application.Review),
 ),
 )
 

@@ -1,4 +1,4 @@
-package application
+package http
 
 import (
 	"backend/internal/domain"
@@ -6,8 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
-type ListProductParam struct {
-	PaginationParam
+type ListProductRequestDto struct {
+	PaginationRequestDto
 	ProductIDs  *[]uuid.UUID        `binding:"omitempty"`
 	CategoryIDs *[]uuid.UUID        `binding:"omitempty"`
 	MinPrice    *int64              `binding:"omitempty"`
@@ -19,7 +19,7 @@ type ListProductParam struct {
 	Deleted     domain.DeletedParam `binding:"omitempty,oneof=exclude only all"`
 }
 
-type CreateProductParam struct {
+type CreateProductRequestDto struct {
 	Data CreateProductData `binding:"required"`
 }
 
@@ -63,7 +63,7 @@ type CreateProductVariantOption struct {
 
 type CreateProductVariantImage CreateProductImageData
 
-type UpdateProductParam struct {
+type UpdateProductRequestDto struct {
 	ProductID uuid.UUID         `json:"productId" binding:"required"`
 	Data      UpdateProductData `json:"data"      binding:"required"`
 }
@@ -74,15 +74,15 @@ type UpdateProductData struct {
 	CategoryID  *uuid.UUID `json:"categoryId,omitempty"`
 }
 
-type GetProductParam struct {
+type GetProductRequestDto struct {
 	ProductID uuid.UUID `binding:"required"`
 }
 
-type DeleteProductParam struct {
+type DeleteProductRequestDto struct {
 	ProductID uuid.UUID `binding:"required"`
 }
 
-type AddProductImagesParam struct {
+type AddProductImagesRequestDto struct {
 	ProductID uuid.UUID             `json:"productId,omitempty"`
 	Data      []AddProductImageData `json:"data"                binding:"required,dive"`
 }
@@ -93,12 +93,12 @@ type AddProductImageData struct {
 	ProductVariantID *uuid.UUID `json:"productVariantId,omitempty"`
 }
 
-type DeleteProductImagesParam struct {
+type DeleteProductImagesRequestDto struct {
 	ProductID uuid.UUID   `json:"productId,omitempty"`
 	ImageIDs  []uuid.UUID `json:"ids"                 binding:"required,dive"`
 }
 
-type AddProductVariantsParam struct {
+type AddProductVariantsRequestDto struct {
 	ProductID uuid.UUID                `json:"productId" binding:"required"`
 	Data      []AddProductVariantsData `json:"data"      binding:"required,dive"`
 }
@@ -110,7 +110,7 @@ type AddProductVariantsData struct {
 	OptionValueIDs []uuid.UUID `json:"optionValueIds,omitempty"`
 }
 
-type UpdateProductVariantParam struct {
+type UpdateProductVariantRequestDto struct {
 	ProductID        uuid.UUID                `json:"productId"        binding:"required"`
 	ProductVariantID uuid.UUID                `json:"ProductVariantId" binding:"required"`
 	Data             UpdateProductVariantData `json:"data"             binding:"required"`
@@ -121,7 +121,7 @@ type UpdateProductVariantData struct {
 	Quantity *int   `json:"quantity,omitempty"`
 }
 
-type UpdateProductOptionsParam struct {
+type UpdateProductOptionsRequestDto struct {
 	ProductID uuid.UUID                  `json:"productId" binding:"required"`
 	Data      []UpdateProductOptionsData `json:"data"      binding:"required,dive"`
 }
@@ -131,7 +131,7 @@ type UpdateProductOptionsData struct {
 	Name *string   `json:"name,omitempty"`
 }
 
-type UpdateProductOptionValuesParam struct {
+type UpdateProductOptionValuesRequestDto struct {
 	ProductID uuid.UUID                       `json:"productId" binding:"required"`
 	OptionID  uuid.UUID                       `json:"optionId"  binding:"required"`
 	Data      []UpdateProductOptionValuesData `json:"data"      binding:"required,dive"`

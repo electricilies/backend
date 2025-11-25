@@ -3,26 +3,27 @@ package application
 import (
 	"context"
 
+	"backend/internal/delivery/http"
 	"backend/internal/domain"
 )
 
-type AttributeImpl struct {
+type Attribute struct {
 	attributeRepo    domain.AttributeRepository
 	attributeService domain.AttributeService
 	attributeCache   AttributeCache
 }
 
-func ProvideAttribute(attributeRepo domain.AttributeRepository, attributeService domain.AttributeService, attributeCache AttributeCache) *AttributeImpl {
-	return &AttributeImpl{
+func ProvideAttribute(attributeRepo domain.AttributeRepository, attributeService domain.AttributeService, attributeCache AttributeCache) *Attribute {
+	return &Attribute{
 		attributeRepo:    attributeRepo,
 		attributeService: attributeService,
 		attributeCache:   attributeCache,
 	}
 }
 
-var _ Attribute = &AttributeImpl{}
+var _ http.AttributeApplication = &Attribute{}
 
-func (a *AttributeImpl) Create(ctx context.Context, param CreateAttributeParam) (*domain.Attribute, error) {
+func (a *Attribute) Create(ctx context.Context, param http.CreateAttributeRequestDto) (*domain.Attribute, error) {
 	attribute, err := domain.NewAttribute(param.Data.Code, param.Data.Name)
 	if err != nil {
 		return nil, err
@@ -40,7 +41,7 @@ func (a *AttributeImpl) Create(ctx context.Context, param CreateAttributeParam) 
 	return attribute, nil
 }
 
-func (a *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeValueParam) (*domain.AttributeValue, error) {
+func (a *Attribute) CreateValue(ctx context.Context, param http.CreateAttributeValueRequestDto) (*domain.AttributeValue, error) {
 	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
 	if err != nil {
 		return nil, err
@@ -63,7 +64,7 @@ func (a *AttributeImpl) CreateValue(ctx context.Context, param CreateAttributeVa
 	return attributeValue, nil
 }
 
-func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*Pagination[domain.Attribute], error) {
+func (a *Attribute) List(ctx context.Context, param http.ListAttributesRequestDto) (*http.PaginationResponseDto[domain.Attribute], error) {
 	cacheKey := a.attributeCache.BuildListCacheKey(
 		param.AttributeIDs,
 		param.Search,
@@ -96,7 +97,7 @@ func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*P
 	if err != nil {
 		return nil, err
 	}
-	pagination := newPagination(
+	pagination := newPaginationResponseDto(
 		*attributes,
 		*count,
 		param.Page,
@@ -112,7 +113,7 @@ func (a *AttributeImpl) List(ctx context.Context, param ListAttributesParam) (*P
 	return pagination, nil
 }
 
-func (a *AttributeImpl) Get(ctx context.Context, param GetAttributeParam) (*domain.Attribute, error) {
+func (a *Attribute) Get(ctx context.Context, param http.GetAttributeRequestDto) (*domain.Attribute, error) {
 	if cachedAttribute, err := a.attributeCache.GetAttribute(ctx, param.AttributeID); err == nil {
 		return cachedAttribute, nil
 	}
@@ -127,7 +128,7 @@ func (a *AttributeImpl) Get(ctx context.Context, param GetAttributeParam) (*doma
 	return attribute, nil
 }
 
-func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValuesParam) (*Pagination[domain.AttributeValue], error) {
+func (a *Attribute) ListValues(ctx context.Context, param http.ListAttributeValuesRequestDto) (*http.PaginationResponseDto[domain.AttributeValue], error) {
 	cacheKey := a.attributeCache.BuildValueListCacheKey(
 		param.AttributeID,
 		param.AttributeValueIDs,
@@ -158,7 +159,7 @@ func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValue
 	if err != nil {
 		return nil, err
 	}
-	pagination := newPagination(
+	pagination := newPaginationResponseDto(
 		*attribute,
 		*count,
 		param.Page,
@@ -168,7 +169,7 @@ func (a *AttributeImpl) ListValues(ctx context.Context, param ListAttributeValue
 	return pagination, nil
 }
 
-func (a *AttributeImpl) Update(ctx context.Context, param UpdateAttributeParam) (*domain.Attribute, error) {
+func (a *Attribute) Update(ctx context.Context, param http.UpdateAttributeRequestDto) (*domain.Attribute, error) {
 	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
 	if err != nil {
 		return nil, err
@@ -186,7 +187,7 @@ func (a *AttributeImpl) Update(ctx context.Context, param UpdateAttributeParam) 
 	return attribute, nil
 }
 
-func (a *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeValueParam) (*domain.AttributeValue, error) {
+func (a *Attribute) UpdateValue(ctx context.Context, param http.UpdateAttributeValueRequestDto) (*domain.AttributeValue, error) {
 	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
 	if err != nil {
 		return nil, err
@@ -209,7 +210,7 @@ func (a *AttributeImpl) UpdateValue(ctx context.Context, param UpdateAttributeVa
 	return attributeValue, nil
 }
 
-func (a *AttributeImpl) Delete(ctx context.Context, param DeleteAttributeParam) error {
+func (a *Attribute) Delete(ctx context.Context, param http.DeleteAttributeRequestDto) error {
 	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
 	if err != nil {
 		return err
@@ -227,7 +228,7 @@ func (a *AttributeImpl) Delete(ctx context.Context, param DeleteAttributeParam) 
 	return nil
 }
 
-func (a *AttributeImpl) DeleteValue(ctx context.Context, param DeleteAttributeValueParam) error {
+func (a *Attribute) DeleteValue(ctx context.Context, param http.DeleteAttributeValueRequestDto) error {
 	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
 	if err != nil {
 		return err

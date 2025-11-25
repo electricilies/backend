@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 
+	"backend/internal/delivery/http"
 	"backend/internal/domain"
 
 	"github.com/google/uuid"
@@ -17,16 +18,16 @@ type AttributeCache interface {
 	SetAttribute(ctx context.Context, attributeID uuid.UUID, attribute *domain.Attribute) error
 
 	// GetAttributeList retrieves a cached attribute list pagination result
-	GetAttributeList(ctx context.Context, cacheKey string) (*Pagination[domain.Attribute], error)
+	GetAttributeList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.Attribute], error)
 
 	// SetAttributeList caches an attribute list pagination result with the specified TTL in seconds
-	SetAttributeList(ctx context.Context, cacheKey string, pagination *Pagination[domain.Attribute]) error
+	SetAttributeList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.Attribute]) error
 
 	// GetAttributeValueList retrieves a cached attribute value list pagination result
-	GetAttributeValueList(ctx context.Context, cacheKey string) (*Pagination[domain.AttributeValue], error)
+	GetAttributeValueList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.AttributeValue], error)
 
 	// SetAttributeValueList caches an attribute value list pagination result with the specified TTL in seconds
-	SetAttributeValueList(ctx context.Context, cacheKey string, pagination *Pagination[domain.AttributeValue]) error
+	SetAttributeValueList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.AttributeValue]) error
 
 	// InvalidateAttribute removes the cached attribute by ID
 	InvalidateAttribute(ctx context.Context, attributeID uuid.UUID) error

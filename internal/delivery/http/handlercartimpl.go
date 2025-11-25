@@ -3,7 +3,6 @@ package http
 import (
 	"net/http"
 
-	"backend/internal/application"
 	_ "backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +10,7 @@ import (
 )
 
 type CartHandlerImpl struct {
-	cartApp               application.Cart
+	cartApp               CartApplication
 	ErrRequiredCartID     string
 	ErrInvalidCartID      string
 	ErrRequiredCartItemID string
@@ -20,7 +19,7 @@ type CartHandlerImpl struct {
 
 var _ CartHandler = &CartHandlerImpl{}
 
-func ProvideCartHandler(cartApp application.Cart) *CartHandlerImpl {
+func ProvideCartHandler(cartApp CartApplication) *CartHandlerImpl {
 	return &CartHandlerImpl{
 		cartApp:               cartApp,
 		ErrRequiredCartID:     "cart_id is required",
@@ -56,7 +55,7 @@ func (h *CartHandlerImpl) Get(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidCartID))
 		return
 	}
-	cart, err := h.cartApp.Get(ctx, application.GetCartParam{
+	cart, err := h.cartApp.Get(ctx, GetCartRequestDto{
 		CartID: cartID,
 	})
 	if err != nil {
@@ -73,7 +72,7 @@ func (h *CartHandlerImpl) Get(ctx *gin.Context) {
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
-//	@Param			item	body		application.CreateCartItemData	true	"Cart item request"
+//	@Param			item	body		CreateCartItemData	true	"Cart item request"
 //	@Success		201		{object}	domain.CartItem
 //	@Failure		400		{object}	Error
 //	@Failure		500		{object}	Error
@@ -92,7 +91,7 @@ func (h *CartHandlerImpl) CreateItem(ctx *gin.Context) {
 		return
 	}
 
-	var data application.CreateCartItemData
+	var data CreateCartItemData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
@@ -101,7 +100,7 @@ func (h *CartHandlerImpl) CreateItem(ctx *gin.Context) {
 	// TODO: Get userID from auth context
 	userID := uuid.New() // Placeholder
 
-	cartItem, err := h.cartApp.CreateItem(ctx, application.CreateCartItemParam{
+	cartItem, err := h.cartApp.CreateItem(ctx, CreateCartItemRequestDto{
 		UserID: userID,
 		CartID: cartID,
 		Data:   data,
@@ -120,8 +119,8 @@ func (h *CartHandlerImpl) CreateItem(ctx *gin.Context) {
 //	@Tags			Cart
 //	@Accept			json
 //	@Produce		json
-//	@Param			cart_item_id	path		int								true	"Cart Item ID"	format(uuid)
-//	@Param			item			body		application.UpdateCartItemData	true	"Update cart item request"
+//	@Param			cart_item_id	path		int					true	"Cart Item ID"	format(uuid)
+//	@Param			item			body		UpdateCartItemData	true	"Update cart item request"
 //	@Success		200				{object}	domain.CartItem
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
@@ -152,7 +151,7 @@ func (h *CartHandlerImpl) UpdateItem(ctx *gin.Context) {
 		return
 	}
 
-	var data application.UpdateCartItemData
+	var data UpdateCartItemData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(err.Error()))
 		return
@@ -161,7 +160,7 @@ func (h *CartHandlerImpl) UpdateItem(ctx *gin.Context) {
 	// TODO: Get userID from auth context
 	userID := uuid.New() // Placeholder
 
-	cartItem, err := h.cartApp.UpdateItem(ctx, application.UpdateCartItemParam{
+	cartItem, err := h.cartApp.UpdateItem(ctx, UpdateCartItemRequestDto{
 		UserID: userID,
 		CartID: cartID,
 		ItemID: itemID,
@@ -214,7 +213,7 @@ func (h *CartHandlerImpl) RemoveItem(ctx *gin.Context) {
 	// TODO: Get userID from auth context
 	userID := uuid.New() // Placeholder
 
-	err = h.cartApp.DeleteItem(ctx, application.DeleteCartItemParam{
+	err = h.cartApp.DeleteItem(ctx, DeleteCartItemRequestDto{
 		UserID: userID,
 		CartID: cartID,
 		ItemID: itemID,

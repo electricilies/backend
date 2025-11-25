@@ -142,33 +142,33 @@ var HandlerSet = wire.NewSet(
 var ApplicationSet = wire.NewSet(
 	application.ProvideAttribute,
 	wire.Bind(
-		new(application.Attribute),
-		new(*application.AttributeImpl),
+		new(http.AttributeApplication),
+		new(*application.Attribute),
 	),
 	application.ProvideCart,
 	wire.Bind(
-		new(application.Cart),
-		new(*application.CartImpl),
+		new(http.CartApplication),
+		new(*application.Cart),
 	),
 	application.ProvideCategory,
 	wire.Bind(
-		new(application.Category),
-		new(*application.CategoryImpl),
+		new(http.CategoryApplication),
+		new(*application.Category),
 	),
 	application.ProvideOrder,
 	wire.Bind(
-		new(application.Order),
-		new(*application.OrderImpl),
+		new(http.OrderApplication),
+		new(*application.Order),
 	),
 	application.ProvideProduct,
 	wire.Bind(
-		new(application.Product),
-		new(*application.ProductImpl),
+		new(http.ProductApplication),
+		new(*application.Product),
 	),
 	application.ProvideReview,
 	wire.Bind(
-		new(application.Review),
-		new(*application.ReviewImpl),
+		new(http.ReviewApplication),
+		new(*application.Review),
 	),
 )
 

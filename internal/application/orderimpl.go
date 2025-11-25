@@ -3,24 +3,25 @@ package application
 import (
 	"context"
 
+	"backend/internal/delivery/http"
 	"backend/internal/domain"
 )
 
-type OrderImpl struct {
+type Order struct {
 	orderRepo    domain.OrderRepository
 	orderService domain.OrderService
 }
 
-func ProvideOrder(orderRepo domain.OrderRepository, orderService domain.OrderService) *OrderImpl {
-	return &OrderImpl{
+func ProvideOrder(orderRepo domain.OrderRepository, orderService domain.OrderService) *Order {
+	return &Order{
 		orderRepo:    orderRepo,
 		orderService: orderService,
 	}
 }
 
-var _ Order = &OrderImpl{}
+var _ http.OrderApplication = &Order{}
 
-func (o *OrderImpl) Create(ctx context.Context, param CreateOrderParam) (*domain.Order, error) {
+func (o *Order) Create(ctx context.Context, param http.CreateOrderRequestDto) (*domain.Order, error) {
 	// Convert CreateOrderItemData to OrderItems
 	items := make([]domain.OrderItem, 0, len(param.Data.Items))
 	for _, itemData := range param.Data.Items {
@@ -50,7 +51,7 @@ func (o *OrderImpl) Create(ctx context.Context, param CreateOrderParam) (*domain
 	return order, nil
 }
 
-func (o *OrderImpl) Update(ctx context.Context, param UpdateOrderParam) (*domain.Order, error) {
+func (o *Order) Update(ctx context.Context, param http.UpdateOrderRequestDto) (*domain.Order, error) {
 	order, err := o.orderRepo.Get(ctx, param.OrderID)
 	if err != nil {
 		return nil, err
@@ -69,7 +70,7 @@ func (o *OrderImpl) Update(ctx context.Context, param UpdateOrderParam) (*domain
 	return order, nil
 }
 
-func (o *OrderImpl) Get(ctx context.Context, param GetOrderParam) (*domain.Order, error) {
+func (o *Order) Get(ctx context.Context, param http.GetOrderRequestDto) (*domain.Order, error) {
 	order, err := o.orderRepo.Get(ctx, param.OrderID)
 	if err != nil {
 		return nil, err
@@ -77,7 +78,7 @@ func (o *OrderImpl) Get(ctx context.Context, param GetOrderParam) (*domain.Order
 	return order, nil
 }
 
-func (o *OrderImpl) Delete(ctx context.Context, param DeleteOrderParam) error {
+func (o *Order) Delete(ctx context.Context, param http.DeleteOrderRequestDto) error {
 	order, err := o.orderRepo.Get(ctx, param.OrderID)
 	if err != nil {
 		return err
@@ -91,13 +92,13 @@ func (o *OrderImpl) Delete(ctx context.Context, param DeleteOrderParam) error {
 	return err
 }
 
-func (o *OrderImpl) List(ctx context.Context, param ListOrderParam) (*Pagination[domain.Order], error) {
+func (o *Order) List(ctx context.Context, param http.ListOrderRequestDto) (*http.PaginationResponseDto[domain.Order], error) {
 	// TODO: OrderRepository.List uses search and deleted params, not userIDs and statusIDs
 	// We need to adapt the parameters
 	orders, err := o.orderRepo.List(
 		ctx,
 		param.IDs,
-		nil, // search parameter - not in ListOrderParam
+		nil, // search parameter - not in http.ListOrderRequestDto
 		domain.DeletedExcludeParam,
 		param.Limit,
 		param.Page,
@@ -115,7 +116,7 @@ func (o *OrderImpl) List(ctx context.Context, param ListOrderParam) (*Pagination
 		return nil, err
 	}
 
-	pagination := newPagination(
+	pagination := newPaginationResponseDto(
 		*orders,
 		*count,
 		param.Page,
