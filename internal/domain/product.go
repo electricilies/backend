@@ -8,18 +8,18 @@ import (
 )
 
 type Product struct {
-	ID                uuid.UUID        `json:"id"                binding:"required"                      validate:"required"`
-	Name              string           `json:"name"              binding:"required"                      validate:"required,gte=3,lte=200"`
-	Description       string           `json:"description"       binding:"required"                      validate:"required,gte=10"`
-	ViewsCount        int              `json:"viewsCount"        binding:"required"                      validate:"gte=0"`
-	TotalPurchase     int              `json:"totalPurchase"     binding:"required"                      validate:"gte=0"`
-	TrendingScore     int64            `json:"trendingScore"     binding:"required"                      validate:"gte=0"`
-	Price             int64            `json:"price"             binding:"required"                      validate:"required,gt=0"`
-	Rating            float64          `json:"rating"            binding:"required"                      validate:"gte=0,lte=5"`
+	ID                uuid.UUID        `json:"id"                validate:"required"`
+	Name              string           `json:"name"              validate:"required,gte=3,lte=200"`
+	Description       string           `json:"description"       validate:"required,gte=10"`
+	ViewsCount        int              `json:"viewsCount"        validate:"gte=0"`
+	TotalPurchase     int              `json:"totalPurchase"     validate:"gte=0"`
+	TrendingScore     int64            `json:"trendingScore"     validate:"gte=0"`
+	Price             int64            `json:"price"             validate:"required,gt=0"`
+	Rating            float64          `json:"rating"            validate:"gte=0,lte=5"`
 	Options           []Option         `json:"options"           validate:"omitempty,dive"`
 	Images            []ProductImage   `json:"images"            validate:"omitempty,dive"`
-	CreatedAt         time.Time        `json:"createdAt"         binding:"required"                      validate:"required"`
-	UpdatedAt         time.Time        `json:"updatedAt"         binding:"required"                      validate:"required,gtefield=CreatedAt"`
+	CreatedAt         time.Time        `json:"createdAt"         validate:"required"`
+	UpdatedAt         time.Time        `json:"updatedAt"         validate:"required,gtefield=CreatedAt"`
 	DeletedAt         *time.Time       `json:"deletedAt"         validate:"omitempty,gtefield=CreatedAt"`
 	CategoryID        uuid.UUID        `json:"categoryId"`
 	AttributeIDs      []uuid.UUID      `json:"attributeIds"      validate:"omitempty,dive,required"`
@@ -28,37 +28,37 @@ type Product struct {
 }
 
 type Option struct {
-	ID        uuid.UUID     `json:"id"        binding:"required"        validate:"required"`
-	Name      string        `json:"name"      binding:"required"        validate:"required"`
+	ID        uuid.UUID     `json:"id"        validate:"required"`
+	Name      string        `json:"name"      validate:"required"`
 	Values    []OptionValue `json:"values"    validate:"omitempty,dive"`
 	DeletedAt *time.Time    `json:"deletedAt" validate:"omitempty"`
 }
 
 type OptionValue struct {
-	ID        uuid.UUID  `json:"id"        binding:"required"   validate:"required"`
-	Value     string     `json:"value"     binding:"required"   validate:"required"`
+	ID        uuid.UUID  `json:"id"        validate:"required"`
+	Value     string     `json:"value"     validate:"required"`
 	DeletedAt *time.Time `json:"deletedAt" validate:"omitempty"`
 }
 
 type ProductVariant struct {
-	ID            uuid.UUID      `json:"id"            binding:"required"                      validate:"required"`
-	SKU           string         `json:"sku"           binding:"required"                      validate:"required"`
-	Price         int64          `json:"price"         binding:"required"                      validate:"required,gt=0"`
-	Quantity      int            `json:"quantity"      binding:"required"                      validate:"gte=0"`
-	PurchaseCount int            `json:"purchaseCount" binding:"required"                      validate:"gte=0"`
-	CreatedAt     time.Time      `json:"createdAt"     binding:"required"                      validate:"required"`
-	UpdatedAt     time.Time      `json:"updatedAt"     binding:"required"                      validate:"required,gtefield=CreatedAt"`
+	ID            uuid.UUID      `json:"id"            validate:"required"`
+	SKU           string         `json:"sku"           validate:"required"`
+	Price         int64          `json:"price"         validate:"required,gt=0"`
+	Quantity      int            `json:"quantity"      validate:"gte=0"`
+	PurchaseCount int            `json:"purchaseCount" validate:"gte=0"`
+	CreatedAt     time.Time      `json:"createdAt"     validate:"required"`
+	UpdatedAt     time.Time      `json:"updatedAt"     validate:"required,gtefield=CreatedAt"`
 	DeletedAt     *time.Time     `json:"deletedAt"     validate:"omitempty,gtefield=CreatedAt"`
 	OptionValues  []OptionValue  `json:"optionValues"  validate:"omitempty,dive"`
 	Images        []ProductImage `json:"images"        validate:"omitempty,dive"`
 }
 
 type ProductImage struct {
-	ID        uuid.UUID  `json:"id"         binding:"required"                      validate:"required"`
-	URL       string     `json:"url"        binding:"required"                      validate:"required,url"`
-	Order     int        `json:"order"      binding:"required"                      validate:"required,gte=0"`
-	CreatedAt time.Time  `json:"createdAt"  binding:"required"                      validate:"required"`
-	DeletedAt *time.Time `json:"deletedAt " validate:"omitempty,gtefield=CreatedAt"`
+	ID        uuid.UUID  `json:"id"        validate:"required"`
+	URL       string     `json:"url"       validate:"required,url"`
+	Order     int        `json:"order"     validate:"required,gte=0"`
+	CreatedAt time.Time  `json:"createdAt" validate:"required"`
+	DeletedAt *time.Time `json:"deletedAt" validate:"omitempty,gtefield=CreatedAt"`
 }
 
 func NewProduct(
@@ -198,7 +198,13 @@ func (p *Product) UpdateVariant(
 	price *int64,
 	quantity *int,
 ) error {
-	variant := p.GetVariantByID(variantID)
+	var variant *ProductVariant
+	for i := range p.Variants {
+		if p.Variants[i].ID == variantID {
+			variant = &p.Variants[i]
+			break
+		}
+	}
 	if variant == nil {
 		return multierror.Append(ErrNotFound, nil)
 	}
@@ -221,7 +227,13 @@ func (p *Product) UpdateOption(
 	optionID uuid.UUID,
 	name *string,
 ) error {
-	option := p.GetOptionByID(optionID)
+	var option *Option
+	for i := range p.Options {
+		if p.Options[i].ID == optionID {
+			option = &p.Options[i]
+			break
+		}
+	}
 	if option == nil {
 		return multierror.Append(ErrNotFound, nil)
 	}
@@ -236,11 +248,23 @@ func (p *Product) UpdateOptionValue(
 	optionValueID uuid.UUID,
 	value *string,
 ) error {
-	option := p.GetOptionByID(optionID)
+	var option *Option
+	for i := range p.Options {
+		if p.Options[i].ID == optionID {
+			option = &p.Options[i]
+			break
+		}
+	}
 	if option == nil {
 		return multierror.Append(ErrNotFound, nil)
 	}
-	optionValue := option.GetValueByID(optionValueID)
+	var optionValue *OptionValue
+	for i := range option.Values {
+		if option.Values[i].ID == optionValueID {
+			optionValue = &option.Values[i]
+			break
+		}
+	}
 	if optionValue == nil {
 		return multierror.Append(ErrNotFound, nil)
 	}

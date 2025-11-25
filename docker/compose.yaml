@@ -105,7 +105,6 @@ services:
       - 6379:6379
     restart: unless-stopped
     profiles:
-      - services
       - all
 
 volumes:

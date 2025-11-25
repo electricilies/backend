@@ -7,7 +7,6 @@ import (
 
 	"backend/internal/application"
 	"backend/internal/delivery/http"
-	"backend/internal/domain"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -28,7 +27,7 @@ func ProvideCategory(redisClient *redis.Client) *Category {
 var _ application.CategoryCache = (*Category)(nil)
 
 // GetCategory retrieves a cached category by ID
-func (c *Category) GetCategory(ctx context.Context, categoryID uuid.UUID) (*domain.Category, error) {
+func (c *Category) GetCategory(ctx context.Context, categoryID uuid.UUID) (*http.CategoryResponseDto, error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -43,7 +42,7 @@ func (c *Category) GetCategory(ctx context.Context, categoryID uuid.UUID) (*doma
 		return nil, redis.Nil
 	}
 
-	var category domain.Category
+	var category http.CategoryResponseDto
 	if err := json.Unmarshal([]byte(cachedData), &category); err != nil {
 		return nil, err
 	}
@@ -52,7 +51,7 @@ func (c *Category) GetCategory(ctx context.Context, categoryID uuid.UUID) (*doma
 }
 
 // SetCategory caches a category with the specified TTL in seconds
-func (c *Category) SetCategory(ctx context.Context, categoryID uuid.UUID, category *domain.Category) error {
+func (c *Category) SetCategory(ctx context.Context, categoryID uuid.UUID, category *http.CategoryResponseDto) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -67,7 +66,7 @@ func (c *Category) SetCategory(ctx context.Context, categoryID uuid.UUID, catego
 }
 
 // GetCategoryList retrieves a cached category list pagination result
-func (c *Category) GetCategoryList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.Category], error) {
+func (c *Category) GetCategoryList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[http.CategoryResponseDto], error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -81,7 +80,7 @@ func (c *Category) GetCategoryList(ctx context.Context, cacheKey string) (*http.
 		return nil, redis.Nil
 	}
 
-	var pagination http.PaginationResponseDto[domain.Category]
+	var pagination http.PaginationResponseDto[http.CategoryResponseDto]
 	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
 		return nil, err
 	}
@@ -90,7 +89,7 @@ func (c *Category) GetCategoryList(ctx context.Context, cacheKey string) (*http.
 }
 
 // SetCategoryList caches a category list pagination result with the specified TTL in seconds
-func (c *Category) SetCategoryList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.Category]) error {
+func (c *Category) SetCategoryList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[http.CategoryResponseDto]) error {
 	if c.redisClient == nil {
 		return nil
 	}

@@ -143,6 +143,61 @@ type InsertTempTableAttributeValuesParams struct {
 	DeletedAt   pgtype.Timestamptz
 }
 
+const listAttributeByAttributeValues = `-- name: ListAttributeByAttributeValues :many
+SELECT
+  attributes.id, attributes.code, attributes.name, attributes.deleted_at
+FROM
+  attributes
+JOIN
+  attribute_values ON attribute_values.attribute_id = attributes.id
+WHERE
+  CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
+    ELSE attribute_values.id = ANY ($1::uuid[])
+  END
+  AND CASE
+    WHEN $2::text = 'exclude' THEN attributes.deleted_at IS NULL
+    WHEN $2::text = 'only' THEN attributes.deleted_at IS NOT NULL
+    WHEN $2::text = 'all' THEN TRUE
+    ELSE attributes.deleted_at IS NULL
+  END
+GROUP BY
+  attributes.id
+ORDER BY
+  attributes.id ASC
+`
+
+type ListAttributeByAttributeValuesParams struct {
+	AttributeValueIDs []uuid.UUID
+	Deleted           string
+}
+
+func (q *Queries) ListAttributeByAttributeValues(ctx context.Context, arg ListAttributeByAttributeValuesParams) ([]Attribute, error) {
+	rows, err := q.db.Query(ctx, listAttributeByAttributeValues, arg.AttributeValueIDs, arg.Deleted)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Attribute
+	for rows.Next() {
+		var i Attribute
+		if err := rows.Scan(
+			&i.ID,
+			&i.Code,
+			&i.Name,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listAttributeValues = `-- name: ListAttributeValues :many
 SELECT
   id, attribute_id, value, deleted_at
@@ -225,44 +280,64 @@ func (q *Queries) ListAttributeValues(ctx context.Context, arg ListAttributeValu
 
 const listAttributes = `-- name: ListAttributes :many
 SELECT
-  id, code, name, deleted_at
+  attributes.id, attributes.code, attributes.name, attributes.deleted_at
 FROM
   attributes
+LEFT JOIN (
+  SELECT
+    id,
+    attribute_id
+  FROM
+    attribute_values
+  WHERE
+    CASE
+      WHEN $1::uuid[] IS NULL THEN TRUE
+      WHEN cardinality($1::uuid[]) = 0 THEN TRUE
+      ELSE attribute_values.id = ANY ($1::uuid[])
+    END
+) AS av ON attributes.id = av.attribute_id
 WHERE
   CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
+    ELSE attributes.id = ANY ($2::uuid[])
+  END
+  AND CASE
+    WHEN $3::text IS NULL THEN TRUE
+    ELSE
+      code ||| ($3::text)
+      OR name ||| ($3::text)
+  END
+  AND CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
-    ELSE id = ANY ($1::uuid[])
+    ELSE av.id IS NOT NULL
   END
   AND CASE
-    WHEN $2::text IS NULL THEN TRUE
-    ELSE
-      code ||| ($2::text)
-      OR name ||| ($2::text)
-  END
-  AND CASE
-    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
-    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
-    WHEN $3::text = 'all' THEN TRUE
+    WHEN $4::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $4::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $4::text = 'all' THEN TRUE
     ELSE deleted_at IS NULL
   END
 ORDER BY
-  CASE WHEN $2::text IS NOT NULL THEN pdb.score(id) END DESC,
-  id ASC
-OFFSET $4::integer
-LIMIT NULLIF($5::integer, 0)
+  CASE WHEN $3::text IS NOT NULL THEN pdb.score(attributes.id) END DESC,
+  attributes.id ASC
+OFFSET $5::integer
+LIMIT NULLIF($6::integer, 0)
 `
 
 type ListAttributesParams struct {
-	IDs     []uuid.UUID
-	Search  *string
-	Deleted string
-	Offset  int32
-	Limit   int32
+	AttributeValueIDs []uuid.UUID
+	IDs               []uuid.UUID
+	Search            *string
+	Deleted           string
+	Offset            int32
+	Limit             int32
 }
 
 func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) ([]Attribute, error) {
 	rows, err := q.db.Query(ctx, listAttributes,
+		arg.AttributeValueIDs,
 		arg.IDs,
 		arg.Search,
 		arg.Deleted,

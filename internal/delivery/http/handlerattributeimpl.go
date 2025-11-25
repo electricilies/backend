@@ -38,7 +38,7 @@ func ProvideAttributeHandler(attributeApp AttributeApplication) *AttributeHandle
 //	@Accept			json
 //	@Produce		json
 //	@Param			attribute_id	path		string	true	"Attribute ID"	format(uuid)
-//	@Success		200				{object}	domain.Attribute
+//	@Success		200				{object}	AttributeResponseDto
 //	@Failure		404				{object}	Error
 //	@Failure		500				{object}	Error
 //	@Router			/attributes/{attribute_id} [get]
@@ -77,7 +77,7 @@ func (h *AttributeHandlerImpl) Get(ctx *gin.Context) {
 //	@Param			product_ids		query		[]string	false	"Product IDs"			collectionFormat(csv)
 //	@Param			search			query		string		false	"Search term"
 //	@Param			deleted			query		string		false	"Filter by deletion status"	Enums(exclude, only, all)
-//	@Success		200				{object}	Pagination[domain.Attribute]
+//	@Success		200				{object}	PaginationResponseDto[AttributeResponseDto]
 //	@Failure		500				{object}	Error
 //	@Router			/attributes [get]
 //	@Security		OAuth2AccessCode
@@ -126,7 +126,7 @@ func (h *AttributeHandlerImpl) List(ctx *gin.Context) {
 //	@Param			attribute_value_id	query		[]string	false	"Product ID"	collectionFormat(csv)	format(uuid)
 //	@Param			search				query		string		false	"Search term"
 //	@Param			deleted				query		string		false	"Filter by deletion status"	Enums(exclude, only, all)
-//	@Success		200					{object}	Pagination[domain.AttributeValue]
+//	@Success		200					{object}	PaginationResponseDto[AttributeValueResponseDto]
 //	@Failure		500					{object}	Error
 //	@Router			/attributes/{attribute_id}/values [get]
 //	@Security		OAuth2AccessCode
@@ -182,7 +182,7 @@ func (h *AttributeHandlerImpl) ListValues(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			attribute	body		CreateAttributeData	true	"Attribute request"
-//	@Success		201			{object}	domain.Attribute
+//	@Success		201			{object}	AttributeResponseDto
 //	@Failure		400			{object}	Error
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
@@ -215,7 +215,7 @@ func (h *AttributeHandlerImpl) Create(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			attribute_id	path		string						true	"Attribute ID"	format(uuid)
 //	@Param			value			body		CreateAttributeValueData	true	"Attribute value request"
-//	@Success		201				{object}	domain.AttributeValue
+//	@Success		201				{object}	AttributeValueResponseDto
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
 //	@Failure		409				{object}	Error
@@ -260,7 +260,7 @@ func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			attribute_id	path		string						true	"Attribute ID"	format(uuid)
 //	@Param			attribute		body		UpdateAttributeValueData	true	"Update attribute request"
-//	@Success		200				{object}	domain.Attribute
+//	@Success		200				{object}	AttributeResponseDto
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
 //	@Failure		409				{object}	Error
@@ -388,7 +388,7 @@ func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
 //	@Param			attribute_id	path		string						true	"Attribute ID"			format(uuid)
 //	@Param			value_id		path		string						true	"Attribute Value ID"	format(uuid)
 //	@Param			value			body		UpdateAttributeValueData	true	"Update attribute values request"
-//	@Success		200				{array}		domain.Attribute
+//	@Success		200				{array}		AttributeValueResponseDto
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
 //	@Failure		409				{object}	Error

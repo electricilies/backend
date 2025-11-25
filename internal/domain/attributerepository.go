@@ -16,6 +16,7 @@ type AttributeRepository interface {
 	List(
 		ctx context.Context,
 		ids *[]uuid.UUID,
+		attributeValueIDs *[]uuid.UUID,
 		search *string,
 		deleted DeletedParam,
 		limit int,

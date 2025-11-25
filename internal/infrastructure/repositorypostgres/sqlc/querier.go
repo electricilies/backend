@@ -43,6 +43,7 @@ type Querier interface {
 	InsertTempTableProductImages(ctx context.Context, arg []InsertTempTableProductImagesParams) (int64, error)
 	InsertTempTableProductVariants(ctx context.Context, arg []InsertTempTableProductVariantsParams) (int64, error)
 	InsertTempTableProductsAttributeValues(ctx context.Context, arg []InsertTempTableProductsAttributeValuesParams) (int64, error)
+	ListAttributeByAttributeValues(ctx context.Context, arg ListAttributeByAttributeValuesParams) ([]Attribute, error)
 	ListAttributeValues(ctx context.Context, arg ListAttributeValuesParams) ([]AttributeValue, error)
 	ListAttributes(ctx context.Context, arg ListAttributesParams) ([]Attribute, error)
 	ListCartItems(ctx context.Context, arg ListCartItemsParams) ([]CartItem, error)

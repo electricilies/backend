@@ -44,7 +44,7 @@ func ProvideProduct(
 
 var _ http.ProductApplication = (*Product)(nil)
 
-func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*http.PaginationResponseDto[domain.Product], error) {
+func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*http.PaginationResponseDto[http.ProductResponseDto], error) {
 	cacheKey := p.productCache.BuildListCacheKey(
 		param.ProductIDs,
 		param.Search,
@@ -95,8 +95,62 @@ func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*
 		return nil, err
 	}
 
+	categoryIDs := make([]uuid.UUID, 0, len(*products))
+	for _, product := range *products {
+		categoryIDs = append(categoryIDs, product.CategoryID)
+	}
+
+	categories, err := p.categoryRepo.List(
+		ctx,
+		&categoryIDs,
+		nil,
+		0, 0,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	categoryMap := make(map[uuid.UUID]*domain.Category)
+	for i := range *categories {
+		categoryMap[(*categories)[i].ID] = &(*categories)[i]
+	}
+
+	attributeValuesIDs := make([]uuid.UUID, 0, len(*products))
+	for _, product := range *products {
+		attributeValuesIDs = append(attributeValuesIDs, product.AttributeValueIDs...)
+	}
+
+	attributes, err := p.attributeRepo.List(
+		ctx,
+		nil,
+		&attributeValuesIDs,
+		nil,
+		domain.DeletedExcludeParam,
+		0, 0,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// Map domain models to response DTOs
+	productDtos := make([]http.ProductResponseDto, 0, len(*products))
+	for _, product := range *products {
+		dto := http.ToProductResponseDto(&product)
+		if dto != nil {
+			// Merge category
+			if category, exists := categoryMap[product.CategoryID]; exists {
+				dto.WithCategory(category)
+			}
+			// Merge attributes
+			if attributes != nil {
+				dto.WithAttributes(*attributes, product.AttributeValueIDs)
+			}
+			productDtos = append(productDtos, *dto)
+		}
+	}
+
 	pagination := newPaginationResponseDto(
-		*products,
+		productDtos,
 		*count,
 		param.Page,
 		param.Limit,
@@ -108,30 +162,57 @@ func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*
 	return pagination, nil
 }
 
-func (p *Product) Get(ctx context.Context, param http.GetProductRequestDto) (*domain.Product, error) {
+func (p *Product) Get(ctx context.Context, param http.GetProductRequestDto) (*http.ProductResponseDto, error) {
 	if cachedProduct, err := p.productCache.GetProduct(ctx, param.ProductID); err == nil {
 		return cachedProduct, nil
 	}
-	// HACK: we assume that product repo also get the category :v
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return nil, err
 	}
-	_ = p.productCache.SetProduct(ctx, param.ProductID, product)
 
-	return product, nil
-}
-
-func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto) (*domain.Product, error) {
-	category, err := p.categoryRepo.Get(ctx, param.Data.CategoryID)
+	category, err := p.categoryRepo.Get(ctx, product.CategoryID)
 	if err != nil {
 		return nil, err
 	}
+
+	attributes, err := p.attributeRepo.List(
+		ctx,
+		nil,
+		&product.AttributeValueIDs,
+		nil,
+		domain.DeletedExcludeParam,
+		0, 0,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	productDto := http.ToProductResponseDto(product)
+	productDto.WithCategory(category)
+	if attributes != nil {
+		productDto.WithAttributes(
+			*attributes,
+			product.AttributeValueIDs,
+		)
+	}
+	_ = p.productCache.SetProduct(ctx, param.ProductID, productDto)
+
+	return productDto, nil
+}
+
+func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto) (*http.ProductResponseDto, error) {
 	product, err := domain.NewProduct(
 		param.Data.Name,
 		param.Data.Description,
-		category.ID,
+		param.Data.CategoryID,
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get and validate category
+	category, err := p.categoryRepo.Get(ctx, param.Data.CategoryID)
 	if err != nil {
 		return nil, err
 	}
@@ -142,6 +223,23 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 			attributeIDs = append(attributeIDs, a.AttributeID)
 			attributeValueIDs = append(attributeValueIDs, a.ValueID)
 		}
+
+		// Validate that attributes exist
+		attributes, err := p.attributeRepo.List(
+			ctx,
+			&attributeIDs,
+			nil,
+			nil,
+			domain.DeletedExcludeParam,
+			0, 0,
+		)
+		if err != nil {
+			return nil, err
+		}
+		if len(*attributes) != len(attributeIDs) {
+			return nil, domain.ErrNotFound
+		}
+
 		product.AddAttributeIDs(attributeIDs...)
 		product.AddAttributeValueIDs(attributeValueIDs...)
 	}
@@ -214,10 +312,37 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 		return nil, err
 	}
 	_ = p.productCache.InvalidateProductList(ctx)
-	return product, nil
+
+	// Fetch the created product with all relations
+	var attributes *[]domain.Attribute
+	if len(product.AttributeIDs) > 0 {
+		attributes, err = p.attributeRepo.List(
+			ctx,
+			&product.AttributeIDs,
+			nil,
+			nil,
+			domain.DeletedExcludeParam,
+			0, 0,
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	productDto := http.ToProductResponseDto(product)
+	productDto.WithCategory(category)
+	if attributes != nil {
+		productDto.WithAttributes(*attributes, product.AttributeValueIDs)
+	}
+	return productDto, nil
 }
 
-func (p *Product) Update(ctx context.Context, param http.UpdateProductRequestDto) (*domain.Product, error) {
+func (p *Product) Update(ctx context.Context, param http.UpdateProductRequestDto) (*http.ProductResponseDto, error) {
+	product, err := p.productRepo.Get(ctx, param.ProductID)
+	if err != nil {
+		return nil, err
+	}
+
 	var category *domain.Category
 	if param.Data.CategoryID != nil {
 		cat, err := p.categoryRepo.Get(ctx, *param.Data.CategoryID)
@@ -225,8 +350,15 @@ func (p *Product) Update(ctx context.Context, param http.UpdateProductRequestDto
 			return nil, err
 		}
 		category = cat
+	} else {
+		// Get existing category
+		cat, err := p.categoryRepo.Get(ctx, product.CategoryID)
+		if err != nil {
+			return nil, err
+		}
+		category = cat
 	}
-	product, err := p.productRepo.Get(ctx, param.ProductID)
+	err = p.productService.Validate(*product)
 	if err != nil {
 		return nil, err
 	}
@@ -241,11 +373,37 @@ func (p *Product) Update(ctx context.Context, param http.UpdateProductRequestDto
 	}
 	_ = p.productCache.InvalidateProduct(ctx, param.ProductID)
 	_ = p.productCache.InvalidateProductList(ctx)
-	return product, nil
+
+	// Fetch attributes if any
+	var attributes *[]domain.Attribute
+	if len(product.AttributeIDs) > 0 {
+		attributes, err = p.attributeRepo.List(
+			ctx,
+			&product.AttributeIDs,
+			nil,
+			nil,
+			domain.DeletedExcludeParam,
+			0, 0,
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	productDto := http.ToProductResponseDto(product)
+	productDto.WithCategory(category)
+	if attributes != nil {
+		productDto.WithAttributes(*attributes, product.AttributeValueIDs)
+	}
+	return productDto, nil
 }
 
 func (p *Product) Delete(ctx context.Context, param http.DeleteProductRequestDto) error {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
+	if err != nil {
+		return err
+	}
+	err = p.productService.Validate(*product)
 	if err != nil {
 		return err
 	}
@@ -259,7 +417,7 @@ func (p *Product) Delete(ctx context.Context, param http.DeleteProductRequestDto
 	return nil
 }
 
-func (p *Product) AddVariants(ctx context.Context, param http.AddProductVariantsRequestDto) (*[]domain.ProductVariant, error) {
+func (p *Product) AddVariants(ctx context.Context, param http.AddProductVariantsRequestDto) (*[]http.ProductVariantResponseDto, error) {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return nil, err
@@ -283,10 +441,11 @@ func (p *Product) AddVariants(ctx context.Context, param http.AddProductVariants
 	}
 	_ = p.productCache.InvalidateProduct(ctx, param.ProductID)
 	_ = p.productCache.InvalidateProductList(ctx)
-	return &variants, nil
+	variantDtos := http.ToProductVariantResponseDtoList(variants)
+	return &variantDtos, nil
 }
 
-func (p *Product) UpdateVariant(ctx context.Context, param http.UpdateProductVariantRequestDto) (*domain.ProductVariant, error) {
+func (p *Product) UpdateVariant(ctx context.Context, param http.UpdateProductVariantRequestDto) (*http.ProductVariantResponseDto, error) {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return nil, err
@@ -311,10 +470,10 @@ func (p *Product) UpdateVariant(ctx context.Context, param http.UpdateProductVar
 	}
 	// Invalidate product list caches
 	_ = p.productCache.InvalidateProductList(ctx)
-	return variant, nil
+	return http.ToProductVariantResponseDto(variant), nil
 }
 
-func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequestDto) (*[]domain.ProductImage, error) {
+func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequestDto) (*[]http.ProductImageResponseDto, error) {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return nil, err
@@ -343,7 +502,8 @@ func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequ
 	}
 	// Invalidate product caches
 	_ = p.productCache.InvalidateAllProducts(ctx)
-	return &images, nil
+	imageDtos := http.ToProductImageResponseDtoList(images)
+	return &imageDtos, nil
 }
 
 func (p *Product) DeleteImages(ctx context.Context, param http.DeleteProductImagesRequestDto) error {
@@ -375,7 +535,7 @@ func (p *Product) DeleteImages(ctx context.Context, param http.DeleteProductImag
 	return nil
 }
 
-func (p *Product) UpdateOptions(ctx context.Context, param http.UpdateProductOptionsRequestDto) (*[]domain.Option, error) {
+func (p *Product) UpdateOptions(ctx context.Context, param http.UpdateProductOptionsRequestDto) (*[]http.ProductOptionResponseDto, error) {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return nil, err
@@ -399,10 +559,11 @@ func (p *Product) UpdateOptions(ctx context.Context, param http.UpdateProductOpt
 		return nil, err
 	}
 	_ = p.productCache.InvalidateAllProducts(ctx)
-	return slice.SlicePtrToPtrSlice(options), nil
+	optionDtos := http.ToProductOptionResponseDtoList(*slice.SlicePtrToPtrSlice(options))
+	return &optionDtos, nil
 }
 
-func (p *Product) UpdateOptionValues(ctx context.Context, param http.UpdateProductOptionValuesRequestDto) (*[]domain.OptionValue, error) {
+func (p *Product) UpdateOptionValues(ctx context.Context, param http.UpdateProductOptionValuesRequestDto) (*[]http.ProductOptionValueResponseDto, error) {
 	product, err := p.productRepo.Get(ctx, param.ProductID)
 	if err != nil {
 		return nil, err
@@ -427,7 +588,8 @@ func (p *Product) UpdateOptionValues(ctx context.Context, param http.UpdateProdu
 		return nil, err
 	}
 	_ = p.productCache.InvalidateAllProducts(ctx)
-	return slice.SlicePtrToPtrSlice(optionValues), nil
+	optionValueDtos := http.ToProductOptionValueResponseDtoList(*slice.SlicePtrToPtrSlice(optionValues))
+	return &optionValueDtos, nil
 }
 
 func (p *Product) GetUploadImageURL(ctx context.Context) (*http.UploadImageURLResponseDto, error) {

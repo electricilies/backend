@@ -28,7 +28,7 @@ func ProvideProduct(redisClient *redis.Client) *Product {
 var _ application.ProductCache = (*Product)(nil)
 
 // GetProduct retrieves a cached product by ID
-func (c *Product) GetProduct(ctx context.Context, productID uuid.UUID) (*domain.Product, error) {
+func (c *Product) GetProduct(ctx context.Context, productID uuid.UUID) (*http.ProductResponseDto, error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -43,7 +43,7 @@ func (c *Product) GetProduct(ctx context.Context, productID uuid.UUID) (*domain.
 		return nil, redis.Nil
 	}
 
-	var product domain.Product
+	var product http.ProductResponseDto
 	if err := json.Unmarshal([]byte(cachedData), &product); err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (c *Product) GetProduct(ctx context.Context, productID uuid.UUID) (*domain.
 }
 
 // SetProduct caches a product with the specified TTL in seconds
-func (c *Product) SetProduct(ctx context.Context, productID uuid.UUID, product *domain.Product) error {
+func (c *Product) SetProduct(ctx context.Context, productID uuid.UUID, product *http.ProductResponseDto) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -67,7 +67,7 @@ func (c *Product) SetProduct(ctx context.Context, productID uuid.UUID, product *
 }
 
 // GetProductList retrieves a cached product list pagination result
-func (c *Product) GetProductList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.Product], error) {
+func (c *Product) GetProductList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[http.ProductResponseDto], error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -81,7 +81,7 @@ func (c *Product) GetProductList(ctx context.Context, cacheKey string) (*http.Pa
 		return nil, redis.Nil
 	}
 
-	var pagination http.PaginationResponseDto[domain.Product]
+	var pagination http.PaginationResponseDto[http.ProductResponseDto]
 	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (c *Product) GetProductList(ctx context.Context, cacheKey string) (*http.Pa
 }
 
 // SetProductList caches a product list pagination result with the specified TTL in seconds
-func (c *Product) SetProductList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.Product]) error {
+func (c *Product) SetProductList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[http.ProductResponseDto]) error {
 	if c.redisClient == nil {
 		return nil
 	}

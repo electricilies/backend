@@ -89,7 +89,7 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 			products.GET("/images/delete-url/:image_id", r.productHandler.GetDeleteImageURL)
 			products.POST("/:product_id/variants", r.productHandler.AddVariants)
 			products.PATCH("/:product_id/variants/:variant_id", r.productHandler.UpdateVariant)
-			products.PUT("/:product_id/options", r.productHandler.UpdateOptions)
+			products.PATCH("/:product_id/options", r.productHandler.UpdateOptions)
 		}
 
 		attributes := api.Group("/attributes")

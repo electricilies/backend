@@ -81,19 +81,25 @@ WHERE
     ELSE name ||| ($1::text)
   END
   AND CASE
-    WHEN $2::text = 'exclude' THEN deleted_at IS NULL
-    WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
-    WHEN $2::text = 'all' THEN TRUE
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
+    ELSE id = ANY ($2::uuid[])
+  END
+  AND CASE
+    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $3::text = 'all' THEN TRUE
     ELSE deleted_at IS NULL
   END
 ORDER BY
   id DESC
-OFFSET $3::integer
-LIMIT NULLIF($4::integer, 0)
+OFFSET $4::integer
+LIMIT NULLIF($5::integer, 0)
 `
 
 type ListCategoriesParams struct {
 	Search  *string
+	IDs     []uuid.UUID
 	Deleted string
 	Offset  int32
 	Limit   int32
@@ -102,6 +108,7 @@ type ListCategoriesParams struct {
 func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) ([]Category, error) {
 	rows, err := q.db.Query(ctx, listCategories,
 		arg.Search,
+		arg.IDs,
 		arg.Deleted,
 		arg.Offset,
 		arg.Limit,

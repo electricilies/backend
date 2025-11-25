@@ -30,6 +30,11 @@ WHERE
     ELSE name ||| (sqlc.narg('search')::text)
   END
   AND CASE
+    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE id = ANY (sqlc.narg('ids')::uuid[])
+  END
+  AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE

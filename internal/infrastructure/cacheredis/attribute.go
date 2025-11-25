@@ -28,7 +28,7 @@ func ProvideAttribute(redisClient *redis.Client) *Attribute {
 var _ application.AttributeCache = (*Attribute)(nil)
 
 // GetAttribute retrieves a cached attribute by ID
-func (c *Attribute) GetAttribute(ctx context.Context, attributeID uuid.UUID) (*domain.Attribute, error) {
+func (c *Attribute) GetAttribute(ctx context.Context, attributeID uuid.UUID) (*http.AttributeResponseDto, error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -43,7 +43,7 @@ func (c *Attribute) GetAttribute(ctx context.Context, attributeID uuid.UUID) (*d
 		return nil, redis.Nil
 	}
 
-	var attribute domain.Attribute
+	var attribute http.AttributeResponseDto
 	if err := json.Unmarshal([]byte(cachedData), &attribute); err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (c *Attribute) GetAttribute(ctx context.Context, attributeID uuid.UUID) (*d
 }
 
 // SetAttribute caches an attribute with the specified TTL in seconds
-func (c *Attribute) SetAttribute(ctx context.Context, attributeID uuid.UUID, attribute *domain.Attribute) error {
+func (c *Attribute) SetAttribute(ctx context.Context, attributeID uuid.UUID, attribute *http.AttributeResponseDto) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -67,7 +67,7 @@ func (c *Attribute) SetAttribute(ctx context.Context, attributeID uuid.UUID, att
 }
 
 // GetAttributeList retrieves a cached attribute list pagination result
-func (c *Attribute) GetAttributeList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.Attribute], error) {
+func (c *Attribute) GetAttributeList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[http.AttributeResponseDto], error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -81,7 +81,7 @@ func (c *Attribute) GetAttributeList(ctx context.Context, cacheKey string) (*htt
 		return nil, redis.Nil
 	}
 
-	var pagination http.PaginationResponseDto[domain.Attribute]
+	var pagination http.PaginationResponseDto[http.AttributeResponseDto]
 	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (c *Attribute) GetAttributeList(ctx context.Context, cacheKey string) (*htt
 }
 
 // SetAttributeList caches an attribute list pagination result with the specified TTL in seconds
-func (c *Attribute) SetAttributeList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.Attribute]) error {
+func (c *Attribute) SetAttributeList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[http.AttributeResponseDto]) error {
 	if c.redisClient == nil {
 		return nil
 	}
@@ -104,7 +104,7 @@ func (c *Attribute) SetAttributeList(ctx context.Context, cacheKey string, pagin
 }
 
 // GetAttributeValueList retrieves a cached attribute value list pagination result
-func (c *Attribute) GetAttributeValueList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[domain.AttributeValue], error) {
+func (c *Attribute) GetAttributeValueList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[http.AttributeValueResponseDto], error) {
 	if c.redisClient == nil {
 		return nil, redis.Nil
 	}
@@ -118,7 +118,7 @@ func (c *Attribute) GetAttributeValueList(ctx context.Context, cacheKey string) 
 		return nil, redis.Nil
 	}
 
-	var pagination http.PaginationResponseDto[domain.AttributeValue]
+	var pagination http.PaginationResponseDto[http.AttributeValueResponseDto]
 	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (c *Attribute) GetAttributeValueList(ctx context.Context, cacheKey string) 
 }
 
 // SetAttributeValueList caches an attribute value list pagination result with the specified TTL in seconds
-func (c *Attribute) SetAttributeValueList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[domain.AttributeValue]) error {
+func (c *Attribute) SetAttributeValueList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[http.AttributeValueResponseDto]) error {
 	if c.redisClient == nil {
 		return nil
 	}

@@ -23,7 +23,7 @@ func ProvideCategory(categoryRepo domain.CategoryRepository, categoryService dom
 
 var _ http.CategoryApplication = &Category{}
 
-func (c *Category) Create(ctx context.Context, param http.CreateCategoryRequestDto) (*domain.Category, error) {
+func (c *Category) Create(ctx context.Context, param http.CreateCategoryRequestDto) (*http.CategoryResponseDto, error) {
 	category, err := domain.NewCategory(param.Data.Name)
 	if err != nil {
 		return nil, err
@@ -39,10 +39,10 @@ func (c *Category) Create(ctx context.Context, param http.CreateCategoryRequestD
 
 	_ = c.categoryCache.InvalidateCategoryList(ctx)
 
-	return category, nil
+	return http.ToCategoryResponseDto(category), nil
 }
 
-func (c *Category) List(ctx context.Context, param http.ListCategoryRequestDto) (*http.PaginationResponseDto[domain.Category], error) {
+func (c *Category) List(ctx context.Context, param http.ListCategoryRequestDto) (*http.PaginationResponseDto[http.CategoryResponseDto], error) {
 	cacheKey := c.categoryCache.BuildListCacheKey(
 		param.Search,
 		param.Limit,
@@ -56,6 +56,7 @@ func (c *Category) List(ctx context.Context, param http.ListCategoryRequestDto) 
 
 	categories, err := c.categoryRepo.List(
 		ctx,
+		nil,
 		param.Search,
 		param.Limit,
 		(param.Page-1)*param.Limit,
@@ -70,8 +71,11 @@ func (c *Category) List(ctx context.Context, param http.ListCategoryRequestDto) 
 		return nil, err
 	}
 
+	// Map domain models to response DTOs
+	categoryDtos := http.ToCategoryResponseDtoList(*categories)
+
 	pagination := newPaginationResponseDto(
-		*categories,
+		categoryDtos,
 		*count,
 		param.Page,
 		param.Limit,
@@ -82,7 +86,7 @@ func (c *Category) List(ctx context.Context, param http.ListCategoryRequestDto) 
 	return pagination, nil
 }
 
-func (c *Category) Get(ctx context.Context, param http.GetCategoryRequestDto) (*domain.Category, error) {
+func (c *Category) Get(ctx context.Context, param http.GetCategoryRequestDto) (*http.CategoryResponseDto, error) {
 	if cachedCategory, err := c.categoryCache.GetCategory(ctx, param.CategoryID); err == nil {
 		return cachedCategory, nil
 	}
@@ -92,12 +96,13 @@ func (c *Category) Get(ctx context.Context, param http.GetCategoryRequestDto) (*
 		return nil, err
 	}
 
-	_ = c.categoryCache.SetCategory(ctx, param.CategoryID, category)
+	categoryDto := http.ToCategoryResponseDto(category)
+	_ = c.categoryCache.SetCategory(ctx, param.CategoryID, categoryDto)
 
-	return category, nil
+	return categoryDto, nil
 }
 
-func (c *Category) Update(ctx context.Context, param http.UpdateCategoryRequestDto) (*domain.Category, error) {
+func (c *Category) Update(ctx context.Context, param http.UpdateCategoryRequestDto) (*http.CategoryResponseDto, error) {
 	category, err := c.categoryRepo.Get(ctx, param.CategoryID)
 	if err != nil {
 		return nil, err
@@ -116,5 +121,5 @@ func (c *Category) Update(ctx context.Context, param http.UpdateCategoryRequestD
 	_ = c.categoryCache.InvalidateCategory(ctx, param.CategoryID)
 	_ = c.categoryCache.InvalidateCategoryList(ctx)
 
-	return category, nil
+	return http.ToCategoryResponseDto(category), nil
 }

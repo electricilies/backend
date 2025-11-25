@@ -28,9 +28,16 @@ func (r *Category) Count(ctx context.Context) (*int, error) {
 	return ptr.To(int(count)), err
 }
 
-func (r *Category) List(ctx context.Context, search *string, limit int, offset int) (*[]domain.Category, error) {
+func (r *Category) List(
+	ctx context.Context,
+	ids *[]uuid.UUID,
+	search *string,
+	limit int,
+	offset int,
+) (*[]domain.Category, error) {
 	categories, err := r.queries.ListCategories(ctx, sqlc.ListCategoriesParams{
 		Search:  search,
+		IDs:     ptr.Deref(ids, []uuid.UUID{}),
 		Deleted: string(domain.DeletedExcludeParam),
 		Limit:   int32(limit),
 		Offset:  int32(offset),

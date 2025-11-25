@@ -630,7 +630,7 @@ WHEN NOT MATCHED THEN
     source.option_value_id
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.option_value_id IN (SELECT id FROM temp_option_values) THEN
+  AND target.option_value_id = ANY (SELECT id FROM temp_option_values) THEN
   DELETE
 `
 
@@ -671,7 +671,7 @@ WHEN NOT MATCHED THEN
     source.deleted_at
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.product_id = (SELECT DISTINCT product_id FROM temp_product_images) THEN
+  AND target.product_id = ANY (SELECT DISTINCT product_id FROM temp_product_images) THEN
   DELETE
 `
 
@@ -718,7 +718,7 @@ WHEN NOT MATCHED THEN
     source.deleted_at
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.product_id = (SELECT DISTINCT id FROM temp_product_variants) THEN
+  AND target.product_id = ANY (SELECT DISTINCT id FROM temp_product_variants) THEN
   DELETE
 `
 
@@ -742,7 +742,7 @@ WHEN NOT MATCHED THEN
     source.attribute_value_id
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.product_id IN (SELECT DISTINCT product_id FROM temp_products_attribute_values) THEN
+  AND target.product_id = ANY (SELECT DISTINCT product_id FROM temp_products_attribute_values) THEN
   DELETE
 `
 

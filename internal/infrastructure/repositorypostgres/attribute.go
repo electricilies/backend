@@ -42,17 +42,19 @@ func (r *Attribute) Count(
 func (r *Attribute) List(
 	ctx context.Context,
 	ids *[]uuid.UUID,
+	attributeValueIDs *[]uuid.UUID,
 	search *string,
 	deleted domain.DeletedParam,
 	limit int,
 	offset int,
 ) (*[]domain.Attribute, error) {
 	attributes, err := r.queries.ListAttributes(ctx, sqlc.ListAttributesParams{
-		IDs:     ptr.Deref(ids, []uuid.UUID{}),
-		Search:  search,
-		Deleted: string(deleted),
-		Limit:   int32(limit),
-		Offset:  int32(offset),
+		IDs:               ptr.Deref(ids, []uuid.UUID{}),
+		AttributeValueIDs: ptr.Deref(attributeValueIDs, []uuid.UUID{}),
+		Search:            search,
+		Deleted:           string(deleted),
+		Limit:             int32(limit),
+		Offset:            int32(offset),
 	})
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)

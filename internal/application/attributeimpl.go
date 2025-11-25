@@ -23,7 +23,7 @@ func ProvideAttribute(attributeRepo domain.AttributeRepository, attributeService
 
 var _ http.AttributeApplication = &Attribute{}
 
-func (a *Attribute) Create(ctx context.Context, param http.CreateAttributeRequestDto) (*domain.Attribute, error) {
+func (a *Attribute) Create(ctx context.Context, param http.CreateAttributeRequestDto) (*http.AttributeResponseDto, error) {
 	attribute, err := domain.NewAttribute(param.Data.Code, param.Data.Name)
 	if err != nil {
 		return nil, err
@@ -38,10 +38,10 @@ func (a *Attribute) Create(ctx context.Context, param http.CreateAttributeReques
 
 	_ = a.attributeCache.InvalidateAttributeList(ctx)
 
-	return attribute, nil
+	return http.ToAttributeResponseDto(attribute), nil
 }
 
-func (a *Attribute) CreateValue(ctx context.Context, param http.CreateAttributeValueRequestDto) (*domain.AttributeValue, error) {
+func (a *Attribute) CreateValue(ctx context.Context, param http.CreateAttributeValueRequestDto) (*http.AttributeValueResponseDto, error) {
 	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
 	if err != nil {
 		return nil, err
@@ -61,10 +61,10 @@ func (a *Attribute) CreateValue(ctx context.Context, param http.CreateAttributeV
 
 	_ = a.attributeCache.InvalidateAllAttributes(ctx)
 
-	return attributeValue, nil
+	return http.ToAttributeValueResponseDto(attributeValue), nil
 }
 
-func (a *Attribute) List(ctx context.Context, param http.ListAttributesRequestDto) (*http.PaginationResponseDto[domain.Attribute], error) {
+func (a *Attribute) List(ctx context.Context, param http.ListAttributesRequestDto) (*http.PaginationResponseDto[http.AttributeResponseDto], error) {
 	cacheKey := a.attributeCache.BuildListCacheKey(
 		param.AttributeIDs,
 		param.Search,
@@ -81,6 +81,7 @@ func (a *Attribute) List(ctx context.Context, param http.ListAttributesRequestDt
 	attributes, err := a.attributeRepo.List(
 		ctx,
 		param.AttributeIDs,
+		nil,
 		param.Search,
 		param.Deleted,
 		param.Limit,
@@ -97,8 +98,12 @@ func (a *Attribute) List(ctx context.Context, param http.ListAttributesRequestDt
 	if err != nil {
 		return nil, err
 	}
+
+	// Map domain models to response DTOs
+	attributeDtos := http.ToAttributeResponseDtoList(*attributes)
+
 	pagination := newPaginationResponseDto(
-		*attributes,
+		attributeDtos,
 		*count,
 		param.Page,
 		param.Limit,
@@ -113,7 +118,7 @@ func (a *Attribute) List(ctx context.Context, param http.ListAttributesRequestDt
 	return pagination, nil
 }
 
-func (a *Attribute) Get(ctx context.Context, param http.GetAttributeRequestDto) (*domain.Attribute, error) {
+func (a *Attribute) Get(ctx context.Context, param http.GetAttributeRequestDto) (*http.AttributeResponseDto, error) {
 	if cachedAttribute, err := a.attributeCache.GetAttribute(ctx, param.AttributeID); err == nil {
 		return cachedAttribute, nil
 	}
@@ -123,12 +128,13 @@ func (a *Attribute) Get(ctx context.Context, param http.GetAttributeRequestDto) 
 		return nil, err
 	}
 
-	_ = a.attributeCache.SetAttribute(ctx, param.AttributeID, attribute)
+	attributeDto := http.ToAttributeResponseDto(attribute)
+	_ = a.attributeCache.SetAttribute(ctx, param.AttributeID, attributeDto)
 
-	return attribute, nil
+	return attributeDto, nil
 }
 
-func (a *Attribute) ListValues(ctx context.Context, param http.ListAttributeValuesRequestDto) (*http.PaginationResponseDto[domain.AttributeValue], error) {
+func (a *Attribute) ListValues(ctx context.Context, param http.ListAttributeValuesRequestDto) (*http.PaginationResponseDto[http.AttributeValueResponseDto], error) {
 	cacheKey := a.attributeCache.BuildValueListCacheKey(
 		param.AttributeID,
 		param.AttributeValueIDs,
@@ -139,7 +145,7 @@ func (a *Attribute) ListValues(ctx context.Context, param http.ListAttributeValu
 	if cachedPagination, err := a.attributeCache.GetAttributeValueList(ctx, cacheKey); err == nil {
 		return cachedPagination, nil
 	}
-	attribute, err := a.attributeRepo.ListValues(
+	attributeValues, err := a.attributeRepo.ListValues(
 		ctx,
 		param.AttributeID,
 		param.AttributeValueIDs,
@@ -159,8 +165,12 @@ func (a *Attribute) ListValues(ctx context.Context, param http.ListAttributeValu
 	if err != nil {
 		return nil, err
 	}
+
+	// Map domain models to response DTOs
+	attributeValueDtos := http.ToAttributeValueResponseDtoList(*attributeValues)
+
 	pagination := newPaginationResponseDto(
-		*attribute,
+		attributeValueDtos,
 		*count,
 		param.Page,
 		param.Limit,
@@ -169,7 +179,7 @@ func (a *Attribute) ListValues(ctx context.Context, param http.ListAttributeValu
 	return pagination, nil
 }
 
-func (a *Attribute) Update(ctx context.Context, param http.UpdateAttributeRequestDto) (*domain.Attribute, error) {
+func (a *Attribute) Update(ctx context.Context, param http.UpdateAttributeRequestDto) (*http.AttributeResponseDto, error) {
 	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
 	if err != nil {
 		return nil, err
@@ -184,10 +194,10 @@ func (a *Attribute) Update(ctx context.Context, param http.UpdateAttributeReques
 	}
 	_ = a.attributeCache.InvalidateAttribute(ctx, param.AttributeID)
 	_ = a.attributeCache.InvalidateAttributeList(ctx)
-	return attribute, nil
+	return http.ToAttributeResponseDto(attribute), nil
 }
 
-func (a *Attribute) UpdateValue(ctx context.Context, param http.UpdateAttributeValueRequestDto) (*domain.AttributeValue, error) {
+func (a *Attribute) UpdateValue(ctx context.Context, param http.UpdateAttributeValueRequestDto) (*http.AttributeValueResponseDto, error) {
 	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
 	if err != nil {
 		return nil, err
@@ -207,7 +217,7 @@ func (a *Attribute) UpdateValue(ctx context.Context, param http.UpdateAttributeV
 		return nil, domain.ErrNotFound
 	}
 	_ = a.attributeCache.InvalidateAllAttributes(ctx)
-	return attributeValue, nil
+	return http.ToAttributeValueResponseDto(attributeValue), nil
 }
 
 func (a *Attribute) Delete(ctx context.Context, param http.DeleteAttributeRequestDto) error {

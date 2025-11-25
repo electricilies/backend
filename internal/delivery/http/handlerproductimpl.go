@@ -34,7 +34,7 @@ func ProvideProductHandler(productApp ProductApplication) *ProductHandlerImpl {
 //	@Accept			json
 //	@Produce		json
 //	@Param			product_id	path		string	true	"Product ID"	format(uuid)
-//	@Success		200			{object}	domain.Product
+//	@Success		200			{object}	ProductResponseDto
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/products/{product_id} [get]
@@ -76,7 +76,7 @@ func (h *ProductHandlerImpl) Get(ctx *gin.Context) {
 //	@Param			min_price		query		int			false	"Minimum price filter"
 //	@Param			max_price		query		int			false	"Maximum price filter"
 //	@Param			rating			query		number		false	"Filter by minimum rating"
-//	@Success		200				{object}	Pagination[domain.Product]
+//	@Success		200				{object}	PaginationResponseDto[ProductResponseDto]
 //	@Failure		500				{object}	Error
 //	@Router			/products [get]
 func (h *ProductHandlerImpl) List(ctx *gin.Context) {
@@ -167,7 +167,7 @@ func (h *ProductHandlerImpl) List(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			product	body		CreateProductData	true	"Product request"
-//	@Success		201		{object}	domain.Product
+//	@Success		201		{object}	ProductResponseDto
 //	@Failure		400		{object}	Error
 //	@Failure		409		{object}	Error
 //	@Failure		500		{object}	Error
@@ -200,7 +200,7 @@ func (h *ProductHandlerImpl) Create(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			product_id	path		string				true	"Product ID"	format(uuid)
 //	@Param			product		body		UpdateProductData	true	"Update product request"
-//	@Success		200			{object}	domain.Product
+//	@Success		200			{object}	ProductResponseDto
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
 //	@Failure		409			{object}	Error
@@ -280,7 +280,7 @@ func (h *ProductHandlerImpl) Delete(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			product_id		path		string					true	"Product ID"	format(uuid)
 //	@Param			productImages	body		[]AddProductImageData	true	"Product images request"
-//	@Success		201				{array}		domain.ProductImage
+//	@Success		201				{array}		ProductImageResponseDto
 //	@Failure		400				{object}	Error
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
@@ -367,7 +367,7 @@ func (h *ProductHandlerImpl) DeleteImages(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			product_id		path		string						true	"Product ID"	format(uuid)
 //	@Param			productVariant	body		[]AddProductVariantsData	true	"Product variant request"
-//	@Success		201				{array}		domain.ProductVariant
+//	@Success		201				{array}		ProductVariantResponseDto
 //	@Failure		400				{object}	Error
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
@@ -412,7 +412,7 @@ func (h *ProductHandlerImpl) AddVariants(ctx *gin.Context) {
 //	@Param			product_id		path		string						true	"Product ID"			format(uuid)
 //	@Param			variant_id		path		string						true	"Product Variant ID"	format(uuid)
 //	@Param			productVariant	body		UpdateProductVariantData	true	"Update product variant request"
-//	@Success		200				{object}	domain.ProductVariant
+//	@Success		200				{object}	ProductVariantResponseDto
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
 //	@Failure		409				{object}	Error
@@ -468,12 +468,12 @@ func (h *ProductHandlerImpl) UpdateVariant(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			product_id	path		string						true	"Product ID"	format(uuid)
 //	@Param			option		body		[]UpdateProductOptionsData	true	"Update product option request"
-//	@Success		200			{array}		domain.Option
+//	@Success		200			{array}		ProductOptionResponseDto
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
-//	@Router			/products/{product_id}/options [put]
+//	@Router			/products/{product_id}/options [patch]
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *ProductHandlerImpl) UpdateOptions(ctx *gin.Context) {
@@ -510,7 +510,7 @@ func (h *ProductHandlerImpl) UpdateOptions(ctx *gin.Context) {
 //	@Description	Get a presigned URL to upload product images
 //	@Tags			Product
 //	@Produce		json
-//	@Success		200	{object}	UploadImageURL
+//	@Success		200	{object}	UploadImageURLResponseDto
 //	@Failure		500	{object}	Error
 //	@Router			/products/images/upload-url [get]
 //	@Security		OAuth2AccessCode
@@ -531,7 +531,7 @@ func (h *ProductHandlerImpl) GetUploadImageURL(ctx *gin.Context) {
 //	@Tags			Product
 //	@Produce		json
 //	@Param			image_id	path		string	true	"Product Image ID"	format(uuid)
-//	@Success		200			{object}	DeleteImageURL
+//	@Success		200			{object}	DeleteImageURLResponseDto
 //	@Failure		400			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/products/images/delete-url/{image_id} [get]

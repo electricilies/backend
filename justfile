@@ -104,7 +104,7 @@ pre-commit: gen check-static-type lint format
 
 [doc("Docker compose up")]
 compose profile="" *args="":
-  docker compose -f ./docker/compose.yaml --profile={{profile}} up {{args}}
+  COMPOSE_PROFILES={{profile}} docker compose -f ./docker/compose.yaml up {{args}}
 
 [private]
 [unix]

@@ -18,14 +18,27 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- name: ListAttributes :many
 SELECT
-  *
+  attributes.*
 FROM
   attributes
+LEFT JOIN (
+  SELECT
+    id,
+    attribute_id
+  FROM
+    attribute_values
+  WHERE
+    CASE
+      WHEN sqlc.narg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
+      WHEN cardinality(sqlc.narg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
+      ELSE attribute_values.id = ANY (sqlc.narg('attribute_value_ids')::uuid[])
+    END
+) AS av ON attributes.id = av.attribute_id
 WHERE
   CASE
     WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::uuid[])
+    ELSE attributes.id = ANY (sqlc.narg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.narg('search')::text IS NULL THEN TRUE
@@ -34,14 +47,19 @@ WHERE
       OR name ||| (sqlc.narg('search')::text)
   END
   AND CASE
+    WHEN sqlc.narg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
+    ELSE av.id IS NOT NULL
+  END
+  AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE deleted_at IS NULL
   END
 ORDER BY
-  CASE WHEN sqlc.narg('search')::text IS NOT NULL THEN pdb.score(id) END DESC,
-  id ASC
+  CASE WHEN sqlc.narg('search')::text IS NOT NULL THEN pdb.score(attributes.id) END DESC,
+  attributes.id ASC
 OFFSET sqlc.arg('offset')::integer
 LIMIT NULLIF(sqlc.arg('limit')::integer, 0);
 
@@ -62,6 +80,30 @@ WHERE
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
     ELSE deleted_at IS NULL
   END;
+
+-- name: ListAttributeByAttributeValues :many
+SELECT
+  attributes.*
+FROM
+  attributes
+JOIN
+  attribute_values ON attribute_values.attribute_id = attributes.id
+WHERE
+  CASE
+    WHEN sqlc.narg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.narg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
+    ELSE attribute_values.id = ANY (sqlc.narg('attribute_value_ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.arg('deleted')::text = 'exclude' THEN attributes.deleted_at IS NULL
+    WHEN sqlc.arg('deleted')::text = 'only' THEN attributes.deleted_at IS NOT NULL
+    WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
+    ELSE attributes.deleted_at IS NULL
+  END
+GROUP BY
+  attributes.id
+ORDER BY
+  attributes.id ASC;
 
 -- name: GetAttribute :one
 SELECT

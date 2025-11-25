@@ -3,8 +3,6 @@ package http
 import (
 	"net/http"
 
-	_ "backend/internal/domain"
-
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -35,7 +33,7 @@ func ProvideCategoryHandler(categoryApp CategoryApplication) *CategoryHandlerImp
 //	@Param			search	query		string	false	"Search term"
 //	@Param			page	query		int		false	"Page for pagination"	default(1)
 //	@Param			limit	query		int		false	"Limit for pagination"	default(20)
-//	@Success		200		{object}	Pagination[domain.Category]
+//	@Success		200		{object}	PaginationResponseDto[CategoryResponseDto]
 //	@Failure		500		{object}	Error
 //	@Router			/categories [get]
 func (h *CategoryHandlerImpl) List(ctx *gin.Context) {
@@ -69,7 +67,7 @@ func (h *CategoryHandlerImpl) List(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			category_id	path		string	true	"Category ID"	format(uuid)
-//	@Success		200			{object}	domain.Category
+//	@Success		200			{object}	CategoryResponseDto
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/categories/{category_id} [get]
@@ -102,7 +100,7 @@ func (h *CategoryHandlerImpl) Get(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			category	body		CreateCategoryData	true	"Category request"
-//	@Success		201			{object}	domain.Category
+//	@Success		201			{object}	CategoryResponseDto
 //	@Failure		400			{object}	Error
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
@@ -135,7 +133,7 @@ func (h *CategoryHandlerImpl) Create(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			category_id	path		string				true	"Category ID"	format(uuid)
 //	@Param			category	body		UpdateCategoryData	true	"Update category request"
-//	@Success		200			{object}	domain.Category
+//	@Success		200			{object}	CategoryResponseDto
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
 //	@Failure		409			{object}	Error

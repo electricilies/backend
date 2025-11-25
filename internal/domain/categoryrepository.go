@@ -9,6 +9,7 @@ import (
 type CategoryRepository interface {
 	List(
 		ctx context.Context,
+		ids *[]uuid.UUID,
 		search *string,
 		limit int,
 		offset int,

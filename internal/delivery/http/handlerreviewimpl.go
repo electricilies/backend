@@ -69,7 +69,7 @@ func (h *ReviewHandlerImpl) Get(ctx *gin.Context) {
 //	@Param			deleted		query		string	false	"Include deleted reviews"	Enums(include, only, exclude)
 //	@Param			page		query		int		false	"Page for pagination"		default(1)
 //	@Param			limit		query		int		false	"Limit for pagination"		default(20)
-//	@Success		200			{object}	Pagination[domain.Review]
+//	@Success		200			{object}	PaginationResponseDto[domain.Review]
 //	@Failure		500			{object}	Error
 //	@Router			/reviews [get]
 func (h *ReviewHandlerImpl) List(ctx *gin.Context) {
