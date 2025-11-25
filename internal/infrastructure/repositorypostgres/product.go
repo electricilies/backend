@@ -382,9 +382,10 @@ func getImages(
 	}
 	for _, imgEntity := range imagesEntities {
 		img := domain.ProductImage{
-			ID:    imgEntity.ID,
-			URL:   imgEntity.URL,
-			Order: int(imgEntity.Order),
+			ID:        imgEntity.ID,
+			URL:       imgEntity.URL,
+			Order:     int(imgEntity.Order),
+			CreatedAt: imgEntity.CreatedAt.Time,
 			DeletedAt: fromPgValidToPtr(
 				imgEntity.DeletedAt.Time,
 				imgEntity.DeletedAt.Valid,
