@@ -167,7 +167,7 @@ func (s *AttributeServiceTestSuite) TestAttribute_Validate() {
 				attr, _ := domain.NewAttribute("color", "Color")
 				longValue := domain.AttributeValue{
 					ID:    uuid.Must(uuid.NewV7()),
-					Value: "This is a very long value that exceeds one hundred characters limit and should fail validation test",
+					Value: "This is a very long value that exceeds one hundred characters limit and should fail validation test!!!",
 				}
 				attr.AddValues(longValue)
 				return *attr
@@ -222,12 +222,12 @@ func (s *AttributeServiceTestSuite) TestAttribute_Validate() {
 			err := s.service.Validate(attr)
 
 			if tt.expectError {
-				s.Error(err)
+				s.Require().Error(err)
 				if tt.errorType != nil {
-					s.ErrorIs(err, tt.errorType)
+					s.Require().ErrorIs(err, tt.errorType)
 				}
 			} else {
-				s.NoError(err)
+				s.Require().NoError(err)
 			}
 		})
 	}

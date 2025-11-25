@@ -19,10 +19,10 @@ func TestAttributeTestSuite(t *testing.T) {
 
 func (s *AttributeTestSuite) TestNewAttribute() {
 	tests := []struct {
-		name      string
-		code      string
-		given     string
-		validate  func(*Attribute, error)
+		name     string
+		code     string
+		given    string
+		validate func(*Attribute, error)
 	}{
 		{
 			name:  "creates attribute successfully",
@@ -35,7 +35,7 @@ func (s *AttributeTestSuite) TestNewAttribute() {
 				s.Equal("color", attr.Code)
 				s.Equal("Color", attr.Name)
 				s.NotNil(attr.Values)
-				s.Len(attr.Values, 0)
+				s.Empty(attr.Values)
 				s.Nil(attr.DeletedAt)
 			},
 		},
