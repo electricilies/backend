@@ -17,6 +17,7 @@ type CreateCartItemRequestDto struct {
 }
 
 type CreateCartItemData struct {
+	ProductID        uuid.UUID `json:"productId"        binding:"required"`
 	ProductVariantID uuid.UUID `json:"productVariantId" binding:"required"`
 	Quantity         int       `json:"quantity"         binding:"required"`
 }

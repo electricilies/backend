@@ -23,23 +23,23 @@ func ProvideReview(
 var _ domain.ReviewService = &Review{}
 
 func (r *Review) Create(
+	orderID uuid.UUID,
 	orderItemID uuid.UUID,
-	userID uuid.UUID,
 	rating int,
 	content *string,
 	imageURL *string,
 ) (*domain.Review, error) {
-	orderItem := domain.OrderItem{ID: orderItemID}
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, multierror.Append(domain.ErrInternal, err)
 	}
 	review := &domain.Review{
-		ID:        id,
-		Rating:    rating,
-		Content:   content,
-		OrderItem: &orderItem,
-		ImageURL:  imageURL,
+		ID:          id,
+		Rating:      rating,
+		Content:     content,
+		OrderID:     orderID,
+		OrderItemID: orderItemID,
+		ImageURL:    imageURL,
 	}
 	if err := r.validate.Struct(review); err != nil {
 		return nil, multierror.Append(domain.ErrInvalid, err)
@@ -49,7 +49,6 @@ func (r *Review) Create(
 
 func (r *Review) Update(
 	review *domain.Review,
-	userID uuid.UUID,
 	rating *int,
 	content *string,
 	imageURL *string,

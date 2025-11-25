@@ -26,6 +26,7 @@ type CreateOrderData struct {
 }
 
 type CreateOrderItemData struct {
+	ProductID        uuid.UUID `json:"productId"        binding:"required"`
 	ProductVariantID uuid.UUID `json:"productVariantId" binding:"required"`
 	Quantity         int       `json:"quantity"         binding:"required"`
 	Price            int64     `json:"price"            binding:"required"`

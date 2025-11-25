@@ -19,18 +19,12 @@ type Order struct {
 	UserID      uuid.UUID     `json:"userId"      binding:"required"        validate:"required"`
 }
 
-func (o *Order) AddItems(items ...OrderItem) {
-	if o.Items == nil {
-		o.Items = []OrderItem{}
-	}
-	o.Items = append(o.Items, items...)
-}
-
 type OrderItem struct {
-	ID             uuid.UUID       `json:"id"             binding:"required" validate:"required"`
-	ProductVariant *ProductVariant `json:"productVariant"`
-	Quantity       int             `json:"quantity"       binding:"required" validate:"required,gt=0"`
-	Price          int64           `json:"price"          binding:"required" validate:"required,gt=0"`
+	ID               uuid.UUID `json:"id"               binding:"required" validate:"required"`
+	ProductID        uuid.UUID `json:"productId"        binding:"required" validate:"required"`
+	ProductVariantID uuid.UUID `json:"productVariantId" binding:"required" validate:"required"`
+	Quantity         int       `json:"quantity"         binding:"required" validate:"required,gt=0"`
+	Price            int64     `json:"price"            binding:"required" validate:"required,gt=0"`
 }
 
 type OrderProvider string
@@ -51,3 +45,10 @@ const (
 	OrderStatusDelivered  OrderStatus = "Delivered"
 	OrderStatusCancelled  OrderStatus = "Cancelled"
 )
+
+func (o *Order) AddItems(items ...OrderItem) {
+	if o.Items == nil {
+		o.Items = []OrderItem{}
+	}
+	o.Items = append(o.Items, items...)
+}

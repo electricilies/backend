@@ -140,14 +140,12 @@ func (r *Product) Get(ctx context.Context, productID uuid.UUID) (*domain.Product
 		TrendingScore: int64(productEntity.TrendingScore),
 		Price:         productEntity.Price.Int.Int64(),
 		Rating:        float64(productEntity.Rating),
+		CategoryID:    productEntity.CategoryID,
 		CreatedAt:     productEntity.CreatedAt.Time,
 		UpdatedAt:     productEntity.UpdatedAt.Time,
 		DeletedAt:     fromPgValidToPtr(productEntity.DeletedAt.Time, productEntity.DeletedAt.Valid),
 	}
-	if err := getCategory(ctx, *r.queries, product, productEntity); err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
-	}
-	if err := GetAttributeAndValue(ctx, *r.queries, product); err != nil {
+	if err := getAttributeValueIDs(ctx, *r.queries, product); err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
 	}
 	if err := getOptionsAndValues(ctx, *r.queries, product); err != nil {
@@ -162,33 +160,7 @@ func (r *Product) Get(ctx context.Context, productID uuid.UUID) (*domain.Product
 	return product, nil
 }
 
-func getCategory(
-	ctx context.Context,
-	queries sqlc.Queries,
-	product *domain.Product,
-	productEntity sqlc.Product,
-) error {
-	if product == nil {
-		return nil
-	}
-	categoryEntity, err := queries.GetCategory(ctx, sqlc.GetCategoryParams{
-		ID: productEntity.CategoryID,
-	})
-	if err != nil {
-		return err
-	}
-	category := domain.Category{
-		ID:        categoryEntity.ID,
-		Name:      categoryEntity.Name,
-		CreatedAt: categoryEntity.CreatedAt.Time,
-		UpdatedAt: categoryEntity.UpdatedAt.Time,
-		DeletedAt: fromPgValidToPtr(categoryEntity.DeletedAt.Time, categoryEntity.DeletedAt.Valid),
-	}
-	product.Category = &category
-	return nil
-}
-
-func GetAttributeAndValue(
+func getAttributeValueIDs(
 	ctx context.Context,
 	queries sqlc.Queries,
 	product *domain.Product,
@@ -206,44 +178,7 @@ func GetAttributeAndValue(
 	for _, pav := range productsAttributeValuesEntity {
 		attributeValueIDs = append(attributeValueIDs, pav.AttributeValueID)
 	}
-	attributeValueEntities, err := queries.ListAttributeValues(ctx, sqlc.ListAttributeValuesParams{
-		IDs: attributeValueIDs,
-	})
-	if err != nil {
-		return err
-	}
-	attributeIDs := make([]uuid.UUID, 0, len(attributeValueEntities))
-	for _, av := range attributeValueEntities {
-		attributeIDs = append(attributeIDs, av.AttributeID)
-	}
-	attributeEntities, err := queries.ListAttributes(ctx, sqlc.ListAttributesParams{
-		IDs: attributeIDs,
-	})
-	if err != nil {
-		return err
-	}
-	attributes := make([]domain.Attribute, 0, len(attributeEntities))
-	for _, attr := range attributeEntities {
-		attributes = append(attributes, domain.Attribute{
-			ID:        attr.ID,
-			Name:      attr.Name,
-			Code:      attr.Code,
-			DeletedAt: fromPgValidToPtr(attr.DeletedAt.Time, attr.DeletedAt.Valid),
-		})
-	}
-	attributeMap := make(map[uuid.UUID]domain.Attribute)
-	for i, attr := range attributes {
-		attributeMap[attr.ID] = attributes[i]
-	}
-	attributeValues := make([]domain.AttributeValue, 0, len(attributeValueEntities))
-	for _, av := range attributeValueEntities {
-		attributeValues = append(attributeValues, domain.AttributeValue{
-			ID:        av.ID,
-			DeletedAt: fromPgValidToPtr(av.DeletedAt.Time, av.DeletedAt.Valid),
-			Value:     av.Value,
-		})
-	}
-	product.AttributeValues = attributeValues
+	product.AttributeValueIDs = attributeValueIDs
 	return nil
 }
 
@@ -466,7 +401,7 @@ func upsertProduct(
 			Time:  ptr.Deref(product.DeletedAt, time.Time{}),
 			Valid: product.DeletedAt != nil,
 		},
-		CategoryID: product.Category.ID,
+		CategoryID: product.CategoryID,
 	})
 }
 
@@ -478,11 +413,11 @@ func mergeAttributeValues(
 	if err := qtx.CreateTempTableProductsAttributeValues(ctx); err != nil {
 		return err
 	}
-	param := make([]sqlc.InsertTempTableProductsAttributeValuesParams, 0, len(product.AttributeValues))
-	for _, pav := range product.AttributeValues {
+	param := make([]sqlc.InsertTempTableProductsAttributeValuesParams, 0, len(product.AttributeValueIDs))
+	for _, avID := range product.AttributeValueIDs {
 		param = append(param, sqlc.InsertTempTableProductsAttributeValuesParams{
 			ProductID:        product.ID,
-			AttributeValueID: pav.ID,
+			AttributeValueID: avID,
 		})
 	}
 	_, err := qtx.InsertTempTableProductsAttributeValues(ctx, param)

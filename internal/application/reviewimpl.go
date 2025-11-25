@@ -115,7 +115,6 @@ func (r *Review) Update(ctx context.Context, param http.UpdateReviewRequestDto) 
 
 	err = r.reviewService.Update(
 		review,
-		param.UserID,
 		param.Data.Rating,
 		param.Data.Content,
 		param.Data.ImageURL,

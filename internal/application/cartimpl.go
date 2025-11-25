@@ -52,7 +52,11 @@ func (c *Cart) CreateItem(ctx context.Context, param http.CreateCartItemRequestD
 		return nil, domain.ErrForbidden
 	}
 
-	cartItem, err := c.cartService.CreateItem(param.Data.ProductVariantID, param.Data.Quantity)
+	cartItem, err := c.cartService.CreateItem(
+		param.Data.ProductID,
+		param.Data.ProductVariantID,
+		param.Data.Quantity,
+	)
 	if err != nil {
 		return nil, err
 	}

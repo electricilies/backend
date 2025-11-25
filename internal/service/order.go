@@ -49,20 +49,21 @@ func (o *Order) Create(
 }
 
 func (o *Order) CreateItem(
+	productID uuid.UUID,
 	productVariantID uuid.UUID,
 	quantity int,
 	price int64,
 ) (*domain.OrderItem, error) {
-	productVariant := domain.ProductVariant{ID: productVariantID}
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, multierror.Append(domain.ErrInternal, err)
 	}
 	orderItem := &domain.OrderItem{
-		ID:             id,
-		ProductVariant: &productVariant,
-		Quantity:       quantity,
-		Price:          price,
+		ID:               id,
+		ProductID:        productID,
+		ProductVariantID: productVariantID,
+		Quantity:         quantity,
+		Price:            price,
 	}
 	if err := o.validate.Struct(orderItem); err != nil {
 		return nil, multierror.Append(domain.ErrInvalid, err)

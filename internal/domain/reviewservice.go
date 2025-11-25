@@ -4,8 +4,8 @@ import "github.com/google/uuid"
 
 type ReviewService interface {
 	Create(
+		orderID uuid.UUID,
 		orderItemID uuid.UUID,
-		userID uuid.UUID,
 		rating int,
 		content *string,
 		ImageURL *string,
@@ -13,7 +13,6 @@ type ReviewService interface {
 
 	Update(
 		review *Review,
-		userID uuid.UUID,
 		rating *int,
 		content *string,
 		imageURL *string,

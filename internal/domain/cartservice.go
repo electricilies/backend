@@ -8,6 +8,7 @@ type CartService interface {
 	) (*Cart, error)
 
 	CreateItem(
+		productID uuid.UUID,
 		productVariantID uuid.UUID,
 		quantity int,
 	) (*CartItem, error)

@@ -12,6 +12,7 @@ type OrderService interface {
 	) (*Order, error)
 
 	CreateItem(
+		productID uuid.UUID,
 		productVariantID uuid.UUID,
 		quantity int,
 		price int64,

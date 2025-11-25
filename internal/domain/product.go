@@ -8,22 +8,23 @@ import (
 )
 
 type Product struct {
-	ID              uuid.UUID        `json:"id"            binding:"required"                      validate:"required"`
-	Name            string           `json:"name"          binding:"required"                      validate:"required,gte=3,lte=200"`
-	Description     string           `json:"description"   binding:"required"                      validate:"required,gte=10"`
-	ViewsCount      int              `json:"viewsCount"    binding:"required"                      validate:"gte=0"`
-	TotalPurchase   int              `json:"totalPurchase" binding:"required"                      validate:"gte=0"`
-	TrendingScore   int64            `json:"trendingScore" binding:"required"                      validate:"gte=0"`
-	Price           int64            `json:"price"         binding:"required"                      validate:"required,gt=0"`
-	Rating          float64          `json:"rating"        binding:"required"                      validate:"gte=0,lte=5"`
-	Options         []Option         `json:"options"       validate:"omitempty,dive"`
-	Images          []ProductImage   `json:"images"        validate:"omitempty,dive"`
-	CreatedAt       time.Time        `json:"createdAt"     binding:"required"                      validate:"required"`
-	UpdatedAt       time.Time        `json:"updatedAt"     binding:"required"                      validate:"required,gtefield=CreatedAt"`
-	DeletedAt       *time.Time       `json:"deletedAt"     validate:"omitempty,gtefield=CreatedAt"`
-	Category        *Category        `json:"category"`
-	AttributeValues []AttributeValue `json:"attributes"    validate:"omitempty,dive"`
-	Variants        []ProductVariant `json:"variants"      validate:"omitempty,dive"`
+	ID                uuid.UUID        `json:"id"                binding:"required"                      validate:"required"`
+	Name              string           `json:"name"              binding:"required"                      validate:"required,gte=3,lte=200"`
+	Description       string           `json:"description"       binding:"required"                      validate:"required,gte=10"`
+	ViewsCount        int              `json:"viewsCount"        binding:"required"                      validate:"gte=0"`
+	TotalPurchase     int              `json:"totalPurchase"     binding:"required"                      validate:"gte=0"`
+	TrendingScore     int64            `json:"trendingScore"     binding:"required"                      validate:"gte=0"`
+	Price             int64            `json:"price"             binding:"required"                      validate:"required,gt=0"`
+	Rating            float64          `json:"rating"            binding:"required"                      validate:"gte=0,lte=5"`
+	Options           []Option         `json:"options"           validate:"omitempty,dive"`
+	Images            []ProductImage   `json:"images"            validate:"omitempty,dive"`
+	CreatedAt         time.Time        `json:"createdAt"         binding:"required"                      validate:"required"`
+	UpdatedAt         time.Time        `json:"updatedAt"         binding:"required"                      validate:"required,gtefield=CreatedAt"`
+	DeletedAt         *time.Time       `json:"deletedAt"         validate:"omitempty,gtefield=CreatedAt"`
+	CategoryID        uuid.UUID        `json:"categoryId"`
+	AttributeIDs      []uuid.UUID      `json:"attributeIds"      validate:"omitempty,dive,required"`
+	AttributeValueIDs []uuid.UUID      `json:"attributeValueIds" validate:"omitempty,dive,required"`
+	Variants          []ProductVariant `json:"variants"          validate:"omitempty,dive"`
 }
 
 type Option struct {
@@ -63,7 +64,7 @@ type ProductImage struct {
 func NewProduct(
 	name string,
 	description string,
-	category Category,
+	categoryID uuid.UUID,
 ) (*Product, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
@@ -76,7 +77,7 @@ func NewProduct(
 		Description: description,
 		CreatedAt:   now,
 		UpdatedAt:   now,
-		Category:    &category,
+		CategoryID:  categoryID,
 	}
 	return product, nil
 }
@@ -134,8 +135,12 @@ func NewVariant(
 	return productVariant, nil
 }
 
-func (p *Product) AddAttributeValues(attributeValues ...AttributeValue) {
-	p.AttributeValues = append(p.AttributeValues, attributeValues...)
+func (p *Product) AddAttributeIDs(attributeIDs ...uuid.UUID) {
+	p.AttributeIDs = append(p.AttributeIDs, attributeIDs...)
+}
+
+func (p *Product) AddAttributeValueIDs(attributeValueIDs ...uuid.UUID) {
+	p.AttributeValueIDs = append(p.AttributeValueIDs, attributeValueIDs...)
 }
 
 func (p *Product) AddOptions(options ...Option) {
@@ -168,7 +173,7 @@ func (p *Product) AddVariantImages(variantID uuid.UUID, images ...ProductImage) 
 func (p *Product) Update(
 	name *string,
 	description *string,
-	category *Category,
+	categoryID *uuid.UUID,
 ) {
 	updated := false
 	if name != nil {
@@ -179,8 +184,8 @@ func (p *Product) Update(
 		p.Description = *description
 		updated = true
 	}
-	if category != nil {
-		p.Category = category
+	if categoryID != nil {
+		p.CategoryID = *categoryID
 		updated = true
 	}
 	if updated {

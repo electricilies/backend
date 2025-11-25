@@ -6,6 +6,7 @@ import (
 
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
+	"backend/internal/helper/ptr"
 	"backend/internal/helper/slice"
 
 	"github.com/google/uuid"
@@ -129,7 +130,7 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 	product, err := domain.NewProduct(
 		param.Data.Name,
 		param.Data.Description,
-		*category,
+		category.ID,
 	)
 	if err != nil {
 		return nil, err
@@ -141,18 +142,8 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 			attributeIDs = append(attributeIDs, a.AttributeID)
 			attributeValueIDs = append(attributeValueIDs, a.ValueID)
 		}
-		attributes, err := p.attributeRepo.List(
-			ctx,
-			&attributeIDs,
-			nil,
-			domain.DeletedExcludeParam,
-			0, 0,
-		)
-		if err != nil {
-			return nil, err
-		}
-		attributeValues := p.attributeService.FilterAttributeValuesFromAttributes(*attributes, attributeValueIDs)
-		product.AddAttributeValues(attributeValues...)
+		product.AddAttributeIDs(attributeIDs...)
+		product.AddAttributeValueIDs(attributeValueIDs...)
 	}
 	var options *[]domain.Option
 	if param.Data.Options != nil {
@@ -242,7 +233,7 @@ func (p *Product) Update(ctx context.Context, param http.UpdateProductRequestDto
 	product.Update(
 		param.Data.Name,
 		param.Data.Description,
-		category,
+		ptr.To(category.ID),
 	)
 	err = p.productRepo.Save(ctx, *product)
 	if err != nil {

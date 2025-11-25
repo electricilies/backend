@@ -40,19 +40,20 @@ func (c *Cart) Create(
 }
 
 func (c *Cart) CreateItem(
+	productID uuid.UUID,
 	productVariantID uuid.UUID,
 	quantity int,
 ) (*domain.CartItem, error) {
 	// For demonstration, ProductVariant is not loaded from DB
-	productVariant := domain.ProductVariant{ID: productVariantID}
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, multierror.Append(domain.ErrInternal, err)
 	}
 	cartItem := &domain.CartItem{
-		ID:             id,
-		ProductVariant: &productVariant,
-		Quantity:       quantity,
+		ID:               id,
+		ProductID:        productID,
+		ProductVariantID: productVariantID,
+		Quantity:         quantity,
 	}
 	if err := c.validate.Struct(cartItem); err != nil {
 		return nil, multierror.Append(domain.ErrInvalid, err)

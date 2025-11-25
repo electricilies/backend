@@ -25,7 +25,12 @@ func (o *Order) Create(ctx context.Context, param http.CreateOrderRequestDto) (*
 	// Convert CreateOrderItemData to OrderItems
 	items := make([]domain.OrderItem, 0, len(param.Data.Items))
 	for _, itemData := range param.Data.Items {
-		item, err := o.orderService.CreateItem(itemData.ProductVariantID, itemData.Quantity, itemData.Price)
+		item, err := o.orderService.CreateItem(
+			itemData.ProductID,
+			itemData.ProductVariantID,
+			itemData.Quantity,
+			itemData.Price,
+		)
 		if err != nil {
 			return nil, err
 		}
