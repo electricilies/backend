@@ -7,10 +7,10 @@ import (
 )
 
 type Cart struct {
-	ID        uuid.UUID  `json:"id"        binding:"required"        validate:"required"`
-	Items     []CartItem `json:"items"     validate:"omitempty,dive"`
-	UserID    uuid.UUID  `json:"userId"    binding:"required"        validate:"required"`
-	UpdatedAt time.Time  `json:"updatedAt" binding:"required"        validate:"required"`
+	ID        uuid.UUID  `json:"id"        binding:"required"                          validate:"required"`
+	Items     []CartItem `json:"items"     validate:"omitempty,unique_cart_items,dive"`
+	UserID    uuid.UUID  `json:"userId"    binding:"required"                          validate:"required"`
+	UpdatedAt time.Time  `json:"updatedAt" binding:"required"                          validate:"required"`
 }
 
 type CartItem struct {

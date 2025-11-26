@@ -283,9 +283,9 @@ func (s *AttributeTestSuite) TestAttribute_UpdateValue() {
 			err := attr.UpdateValue(id, newValue)
 
 			if tt.expectError {
-				s.Error(err)
+				s.Require().Error(err)
 				if tt.errorType != nil {
-					s.ErrorIs(err, tt.errorType)
+					s.Require().ErrorIs(err, tt.errorType)
 				}
 			} else {
 				s.NoError(err)
@@ -409,12 +409,12 @@ func (s *AttributeTestSuite) TestAttribute_RemoveValue() {
 			err := attr.RemoveValue(id)
 
 			if tt.expectError {
-				s.Error(err)
+				s.Require().Error(err)
 				if tt.errorType != nil {
-					s.ErrorIs(err, tt.errorType)
+					s.Require().ErrorIs(err, tt.errorType)
 				}
 			} else {
-				s.NoError(err)
+				s.Require().NoError(err)
 				if tt.validate != nil {
 					tt.validate(attr)
 				}
@@ -485,8 +485,8 @@ func (s *AttributeTestSuite) TestValidateAttributeValueUniqueness() {
 			err := ValidateAttributeValueUniqueness(attr)
 
 			if tt.expectError {
-				s.Error(err)
-				s.Contains(err.Error(), tt.errorMsg)
+				s.Require().Error(err)
+				s.Require().Contains(err.Error(), tt.errorMsg)
 			} else {
 				s.NoError(err)
 			}

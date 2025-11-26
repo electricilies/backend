@@ -14,8 +14,10 @@ func NewValidate() *validator.Validate {
 		domain.ProductStructLevel,
 		domain.Product{},
 	)
-	// Register attribute validators
 	if err := domain.RegisterAttributeValidators(validate); err != nil {
+		panic(err)
+	}
+	if err := domain.RegisterCartValidators(validate); err != nil {
 		panic(err)
 	}
 	return validate

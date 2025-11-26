@@ -24,7 +24,7 @@ func validateUniqueAttributeValues(fl validator.FieldLevel) bool {
 
 	seen := make(map[string]struct{})
 	seenIDs := make(map[uuid.UUID]struct{})
-	
+
 	for _, val := range values {
 		// Check for duplicate values (case-insensitive)
 		valueLower := val.Value
