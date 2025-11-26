@@ -10,14 +10,13 @@ func NewValidate() *validator.Validate {
 	validate := validator.New(
 		validator.WithRequiredStructEnabled(),
 	)
-	validate.RegisterStructValidation(
-		domain.ProductStructLevel,
-		domain.Product{},
-	)
 	if err := domain.RegisterAttributeValidators(validate); err != nil {
 		panic(err)
 	}
 	if err := domain.RegisterCartValidators(validate); err != nil {
+		panic(err)
+	}
+	if err := domain.RegisterProductValidators(validate); err != nil {
 		panic(err)
 	}
 	return validate
