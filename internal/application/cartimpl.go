@@ -75,8 +75,11 @@ func (c *Cart) GetByUser(ctx context.Context, param http.GetCartByUserRequestDto
 }
 
 func (c *Cart) Create(ctx context.Context, param http.CreateCartRequestDto) (*http.CartResponseDto, error) {
-	cart, err := c.cartService.Create(param.UserID)
+	cart, err := domain.NewCart(param.Data.UserID)
 	if err != nil {
+		return nil, err
+	}
+	if err := c.cartService.Validate(*cart); err != nil {
 		return nil, err
 	}
 	err = c.cartRepo.Save(ctx, *cart)
@@ -111,7 +114,7 @@ func (c *Cart) CreateItem(ctx context.Context, param http.CreateCartItemRequestD
 		return nil, domain.ErrForbidden
 	}
 
-	cartItem, err := c.cartService.CreateItem(
+	cartItem, err := domain.NewCartItem(
 		param.Data.ProductID,
 		param.Data.ProductVariantID,
 		param.Data.Quantity,
@@ -120,8 +123,8 @@ func (c *Cart) CreateItem(ctx context.Context, param http.CreateCartItemRequestD
 		return nil, err
 	}
 
-	err = c.cartService.AddItem(cart, *cartItem)
-	if err != nil {
+	*cartItem = cart.UpsertItem(*cartItem)
+	if err := c.cartService.Validate(*cart); err != nil {
 		return nil, err
 	}
 
@@ -161,8 +164,8 @@ func (c *Cart) UpdateItem(ctx context.Context, param http.UpdateCartItemRequestD
 		return nil, domain.ErrForbidden
 	}
 
-	err = c.cartService.UpdateItem(cart, param.ItemID, param.Data.Quantity)
-	if err != nil {
+	cart.UpdateItem(param.ItemID, param.Data.Quantity)
+	if err := c.cartService.Validate(*cart); err != nil {
 		return nil, err
 	}
 
@@ -211,8 +214,8 @@ func (c *Cart) DeleteItem(ctx context.Context, param http.DeleteCartItemRequestD
 		return domain.ErrForbidden
 	}
 
-	err = c.cartService.RemoveItem(cart, param.ItemID)
-	if err != nil {
+	cart.RemoveItem(param.ItemID)
+	if err := c.cartService.Validate(*cart); err != nil {
 		return err
 	}
 
@@ -251,6 +254,7 @@ func (c *Cart) enrichCartItems(ctx context.Context, cartDto *http.CartResponseDt
 		nil, // minPrice
 		nil, // maxPrice
 		nil, // rating
+		nil, // variantIDs
 		nil, // categoryIDs
 		domain.DeletedExcludeParam,
 		nil, // sortRating

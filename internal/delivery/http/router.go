@@ -63,12 +63,12 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 		cart := api.Group("/carts")
 		{
 			cart.Use(r.authMiddleware.Handler())
-			cart.GET("/users/:user_id", r.cartHandler.GetByUser)
+			cart.POST("", r.cartHandler.Create)
 			cart.GET("/:cart_id", r.cartHandler.Get)
-			cart.POST("/:cart_id", r.cartHandler.Create)
+			cart.GET("/users/:user_id", r.cartHandler.GetByUser)
 			cart.POST("/:cart_id/item", r.cartHandler.CreateItem)
-			cart.PATCH("/:cart_id/item", r.cartHandler.UpdateItem)
-			cart.DELETE("/:cart_id/item", r.cartHandler.RemoveItem)
+			cart.PATCH("/:cart_id/item/:item_id", r.cartHandler.UpdateItem)
+			cart.DELETE("/:cart_id/item/:item_id", r.cartHandler.RemoveItem)
 		}
 		categories := api.Group("/categories")
 		{
@@ -80,22 +80,23 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 
 		products := api.Group("/products")
 		{
-			products.POST("", r.productHandler.Create)
+			products.POST("", r.authMiddleware.Handler(), r.productHandler.Create)
 			products.GET("", r.productHandler.List)
 			products.GET("/:product_id", r.productHandler.Get)
-			products.DELETE("/:product_id", r.productHandler.Delete)
-			products.POST("/:product_id/images", r.productHandler.AddImages)
-			products.DELETE("/:product_id/images", r.productHandler.DeleteImages)
-			products.PATCH("/:product_id", r.productHandler.Update)
-			products.GET("/images/upload-url", r.productHandler.GetUploadImageURL)
-			products.GET("/images/delete-url/:image_id", r.productHandler.GetDeleteImageURL)
-			products.POST("/:product_id/variants", r.productHandler.AddVariants)
-			products.PATCH("/:product_id/variants/:variant_id", r.productHandler.UpdateVariant)
-			products.PATCH("/:product_id/options", r.productHandler.UpdateOptions)
+			products.DELETE("/:product_id", r.authMiddleware.Handler(), r.productHandler.Delete)
+			products.POST("/:product_id/images", r.authMiddleware.Handler(), r.productHandler.AddImages)
+			products.DELETE("/:product_id/images", r.authMiddleware.Handler(), r.productHandler.DeleteImages)
+			products.PATCH("/:product_id", r.authMiddleware.Handler(), r.productHandler.Update)
+			products.GET("/images/upload-url", r.authMiddleware.Handler(), r.productHandler.GetUploadImageURL)
+			products.GET("/images/delete-url/:image_id", r.authMiddleware.Handler(), r.productHandler.GetDeleteImageURL)
+			products.POST("/:product_id/variants", r.authMiddleware.Handler(), r.productHandler.AddVariants)
+			products.PATCH("/:product_id/variants/:variant_id", r.authMiddleware.Handler(), r.productHandler.UpdateVariant)
+			products.PATCH("/:product_id/options", r.authMiddleware.Handler(), r.productHandler.UpdateOptions)
 		}
 
 		attributes := api.Group("/attributes")
 		{
+			attributes.Use(r.authMiddleware.Handler())
 			attributes.GET("", r.attributeHandler.List)
 			attributes.GET("/:attribute_id/values", r.attributeHandler.ListValues)
 			attributes.POST("", r.attributeHandler.Create)
@@ -133,6 +134,7 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 
 		reviews := api.Group("/reviews")
 		{
+			reviews.Use(r.authMiddleware.Handler())
 			reviews.GET("", r.reviewHandler.List)
 			reviews.POST("", r.reviewHandler.Create)
 			reviews.GET("/:review_id", r.reviewHandler.Get)

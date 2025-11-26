@@ -64,7 +64,7 @@ func InitializeServer(ctx context.Context) *http.Server {
 	cacheredisReview := cacheredis.ProvideReview(redisClient)
 	applicationReview := application.ProvideReview(review, serviceReview, cacheredisReview)
 	reviewHandlerImpl := http.ProvideReviewHandler(applicationReview)
-	cart := repositorypostgres.ProvideCart(queries)
+	cart := repositorypostgres.ProvideCart(queries, pool)
 	serviceCart := service.ProvideCart(validate)
 	cacheredisCart := cacheredis.ProvideCart(redisClient)
 	applicationCart := application.ProvideCart(cart, serviceCart, cacheredisCart, repositorypostgresProduct)

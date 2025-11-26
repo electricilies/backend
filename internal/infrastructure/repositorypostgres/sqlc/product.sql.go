@@ -446,41 +446,55 @@ LEFT JOIN (
     END
 ) AS category_scores
   ON products.id = category_scores.id
+LEFT JOIN (
+  SELECT
+    products.id
+  FROM product_variants
+  INNER JOIN products
+    ON product_variants.product_id = products.id
+  WHERE
+    CASE WHEN $2::uuid[] IS NULL THEN TRUE
+      WHEN cardinality($2::uuid[]) = 0 THEN TRUE
+      ELSE product_variants.id = ANY ($2::uuid[])
+    END
+  GROUP BY products.id
+) AS variant_filter
+  ON products.id = variant_filter.id
 WHERE
   CASE
-    WHEN $2::uuid IS NULL THEN TRUE
-    ELSE products.id = $2::uuid
+    WHEN $3::uuid IS NULL THEN TRUE
+    ELSE products.id = $3::uuid
   END
   AND CASE
-    WHEN $3::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
-    ELSE products.id = ANY ($3::uuid[])
+    WHEN $4::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($4::uuid[]) = 0 THEN TRUE
+    ELSE products.id = ANY ($4::uuid[])
   END
   AND CASE
     WHEN $1::text IS NULL THEN TRUE
     ELSE products.name ||| $1::text
   END
   AND CASE
-    WHEN $4::decimal IS NULL THEN TRUE
-    ELSE products.price >= $4::decimal
-  END
-  AND CASE
     WHEN $5::decimal IS NULL THEN TRUE
-    ELSE products.price <= $5::decimal
+    ELSE products.price >= $5::decimal
   END
   AND CASE
-    WHEN $6::real IS NULL THEN TRUE
-    ELSE products.rating >= $6::real
+    WHEN $6::decimal IS NULL THEN TRUE
+    ELSE products.price <= $6::decimal
   END
   AND CASE
-    WHEN $7::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($7::uuid[]) = 0 THEN TRUE
-    ELSE products.category_id = ANY ($7::uuid[])
+    WHEN $7::real IS NULL THEN TRUE
+    ELSE products.rating >= $7::real
   END
   AND CASE
-    WHEN $8::text = 'exclude' THEN products.deleted_at IS NULL
-    WHEN $8::text = 'only' THEN products.deleted_at IS NOT NULL
-    WHEN $8::text = 'all' THEN TRUE
+    WHEN $8::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($8::uuid[]) = 0 THEN TRUE
+    ELSE products.category_id = ANY ($8::uuid[])
+  END
+  AND CASE
+    WHEN $9::text = 'exclude' THEN products.deleted_at IS NULL
+    WHEN $9::text = 'only' THEN products.deleted_at IS NOT NULL
+    WHEN $9::text = 'all' THEN TRUE
     ELSE products.deleted_at IS NULL
   END
 ORDER BY
@@ -488,23 +502,24 @@ ORDER BY
     $1 IS NOT NULL THEN pdb.score(products.id) + category_scores.category_score + products.trending_score
   END DESC,
   CASE WHEN
-    $9::text = 'asc' THEN products.rating
+    $10::text = 'asc' THEN products.rating
   END ASC,
   CASE WHEN
-    $9::text = 'desc' THEN products.rating
+    $10::text = 'desc' THEN products.rating
   END DESC,
   CASE WHEN
-   $10::text = 'asc' THEN products.price
+   $11::text = 'asc' THEN products.price
   END ASC,
   CASE WHEN
-   $10::text = 'desc' THEN products.price
+   $11::text = 'desc' THEN products.price
   END DESC
-OFFSET $11::integer
-LIMIT NULLIF($12::integer, 0)
+OFFSET $12::integer
+LIMIT NULLIF($13::integer, 0)
 `
 
 type ListProductsParams struct {
 	Search      *string
+	VariantIDs  []uuid.UUID
 	ID          pgtype.UUID
 	IDs         []uuid.UUID
 	MinPrice    pgtype.Numeric
@@ -522,6 +537,7 @@ type ListProductsParams struct {
 func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]Product, error) {
 	rows, err := q.db.Query(ctx, listProducts,
 		arg.Search,
+		arg.VariantIDs,
 		arg.ID,
 		arg.IDs,
 		arg.MinPrice,

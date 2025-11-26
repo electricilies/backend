@@ -25,11 +25,10 @@ type CartItemResponseDto struct {
 }
 
 type CartItemProductResponseDto struct {
-	ID          uuid.UUID `json:"id"          binding:"required"`
-	Name        string    `json:"name"        binding:"required"`
-	Description string    `json:"description" binding:"required"`
-	Price       float64   `json:"price"       binding:"required"`
-	Rating      float64   `json:"rating"      binding:"required"`
+	ID     uuid.UUID `json:"id"     binding:"required"`
+	Name   string    `json:"name"   binding:"required"`
+	Price  float64   `json:"price"  binding:"required"`
+	Rating float64   `json:"rating" binding:"required"`
 }
 
 type CartItemProductVariantResponseDto struct {
@@ -78,11 +77,10 @@ func ToCartItemResponseDto(
 
 	if product != nil {
 		itemDto.Product = CartItemProductResponseDto{
-			ID:          product.ID,
-			Name:        product.Name,
-			Description: product.Description,
-			Price:       float64(product.Price),
-			Rating:      product.Rating,
+			ID:     product.ID,
+			Name:   product.Name,
+			Price:  float64(product.Price),
+			Rating: product.Rating,
 		}
 	}
 

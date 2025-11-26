@@ -71,6 +71,7 @@ func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*
 		param.MinPrice,
 		param.MaxPrice,
 		param.Rating,
+		nil,
 		param.CategoryIDs,
 		param.Deleted,
 		param.SortRating,

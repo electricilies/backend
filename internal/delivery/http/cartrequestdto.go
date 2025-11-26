@@ -11,7 +11,11 @@ type GetCartByUserRequestDto struct {
 }
 
 type CreateCartRequestDto struct {
-	UserID uuid.UUID `binding:"required"`
+	Data CreateCartData `binding:"required"`
+}
+
+type CreateCartData struct {
+	UserID uuid.UUID `json:"userId" binding:"required"`
 }
 
 type CreateCartItemRequestDto struct {
@@ -23,7 +27,7 @@ type CreateCartItemRequestDto struct {
 type CreateCartItemData struct {
 	ProductID        uuid.UUID `json:"productId"        binding:"required"`
 	ProductVariantID uuid.UUID `json:"productVariantId" binding:"required"`
-	Quantity         int       `json:"quantity"         binding:"required"`
+	Quantity         int       `json:"quantity"         binding:"required,gt=0"`
 }
 
 type UpdateCartItemRequestDto struct {

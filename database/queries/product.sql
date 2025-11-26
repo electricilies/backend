@@ -62,6 +62,20 @@ LEFT JOIN (
     END
 ) AS category_scores
   ON products.id = category_scores.id
+LEFT JOIN (
+  SELECT
+    products.id
+  FROM product_variants
+  INNER JOIN products
+    ON product_variants.product_id = products.id
+  WHERE
+    CASE WHEN sqlc.narg('variant_ids')::uuid[] IS NULL THEN TRUE
+      WHEN cardinality(sqlc.narg('variant_ids')::uuid[]) = 0 THEN TRUE
+      ELSE product_variants.id = ANY (sqlc.narg('variant_ids')::uuid[])
+    END
+  GROUP BY products.id
+) AS variant_filter
+  ON products.id = variant_filter.id
 WHERE
   CASE
     WHEN sqlc.narg('id')::uuid IS NULL THEN TRUE

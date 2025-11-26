@@ -204,6 +204,10 @@ return {
           ),
         },
         {
+          name = "db-keycloak",
+          url = "postgres://postgres:postgres@localhost:5433/postgres?sslmode=disable",
+        },
+        {
           name = "redis-local",
           url = "redis:0",
         },

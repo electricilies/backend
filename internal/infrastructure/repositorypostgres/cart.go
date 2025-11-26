@@ -9,16 +9,21 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Cart struct {
 	queries *sqlc.Queries
+	conn    *pgxpool.Pool
 }
 
 var _ domain.CartRepository = (*Cart)(nil)
 
-func ProvideCart(q *sqlc.Queries) *Cart {
-	return &Cart{queries: q}
+func ProvideCart(q *sqlc.Queries, conn *pgxpool.Pool) *Cart {
+	return &Cart{
+		queries: q,
+		conn:    conn,
+	}
 }
 
 func (r *Cart) Get(
@@ -42,8 +47,9 @@ func (r *Cart) Get(
 		return nil, ToDomainErrorFromPostgres(err)
 	}
 	cart := &domain.Cart{
-		ID:     cartEntity.ID,
-		UserID: cartEntity.UserID,
+		ID:        cartEntity.ID,
+		UserID:    cartEntity.UserID,
+		UpdatedAt: cartEntity.UpdatedAt.Time,
 	}
 	cartItems, err := r.queries.ListCartItems(ctx, sqlc.ListCartItemsParams{
 		CartID: cartPgID,
@@ -51,9 +57,24 @@ func (r *Cart) Get(
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
 	}
+	productVariantIDs := make([]uuid.UUID, 0, len(cartItems))
+	for _, item := range cartItems {
+		productVariantIDs = append(productVariantIDs, item.ProductVariantID)
+	}
+	productVariantEntities, err := r.queries.ListProductVariants(ctx, sqlc.ListProductVariantsParams{
+		IDs: productVariantIDs,
+	})
+	if err != nil {
+		return nil, ToDomainErrorFromPostgres(err)
+	}
+	productVariantIDproductIDMap := make(map[uuid.UUID]uuid.UUID, len(productVariantEntities))
+	for _, pv := range productVariantEntities {
+		productVariantIDproductIDMap[pv.ID] = pv.ProductID
+	}
 	for _, item := range cartItems {
 		cart.Items = append(cart.Items, domain.CartItem{
 			ID:               item.ID,
+			ProductID:        productVariantIDproductIDMap[item.ProductVariantID],
 			ProductVariantID: item.ProductVariantID,
 			Quantity:         int(item.Quantity),
 		})
@@ -62,7 +83,13 @@ func (r *Cart) Get(
 }
 
 func (r *Cart) Save(ctx context.Context, cart domain.Cart) error {
-	err := r.queries.UpsertCart(ctx, sqlc.UpsertCartParams{
+	tx, err := r.conn.Begin(ctx)
+	if err != nil {
+		return ToDomainErrorFromPostgres(err)
+	}
+	qtx := r.queries.WithTx(tx)
+	defer func() { _ = tx.Rollback(ctx) }()
+	err = qtx.UpsertCart(ctx, sqlc.UpsertCartParams{
 		ID:     cart.ID,
 		UserID: cart.UserID,
 		UpdatedAt: pgtype.Timestamptz{
@@ -73,11 +100,11 @@ func (r *Cart) Save(ctx context.Context, cart domain.Cart) error {
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	err = r.queries.CreateTempTableCartItems(ctx)
+	err = qtx.CreateTempTableCartItems(ctx)
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	itemParams := make([]sqlc.InsertTempTableCartItemsParams, 0, len(cart.Items))
+	itemParams := make([]sqlc.InsertTempTableCartItemsParams, len(cart.Items))
 	for i, item := range cart.Items {
 		itemParams[i] = sqlc.InsertTempTableCartItemsParams{
 			ID:               item.ID,
@@ -86,7 +113,15 @@ func (r *Cart) Save(ctx context.Context, cart domain.Cart) error {
 			Quantity:         int32(item.Quantity),
 		}
 	}
-	_, err = r.queries.InsertTempTableCartItems(ctx, itemParams)
+	_, err = qtx.InsertTempTableCartItems(ctx, itemParams)
+	if err != nil {
+		return ToDomainErrorFromPostgres(err)
+	}
+	err = qtx.MergeCartItemsFromTemp(ctx)
+	if err != nil {
+		return ToDomainErrorFromPostgres(err)
+	}
+	err = tx.Commit(ctx)
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}

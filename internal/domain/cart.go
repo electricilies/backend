@@ -20,41 +20,70 @@ type CartItem struct {
 	Quantity         int       `json:"quantity"                   binding:"required"   validate:"required,gt=0,lte=100"`
 }
 
-func (c *Cart) AddItems(items ...CartItem) {
-	if c.Items == nil {
-		c.Items = []CartItem{}
+func NewCart(userID uuid.UUID) (*Cart, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
 	}
-	c.Items = append(c.Items, items...)
+	cart := &Cart{
+		ID:        id,
+		UserID:    userID,
+		Items:     []CartItem{},
+		UpdatedAt: time.Now(),
+	}
+	return cart, nil
 }
 
-func (c *Cart) RemoveItems(itemID ...uuid.UUID) {
-	filteredItems := []CartItem{}
-	itemIDMap := make(map[uuid.UUID]struct{})
-	for _, id := range itemID {
-		itemIDMap[id] = struct{}{}
+func NewCartItem(
+	productID uuid.UUID,
+	productVariantID uuid.UUID,
+	quantity int,
+) (*CartItem, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
 	}
+	cartItem := &CartItem{
+		ID:               id,
+		ProductID:        productID,
+		ProductVariantID: productVariantID,
+		Quantity:         quantity,
+	}
+	return cartItem, nil
+}
 
+func (c *Cart) UpsertItem(item CartItem) CartItem {
+	for i := range c.Items {
+		existingItem := &c.Items[i]
+		if existingItem.ProductID == item.ProductID {
+			existingItem.Quantity += item.Quantity
+			return *existingItem
+		}
+	}
+	c.Items = append(c.Items, item)
+	return item
+}
+
+func (c *Cart) RemoveItem(itemID uuid.UUID) {
+	filteredItems := []CartItem{}
 	for _, item := range c.Items {
-		if _, found := itemIDMap[item.ID]; !found {
+		if item.ID != itemID {
 			filteredItems = append(filteredItems, item)
 		}
 	}
-
 	c.Items = filteredItems
 }
 
 func (c *Cart) UpdateItem(
 	itemID uuid.UUID,
-	quantity *int,
+	quantity int,
 ) {
 	for i, item := range c.Items {
 		if item.ID == itemID {
-			if quantity != nil {
-				if *quantity == 0 {
-					c.RemoveItems(itemID)
-				} else {
-					c.Items[i].Quantity = *quantity
-				}
+			if quantity == 0 {
+				c.RemoveItem(itemID)
+			} else {
+				c.Items[i].Quantity = quantity
 			}
 			break
 		}

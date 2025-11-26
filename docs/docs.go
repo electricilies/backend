@@ -665,7 +665,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/CreateCartRequestDto"
+                            "$ref": "#/definitions/CreateCartData"
                         }
                     }
                 ],
@@ -851,7 +851,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/carts/{cart_id}/item/{item_id}": {
             "delete": {
                 "security": [
                     {
@@ -873,6 +875,14 @@ const docTemplate = `{
                 ],
                 "summary": "Remove cart item",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "format": "uuid",
@@ -899,9 +909,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/carts/{cart_id}/item/{item_id}": {
+            },
             "patch": {
                 "security": [
                     {
@@ -2693,16 +2701,12 @@ const docTemplate = `{
         "CartItemProductResponseDto": {
             "type": "object",
             "required": [
-                "description",
                 "id",
                 "name",
                 "price",
                 "rating"
             ],
             "properties": {
-                "description": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "string"
                 },
@@ -2848,6 +2852,17 @@ const docTemplate = `{
                 }
             }
         },
+        "CreateCartData": {
+            "type": "object",
+            "required": [
+                "userId"
+            ],
+            "properties": {
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "CreateCartItemData": {
             "type": "object",
             "required": [
@@ -2864,17 +2879,6 @@ const docTemplate = `{
                 },
                 "quantity": {
                     "type": "integer"
-                }
-            }
-        },
-        "CreateCartRequestDto": {
-            "type": "object",
-            "required": [
-                "userID"
-            ],
-            "properties": {
-                "userID": {
-                    "type": "string"
                 }
             }
         },

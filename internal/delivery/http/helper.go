@@ -38,6 +38,22 @@ func queryToUUID(ctx *gin.Context, key string) (*uuid.UUID, bool) {
 	return &id, true
 }
 
+func ctxValueToUUID(ctx *gin.Context, key string) (*uuid.UUID, bool) {
+	idVal, exists := ctx.Get(key)
+	if !exists {
+		return nil, false
+	}
+	idStr, ok := idVal.(string)
+	if !ok {
+		return nil, false
+	}
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		return nil, false
+	}
+	return &id, true
+}
+
 func pathToUUID(ctx *gin.Context, key string) (*uuid.UUID, bool) {
 	idStr := ctx.Param(key)
 	if idStr == "" {

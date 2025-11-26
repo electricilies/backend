@@ -146,9 +146,11 @@ export-realm container="electricilies-backend-keycloak-1" realm="electricilies":
     --realm {{realm}} \
     --file /opt/keycloak/{{realm}}-realm-export.json || true
   docker cp {{container}}:/opt/keycloak/{{realm}}-realm-export.json ./keycloak/{{realm}}-realm-export.json
+  ./script/keycloak-sed-user-id.sh
 
 [doc("Import a Keycloak realm from JSON")]
 import-realm container="electricilies-backend-keycloak-1" file="./keycloak/electricilies-realm-export.json" realm="electricilies":
+  ./script/keycloak-sed-user-id.sh
   docker cp {{file}} {{container}}:/opt/keycloak/{{realm}}-realm-export.json
   docker exec \
     -it \

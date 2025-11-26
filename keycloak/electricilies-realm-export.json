@@ -491,7 +491,7 @@
   "webAuthnPolicyPasswordlessExtraOrigins": [],
   "users": [
     {
-      "id": "00000000-0000-0000-0000-000000000001",
+      "id": "00000000-0000-7000-0000-000000000001",
       "username": "admin",
       "email": "admin@example.com",
       "emailVerified": true,
@@ -540,7 +540,7 @@
       "groups": []
     },
     {
-      "id": "00000000-0000-0000-0000-000000000003",
+      "id": "00000000-0000-7000-0000-000000000003",
       "username": "customer",
       "email": "customer@example.com",
       "emailVerified": true,
@@ -606,7 +606,7 @@
       "groups": []
     },
     {
-      "id": "00000000-0000-0000-0000-000000000002",
+      "id": "00000000-0000-7000-0000-000000000002",
       "username": "staff",
       "email": "staff@example.com",
       "emailVerified": true,

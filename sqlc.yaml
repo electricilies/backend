@@ -38,6 +38,7 @@ sql:
           image_urls: ImageURLs
           product_ids: ProductIDs
           product_variant_ids: ProductVariantIDs
+          variant_ids: VariantIDs
           options_ids: OptionsIDs
           option_value_ids: OptionValueIDs
           attribute_ids: AttributeIDs
