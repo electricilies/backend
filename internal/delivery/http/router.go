@@ -63,7 +63,9 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 		cart := api.Group("/carts")
 		{
 			cart.Use(r.authMiddleware.Handler())
+			cart.GET("/users/:user_id", r.cartHandler.GetByUser)
 			cart.GET("/:cart_id", r.cartHandler.Get)
+			cart.POST("/:cart_id", r.cartHandler.Create)
 			cart.POST("/:cart_id/item", r.cartHandler.CreateItem)
 			cart.PATCH("/:cart_id/item", r.cartHandler.UpdateItem)
 			cart.DELETE("/:cart_id/item", r.cartHandler.RemoveItem)

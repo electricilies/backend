@@ -637,6 +637,107 @@ const docTemplate = `{
                 }
             }
         },
+        "/carts": {
+            "post": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
+                "description": "Create a new cart for the user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Create cart",
+                "parameters": [
+                    {
+                        "description": "Create cart request",
+                        "name": "cart",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateCartRequestDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/CartResponseDto"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/users/{user_id}": {
+            "get": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
+                "description": "Get cart for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get cart by user ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CartResponseDto"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
         "/carts/{cart_id}": {
             "get": {
                 "security": [
@@ -647,7 +748,7 @@ const docTemplate = `{
                         "OAuth2Password": []
                     }
                 ],
-                "description": "Get cart by user ID",
+                "description": "Get cart by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -660,25 +761,19 @@ const docTemplate = `{
                 "summary": "Get cart",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Page for pagination",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 20,
-                        "description": "Limit",
-                        "name": "limit",
-                        "in": "query"
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Cart"
+                            "$ref": "#/definitions/CartResponseDto"
                         }
                     },
                     "404": {
@@ -719,6 +814,14 @@ const docTemplate = `{
                 "summary": "Add item to cart",
                 "parameters": [
                     {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Cart item request",
                         "name": "item",
                         "in": "body",
@@ -732,7 +835,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/CartItem"
+                            "$ref": "#/definitions/CartItemResponseDto"
                         }
                     },
                     "400": {
@@ -771,7 +874,7 @@ const docTemplate = `{
                 "summary": "Remove cart item",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "format": "uuid",
                         "description": "Cart Item ID",
                         "name": "item_id",
@@ -796,7 +899,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/carts/{cart_id}/item/{item_id}": {
             "patch": {
                 "security": [
                     {
@@ -819,10 +924,18 @@ const docTemplate = `{
                 "summary": "Update cart item",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Cart ID",
+                        "name": "cart_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "format": "uuid",
                         "description": "Cart Item ID",
-                        "name": "cart_item_id",
+                        "name": "item_id",
                         "in": "path",
                         "required": true
                     },
@@ -840,7 +953,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/CartItem"
+                            "$ref": "#/definitions/CartItemResponseDto"
                         }
                     },
                     "400": {
@@ -2577,10 +2690,92 @@ const docTemplate = `{
                 }
             }
         },
-        "Cart": {
+        "CartItemProductResponseDto": {
+            "type": "object",
+            "required": [
+                "description",
+                "id",
+                "name",
+                "price",
+                "rating"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "rating": {
+                    "type": "number"
+                }
+            }
+        },
+        "CartItemProductVariantResponseDto": {
             "type": "object",
             "required": [
                 "id",
+                "images",
+                "price",
+                "quantity",
+                "sku"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProductImageResponseDto"
+                    }
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
+                }
+            }
+        },
+        "CartItemResponseDto": {
+            "type": "object",
+            "required": [
+                "id",
+                "product",
+                "productVariant",
+                "quantity"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "product": {
+                    "$ref": "#/definitions/CartItemProductResponseDto"
+                },
+                "productVariant": {
+                    "$ref": "#/definitions/CartItemProductVariantResponseDto"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "CartResponseDto": {
+            "type": "object",
+            "required": [
+                "id",
+                "items",
+                "updatedAt",
                 "userId"
             ],
             "properties": {
@@ -2590,34 +2785,14 @@ const docTemplate = `{
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/CartItem"
+                        "$ref": "#/definitions/CartItemResponseDto"
                     }
+                },
+                "updatedAt": {
+                    "type": "string"
                 },
                 "userId": {
                     "type": "string"
-                }
-            }
-        },
-        "CartItem": {
-            "type": "object",
-            "required": [
-                "id",
-                "productId",
-                "quantity"
-            ],
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "productId": {
-                    "type": "string"
-                },
-                "productVariantId": {
-                    "type": "string"
-                },
-                "quantity": {
-                    "type": "integer",
-                    "maximum": 100
                 }
             }
         },
@@ -2689,6 +2864,17 @@ const docTemplate = `{
                 },
                 "quantity": {
                     "type": "integer"
+                }
+            }
+        },
+        "CreateCartRequestDto": {
+            "type": "object",
+            "required": [
+                "userID"
+            ],
+            "properties": {
+                "userID": {
+                    "type": "string"
                 }
             }
         },

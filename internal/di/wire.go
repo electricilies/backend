@@ -242,6 +242,11 @@ var CacheSet = wire.NewSet(
 		new(application.AttributeCache),
 		new(*cacheredis.Attribute),
 	),
+	cacheredis.ProvideCart,
+	wire.Bind(
+		new(application.CartCache),
+		new(*cacheredis.Cart),
+	),
 )
 
 var ObjectStorageSet = wire.NewSet(

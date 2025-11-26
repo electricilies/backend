@@ -9,7 +9,8 @@ import (
 type CartRepository interface {
 	Get(
 		ctx context.Context,
-		id uuid.UUID,
+		id *uuid.UUID,
+		userID *uuid.UUID,
 	) (*Cart, error)
 
 	Save(

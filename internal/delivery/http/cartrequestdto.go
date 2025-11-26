@@ -6,6 +6,10 @@ type GetCartRequestDto struct {
 	CartID uuid.UUID `binding:"required"`
 }
 
+type GetCartByUserRequestDto struct {
+	UserID uuid.UUID `binding:"required"`
+}
+
 type CreateCartRequestDto struct {
 	UserID uuid.UUID `binding:"required"`
 }

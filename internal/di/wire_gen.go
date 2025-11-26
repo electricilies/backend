@@ -66,7 +66,8 @@ func InitializeServer(ctx context.Context) *http.Server {
 	reviewHandlerImpl := http.ProvideReviewHandler(applicationReview)
 	cart := repositorypostgres.ProvideCart(queries)
 	serviceCart := service.ProvideCart(validate)
-	applicationCart := application.ProvideCart(cart, serviceCart)
+	cacheredisCart := cacheredis.ProvideCart(redisClient)
+	applicationCart := application.ProvideCart(cart, serviceCart, cacheredisCart, repositorypostgresProduct)
 	cartHandlerImpl := http.ProvideCartHandler(applicationCart)
 	ginRouter := http.ProvideRouter(healthHandlerImpl, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, categoryHandlerImpl, productHandlerImpl, attributeHandlerImpl, orderHandlerImpl, reviewHandlerImpl, cartHandlerImpl)
 	authHandlerImpl := http.ProvideAuthHandler(server)
@@ -209,6 +210,9 @@ var CacheSet = wire.NewSet(cacheredis.ProvideProduct, wire.Bind(
 ), cacheredis.ProvideAttribute, wire.Bind(
 	new(application.AttributeCache),
 	new(*cacheredis.Attribute),
+), cacheredis.ProvideCart, wire.Bind(
+	new(application.CartCache),
+	new(*cacheredis.Cart),
 ),
 )
 

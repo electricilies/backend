@@ -15,6 +15,7 @@ const (
 	CacheTTLAttributeValue = 3600 // 1 hour
 	CacheTTLReview         = 1800 // 30 minutes
 	CacheTTLProduct        = 3600 // 1 hour
+	CacheTTLCart           = 1800 // 30 minutes
 )
 
 // Category cache keys
@@ -227,4 +228,18 @@ func ProductListKey(
 
 func ProductGetKey(id uuid.UUID) string {
 	return fmt.Sprintf("%s%s", ProductGetPrefix, id.String())
+}
+
+// Cart cache keys
+const (
+	CartGetPrefix  = "cart:get:"
+	CartUserPrefix = "cart:user:"
+)
+
+func CartGetKey(id uuid.UUID) string {
+	return fmt.Sprintf("%s%s", CartGetPrefix, id.String())
+}
+
+func CartUserKey(userID uuid.UUID) string {
+	return fmt.Sprintf("%s%s", CartUserPrefix, userID.String())
 }

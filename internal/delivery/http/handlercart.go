@@ -6,6 +6,8 @@ import (
 
 type CartHandler interface {
 	Get(*gin.Context)
+	GetByUser(*gin.Context)
+	Create(*gin.Context)
 	CreateItem(*gin.Context)
 	UpdateItem(*gin.Context)
 	RemoveItem(*gin.Context)
