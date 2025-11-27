@@ -20,6 +20,7 @@ type Querier interface {
 	CreateTempTableOptionValues(ctx context.Context) error
 	CreateTempTableOptionValuesProductVariants(ctx context.Context) error
 	CreateTempTableOptions(ctx context.Context) error
+	CreateTempTableOrderItems(ctx context.Context) error
 	CreateTempTableProductImages(ctx context.Context) error
 	CreateTempTableProductVariants(ctx context.Context) error
 	CreateTempTableProductsAttributeValues(ctx context.Context) error
@@ -40,6 +41,7 @@ type Querier interface {
 	InsertTempTableOptionValues(ctx context.Context, arg []InsertTempTableOptionValuesParams) (int64, error)
 	InsertTempTableOptionValuesProductVariants(ctx context.Context, arg []InsertTempTableOptionValuesProductVariantsParams) (int64, error)
 	InsertTempTableOptions(ctx context.Context, arg []InsertTempTableOptionsParams) (int64, error)
+	InsertTempTableOrderItems(ctx context.Context, arg []InsertTempTableOrderItemsParams) (int64, error)
 	InsertTempTableProductImages(ctx context.Context, arg []InsertTempTableProductImagesParams) (int64, error)
 	InsertTempTableProductVariants(ctx context.Context, arg []InsertTempTableProductVariantsParams) (int64, error)
 	InsertTempTableProductsAttributeValues(ctx context.Context, arg []InsertTempTableProductsAttributeValuesParams) (int64, error)
@@ -65,6 +67,7 @@ type Querier interface {
 	MergeOptionValuesFromTemp(ctx context.Context) error
 	MergeOptionValuesProductVariantsFromTemp(ctx context.Context) error
 	MergeOptionsFromTemp(ctx context.Context) error
+	MergeOrderItemsFromTemp(ctx context.Context) error
 	MergeProductImagesFromTemp(ctx context.Context) error
 	MergeProductVariantsFromTemp(ctx context.Context) error
 	MergeProductsAttributeValuesFromTemp(ctx context.Context) error

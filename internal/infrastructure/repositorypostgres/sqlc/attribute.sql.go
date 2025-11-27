@@ -19,6 +19,7 @@ FROM
   attribute_values
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
@@ -27,6 +28,7 @@ WHERE
     ELSE attribute_id = $2::uuid
   END
   AND CASE
+    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
      ELSE attribute_id = ANY ($3::uuid[])
   END
@@ -64,6 +66,7 @@ FROM
   attributes
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
@@ -149,6 +152,7 @@ JOIN
   attribute_values ON attribute_values.attribute_id = attributes.id
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE attribute_values.id = ANY ($1::uuid[])
   END
@@ -201,6 +205,7 @@ FROM
   attribute_values
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
@@ -209,6 +214,7 @@ WHERE
     ELSE attribute_id = $2::uuid
   END
   AND CASE
+    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
      ELSE attribute_id = ANY ($3::uuid[])
   END
@@ -285,22 +291,25 @@ LEFT JOIN (
     attribute_values
   WHERE
     CASE
+      WHEN $1::uuid[] IS NULL THEN TRUE
       WHEN cardinality($1::uuid[]) = 0 THEN TRUE
-      ELSE attribute_values.id = ANY ($1::uuid[])
+      ELSE attribute_values.id::uuid = ANY ($1::uuid[])
     END
 ) AS av ON attributes.id = av.attribute_id
 WHERE
   CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
-    ELSE attributes.id = ANY ($2::uuid[])
+    ELSE attributes.id::uuid = ANY ($2::uuid[])
   END
   AND CASE
     WHEN $3::text = '' THEN TRUE
     ELSE
-      code ||| ($3::text)
-      OR name ||| ($3::text)
+      attributes.name ||| $3::text
+      OR attributes.code ||| $3::text
   END
   AND CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE av.id IS NOT NULL
   END

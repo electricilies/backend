@@ -55,7 +55,7 @@ func InitializeServer(ctx context.Context) *http.Server {
 	cacheredisAttribute := cacheredis.ProvideAttribute(redisClient)
 	applicationAttribute := application.ProvideAttribute(attribute, serviceAttribute, cacheredisAttribute)
 	attributeHandlerImpl := http.ProvideAttributeHandler(applicationAttribute)
-	order := repositorypostgres.ProvideOrder(queries)
+	order := repositorypostgres.ProvideOrder(queries, pool)
 	serviceOrder := service.ProvideOrder(validate)
 	applicationOrder := application.ProvideOrder(order, serviceOrder, repositorypostgresProduct, serviceProduct)
 	orderHandlerImpl := http.ProvideOrderHandler(applicationOrder)

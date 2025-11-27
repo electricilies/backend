@@ -68,3 +68,11 @@ CREATE TEMPORARY TABLE temp_option_values_product_variants (
   PRIMARY KEY (product_variant_id, option_value_id)
 );
 
+-- name: CreateTempTableOrderItems :exec
+CREATE TEMPORARY TABLE temp_order_items (
+  id UUID PRIMARY KEY,
+  quantity INTEGER NOT NULL,
+  order_id UUID NOT NULL,
+  price NUMERIC NOT NULL,
+  product_variant_id UUID NOT NULL
+) ON COMMIT DROP;

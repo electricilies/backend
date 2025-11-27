@@ -182,6 +182,42 @@ func (q *Queries) InsertTempTableOptions(ctx context.Context, arg []InsertTempTa
 	return q.db.CopyFrom(ctx, []string{"temp_options"}, []string{"id", "name", "product_id", "deleted_at"}, &iteratorForInsertTempTableOptions{rows: arg})
 }
 
+// iteratorForInsertTempTableOrderItems implements pgx.CopyFromSource.
+type iteratorForInsertTempTableOrderItems struct {
+	rows                 []InsertTempTableOrderItemsParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForInsertTempTableOrderItems) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForInsertTempTableOrderItems) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].ID,
+		r.rows[0].Quantity,
+		r.rows[0].OrderID,
+		r.rows[0].Price,
+		r.rows[0].ProductVariantID,
+	}, nil
+}
+
+func (r iteratorForInsertTempTableOrderItems) Err() error {
+	return nil
+}
+
+func (q *Queries) InsertTempTableOrderItems(ctx context.Context, arg []InsertTempTableOrderItemsParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"temp_order_items"}, []string{"id", "quantity", "order_id", "price", "product_variant_id"}, &iteratorForInsertTempTableOrderItems{rows: arg})
+}
+
 // iteratorForInsertTempTableProductImages implements pgx.CopyFromSource.
 type iteratorForInsertTempTableProductImages struct {
 	rows                 []InsertTempTableProductImagesParams

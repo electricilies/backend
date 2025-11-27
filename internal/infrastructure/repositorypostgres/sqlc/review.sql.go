@@ -21,14 +21,17 @@ LEFT JOIN order_items ON reviews.order_item_id = order_items.id
 LEFT JOIN product_variants ON order_items.product_variant_id = product_variants.id
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE reviews.id = ANY ($1::uuid[])
   END
   AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE reviews.order_item_id = ANY ($2::uuid[])
   END
   AND CASE
+    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE product_variants.product_id = ANY ($3::uuid[])
   END
@@ -105,14 +108,17 @@ LEFT JOIN order_items ON reviews.order_item_id = order_items.id
 LEFT JOIN product_variants ON order_items.product_variant_id = product_variants.id
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE reviews.id = ANY ($1::uuid[])
   END
   AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE reviews.order_item_id = ANY ($2::uuid[])
   END
   AND CASE
+    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE product_variants.product_id = ANY ($3::uuid[])
   END

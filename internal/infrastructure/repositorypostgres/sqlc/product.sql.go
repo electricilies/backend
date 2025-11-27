@@ -23,6 +23,7 @@ WHERE
     ELSE products.id = $1::uuid
   END
   AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE products.id = ANY ($2::uuid[])
   END
@@ -39,6 +40,7 @@ WHERE
     ELSE products.rating >= $5::real
   END
   AND CASE
+    WHEN $6::uuid[] IS NULL THEN TRUE
     WHEN cardinality($6::uuid[]) = 0 THEN TRUE
     ELSE products.category_id = ANY ($6::uuid[])
   END
@@ -281,14 +283,17 @@ FROM
   product_images
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE product_variant_id = ANY ($2::uuid[])
   END
   AND CASE
+    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY ($3::uuid[])
   END
@@ -345,6 +350,7 @@ WHERE
     ELSE sku = $2::text
   END
   AND CASE
+    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($3::uuid[])
   END
@@ -353,6 +359,7 @@ WHERE
     ELSE product_id = $4::uuid
   END
   AND CASE
+    WHEN $5::uuid[] IS NULL THEN TRUE
     WHEN cardinality($5::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY ($5::uuid[])
   END
@@ -446,7 +453,9 @@ LEFT JOIN (
   INNER JOIN products
     ON product_variants.product_id = products.id
   WHERE
-    CASE WHEN cardinality($2::uuid[]) = 0 THEN TRUE
+    CASE
+      WHEN $2::uuid[] IS NULL THEN TRUE
+      WHEN cardinality($2::uuid[]) = 0 THEN TRUE
       ELSE product_variants.id = ANY ($2::uuid[])
     END
   GROUP BY products.id
@@ -458,6 +467,7 @@ WHERE
     ELSE products.id = $3::uuid
   END
   AND CASE
+    WHEN $4::uuid[] IS NULL THEN TRUE
     WHEN cardinality($4::uuid[]) = 0 THEN TRUE
     ELSE products.id = ANY ($4::uuid[])
   END
@@ -478,6 +488,7 @@ WHERE
     ELSE products.rating >= $7::real
   END
   AND CASE
+    WHEN $8::uuid[] IS NULL THEN TRUE
     WHEN cardinality($8::uuid[]) = 0 THEN TRUE
     ELSE products.category_id = ANY ($8::uuid[])
   END
@@ -582,10 +593,12 @@ WHERE
     ELSE product_id = $1::uuid
   END
   AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY ($2::uuid[])
   END
   AND CASE
+    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE attribute_value_id = ANY ($3::uuid[])
   END

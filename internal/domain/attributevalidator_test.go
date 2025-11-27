@@ -125,10 +125,10 @@ func (s *AttributeValidatorTestSuite) TestValidateUniqueAttributeValues() {
 			err := s.validator.Struct(attr)
 
 			if tt.expectError {
-				s.Error(err)
+				s.Require().Error(err)
 				s.Contains(err.Error(), tt.errorMsg)
 			} else {
-				s.NoError(err)
+				s.Require().NoError(err)
 			}
 		})
 	}
@@ -188,10 +188,10 @@ func (s *AttributeValidatorTestSuite) TestValidateAttributeValueUniqueness_Exten
 			err := ValidateAttributeValueUniqueness(attr)
 
 			if tt.expectError {
-				s.Error(err)
+				s.Require().Error(err)
 				s.Contains(err.Error(), tt.errorMsg)
 			} else {
-				s.NoError(err)
+				s.Require().NoError(err)
 			}
 		})
 	}
@@ -208,7 +208,7 @@ func (s *AttributeValidatorTestSuite) TestValidateUniqueAttributeIDs_Extended() 
 			name: "validates large number of unique IDs",
 			setup: func() []Attribute {
 				attributes := make([]Attribute, 100)
-				for i := 0; i < 100; i++ {
+				for i := range 100 {
 					attr, _ := NewAttribute("attr"+string(rune(i)), "Attribute")
 					attributes[i] = *attr
 				}
@@ -246,10 +246,10 @@ func (s *AttributeValidatorTestSuite) TestValidateUniqueAttributeIDs_Extended() 
 			err := ValidateUniqueAttributeIDs(attributes)
 
 			if tt.expectError {
-				s.Error(err)
+				s.Require().Error(err)
 				s.Contains(err.Error(), tt.errorMsg)
 			} else {
-				s.NoError(err)
+				s.Require().NoError(err)
 			}
 		})
 	}
@@ -311,7 +311,7 @@ func (s *AttributeValidatorTestSuite) TestValidateUniqueAttributeCodes_Extended(
 			if tt.expectError {
 				s.Error(err)
 			} else {
-				s.NoError(err)
+				s.Require().NoError(err)
 			}
 		})
 	}
@@ -433,10 +433,10 @@ func (s *AttributeValidatorTestSuite) TestRealWorldScenarios() {
 			},
 			validate: func(attributes []Attribute) {
 				for _, attr := range attributes {
-					s.NoError(s.validator.Struct(attr))
+					s.Require().NoError(s.validator.Struct(attr))
 				}
-				s.NoError(ValidateUniqueAttributeIDs(attributes))
-				s.NoError(ValidateUniqueAttributeCodes(attributes))
+				s.Require().NoError(ValidateUniqueAttributeIDs(attributes))
+				s.Require().NoError(ValidateUniqueAttributeCodes(attributes))
 			},
 			expectError: false,
 		},
@@ -452,7 +452,7 @@ func (s *AttributeValidatorTestSuite) TestRealWorldScenarios() {
 			},
 			validate: func(attributes []Attribute) {
 				err := ValidateAttributeValueUniqueness(&attributes[0])
-				s.Error(err)
+				s.Require().Error(err)
 				s.Contains(err.Error(), "duplicate attribute value found")
 			},
 			expectError: true,

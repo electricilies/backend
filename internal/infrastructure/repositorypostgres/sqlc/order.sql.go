@@ -45,6 +45,21 @@ func (q *Queries) CountOrders(ctx context.Context, arg CountOrdersParams) (int64
 	return count, err
 }
 
+const createTempTableOrderItems = `-- name: CreateTempTableOrderItems :exec
+CREATE TEMPORARY TABLE temp_order_items (
+  id UUID PRIMARY KEY,
+  quantity INTEGER NOT NULL,
+  order_id UUID NOT NULL,
+  price NUMERIC NOT NULL,
+  product_variant_id UUID NOT NULL
+) ON COMMIT DROP
+`
+
+func (q *Queries) CreateTempTableOrderItems(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, createTempTableOrderItems)
+	return err
+}
+
 const getOrder = `-- name: GetOrder :one
 SELECT
   id, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id
@@ -155,6 +170,14 @@ func (q *Queries) GetOrderStatus(ctx context.Context, arg GetOrderStatusParams) 
 	var i OrderStatus
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
+}
+
+type InsertTempTableOrderItemsParams struct {
+	ID               uuid.UUID
+	Quantity         int32
+	OrderID          uuid.UUID
+	Price            pgtype.Numeric
+	ProductVariantID uuid.UUID
 }
 
 const listOrderItems = `-- name: ListOrderItems :many
@@ -310,6 +333,41 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order
 		return nil, err
 	}
 	return items, nil
+}
+
+const mergeOrderItemsFromTemp = `-- name: MergeOrderItemsFromTemp :exec
+MERGE INTO order_items AS target
+USING temp_order_items AS source
+  ON target.id = source.id
+WHEN MATCHED THEN
+  UPDATE SET
+    quantity = source.quantity,
+    order_id = source.order_id,
+    price = source.price,
+    product_variant_id = source.product_variant_id
+WHEN NOT MATCHED THEN
+  INSERT (
+    id,
+    quantity,
+    order_id,
+    price,
+    product_variant_id
+  )
+  VALUES (
+    source.id,
+    source.quantity,
+    source.order_id,
+    source.price,
+    source.product_variant_id
+  )
+WHEN NOT MATCHED BY SOURCE
+  AND target.order_id = ANY (SELECT DISTINCT order_id FROM temp_order_items) THEN
+  DELETE
+`
+
+func (q *Queries) MergeOrderItemsFromTemp(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, mergeOrderItemsFromTemp)
+	return err
 }
 
 const upsertOrder = `-- name: UpsertOrder :exec

@@ -69,7 +69,9 @@ LEFT JOIN (
   INNER JOIN products
     ON product_variants.product_id = products.id
   WHERE
-    CASE WHEN cardinality(sqlc.arg('variant_ids')::uuid[]) = 0 THEN TRUE
+    CASE
+      WHEN sqlc.arg('variant_ids')::uuid[] IS NULL THEN TRUE
+      WHEN cardinality(sqlc.arg('variant_ids')::uuid[]) = 0 THEN TRUE
       ELSE product_variants.id = ANY (sqlc.arg('variant_ids')::uuid[])
     END
   GROUP BY products.id
@@ -81,6 +83,7 @@ WHERE
     ELSE products.id = sqlc.arg('id')::uuid
   END
   AND CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE products.id = ANY (sqlc.arg('ids')::uuid[])
   END
@@ -101,6 +104,7 @@ WHERE
     ELSE products.rating >= sqlc.arg('rating')::real
   END
   AND CASE
+    WHEN sqlc.arg('category_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('category_ids')::uuid[]) = 0 THEN TRUE
     ELSE products.category_id = ANY (sqlc.arg('category_ids')::uuid[])
   END
@@ -140,6 +144,7 @@ WHERE
     ELSE products.id = sqlc.arg('id')::uuid
   END
   AND CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE products.id = ANY (sqlc.arg('ids')::uuid[])
   END
@@ -156,6 +161,7 @@ WHERE
     ELSE products.rating >= sqlc.arg('rating')::real
   END
   AND CASE
+    WHEN sqlc.arg('category_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('category_ids')::uuid[]) = 0 THEN TRUE
     ELSE products.category_id = ANY (sqlc.arg('category_ids')::uuid[])
   END
@@ -195,6 +201,7 @@ WHERE
     ELSE sku = sqlc.arg('sku')::text
   END
   AND CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.arg('ids')::uuid[])
   END
@@ -203,6 +210,7 @@ WHERE
     ELSE product_id = sqlc.arg('product_id')::uuid
   END
   AND CASE
+    WHEN sqlc.arg('product_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('product_ids')::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY (sqlc.arg('product_ids')::uuid[])
   END
@@ -242,10 +250,12 @@ WHERE
     ELSE product_id = sqlc.arg('product_id')::uuid
   END
   AND CASE
+    WHEN sqlc.arg('product_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('product_ids')::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY (sqlc.arg('product_ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
     ELSE attribute_value_id = ANY (sqlc.arg('attribute_value_ids')::uuid[])
   END
@@ -260,14 +270,17 @@ FROM
   product_images
 WHERE
   CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('product_variant_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('product_variant_ids')::uuid[]) = 0 THEN TRUE
     ELSE product_variant_id = ANY (sqlc.arg('product_variant_ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('product_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('product_ids')::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY (sqlc.arg('product_ids')::uuid[])
   END

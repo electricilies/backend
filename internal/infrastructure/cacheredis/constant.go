@@ -18,4 +18,3 @@ const (
 	ProductGetPrefix         = "product:get:"
 	CartGetPrefix            = "cart:get:"
 )
-

@@ -40,14 +40,17 @@ LEFT JOIN order_items ON reviews.order_item_id = order_items.id
 LEFT JOIN product_variants ON order_items.product_variant_id = product_variants.id
 WHERE
   CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE reviews.id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('order_item_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('order_item_ids')::uuid[]) = 0 THEN TRUE
     ELSE reviews.order_item_id = ANY (sqlc.arg('order_item_ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('product_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('product_ids')::uuid[]) = 0 THEN TRUE
     ELSE product_variants.product_id = ANY (sqlc.arg('product_ids')::uuid[])
   END
@@ -71,14 +74,17 @@ LEFT JOIN order_items ON reviews.order_item_id = order_items.id
 LEFT JOIN product_variants ON order_items.product_variant_id = product_variants.id
 WHERE
   CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE reviews.id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('order_item_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('order_item_ids')::uuid[]) = 0 THEN TRUE
     ELSE reviews.order_item_id = ANY (sqlc.arg('order_item_ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('product_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('product_ids')::uuid[]) = 0 THEN TRUE
     ELSE product_variants.product_id = ANY (sqlc.arg('product_ids')::uuid[])
   END

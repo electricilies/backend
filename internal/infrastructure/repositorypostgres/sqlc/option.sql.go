@@ -93,10 +93,12 @@ FROM
   option_values
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE option_values.id = ANY ($1::uuid[])
   END
   AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE option_values.option_id = ANY ($2::uuid[])
   END
@@ -148,10 +150,12 @@ FROM
   option_values_product_variants
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE option_values_product_variants.option_value_id = ANY ($1::uuid[])
   END
   AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE option_values_product_variants.product_variant_id = ANY ($2::uuid[])
   END
@@ -189,6 +193,7 @@ FROM
   options
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE options.id = ANY ($1::uuid[])
   END

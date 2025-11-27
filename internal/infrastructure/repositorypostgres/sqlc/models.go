@@ -209,6 +209,14 @@ type TempOptionValuesProductVariant struct {
 	OptionValueID    uuid.UUID
 }
 
+type TempOrderItem struct {
+	ID               uuid.UUID
+	Quantity         int32
+	OrderID          uuid.UUID
+	Price            pgtype.Numeric
+	ProductVariantID uuid.UUID
+}
+
 type TempProductImage struct {
 	ID               uuid.UUID
 	URL              string

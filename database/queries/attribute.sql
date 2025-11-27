@@ -29,22 +29,25 @@ LEFT JOIN (
     attribute_values
   WHERE
     CASE
+      WHEN sqlc.arg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
       WHEN cardinality(sqlc.arg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
-      ELSE attribute_values.id = ANY (sqlc.arg('attribute_value_ids')::uuid[])
+      ELSE attribute_values.id::uuid = ANY (sqlc.arg('attribute_value_ids')::uuid[])
     END
 ) AS av ON attributes.id = av.attribute_id
 WHERE
   CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
-    ELSE attributes.id = ANY (sqlc.arg('ids')::uuid[])
+    ELSE attributes.id::uuid = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('search')::text = '' THEN TRUE
     ELSE
-      code ||| (sqlc.arg('search')::text)
-      OR name ||| (sqlc.arg('search')::text)
+      attributes.name ||| sqlc.arg('search')::text
+      OR attributes.code ||| sqlc.arg('search')::text
   END
   AND CASE
+    WHEN sqlc.arg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
     ELSE av.id IS NOT NULL
   END
@@ -67,6 +70,7 @@ FROM
   attributes
 WHERE
   CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.arg('ids')::uuid[])
   END
@@ -86,6 +90,7 @@ JOIN
   attribute_values ON attribute_values.attribute_id = attributes.id
 WHERE
   CASE
+    WHEN sqlc.arg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
     ELSE attribute_values.id = ANY (sqlc.arg('attribute_value_ids')::uuid[])
   END
@@ -121,6 +126,7 @@ FROM
   attribute_values
 WHERE
   CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.arg('ids')::uuid[])
   END
@@ -129,6 +135,7 @@ WHERE
     ELSE attribute_id = sqlc.arg('attribute_id')::uuid
   END
   AND CASE
+    WHEN sqlc.arg('attribute_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('attribute_ids')::uuid[]) = 0 THEN TRUE
      ELSE attribute_id = ANY (sqlc.arg('attribute_ids')::uuid[])
   END
@@ -155,6 +162,7 @@ FROM
   attribute_values
 WHERE
   CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.arg('ids')::uuid[])
   END
@@ -163,6 +171,7 @@ WHERE
     ELSE attribute_id = sqlc.arg('attribute_id')::uuid
   END
   AND CASE
+    WHEN sqlc.arg('attribute_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('attribute_ids')::uuid[]) = 0 THEN TRUE
      ELSE attribute_id = ANY (sqlc.arg('attribute_ids')::uuid[])
   END

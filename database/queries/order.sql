@@ -147,3 +147,56 @@ WHERE
     WHEN sqlc.arg('name')::text = '' THEN TRUE
     ELSE name = sqlc.arg('name')::text
   END;
+
+-- name: CreateTempTableOrderItems :exec
+CREATE TEMPORARY TABLE temp_order_items (
+  id UUID PRIMARY KEY,
+  quantity INTEGER NOT NULL,
+  order_id UUID NOT NULL,
+  price NUMERIC NOT NULL,
+  product_variant_id UUID NOT NULL
+) ON COMMIT DROP;
+
+-- name: InsertTempTableOrderItems :copyfrom
+INSERT INTO temp_order_items (
+  id,
+  quantity,
+  order_id,
+  price,
+  product_variant_id
+) VALUES (
+  @id,
+  @quantity,
+  @order_id,
+  @price,
+  @product_variant_id
+);
+
+-- name: MergeOrderItemsFromTemp :exec
+MERGE INTO order_items AS target
+USING temp_order_items AS source
+  ON target.id = source.id
+WHEN MATCHED THEN
+  UPDATE SET
+    quantity = source.quantity,
+    order_id = source.order_id,
+    price = source.price,
+    product_variant_id = source.product_variant_id
+WHEN NOT MATCHED THEN
+  INSERT (
+    id,
+    quantity,
+    order_id,
+    price,
+    product_variant_id
+  )
+  VALUES (
+    source.id,
+    source.quantity,
+    source.order_id,
+    source.price,
+    source.product_variant_id
+  )
+WHEN NOT MATCHED BY SOURCE
+  AND target.order_id = ANY (SELECT DISTINCT order_id FROM temp_order_items) THEN
+  DELETE;
