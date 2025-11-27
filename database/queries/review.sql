@@ -19,7 +19,7 @@ VALUES (
   sqlc.arg('order_item_id'),
   sqlc.arg('created_at'),
   sqlc.arg('updated_at'),
-  sqlc.narg('deleted_at')
+  NULLIF(sqlc.arg('deleted_at'), '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   rating = EXCLUDED.rating,
@@ -29,7 +29,7 @@ ON CONFLICT (id) DO UPDATE SET
   order_item_id = EXCLUDED.order_item_id,
   created_at = EXCLUDED.created_at,
   updated_at = EXCLUDED.updated_at,
-  deleted_at = EXCLUDED.deleted_at;
+  deleted_at = COALESCE(EXCLUDED.deleted_at, reviews.deleted_at);
 
 -- name: ListReviews :many
 SELECT
@@ -40,16 +40,16 @@ LEFT JOIN order_items ON reviews.order_item_id = order_items.id
 LEFT JOIN product_variants ON order_items.product_variant_id = product_variants.id
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    ELSE reviews.id = ANY (sqlc.narg('ids')::uuid[])
+    WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE reviews.id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('order_item_ids')::uuid[] IS NULL THEN TRUE
-    ELSE reviews.order_item_id = ANY (sqlc.narg('order_item_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('order_item_ids')::uuid[]) = 0 THEN TRUE
+    ELSE reviews.order_item_id = ANY (sqlc.arg('order_item_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
-    ELSE product_variants.product_id = ANY (sqlc.narg('product_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('product_ids')::uuid[]) = 0 THEN TRUE
+    ELSE product_variants.product_id = ANY (sqlc.arg('product_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN reviews.deleted_at IS NULL
@@ -71,16 +71,16 @@ LEFT JOIN order_items ON reviews.order_item_id = order_items.id
 LEFT JOIN product_variants ON order_items.product_variant_id = product_variants.id
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    ELSE reviews.id = ANY (sqlc.narg('ids')::uuid[])
+    WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE reviews.id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('order_item_ids')::uuid[] IS NULL THEN TRUE
-    ELSE reviews.order_item_id = ANY (sqlc.narg('order_item_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('order_item_ids')::uuid[]) = 0 THEN TRUE
+    ELSE reviews.order_item_id = ANY (sqlc.arg('order_item_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
-    ELSE product_variants.product_id = ANY (sqlc.narg('product_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('product_ids')::uuid[]) = 0 THEN TRUE
+    ELSE product_variants.product_id = ANY (sqlc.arg('product_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN reviews.deleted_at IS NULL

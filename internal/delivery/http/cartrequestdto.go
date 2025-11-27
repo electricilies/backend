@@ -3,15 +3,15 @@ package http
 import "github.com/google/uuid"
 
 type GetCartRequestDto struct {
-	CartID uuid.UUID `binding:"required"`
+	CartID uuid.UUID
 }
 
 type GetCartByUserRequestDto struct {
-	UserID uuid.UUID `binding:"required"`
+	UserID uuid.UUID
 }
 
 type CreateCartRequestDto struct {
-	Data CreateCartData `binding:"required"`
+	Data CreateCartData
 }
 
 type CreateCartData struct {
@@ -19,9 +19,9 @@ type CreateCartData struct {
 }
 
 type CreateCartItemRequestDto struct {
-	UserID uuid.UUID          `binding:"required"`
-	CartID uuid.UUID          `binding:"required"`
-	Data   CreateCartItemData `binding:"required"`
+	UserID uuid.UUID
+	CartID uuid.UUID
+	Data   CreateCartItemData
 }
 
 type CreateCartItemData struct {
@@ -31,10 +31,10 @@ type CreateCartItemData struct {
 }
 
 type UpdateCartItemRequestDto struct {
-	UserID uuid.UUID          `binding:"required"`
-	CartID uuid.UUID          `binding:"required"`
-	ItemID uuid.UUID          `binding:"required"`
-	Data   UpdateCartItemData `binding:"required"`
+	UserID uuid.UUID
+	CartID uuid.UUID
+	ItemID uuid.UUID
+	Data   UpdateCartItemData
 }
 
 type UpdateCartItemData struct {
@@ -42,7 +42,7 @@ type UpdateCartItemData struct {
 }
 
 type DeleteCartItemRequestDto struct {
-	UserID uuid.UUID `binding:"required"`
-	CartID uuid.UUID `binding:"required"`
-	ItemID uuid.UUID `binding:"required"`
+	UserID uuid.UUID
+	CartID uuid.UUID
+	ItemID uuid.UUID
 }

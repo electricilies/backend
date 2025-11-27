@@ -19,16 +19,14 @@ FROM
   attribute_values
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::uuid IS NULL THEN TRUE
+    WHEN $2::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE attribute_id = $2::uuid
   END
   AND CASE
-    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
      ELSE attribute_id = ANY ($3::uuid[])
   END
@@ -42,7 +40,7 @@ WHERE
 
 type CountAttributeValuesParams struct {
 	IDs          []uuid.UUID
-	AttributeID  pgtype.UUID
+	AttributeID  uuid.UUID
 	AttributeIDs []uuid.UUID
 	Deleted      string
 }
@@ -66,7 +64,6 @@ FROM
   attributes
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
@@ -152,7 +149,6 @@ JOIN
   attribute_values ON attribute_values.attribute_id = attributes.id
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE attribute_values.id = ANY ($1::uuid[])
   END
@@ -205,21 +201,19 @@ FROM
   attribute_values
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::uuid IS NULL THEN TRUE
+    WHEN $2::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE attribute_id = $2::uuid
   END
   AND CASE
-    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
      ELSE attribute_id = ANY ($3::uuid[])
   END
   AND CASE
-    WHEN $4::text IS NULL THEN TRUE
+    WHEN $4::text = '' THEN TRUE
     ELSE value ||| ($4::text)
   END
   AND CASE
@@ -229,7 +223,7 @@ WHERE
     ELSE deleted_at IS NULL
   END
 ORDER BY
-  CASE WHEN $4::text IS NOT NULL THEN pdb.score(id) END DESC,
+  CASE WHEN $4::text <> '' THEN pdb.score(id) END DESC,
   id ASC
 OFFSET $6::integer
 LIMIT NULLIF($7::integer, 0)
@@ -237,9 +231,9 @@ LIMIT NULLIF($7::integer, 0)
 
 type ListAttributeValuesParams struct {
 	IDs          []uuid.UUID
-	AttributeID  pgtype.UUID
+	AttributeID  uuid.UUID
 	AttributeIDs []uuid.UUID
-	Search       *string
+	Search       string
 	Deleted      string
 	Offset       int32
 	Limit        int32
@@ -291,25 +285,22 @@ LEFT JOIN (
     attribute_values
   WHERE
     CASE
-      WHEN $1::uuid[] IS NULL THEN TRUE
       WHEN cardinality($1::uuid[]) = 0 THEN TRUE
       ELSE attribute_values.id = ANY ($1::uuid[])
     END
 ) AS av ON attributes.id = av.attribute_id
 WHERE
   CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE attributes.id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::text IS NULL THEN TRUE
+    WHEN $3::text = '' THEN TRUE
     ELSE
       code ||| ($3::text)
       OR name ||| ($3::text)
   END
   AND CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE av.id IS NOT NULL
   END
@@ -320,7 +311,7 @@ WHERE
     ELSE deleted_at IS NULL
   END
 ORDER BY
-  CASE WHEN $3::text IS NOT NULL THEN pdb.score(attributes.id) END DESC,
+  CASE WHEN $3::text <> '' THEN pdb.score(attributes.id) END DESC,
   attributes.id ASC
 OFFSET $5::integer
 LIMIT NULLIF($6::integer, 0)
@@ -329,7 +320,7 @@ LIMIT NULLIF($6::integer, 0)
 type ListAttributesParams struct {
 	AttributeValueIDs []uuid.UUID
 	IDs               []uuid.UUID
-	Search            *string
+	Search            string
 	Deleted           string
 	Offset            int32
 	Limit             int32
@@ -375,7 +366,7 @@ WHEN MATCHED THEN
   UPDATE SET
     attribute_id = source.attribute_id,
     value = source.value,
-    deleted_at = source.deleted_at
+    deleted_at = COALESCE(NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz), target.deleted_at)
 WHEN NOT MATCHED THEN
   INSERT (
     id,
@@ -387,7 +378,7 @@ WHEN NOT MATCHED THEN
     source.id,
     source.attribute_id,
     source.value,
-    source.deleted_at
+    NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz)
   )
 WHEN NOT MATCHED BY SOURCE
   AND target.attribute_id IN (SELECT DISTINCT attribute_id FROM temp_attribute_values) THEN
@@ -410,19 +401,19 @@ VALUES (
   $1,
   $2,
   $3,
-  $4
+  NULLIF($4, '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   code = EXCLUDED.code,
   name = EXCLUDED.name,
-  deleted_at = EXCLUDED.deleted_at
+  deleted_at = COALESCE(EXCLUDED.deleted_at, attributes.deleted_at)
 `
 
 type UpsertAttributeParams struct {
 	ID        uuid.UUID
 	Code      string
 	Name      string
-	DeletedAt pgtype.Timestamptz
+	DeletedAt interface{}
 }
 
 func (q *Queries) UpsertAttribute(ctx context.Context, arg UpsertAttributeParams) error {

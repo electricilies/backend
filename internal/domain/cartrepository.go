@@ -9,12 +9,20 @@ import (
 type CartRepository interface {
 	Get(
 		ctx context.Context,
-		id *uuid.UUID,
-		userID *uuid.UUID,
+		params CartRepositoryGetParam,
 	) (*Cart, error)
 
 	Save(
 		ctx context.Context,
-		cart Cart,
+		params CartRepositorySaveParam,
 	) error
+}
+
+type CartRepositoryGetParam struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+type CartRepositorySaveParam struct {
+	Cart Cart
 }

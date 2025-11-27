@@ -7,7 +7,6 @@ package domain
 import (
 	"context"
 
-	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -39,8 +38,8 @@ func (_m *MockOrderRepository) EXPECT() *MockOrderRepository_Expecter {
 }
 
 // Count provides a mock function for the type MockOrderRepository
-func (_mock *MockOrderRepository) Count(ctx context.Context, ids *[]uuid.UUID, deleted DeletedParam) (*int, error) {
-	ret := _mock.Called(ctx, ids, deleted)
+func (_mock *MockOrderRepository) Count(ctx context.Context, params OrderRepositoryCountParam) (*int, error) {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Count")
@@ -48,18 +47,18 @@ func (_mock *MockOrderRepository) Count(ctx context.Context, ids *[]uuid.UUID, d
 
 	var r0 *int
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, DeletedParam) (*int, error)); ok {
-		return returnFunc(ctx, ids, deleted)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, OrderRepositoryCountParam) (*int, error)); ok {
+		return returnFunc(ctx, params)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, DeletedParam) *int); ok {
-		r0 = returnFunc(ctx, ids, deleted)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, OrderRepositoryCountParam) *int); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*int)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]uuid.UUID, DeletedParam) error); ok {
-		r1 = returnFunc(ctx, ids, deleted)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, OrderRepositoryCountParam) error); ok {
+		r1 = returnFunc(ctx, params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -73,30 +72,24 @@ type MockOrderRepository_Count_Call struct {
 
 // Count is a helper method to define mock.On call
 //   - ctx context.Context
-//   - ids *[]uuid.UUID
-//   - deleted DeletedParam
-func (_e *MockOrderRepository_Expecter) Count(ctx interface{}, ids interface{}, deleted interface{}) *MockOrderRepository_Count_Call {
-	return &MockOrderRepository_Count_Call{Call: _e.mock.On("Count", ctx, ids, deleted)}
+//   - params OrderRepositoryCountParam
+func (_e *MockOrderRepository_Expecter) Count(ctx interface{}, params interface{}) *MockOrderRepository_Count_Call {
+	return &MockOrderRepository_Count_Call{Call: _e.mock.On("Count", ctx, params)}
 }
 
-func (_c *MockOrderRepository_Count_Call) Run(run func(ctx context.Context, ids *[]uuid.UUID, deleted DeletedParam)) *MockOrderRepository_Count_Call {
+func (_c *MockOrderRepository_Count_Call) Run(run func(ctx context.Context, params OrderRepositoryCountParam)) *MockOrderRepository_Count_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *[]uuid.UUID
+		var arg1 OrderRepositoryCountParam
 		if args[1] != nil {
-			arg1 = args[1].(*[]uuid.UUID)
-		}
-		var arg2 DeletedParam
-		if args[2] != nil {
-			arg2 = args[2].(DeletedParam)
+			arg1 = args[1].(OrderRepositoryCountParam)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
 		)
 	})
 	return _c
@@ -107,14 +100,14 @@ func (_c *MockOrderRepository_Count_Call) Return(n *int, err error) *MockOrderRe
 	return _c
 }
 
-func (_c *MockOrderRepository_Count_Call) RunAndReturn(run func(ctx context.Context, ids *[]uuid.UUID, deleted DeletedParam) (*int, error)) *MockOrderRepository_Count_Call {
+func (_c *MockOrderRepository_Count_Call) RunAndReturn(run func(ctx context.Context, params OrderRepositoryCountParam) (*int, error)) *MockOrderRepository_Count_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Get provides a mock function for the type MockOrderRepository
-func (_mock *MockOrderRepository) Get(ctx context.Context, id uuid.UUID) (*Order, error) {
-	ret := _mock.Called(ctx, id)
+func (_mock *MockOrderRepository) Get(ctx context.Context, params OrderRepositoryGetParam) (*Order, error) {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -122,18 +115,18 @@ func (_mock *MockOrderRepository) Get(ctx context.Context, id uuid.UUID) (*Order
 
 	var r0 *Order
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*Order, error)); ok {
-		return returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, OrderRepositoryGetParam) (*Order, error)); ok {
+		return returnFunc(ctx, params)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *Order); ok {
-		r0 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, OrderRepositoryGetParam) *Order); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Order)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, OrderRepositoryGetParam) error); ok {
+		r1 = returnFunc(ctx, params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -147,20 +140,20 @@ type MockOrderRepository_Get_Call struct {
 
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id uuid.UUID
-func (_e *MockOrderRepository_Expecter) Get(ctx interface{}, id interface{}) *MockOrderRepository_Get_Call {
-	return &MockOrderRepository_Get_Call{Call: _e.mock.On("Get", ctx, id)}
+//   - params OrderRepositoryGetParam
+func (_e *MockOrderRepository_Expecter) Get(ctx interface{}, params interface{}) *MockOrderRepository_Get_Call {
+	return &MockOrderRepository_Get_Call{Call: _e.mock.On("Get", ctx, params)}
 }
 
-func (_c *MockOrderRepository_Get_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockOrderRepository_Get_Call {
+func (_c *MockOrderRepository_Get_Call) Run(run func(ctx context.Context, params OrderRepositoryGetParam)) *MockOrderRepository_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 OrderRepositoryGetParam
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(OrderRepositoryGetParam)
 		}
 		run(
 			arg0,
@@ -175,14 +168,14 @@ func (_c *MockOrderRepository_Get_Call) Return(order *Order, err error) *MockOrd
 	return _c
 }
 
-func (_c *MockOrderRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (*Order, error)) *MockOrderRepository_Get_Call {
+func (_c *MockOrderRepository_Get_Call) RunAndReturn(run func(ctx context.Context, params OrderRepositoryGetParam) (*Order, error)) *MockOrderRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function for the type MockOrderRepository
-func (_mock *MockOrderRepository) List(ctx context.Context, ids *[]uuid.UUID, search *string, deleted DeletedParam, limit int, offset int) (*[]Order, error) {
-	ret := _mock.Called(ctx, ids, search, deleted, limit, offset)
+func (_mock *MockOrderRepository) List(ctx context.Context, params OrderRepositoryListParam) (*[]Order, error) {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -190,18 +183,18 @@ func (_mock *MockOrderRepository) List(ctx context.Context, ids *[]uuid.UUID, se
 
 	var r0 *[]Order
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *string, DeletedParam, int, int) (*[]Order, error)); ok {
-		return returnFunc(ctx, ids, search, deleted, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, OrderRepositoryListParam) (*[]Order, error)); ok {
+		return returnFunc(ctx, params)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *string, DeletedParam, int, int) *[]Order); ok {
-		r0 = returnFunc(ctx, ids, search, deleted, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, OrderRepositoryListParam) *[]Order); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*[]Order)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]uuid.UUID, *string, DeletedParam, int, int) error); ok {
-		r1 = returnFunc(ctx, ids, search, deleted, limit, offset)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, OrderRepositoryListParam) error); ok {
+		r1 = returnFunc(ctx, params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -215,48 +208,24 @@ type MockOrderRepository_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - ids *[]uuid.UUID
-//   - search *string
-//   - deleted DeletedParam
-//   - limit int
-//   - offset int
-func (_e *MockOrderRepository_Expecter) List(ctx interface{}, ids interface{}, search interface{}, deleted interface{}, limit interface{}, offset interface{}) *MockOrderRepository_List_Call {
-	return &MockOrderRepository_List_Call{Call: _e.mock.On("List", ctx, ids, search, deleted, limit, offset)}
+//   - params OrderRepositoryListParam
+func (_e *MockOrderRepository_Expecter) List(ctx interface{}, params interface{}) *MockOrderRepository_List_Call {
+	return &MockOrderRepository_List_Call{Call: _e.mock.On("List", ctx, params)}
 }
 
-func (_c *MockOrderRepository_List_Call) Run(run func(ctx context.Context, ids *[]uuid.UUID, search *string, deleted DeletedParam, limit int, offset int)) *MockOrderRepository_List_Call {
+func (_c *MockOrderRepository_List_Call) Run(run func(ctx context.Context, params OrderRepositoryListParam)) *MockOrderRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *[]uuid.UUID
+		var arg1 OrderRepositoryListParam
 		if args[1] != nil {
-			arg1 = args[1].(*[]uuid.UUID)
-		}
-		var arg2 *string
-		if args[2] != nil {
-			arg2 = args[2].(*string)
-		}
-		var arg3 DeletedParam
-		if args[3] != nil {
-			arg3 = args[3].(DeletedParam)
-		}
-		var arg4 int
-		if args[4] != nil {
-			arg4 = args[4].(int)
-		}
-		var arg5 int
-		if args[5] != nil {
-			arg5 = args[5].(int)
+			arg1 = args[1].(OrderRepositoryListParam)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
-			arg3,
-			arg4,
-			arg5,
 		)
 	})
 	return _c
@@ -267,22 +236,22 @@ func (_c *MockOrderRepository_List_Call) Return(orders *[]Order, err error) *Moc
 	return _c
 }
 
-func (_c *MockOrderRepository_List_Call) RunAndReturn(run func(ctx context.Context, ids *[]uuid.UUID, search *string, deleted DeletedParam, limit int, offset int) (*[]Order, error)) *MockOrderRepository_List_Call {
+func (_c *MockOrderRepository_List_Call) RunAndReturn(run func(ctx context.Context, params OrderRepositoryListParam) (*[]Order, error)) *MockOrderRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Save provides a mock function for the type MockOrderRepository
-func (_mock *MockOrderRepository) Save(ctx context.Context, order Order) error {
-	ret := _mock.Called(ctx, order)
+func (_mock *MockOrderRepository) Save(ctx context.Context, params OrderRepositorySaveParam) error {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, Order) error); ok {
-		r0 = returnFunc(ctx, order)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, OrderRepositorySaveParam) error); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -296,20 +265,20 @@ type MockOrderRepository_Save_Call struct {
 
 // Save is a helper method to define mock.On call
 //   - ctx context.Context
-//   - order Order
-func (_e *MockOrderRepository_Expecter) Save(ctx interface{}, order interface{}) *MockOrderRepository_Save_Call {
-	return &MockOrderRepository_Save_Call{Call: _e.mock.On("Save", ctx, order)}
+//   - params OrderRepositorySaveParam
+func (_e *MockOrderRepository_Expecter) Save(ctx interface{}, params interface{}) *MockOrderRepository_Save_Call {
+	return &MockOrderRepository_Save_Call{Call: _e.mock.On("Save", ctx, params)}
 }
 
-func (_c *MockOrderRepository_Save_Call) Run(run func(ctx context.Context, order Order)) *MockOrderRepository_Save_Call {
+func (_c *MockOrderRepository_Save_Call) Run(run func(ctx context.Context, params OrderRepositorySaveParam)) *MockOrderRepository_Save_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 Order
+		var arg1 OrderRepositorySaveParam
 		if args[1] != nil {
-			arg1 = args[1].(Order)
+			arg1 = args[1].(OrderRepositorySaveParam)
 		}
 		run(
 			arg0,
@@ -324,7 +293,7 @@ func (_c *MockOrderRepository_Save_Call) Return(err error) *MockOrderRepository_
 	return _c
 }
 
-func (_c *MockOrderRepository_Save_Call) RunAndReturn(run func(ctx context.Context, order Order) error) *MockOrderRepository_Save_Call {
+func (_c *MockOrderRepository_Save_Call) RunAndReturn(run func(ctx context.Context, params OrderRepositorySaveParam) error) *MockOrderRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

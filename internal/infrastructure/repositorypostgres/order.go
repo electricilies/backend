@@ -5,8 +5,6 @@ import (
 
 	"backend/internal/domain"
 	"backend/internal/infrastructure/repositorypostgres/sqlc"
-
-	"github.com/google/uuid"
 )
 
 type Order struct {
@@ -19,18 +17,18 @@ func ProvideOrder(q *sqlc.Queries) *Order {
 	return &Order{queries: q}
 }
 
-func (r *Order) List(ctx context.Context, ids *[]uuid.UUID, search *string, deleted domain.DeletedParam, limit int, offset int) (*[]domain.Order, error) {
+func (r *Order) List(ctx context.Context, params domain.OrderRepositoryListParam) (*[]domain.Order, error) {
 	panic("implement me")
 }
 
-func (r *Order) Count(ctx context.Context, ids *[]uuid.UUID, deleted domain.DeletedParam) (*int, error) {
+func (r *Order) Count(ctx context.Context, params domain.OrderRepositoryCountParam) (*int, error) {
 	panic("implement me")
 }
 
-func (r *Order) Get(ctx context.Context, id uuid.UUID) (*domain.Order, error) {
+func (r *Order) Get(ctx context.Context, params domain.OrderRepositoryGetParam) (*domain.Order, error) {
 	panic("implement me")
 }
 
-func (r *Order) Save(ctx context.Context, order domain.Order) error {
+func (r *Order) Save(ctx context.Context, params domain.OrderRepositorySaveParam) error {
 	panic("implement me")
 }

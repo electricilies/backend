@@ -77,11 +77,10 @@ FROM
   categories
 WHERE
   CASE
-    WHEN $1::text IS NULL THEN TRUE
+    WHEN $1::text = '' THEN TRUE
     ELSE name ||| ($1::text)
   END
   AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($2::uuid[])
   END
@@ -98,7 +97,7 @@ LIMIT NULLIF($5::integer, 0)
 `
 
 type ListCategoriesParams struct {
-	Search  *string
+	Search  string
 	IDs     []uuid.UUID
 	Deleted string
 	Offset  int32
@@ -150,13 +149,13 @@ VALUES (
   $2,
   $3,
   $4,
-  $5
+  NULLIF($5, '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   created_at = EXCLUDED.created_at,
   updated_at = EXCLUDED.updated_at,
-  deleted_at = EXCLUDED.deleted_at
+  deleted_at = COALESCE(EXCLUDED.deleted_at, categories.deleted_at)
 `
 
 type UpsertCategoryParams struct {
@@ -164,7 +163,7 @@ type UpsertCategoryParams struct {
 	Name      string
 	CreatedAt pgtype.Timestamptz
 	UpdatedAt pgtype.Timestamptz
-	DeletedAt pgtype.Timestamptz
+	DeletedAt interface{}
 }
 
 func (q *Queries) UpsertCategory(ctx context.Context, arg UpsertCategoryParams) error {

@@ -25,7 +25,7 @@ VALUES (
   sqlc.arg('category_id'),
   sqlc.arg('created_at'),
   sqlc.arg('updated_at'),
-  sqlc.narg('deleted_at')
+  NULLIF(sqlc.arg('deleted_at'), '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
@@ -38,7 +38,7 @@ ON CONFLICT (id) DO UPDATE SET
   category_id = EXCLUDED.category_id,
   created_at = EXCLUDED.created_at,
   updated_at = EXCLUDED.updated_at,
-  deleted_at = EXCLUDED.deleted_at;
+  deleted_at = COALESCE(EXCLUDED.deleted_at, products.deleted_at);
 
 -- This is used for list, search (with filter, order), suggest
 -- name: ListProducts :many
@@ -54,9 +54,9 @@ LEFT JOIN (
   INNER JOIN categories
     ON products.category_id = categories.id
   WHERE
-    CASE WHEN sqlc.narg('search')::text IS NULL THEN TRUE
+    CASE WHEN sqlc.arg('search')::text = '' THEN TRUE
       ELSE (
-        categories.name ||| sqlc.narg('search')::text
+        categories.name ||| sqlc.arg('search')::text
         AND categories.deleted_at IS NULL
       )
     END
@@ -69,43 +69,40 @@ LEFT JOIN (
   INNER JOIN products
     ON product_variants.product_id = products.id
   WHERE
-    CASE WHEN sqlc.narg('variant_ids')::uuid[] IS NULL THEN TRUE
-      WHEN cardinality(sqlc.narg('variant_ids')::uuid[]) = 0 THEN TRUE
-      ELSE product_variants.id = ANY (sqlc.narg('variant_ids')::uuid[])
+    CASE WHEN cardinality(sqlc.arg('variant_ids')::uuid[]) = 0 THEN TRUE
+      ELSE product_variants.id = ANY (sqlc.arg('variant_ids')::uuid[])
     END
   GROUP BY products.id
 ) AS variant_filter
   ON products.id = variant_filter.id
 WHERE
   CASE
-    WHEN sqlc.narg('id')::uuid IS NULL THEN TRUE
-    ELSE products.id = sqlc.narg('id')::uuid
+    WHEN sqlc.arg('id')::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
+    ELSE products.id = sqlc.arg('id')::uuid
   END
   AND CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
-    ELSE products.id = ANY (sqlc.narg('ids')::uuid[])
+    WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE products.id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('search')::text IS NULL THEN TRUE
-    ELSE products.name ||| sqlc.narg('search')::text
+    WHEN sqlc.arg('search')::text = '' THEN TRUE
+    ELSE products.name ||| sqlc.arg('search')::text
   END
   AND CASE
-    WHEN sqlc.narg('min_price')::decimal IS NULL THEN TRUE
-    ELSE products.price >= sqlc.narg('min_price')::decimal
+    WHEN sqlc.arg('min_price')::decimal = 0 THEN TRUE
+    ELSE products.price >= sqlc.arg('min_price')::decimal
   END
   AND CASE
-    WHEN sqlc.narg('max_price')::decimal IS NULL THEN TRUE
-    ELSE products.price <= sqlc.narg('max_price')::decimal
+    WHEN sqlc.arg('max_price')::decimal = 0 THEN TRUE
+    ELSE products.price <= sqlc.arg('max_price')::decimal
   END
   AND CASE
-    WHEN sqlc.narg('rating')::real IS NULL THEN TRUE
-    ELSE products.rating >= sqlc.narg('rating')::real
+    WHEN sqlc.arg('rating')::real = 0 THEN TRUE
+    ELSE products.rating >= sqlc.arg('rating')::real
   END
   AND CASE
-    WHEN sqlc.narg('category_ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('category_ids')::uuid[]) = 0 THEN TRUE
-    ELSE products.category_id = ANY (sqlc.narg('category_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('category_ids')::uuid[]) = 0 THEN TRUE
+    ELSE products.category_id = ANY (sqlc.arg('category_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NULL
@@ -115,19 +112,19 @@ WHERE
   END
 ORDER BY
   CASE WHEN
-    sqlc.narg('search') IS NOT NULL THEN pdb.score(products.id) + category_scores.category_score + products.trending_score
+    sqlc.arg('search')::text <> '' THEN pdb.score(products.id) + category_scores.category_score + products.trending_score
   END DESC,
   CASE WHEN
-    sqlc.narg('sort_rating')::text = 'asc' THEN products.rating
+    sqlc.arg('sort_rating')::text = 'asc' THEN products.rating
   END ASC,
   CASE WHEN
-    sqlc.narg('sort_rating')::text = 'desc' THEN products.rating
+    sqlc.arg('sort_rating')::text = 'desc' THEN products.rating
   END DESC,
   CASE WHEN
-   sqlc.narg('sort_price')::text = 'asc' THEN products.price
+   sqlc.arg('sort_price')::text = 'asc' THEN products.price
   END ASC,
   CASE WHEN
-   sqlc.narg('sort_price')::text = 'desc' THEN products.price
+   sqlc.arg('sort_price')::text = 'desc' THEN products.price
   END DESC
 OFFSET sqlc.arg('offset')::integer
 LIMIT NULLIF(sqlc.arg('limit')::integer, 0);
@@ -139,30 +136,28 @@ FROM
   products
 WHERE
   CASE
-    WHEN sqlc.narg('id')::uuid IS NULL THEN TRUE
-    ELSE products.id = sqlc.narg('id')::uuid
+    WHEN sqlc.arg('id')::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
+    ELSE products.id = sqlc.arg('id')::uuid
   END
   AND CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
-    ELSE products.id = ANY (sqlc.narg('ids')::uuid[])
+    WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE products.id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('min_price')::decimal IS NULL THEN TRUE
-    ELSE products.price >= sqlc.narg('min_price')::decimal
+    WHEN sqlc.arg('min_price')::decimal = 0 THEN TRUE
+    ELSE products.price >= sqlc.arg('min_price')::decimal
   END
   AND CASE
-    WHEN sqlc.narg('max_price')::decimal IS NULL THEN TRUE
-    ELSE products.price <= sqlc.narg('max_price')::decimal
+    WHEN sqlc.arg('max_price')::decimal = 0 THEN TRUE
+    ELSE products.price <= sqlc.arg('max_price')::decimal
   END
   AND CASE
-    WHEN sqlc.narg('rating')::real IS NULL THEN TRUE
-    ELSE products.rating >= sqlc.narg('rating')::real
+    WHEN sqlc.arg('rating')::real = 0 THEN TRUE
+    ELSE products.rating >= sqlc.arg('rating')::real
   END
   AND CASE
-    WHEN sqlc.narg('category_ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('category_ids')::uuid[]) = 0 THEN TRUE
-    ELSE products.category_id = ANY (sqlc.narg('category_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('category_ids')::uuid[]) = 0 THEN TRUE
+    ELSE products.category_id = ANY (sqlc.arg('category_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NULL
@@ -192,26 +187,24 @@ FROM
   product_variants
 WHERE
   CASE
-    WHEN sqlc.narg('id')::uuid IS NULL THEN TRUE
-    ELSE id = sqlc.narg('id')::uuid
+    WHEN sqlc.arg('id')::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
+    ELSE id = sqlc.arg('id')::uuid
   END
   AND CASE
-    WHEN sqlc.narg('sku')::text IS NULL THEN TRUE
-    ELSE sku = sqlc.narg('sku')::text
+    WHEN sqlc.arg('sku')::text = '' THEN TRUE
+    ELSE sku = sqlc.arg('sku')::text
   END
   AND CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::uuid[])
+    WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('product_id')::uuid IS NULL THEN TRUE
-    ELSE product_id = sqlc.narg('product_id')::uuid
+    WHEN sqlc.arg('product_id')::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
+    ELSE product_id = sqlc.arg('product_id')::uuid
   END
   AND CASE
-    WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('product_ids')::uuid[]) = 0 THEN TRUE
-    ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('product_ids')::uuid[]) = 0 THEN TRUE
+    ELSE product_id = ANY (sqlc.arg('product_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
@@ -245,18 +238,16 @@ FROM
   products_attribute_values
 WHERE
   CASE
-    WHEN sqlc.narg('product_id')::uuid IS NULL THEN TRUE
-    ELSE product_id = sqlc.narg('product_id')::uuid
+    WHEN sqlc.arg('product_id')::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
+    ELSE product_id = sqlc.arg('product_id')::uuid
   END
   AND CASE
-    WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('product_ids')::uuid[]) = 0 THEN TRUE
-    ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('product_ids')::uuid[]) = 0 THEN TRUE
+    ELSE product_id = ANY (sqlc.arg('product_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
-    ELSE attribute_value_id = ANY (sqlc.narg('attribute_value_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
+    ELSE attribute_value_id = ANY (sqlc.arg('attribute_value_ids')::uuid[])
   END
 ORDER BY
   product_id ASC,
@@ -269,19 +260,16 @@ FROM
   product_images
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::uuid[])
+    WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('product_variant_ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('product_variant_ids')::uuid[]) = 0 THEN TRUE
-    ELSE product_variant_id = ANY (sqlc.narg('product_variant_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('product_variant_ids')::uuid[]) = 0 THEN TRUE
+    ELSE product_variant_id = ANY (sqlc.arg('product_variant_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('product_ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('product_ids')::uuid[]) = 0 THEN TRUE
-    ELSE product_id = ANY (sqlc.narg('product_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('product_ids')::uuid[]) = 0 THEN TRUE
+    ELSE product_id = ANY (sqlc.arg('product_ids')::uuid[])
   END
 ORDER BY
   id ASC;
@@ -343,7 +331,7 @@ WHEN MATCHED THEN
     product_id = source.product_id,
     created_at = source.created_at,
     updated_at = source.updated_at,
-    deleted_at = source.deleted_at
+    deleted_at = COALESCE(NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz), target.deleted_at)
 WHEN NOT MATCHED THEN
   INSERT (
     id,
@@ -365,7 +353,7 @@ WHEN NOT MATCHED THEN
     source.product_id,
     source.created_at,
     source.updated_at,
-    source.deleted_at
+    NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz)
   )
 WHEN NOT MATCHED BY SOURCE
   AND target.product_id = ANY (SELECT DISTINCT id FROM temp_product_variants) THEN
@@ -412,7 +400,7 @@ WHEN MATCHED THEN
     product_id = source.product_id,
     product_variant_id = source.product_variant_id,
     created_at = source.created_at,
-    deleted_at = source.deleted_at
+    deleted_at = COALESCE(NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz), target.deleted_at)
 WHEN NOT MATCHED THEN
   INSERT (
     id,
@@ -430,7 +418,7 @@ WHEN NOT MATCHED THEN
     source.product_id,
     source.product_variant_id,
     source.created_at,
-    source.deleted_at
+    NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz)
   )
 WHEN NOT MATCHED BY SOURCE
   AND target.product_id = ANY (SELECT DISTINCT product_id FROM temp_product_images) THEN

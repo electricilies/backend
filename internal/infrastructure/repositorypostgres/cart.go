@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"backend/internal/domain"
-	"backend/internal/helper/ptr"
 	"backend/internal/infrastructure/repositorypostgres/sqlc"
 
 	"github.com/google/uuid"
@@ -28,20 +27,11 @@ func ProvideCart(q *sqlc.Queries, conn *pgxpool.Pool) *Cart {
 
 func (r *Cart) Get(
 	ctx context.Context,
-	id *uuid.UUID,
-	userID *uuid.UUID,
+	params domain.CartRepositoryGetParam,
 ) (*domain.Cart, error) {
-	cartPgID := pgtype.UUID{
-		Bytes: ptr.Deref(id, uuid.UUID{}),
-		Valid: id != nil,
-	}
-	userPgID := pgtype.UUID{
-		Bytes: ptr.Deref(userID, uuid.UUID{}),
-		Valid: userID != nil,
-	}
 	cartEntity, err := r.queries.GetCart(ctx, sqlc.GetCartParams{
-		ID:     cartPgID,
-		UserID: userPgID,
+		ID:     params.ID,
+		UserID: params.UserID,
 	})
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
@@ -52,7 +42,7 @@ func (r *Cart) Get(
 		UpdatedAt: cartEntity.UpdatedAt.Time,
 	}
 	cartItems, err := r.queries.ListCartItems(ctx, sqlc.ListCartItemsParams{
-		CartID: cartPgID,
+		CartID: params.ID,
 	})
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
@@ -82,7 +72,7 @@ func (r *Cart) Get(
 	return cart, nil
 }
 
-func (r *Cart) Save(ctx context.Context, cart domain.Cart) error {
+func (r *Cart) Save(ctx context.Context, params domain.CartRepositorySaveParam) error {
 	tx, err := r.conn.Begin(ctx)
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
@@ -90,10 +80,10 @@ func (r *Cart) Save(ctx context.Context, cart domain.Cart) error {
 	qtx := r.queries.WithTx(tx)
 	defer func() { _ = tx.Rollback(ctx) }()
 	err = qtx.UpsertCart(ctx, sqlc.UpsertCartParams{
-		ID:     cart.ID,
-		UserID: cart.UserID,
+		ID:     params.Cart.ID,
+		UserID: params.Cart.UserID,
 		UpdatedAt: pgtype.Timestamptz{
-			Time:  cart.UpdatedAt,
+			Time:  params.Cart.UpdatedAt,
 			Valid: true,
 		},
 	})
@@ -104,11 +94,11 @@ func (r *Cart) Save(ctx context.Context, cart domain.Cart) error {
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	itemParams := make([]sqlc.InsertTempTableCartItemsParams, len(cart.Items))
-	for i, item := range cart.Items {
+	itemParams := make([]sqlc.InsertTempTableCartItemsParams, len(params.Cart.Items))
+	for i, item := range params.Cart.Items {
 		itemParams[i] = sqlc.InsertTempTableCartItemsParams{
 			ID:               item.ID,
-			CartID:           cart.ID,
+			CartID:           params.Cart.ID,
 			ProductVariantID: item.ProductVariantID,
 			Quantity:         int32(item.Quantity),
 		}

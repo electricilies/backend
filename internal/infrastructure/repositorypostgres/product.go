@@ -33,52 +33,36 @@ func ProvideProduct(
 
 func (r *Product) List(
 	ctx context.Context,
-	ids *[]uuid.UUID,
-	search *string,
-	minPrice *int64,
-	maxPrice *int64,
-	rating *float64,
-	variantIDs *[]uuid.UUID,
-	categoryIDs *[]uuid.UUID,
-	deleted domain.DeletedParam,
-	sortRating *string,
-	sortPrice *string,
-	limit int,
-	offset int,
+	params domain.ProductRepositoryListParam,
 ) (*[]domain.Product, error) {
 	minPriceParam := pgtype.Numeric{
-		Int:   big.NewInt(ptr.Deref(minPrice, 0)),
-		Valid: minPrice != nil,
+		Int:   big.NewInt(params.MinPrice),
+		Valid: params.MinPrice != 0,
 	}
 	maxPriceParam := pgtype.Numeric{
-		Int:   big.NewInt(ptr.Deref(maxPrice, 0)),
-		Valid: maxPrice != nil,
-	}
-	var ratingParam *float32
-	if rating != nil {
-		r := float32(*rating)
-		ratingParam = &r
+		Int:   big.NewInt(params.MaxPrice),
+		Valid: params.MaxPrice != 0,
 	}
 	productEntities, err := r.queries.ListProducts(ctx, sqlc.ListProductsParams{
-		IDs:         ptr.Deref(ids, []uuid.UUID{}),
-		Search:      search,
+		IDs:         params.IDs,
+		Search:      params.Search,
 		MinPrice:    minPriceParam,
 		MaxPrice:    maxPriceParam,
-		Rating:      ratingParam,
-		VariantIDs:  ptr.Deref(variantIDs, []uuid.UUID{}),
-		CategoryIDs: ptr.Deref(categoryIDs, []uuid.UUID{}),
-		Deleted:     string(deleted),
-		SortRating:  sortRating,
-		SortPrice:   sortPrice,
-		Limit:       int32(limit),
-		Offset:      int32(offset),
+		Rating:      float32(params.Rating),
+		VariantIDs:  params.VariantIDs,
+		CategoryIDs: params.CategoryIDs,
+		Deleted:     string(params.Deleted),
+		SortRating:  params.SortRating,
+		SortPrice:   params.SortPrice,
+		Limit:       int32(params.Limit),
+		Offset:      int32(params.Offset),
 	})
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
 	}
 	products := make([]domain.Product, 0, len(productEntities))
 	for _, productEntity := range productEntities {
-		product, err := r.Get(ctx, productEntity.ID)
+		product, err := r.Get(ctx, domain.ProductRepositoryGetParam{ProductID: productEntity.ID})
 		if err != nil {
 			return nil, ToDomainErrorFromPostgres(err)
 		}
@@ -89,33 +73,23 @@ func (r *Product) List(
 
 func (r *Product) Count(
 	ctx context.Context,
-	ids *[]uuid.UUID,
-	minPrice *int64,
-	maxPrice *int64,
-	rating *float64,
-	categoryIDs *[]uuid.UUID,
-	deleted domain.DeletedParam,
+	params domain.ProductRepositoryCountParam,
 ) (*int, error) {
 	minPriceParam := pgtype.Numeric{
-		Int:   big.NewInt(ptr.Deref(minPrice, 0)),
-		Valid: minPrice != nil,
+		Int:   big.NewInt(params.MinPrice),
+		Valid: params.MinPrice != 0,
 	}
 	maxPriceParam := pgtype.Numeric{
-		Int:   big.NewInt(ptr.Deref(maxPrice, 0)),
-		Valid: maxPrice != nil,
-	}
-	var ratingParam *float32
-	if rating != nil {
-		r := float32(*rating)
-		ratingParam = &r
+		Int:   big.NewInt(params.MaxPrice),
+		Valid: params.MaxPrice != 0,
 	}
 	productEntities, err := r.queries.CountProducts(ctx, sqlc.CountProductsParams{
-		IDs:         ptr.Deref(ids, []uuid.UUID{}),
+		IDs:         params.IDs,
 		MinPrice:    minPriceParam,
 		MaxPrice:    maxPriceParam,
-		Rating:      ratingParam,
-		CategoryIDs: ptr.Deref(categoryIDs, []uuid.UUID{}),
-		Deleted:     string(deleted),
+		Rating:      float32(params.Rating),
+		CategoryIDs: params.CategoryIDs,
+		Deleted:     string(params.Deleted),
 	})
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
@@ -126,9 +100,9 @@ func (r *Product) Count(
 // FIXME: Missing deleted
 // HACK: This should take only product
 // Category and attribute need to take from those domains
-func (r *Product) Get(ctx context.Context, productID uuid.UUID) (*domain.Product, error) {
+func (r *Product) Get(ctx context.Context, params domain.ProductRepositoryGetParam) (*domain.Product, error) {
 	productEntity, err := r.queries.GetProduct(ctx, sqlc.GetProductParams{
-		ID: productID,
+		ID: params.ProductID,
 	})
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
@@ -168,10 +142,7 @@ func getAttributeValueIDs(
 	product *domain.Product,
 ) error {
 	productsAttributeValuesEntity, err := queries.ListProductsAttributeValues(ctx, sqlc.ListProductsAttributeValuesParams{
-		ProductID: pgtype.UUID{
-			Bytes: product.ID,
-			Valid: true,
-		},
+		ProductID: product.ID,
 	})
 	if err != nil {
 		return err
@@ -189,10 +160,7 @@ func getOptionsAndValues(ctx context.Context,
 	product *domain.Product,
 ) error {
 	optionEntities, err := queries.ListOptions(ctx, sqlc.ListOptionsParams{
-		ProductID: pgtype.UUID{
-			Bytes: product.ID,
-			Valid: true,
-		},
+		ProductID: product.ID,
 	})
 	if err != nil {
 		return err
@@ -234,10 +202,7 @@ func getVariants(
 	product *domain.Product,
 ) error {
 	variantEntities, err := queries.ListProductVariants(ctx, sqlc.ListProductVariantsParams{
-		ProductID: pgtype.UUID{
-			Bytes: product.ID,
-			Valid: true,
-		},
+		ProductID: product.ID,
 	})
 	if err != nil {
 		return err
@@ -339,32 +304,32 @@ func getImages(
 	return nil
 }
 
-func (r *Product) Save(ctx context.Context, product domain.Product) error {
+func (r *Product) Save(ctx context.Context, params domain.ProductRepositorySaveParam) error {
 	tx, err := r.conn.Begin(ctx)
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	qtx := r.queries.WithTx(tx)
-	if err := upsertProduct(ctx, *qtx, product); err != nil {
+	if err := upsertProduct(ctx, *qtx, params.Product); err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	if err := mergeAttributeValues(ctx, *qtx, product); err != nil {
+	if err := mergeAttributeValues(ctx, *qtx, params.Product); err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	if err := mergeOptions(ctx, *qtx, product); err != nil {
+	if err := mergeOptions(ctx, *qtx, params.Product); err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	if err := mergeOptionValues(ctx, *qtx, product); err != nil {
+	if err := mergeOptionValues(ctx, *qtx, params.Product); err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	if err := mergeVariants(ctx, *qtx, product); err != nil {
+	if err := mergeVariants(ctx, *qtx, params.Product); err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	if err := mergeOptionValuesProductVariants(ctx, *qtx, product); err != nil {
+	if err := mergeOptionValuesProductVariants(ctx, *qtx, params.Product); err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	if err := mergeImages(ctx, *qtx, product); err != nil {
+	if err := mergeImages(ctx, *qtx, params.Product); err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
 	err = tx.Commit(ctx)

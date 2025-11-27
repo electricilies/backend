@@ -20,12 +20,12 @@ type CartItem struct {
 	Quantity         int       `json:"quantity"                   binding:"required"   validate:"required,gt=0,lte=100"`
 }
 
-func NewCart(userID uuid.UUID) (*Cart, error) {
+func NewCart(userID uuid.UUID) (Cart, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return nil, err
+		return Cart{}, err
 	}
-	cart := &Cart{
+	cart := Cart{
 		ID:        id,
 		UserID:    userID,
 		Items:     []CartItem{},
@@ -38,12 +38,12 @@ func NewCartItem(
 	productID uuid.UUID,
 	productVariantID uuid.UUID,
 	quantity int,
-) (*CartItem, error) {
+) (CartItem, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return nil, err
+		return CartItem{}, err
 	}
-	cartItem := &CartItem{
+	cartItem := CartItem{
 		ID:               id,
 		ProductID:        productID,
 		ProductVariantID: productVariantID,

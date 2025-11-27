@@ -8,16 +8,16 @@ import (
 
 type ListReviewsRequestDto struct {
 	PaginationRequestDto
-	OrderItemIDs     *[]uuid.UUID        `binding:"omitnil"`
-	ProductVariantID *uuid.UUID          `binding:"omitnil"`
-	UserIDs          *[]uuid.UUID        `binding:"omitnil"`
-	Deleted          domain.DeletedParam `binding:"required,oneof=exclude only all"`
+	OrderItemIDs     []uuid.UUID
+	ProductVariantID uuid.UUID
+	UserIDs          []uuid.UUID
+	Deleted          domain.DeletedParam
 }
 
 type CreateReviewRequestDto struct {
-	OrderItemID uuid.UUID        `binding:"required"`
-	UserID      uuid.UUID        `binding:"required"`
-	Data        CreateReviewData `binding:"required"`
+	OrderItemID uuid.UUID
+	UserID      uuid.UUID
+	Data        CreateReviewData
 }
 
 type CreateReviewData struct {
@@ -27,21 +27,21 @@ type CreateReviewData struct {
 }
 
 type UpdateReviewRequestDto struct {
-	ReviewID uuid.UUID        `binding:"required"`
-	UserID   uuid.UUID        `binding:"required"`
-	Data     UpdateReviewData `binding:"required"`
+	ReviewID uuid.UUID
+	UserID   uuid.UUID
+	Data     UpdateReviewData
 }
 
 type UpdateReviewData struct {
-	Rating   *int    `json:"rating"   binding:"omitnil,gte=1,lte=5"`
-	Content  *string `json:"content"  binding:"omitnil"`
-	ImageURL *string `json:"imageUrl" binding:"omitnil,url"`
+	Rating   int    `json:"rating,omitempty"   binding:"omitempty,gte=1,lte=5"`
+	Content  string `json:"content,omitempty"`
+	ImageURL string `json:"imageUrl,omitempty" binding:"omitempty,url"`
 }
 
 type GetReviewRequestDto struct {
-	ReviewID uuid.UUID `binding:"required"`
+	ReviewID uuid.UUID
 }
 
 type DeleteReviewRequestDto struct {
-	ReviewID uuid.UUID `binding:"required"`
+	ReviewID uuid.UUID
 }

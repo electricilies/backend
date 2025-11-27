@@ -11,16 +11,16 @@ type Category struct {
 	Name      string     `json:"name"      binding:"required"                    validate:"required,gte=2,lte=100"`
 	CreatedAt time.Time  `json:"createdAt" binding:"required"                    validate:"required"`
 	UpdatedAt time.Time  `json:"updatedAt" binding:"required"                    validate:"required,gtefield=CreatedAt"`
-	DeletedAt *time.Time `json:"deletedAt" validate:"omitnil,gtefield=CreatedAt"`
+DeletedAt *time.Time `json:"deletedAt" validate:"omitempty,gtefield=CreatedAt"`
 }
 
-func NewCategory(name string) (*Category, error) {
+func NewCategory(name string) (Category, error) {
 	now := time.Now()
 	id, err := uuid.NewV7()
 	if err != nil {
-		return nil, err
+		return Category{}, err
 	}
-	category := &Category{
+	category := Category{
 		ID:        id,
 		Name:      name,
 		CreatedAt: now,

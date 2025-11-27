@@ -8,14 +8,14 @@ import (
 
 type ListOrderRequestDto struct {
 	PaginationRequestDto
-	IDs       *[]uuid.UUID `binding:"omitnil"`
-	UserIDs   *[]uuid.UUID `binding:"omitnil"`
-	StatusIDs *[]uuid.UUID `binding:"omitnil"`
+	IDs       []uuid.UUID
+	UserIDs   []uuid.UUID
+	StatusIDs []uuid.UUID
 }
 
 type CreateOrderRequestDto struct {
-	UserID uuid.UUID       `binding:"required"`
-	Data   CreateOrderData `binding:"required"`
+	UserID uuid.UUID
+	Data   CreateOrderData
 }
 
 type CreateOrderData struct {
@@ -33,19 +33,19 @@ type CreateOrderItemData struct {
 }
 
 type UpdateOrderRequestDto struct {
-	OrderID uuid.UUID       `binding:"required"`
-	Data    UpdateOrderData `binding:"required"`
+	OrderID uuid.UUID
+	Data    UpdateOrderData
 }
 
 type UpdateOrderData struct {
-	Status  *domain.OrderStatus `json:"status"  binding:"omitnil,oneof=Pending Processing Shipped Delivered Cancelled"`
-	Address *string             `json:"address" binding:"omitnil"`
+	Status  domain.OrderStatus `json:"status,omitempty"  binding:"omitempty,oneof=Pending Processing Shipped Delivered Cancelled"`
+	Address string             `json:"address,omitempty"`
 }
 
 type GetOrderRequestDto struct {
-	OrderID uuid.UUID `binding:"required"`
+	OrderID uuid.UUID
 }
 
 type DeleteOrderRequestDto struct {
-	OrderID uuid.UUID `binding:"required"`
+	OrderID uuid.UUID
 }

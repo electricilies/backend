@@ -29,32 +29,26 @@ func ProvideAttribute(q *sqlc.Queries, conn *pgxpool.Pool) *Attribute {
 
 func (r *Attribute) Count(
 	ctx context.Context,
-	ids *[]uuid.UUID,
-	deleted domain.DeletedParam,
+	params domain.AttributeRepositoryCountParam,
 ) (*int, error) {
 	count, err := r.queries.CountAttributes(ctx, sqlc.CountAttributesParams{
-		IDs:     ptr.Deref(ids, []uuid.UUID{}),
-		Deleted: string(deleted),
+		IDs:     params.IDs,
+		Deleted: string(params.Deleted),
 	})
 	return ptr.To(int(count)), err
 }
 
 func (r *Attribute) List(
 	ctx context.Context,
-	ids *[]uuid.UUID,
-	attributeValueIDs *[]uuid.UUID,
-	search *string,
-	deleted domain.DeletedParam,
-	limit int,
-	offset int,
+	params domain.AttributeRepositoryListParam,
 ) (*[]domain.Attribute, error) {
 	attributes, err := r.queries.ListAttributes(ctx, sqlc.ListAttributesParams{
-		IDs:               ptr.Deref(ids, []uuid.UUID{}),
-		AttributeValueIDs: ptr.Deref(attributeValueIDs, []uuid.UUID{}),
-		Search:            search,
-		Deleted:           string(deleted),
-		Limit:             int32(limit),
-		Offset:            int32(offset),
+		IDs:               params.IDs,
+		AttributeValueIDs: params.AttributeValueIDs,
+		Search:            params.Search,
+		Deleted:           string(params.Deleted),
+		Limit:             int32(params.Limit),
+		Offset:            int32(params.Offset),
 	})
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
@@ -65,7 +59,7 @@ func (r *Attribute) List(
 	}
 	attributeValues, err := r.queries.ListAttributeValues(ctx, sqlc.ListAttributeValuesParams{
 		AttributeIDs: attributeIDs,
-		Deleted:      string(deleted),
+		Deleted:      string(params.Deleted),
 	})
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
@@ -91,25 +85,17 @@ func (r *Attribute) List(
 
 func (r *Attribute) ListValues(
 	ctx context.Context,
-	attributeID uuid.UUID,
-	attributeValueIDs *[]uuid.UUID,
-	search *string,
-	deleted domain.DeletedParam,
-	limit int,
-	offset int,
+	params domain.AttributeRepositoryListValuesParam,
 ) (*[]domain.AttributeValue, error) {
 	attributeValues, err := r.queries.ListAttributeValues(
 		ctx,
 		sqlc.ListAttributeValuesParams{
-			IDs: ptr.Deref(attributeValueIDs, []uuid.UUID{}),
-			AttributeID: pgtype.UUID{
-				Bytes: attributeID,
-				Valid: true,
-			},
-			Search:  search,
-			Deleted: string(deleted),
-			Limit:   int32(limit),
-			Offset:  int32(offset),
+			IDs:         params.AttributeValueIDs,
+			AttributeID: params.AttributeID,
+			Search:      params.Search,
+			Deleted:     string(params.Deleted),
+			Limit:       int32(params.Limit),
+			Offset:      int32(params.Offset),
 		},
 	)
 	if err != nil {
@@ -131,29 +117,28 @@ func (r *Attribute) ListValues(
 
 func (r *Attribute) CountValues(
 	ctx context.Context,
-	attributeID uuid.UUID,
-	attributeValueIDs *[]uuid.UUID,
+	params domain.AttributeRepositoryCountValuesParam,
 ) (*int, error) {
 	count, err := r.queries.CountAttributeValues(ctx, sqlc.CountAttributeValuesParams{
-		IDs:     ptr.Deref(attributeValueIDs, []uuid.UUID{}),
-		Deleted: string(domain.DeletedExcludeParam),
-		AttributeID: pgtype.UUID{
-			Bytes: attributeID,
-			Valid: true,
-		},
+		IDs:         params.AttributeValueIDs,
+		Deleted:     string(domain.DeletedExcludeParam),
+		AttributeID: params.AttributeID,
 	})
 	return ptr.To(int(count)), err
 }
 
-func (r *Attribute) Get(ctx context.Context, id uuid.UUID) (*domain.Attribute, error) {
+func (r *Attribute) Get(ctx context.Context, params domain.AttributeRepositoryGetParam) (*domain.Attribute, error) {
 	attribute, err := r.queries.GetAttribute(ctx, sqlc.GetAttributeParams{
-		ID: id,
+		ID: params.ID,
 	})
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
 	}
 
-	attributeValues, err := r.ListValues(ctx, id, nil, nil, domain.DeletedExcludeParam, 0, 0)
+	attributeValues, err := r.ListValues(ctx, domain.AttributeRepositoryListValuesParam{
+		AttributeID: params.ID,
+		Deleted:     domain.DeletedExcludeParam,
+	})
 	if err != nil {
 		return nil, ToDomainErrorFromPostgres(err)
 	}
@@ -171,7 +156,7 @@ func (r *Attribute) Get(ctx context.Context, id uuid.UUID) (*domain.Attribute, e
 	return &result, nil
 }
 
-func (r *Attribute) Save(ctx context.Context, attribute domain.Attribute) error {
+func (r *Attribute) Save(ctx context.Context, params domain.AttributeRepositorySaveParam) error {
 	tx, err := r.conn.Begin(ctx)
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
@@ -179,12 +164,12 @@ func (r *Attribute) Save(ctx context.Context, attribute domain.Attribute) error 
 	defer func() { _ = tx.Rollback(ctx) }()
 	qtx := r.queries.WithTx(tx)
 	err = qtx.UpsertAttribute(ctx, sqlc.UpsertAttributeParams{
-		ID:   attribute.ID,
-		Code: attribute.Code,
-		Name: attribute.Name,
+		ID:   params.Attribute.ID,
+		Code: params.Attribute.Code,
+		Name: params.Attribute.Name,
 		DeletedAt: pgtype.Timestamptz{
-			Time:  ptr.Deref(attribute.DeletedAt, time.Time{}),
-			Valid: attribute.DeletedAt != nil,
+			Time:  ptr.Deref(params.Attribute.DeletedAt, time.Time{}),
+			Valid: params.Attribute.DeletedAt != nil,
 		},
 	})
 	if err != nil {
@@ -194,7 +179,7 @@ func (r *Attribute) Save(ctx context.Context, attribute domain.Attribute) error 
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}
-	_, err = qtx.InsertTempTableAttributeValues(ctx, buildInsertTempTableAttributeValuesParams(attribute))
+	_, err = qtx.InsertTempTableAttributeValues(ctx, buildInsertTempTableAttributeValuesParams(params.Attribute))
 	if err != nil {
 		return ToDomainErrorFromPostgres(err)
 	}

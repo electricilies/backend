@@ -9,12 +9,12 @@ VALUES (
   sqlc.arg('id'),
   sqlc.arg('name'),
   sqlc.arg('product_id'),
-  sqlc.narg('deleted_at')
+  NULLIF(sqlc.arg('deleted_at'), '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   product_id = EXCLUDED.product_id,
-  deleted_at = EXCLUDED.deleted_at;
+  deleted_at = COALESCE(EXCLUDED.deleted_at, options.deleted_at);
 
 -- name: ListOptions :many
 SELECT
@@ -23,13 +23,12 @@ FROM
   options
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
-    ELSE options.id = ANY (sqlc.narg('ids')::uuid[])
+    WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE options.id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('product_id')::uuid IS NULL THEN TRUE
-    ELSE options.product_id = sqlc.narg('product_id')::uuid
+    WHEN sqlc.arg('product_id')::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
+    ELSE options.product_id = sqlc.arg('product_id')::uuid
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
@@ -61,14 +60,12 @@ FROM
   option_values_product_variants
 WHERE
   CASE
-    WHEN sqlc.narg('option_value_ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('option_value_ids')::uuid[]) = 0 THEN TRUE
-    ELSE option_values_product_variants.option_value_id = ANY (sqlc.narg('option_value_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('option_value_ids')::uuid[]) = 0 THEN TRUE
+    ELSE option_values_product_variants.option_value_id = ANY (sqlc.arg('option_value_ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('product_variant_ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('product_variant_ids')::uuid[]) = 0 THEN TRUE
-    ELSE option_values_product_variants.product_variant_id = ANY (sqlc.narg('product_variant_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('product_variant_ids')::uuid[]) = 0 THEN TRUE
+    ELSE option_values_product_variants.product_variant_id = ANY (sqlc.arg('product_variant_ids')::uuid[])
   END;
 
 -- name: ListOptionValues :many
@@ -78,14 +75,12 @@ FROM
   option_values
 WHERE
   CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
-    ELSE option_values.id = ANY (sqlc.narg('ids')::uuid[])
+    WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE option_values.id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
-    WHEN sqlc.narg('option_ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('option_ids')::uuid[]) = 0 THEN TRUE
-    ELSE option_values.option_id = ANY (sqlc.narg('option_ids')::uuid[])
+    WHEN cardinality(sqlc.arg('option_ids')::uuid[]) = 0 THEN TRUE
+    ELSE option_values.option_id = ANY (sqlc.arg('option_ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
@@ -125,7 +120,7 @@ WHEN MATCHED THEN
   UPDATE SET
     name = source.name,
     product_id = source.product_id,
-    deleted_at = source.deleted_at
+    deleted_at = COALESCE(NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz), target.deleted_at)
 WHEN NOT MATCHED THEN
   INSERT (
     id,
@@ -137,7 +132,7 @@ WHEN NOT MATCHED THEN
     source.id,
     source.name,
     source.product_id,
-    source.deleted_at
+    NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz)
   )
 WHEN NOT MATCHED BY SOURCE
   AND target.product_id = (SELECT DISTINCT product_id FROM temp_options) THEN
@@ -172,7 +167,7 @@ WHEN MATCHED THEN
   UPDATE SET
     value = source.value,
     option_id = source.option_id,
-    deleted_at = source.deleted_at
+    deleted_at = COALESCE(NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz), target.deleted_at)
 WHEN NOT MATCHED THEN
   INSERT (
     id,
@@ -184,7 +179,7 @@ WHEN NOT MATCHED THEN
     source.id,
     source.value,
     source.option_id,
-    source.deleted_at
+    NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz)
   )
 WHEN NOT MATCHED BY SOURCE
   AND target.option_id = (SELECT DISTINCT option_id FROM temp_option_values) THEN

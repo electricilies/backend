@@ -43,8 +43,8 @@ func (p *Product) CreateOptionsWithOptionValues(
 		if err != nil {
 			return nil, err
 		}
-		option.Values = *optionValues
-		options = append(options, *option)
+		option.Values = optionValues
+		options = append(options, option)
 	}
 	return &options, nil
 }

@@ -65,13 +65,13 @@ func NewProduct(
 	name string,
 	description string,
 	categoryID uuid.UUID,
-) (*Product, error) {
+) (Product, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return nil, multierror.Append(ErrInternal, err)
+		return Product{}, multierror.Append(ErrInternal, err)
 	}
 	now := time.Now()
-	product := &Product{
+	product := Product{
 		ID:          id,
 		Name:        name,
 		Description: description,
@@ -84,12 +84,12 @@ func NewProduct(
 
 func NewProductOption(
 	name string,
-) (*Option, error) {
+) (Option, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return nil, multierror.Append(ErrInternal, err)
+		return Option{}, multierror.Append(ErrInternal, err)
 	}
-	option := &Option{
+	option := Option{
 		ID:   id,
 		Name: name,
 	}
@@ -99,12 +99,12 @@ func NewProductOption(
 func NewProductImage(
 	url string,
 	order int,
-) (*ProductImage, error) {
+) (ProductImage, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return nil, multierror.Append(ErrInternal, err)
+		return ProductImage{}, multierror.Append(ErrInternal, err)
 	}
-	productImage := &ProductImage{
+	productImage := ProductImage{
 		ID:        id,
 		URL:       url,
 		Order:     order,
@@ -117,13 +117,13 @@ func NewVariant(
 	sku string,
 	price int64,
 	quantity int,
-) (*ProductVariant, error) {
+) (ProductVariant, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return nil, multierror.Append(ErrInternal, err)
+		return ProductVariant{}, multierror.Append(ErrInternal, err)
 	}
 	now := time.Now()
-	productVariant := &ProductVariant{
+	productVariant := ProductVariant{
 		ID:            id,
 		SKU:           sku,
 		Price:         price,
@@ -374,7 +374,7 @@ func (img *ProductImage) Remove() {
 
 func CreateOptionValues(
 	values []string,
-) (*[]OptionValue, error) {
+) ([]OptionValue, error) {
 	optionValues := make([]OptionValue, 0, len(values))
 	for _, value := range values {
 		id, err := uuid.NewV7()
@@ -387,7 +387,7 @@ func CreateOptionValues(
 		}
 		optionValues = append(optionValues, optionValue)
 	}
-	return &optionValues, nil
+	return optionValues, nil
 }
 
 func (o *Option) GetValueByID(optionValueID uuid.UUID) *OptionValue {

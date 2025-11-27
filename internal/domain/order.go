@@ -46,9 +46,49 @@ const (
 	OrderStatusCancelled  OrderStatus = "Cancelled"
 )
 
-func (o *Order) AddItems(items ...OrderItem) {
-	if o.Items == nil {
-		o.Items = []OrderItem{}
+func NewOrder(
+	userID uuid.UUID,
+	address string,
+	provider OrderProvider,
+	items []OrderItem,
+) (Order, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return Order{}, err
 	}
+	now := time.Now()
+	return Order{
+		ID:        id,
+		UserID:    userID,
+		Address:   address,
+		Provider:  provider,
+		Status:    OrderStatusPending,
+		IsPaid:    false,
+		CreatedAt: now,
+		UpdatedAt: now,
+		Items:     items,
+	}, nil
+}
+
+func NewOrderItem(
+	productID uuid.UUID,
+	productVariantID uuid.UUID,
+	quantity int,
+	price int64,
+) (OrderItem, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return OrderItem{}, err
+	}
+	return OrderItem{
+		ID:               id,
+		ProductID:        productID,
+		ProductVariantID: productVariantID,
+		Quantity:         quantity,
+		Price:            price,
+	}, nil
+}
+
+func (o *Order) AddItems(items ...OrderItem) {
 	o.Items = append(o.Items, items...)
 }

@@ -9,29 +9,45 @@ import (
 type ReviewRepository interface {
 	List(
 		ctx context.Context,
-		orderItemIDs *[]uuid.UUID,
-		productVariantID *uuid.UUID,
-		userIDs *[]uuid.UUID,
-		deleted DeletedParam,
-		limit int,
-		offset int,
+		params ReviewRepositoryListParam,
 	) (*[]Review, error)
 
 	Count(
 		ctx context.Context,
-		orderItemIDs *[]uuid.UUID,
-		productVariantID *uuid.UUID,
-		userIDs *[]uuid.UUID,
-		deleted DeletedParam,
+		params ReviewRepositoryCountParam,
 	) (*int, error)
 
 	Get(
 		ctx context.Context,
-		id uuid.UUID,
+		params ReviewRepositoryGetParam,
 	) (*Review, error)
 
 	Save(
 		ctx context.Context,
-		review Review,
+		params ReviewRepositorySaveParam,
 	) error
+}
+
+type ReviewRepositoryListParam struct {
+	OrderItemIDs     []uuid.UUID
+	ProductVariantID uuid.UUID
+	UserIDs          []uuid.UUID
+	Deleted          DeletedParam
+	Limit            int
+	Offset           int
+}
+
+type ReviewRepositoryCountParam struct {
+	OrderItemIDs     []uuid.UUID
+	ProductVariantID uuid.UUID
+	UserIDs          []uuid.UUID
+	Deleted          DeletedParam
+}
+
+type ReviewRepositoryGetParam struct {
+	ID uuid.UUID
+}
+
+type ReviewRepositorySaveParam struct {
+	Review Review
 }

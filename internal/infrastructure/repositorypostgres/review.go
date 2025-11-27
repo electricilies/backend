@@ -5,8 +5,6 @@ import (
 
 	"backend/internal/domain"
 	"backend/internal/infrastructure/repositorypostgres/sqlc"
-
-	"github.com/google/uuid"
 )
 
 type Review struct {
@@ -21,24 +19,19 @@ func ProvideReview(q *sqlc.Queries) *Review {
 
 func (r *Review) List(
 	ctx context.Context,
-	orderItemIDs *[]uuid.UUID,
-	productVariantID *uuid.UUID,
-	userIDs *[]uuid.UUID,
-	deleted domain.DeletedParam,
-	limit int,
-	offset int,
+	params domain.ReviewRepositoryListParam,
 ) (*[]domain.Review, error) {
 	panic("implement me")
 }
 
-func (r *Review) Count(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted domain.DeletedParam) (*int, error) {
+func (r *Review) Count(ctx context.Context, params domain.ReviewRepositoryCountParam) (*int, error) {
 	panic("implement me")
 }
 
-func (r *Review) Get(ctx context.Context, id uuid.UUID) (*domain.Review, error) {
+func (r *Review) Get(ctx context.Context, params domain.ReviewRepositoryGetParam) (*domain.Review, error) {
 	panic("implement me")
 }
 
-func (r *Review) Save(ctx context.Context, review domain.Review) error {
+func (r *Review) Save(ctx context.Context, params domain.ReviewRepositorySaveParam) error {
 	panic("implement me")
 }

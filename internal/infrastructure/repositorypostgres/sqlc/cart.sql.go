@@ -33,18 +33,18 @@ FROM
   carts
 WHERE
   CASE
-    WHEN $1::uuid IS NULL THEN TRUE
+    WHEN $1::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE id = $1::uuid
   END
   AND CASE
-    WHEN $2::uuid IS NULL THEN TRUE
+    WHEN $2::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE user_id = $2::uuid
   END
 `
 
 type GetCartParams struct {
-	ID     pgtype.UUID
-	UserID pgtype.UUID
+	ID     uuid.UUID
+	UserID uuid.UUID
 }
 
 func (q *Queries) GetCart(ctx context.Context, arg GetCartParams) (Cart, error) {
@@ -68,13 +68,13 @@ FROM
   cart_items
 WHERE
   CASE
-    WHEN $1::uuid IS NULL THEN TRUE
+    WHEN $1::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE cart_id = $1::uuid
   END
 `
 
 type ListCartItemsParams struct {
-	CartID pgtype.UUID
+	CartID uuid.UUID
 }
 
 func (q *Queries) ListCartItems(ctx context.Context, arg ListCartItemsParams) ([]CartItem, error) {

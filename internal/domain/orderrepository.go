@@ -9,26 +9,42 @@ import (
 type OrderRepository interface {
 	List(
 		ctx context.Context,
-		ids *[]uuid.UUID,
-		search *string,
-		deleted DeletedParam,
-		limit int,
-		offset int,
+		params OrderRepositoryListParam,
 	) (*[]Order, error)
 
 	Count(
 		ctx context.Context,
-		ids *[]uuid.UUID,
-		deleted DeletedParam,
+		params OrderRepositoryCountParam,
 	) (*int, error)
 
 	Get(
 		ctx context.Context,
-		id uuid.UUID,
+		params OrderRepositoryGetParam,
 	) (*Order, error)
 
 	Save(
 		ctx context.Context,
-		order Order,
+		params OrderRepositorySaveParam,
 	) error
+}
+
+type OrderRepositoryListParam struct {
+	IDs     []uuid.UUID
+	Search  string
+	Deleted DeletedParam
+	Limit   int
+	Offset  int
+}
+
+type OrderRepositoryCountParam struct {
+	IDs     []uuid.UUID
+	Deleted DeletedParam
+}
+
+type OrderRepositoryGetParam struct {
+	ID uuid.UUID
+}
+
+type OrderRepositorySaveParam struct {
+	Order Order
 }

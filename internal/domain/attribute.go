@@ -23,12 +23,12 @@ type AttributeValue struct {
 func NewAttribute(
 	code string,
 	name string,
-) (*Attribute, error) {
+) (Attribute, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return nil, err
+		return Attribute{}, err
 	}
-	attribute := &Attribute{
+	attribute := Attribute{
 		ID:     id,
 		Code:   code,
 		Name:   name,
@@ -37,12 +37,12 @@ func NewAttribute(
 	return attribute, nil
 }
 
-func NewAttributeValue(value string) (*AttributeValue, error) {
+func NewAttributeValue(value string) (AttributeValue, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return nil, err
+		return AttributeValue{}, err
 	}
-	attributeValue := &AttributeValue{
+	attributeValue := AttributeValue{
 		ID:    id,
 		Value: value,
 	}

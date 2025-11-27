@@ -4,11 +4,11 @@ import "github.com/google/uuid"
 
 type ListCategoryRequestDto struct {
 	PaginationRequestDto
-	Search *string `json:"search" binding:"omitnil"`
+	Search string
 }
 
 type CreateCategoryRequestDto struct {
-	Data CreateCategoryData `binding:"required"`
+	Data CreateCategoryData
 }
 
 type CreateCategoryData struct {
@@ -16,14 +16,14 @@ type CreateCategoryData struct {
 }
 
 type GetCategoryRequestDto struct {
-	CategoryID uuid.UUID `binding:"required"`
+	CategoryID uuid.UUID
 }
 
 type UpdateCategoryRequestDto struct {
-	CategoryID uuid.UUID          `binding:"required"`
-	Data       UpdateCategoryData `binding:"required"`
+	CategoryID uuid.UUID
+	Data       UpdateCategoryData
 }
 
 type UpdateCategoryData struct {
-	Name *string `json:"name" binding:"omitnil"`
+	Name string `json:"name"`
 }

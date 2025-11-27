@@ -7,7 +7,6 @@ package domain
 import (
 	"context"
 
-	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -39,8 +38,8 @@ func (_m *MockProductRepository) EXPECT() *MockProductRepository_Expecter {
 }
 
 // Count provides a mock function for the type MockProductRepository
-func (_mock *MockProductRepository) Count(ctx context.Context, ids *[]uuid.UUID, minPrice *int64, maxPrice *int64, rating *float64, categoryIDs *[]uuid.UUID, deleted DeletedParam) (*int, error) {
-	ret := _mock.Called(ctx, ids, minPrice, maxPrice, rating, categoryIDs, deleted)
+func (_mock *MockProductRepository) Count(ctx context.Context, params ProductRepositoryCountParam) (*int, error) {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Count")
@@ -48,18 +47,18 @@ func (_mock *MockProductRepository) Count(ctx context.Context, ids *[]uuid.UUID,
 
 	var r0 *int
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *int64, *int64, *float64, *[]uuid.UUID, DeletedParam) (*int, error)); ok {
-		return returnFunc(ctx, ids, minPrice, maxPrice, rating, categoryIDs, deleted)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ProductRepositoryCountParam) (*int, error)); ok {
+		return returnFunc(ctx, params)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *int64, *int64, *float64, *[]uuid.UUID, DeletedParam) *int); ok {
-		r0 = returnFunc(ctx, ids, minPrice, maxPrice, rating, categoryIDs, deleted)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ProductRepositoryCountParam) *int); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*int)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]uuid.UUID, *int64, *int64, *float64, *[]uuid.UUID, DeletedParam) error); ok {
-		r1 = returnFunc(ctx, ids, minPrice, maxPrice, rating, categoryIDs, deleted)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ProductRepositoryCountParam) error); ok {
+		r1 = returnFunc(ctx, params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -73,54 +72,24 @@ type MockProductRepository_Count_Call struct {
 
 // Count is a helper method to define mock.On call
 //   - ctx context.Context
-//   - ids *[]uuid.UUID
-//   - minPrice *int64
-//   - maxPrice *int64
-//   - rating *float64
-//   - categoryIDs *[]uuid.UUID
-//   - deleted DeletedParam
-func (_e *MockProductRepository_Expecter) Count(ctx interface{}, ids interface{}, minPrice interface{}, maxPrice interface{}, rating interface{}, categoryIDs interface{}, deleted interface{}) *MockProductRepository_Count_Call {
-	return &MockProductRepository_Count_Call{Call: _e.mock.On("Count", ctx, ids, minPrice, maxPrice, rating, categoryIDs, deleted)}
+//   - params ProductRepositoryCountParam
+func (_e *MockProductRepository_Expecter) Count(ctx interface{}, params interface{}) *MockProductRepository_Count_Call {
+	return &MockProductRepository_Count_Call{Call: _e.mock.On("Count", ctx, params)}
 }
 
-func (_c *MockProductRepository_Count_Call) Run(run func(ctx context.Context, ids *[]uuid.UUID, minPrice *int64, maxPrice *int64, rating *float64, categoryIDs *[]uuid.UUID, deleted DeletedParam)) *MockProductRepository_Count_Call {
+func (_c *MockProductRepository_Count_Call) Run(run func(ctx context.Context, params ProductRepositoryCountParam)) *MockProductRepository_Count_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *[]uuid.UUID
+		var arg1 ProductRepositoryCountParam
 		if args[1] != nil {
-			arg1 = args[1].(*[]uuid.UUID)
-		}
-		var arg2 *int64
-		if args[2] != nil {
-			arg2 = args[2].(*int64)
-		}
-		var arg3 *int64
-		if args[3] != nil {
-			arg3 = args[3].(*int64)
-		}
-		var arg4 *float64
-		if args[4] != nil {
-			arg4 = args[4].(*float64)
-		}
-		var arg5 *[]uuid.UUID
-		if args[5] != nil {
-			arg5 = args[5].(*[]uuid.UUID)
-		}
-		var arg6 DeletedParam
-		if args[6] != nil {
-			arg6 = args[6].(DeletedParam)
+			arg1 = args[1].(ProductRepositoryCountParam)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
-			arg3,
-			arg4,
-			arg5,
-			arg6,
 		)
 	})
 	return _c
@@ -131,14 +100,14 @@ func (_c *MockProductRepository_Count_Call) Return(n *int, err error) *MockProdu
 	return _c
 }
 
-func (_c *MockProductRepository_Count_Call) RunAndReturn(run func(ctx context.Context, ids *[]uuid.UUID, minPrice *int64, maxPrice *int64, rating *float64, categoryIDs *[]uuid.UUID, deleted DeletedParam) (*int, error)) *MockProductRepository_Count_Call {
+func (_c *MockProductRepository_Count_Call) RunAndReturn(run func(ctx context.Context, params ProductRepositoryCountParam) (*int, error)) *MockProductRepository_Count_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Get provides a mock function for the type MockProductRepository
-func (_mock *MockProductRepository) Get(ctx context.Context, productID uuid.UUID) (*Product, error) {
-	ret := _mock.Called(ctx, productID)
+func (_mock *MockProductRepository) Get(ctx context.Context, params ProductRepositoryGetParam) (*Product, error) {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -146,18 +115,18 @@ func (_mock *MockProductRepository) Get(ctx context.Context, productID uuid.UUID
 
 	var r0 *Product
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*Product, error)); ok {
-		return returnFunc(ctx, productID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ProductRepositoryGetParam) (*Product, error)); ok {
+		return returnFunc(ctx, params)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *Product); ok {
-		r0 = returnFunc(ctx, productID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ProductRepositoryGetParam) *Product); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Product)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = returnFunc(ctx, productID)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ProductRepositoryGetParam) error); ok {
+		r1 = returnFunc(ctx, params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -171,20 +140,20 @@ type MockProductRepository_Get_Call struct {
 
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
-//   - productID uuid.UUID
-func (_e *MockProductRepository_Expecter) Get(ctx interface{}, productID interface{}) *MockProductRepository_Get_Call {
-	return &MockProductRepository_Get_Call{Call: _e.mock.On("Get", ctx, productID)}
+//   - params ProductRepositoryGetParam
+func (_e *MockProductRepository_Expecter) Get(ctx interface{}, params interface{}) *MockProductRepository_Get_Call {
+	return &MockProductRepository_Get_Call{Call: _e.mock.On("Get", ctx, params)}
 }
 
-func (_c *MockProductRepository_Get_Call) Run(run func(ctx context.Context, productID uuid.UUID)) *MockProductRepository_Get_Call {
+func (_c *MockProductRepository_Get_Call) Run(run func(ctx context.Context, params ProductRepositoryGetParam)) *MockProductRepository_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 ProductRepositoryGetParam
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(ProductRepositoryGetParam)
 		}
 		run(
 			arg0,
@@ -199,14 +168,14 @@ func (_c *MockProductRepository_Get_Call) Return(product *Product, err error) *M
 	return _c
 }
 
-func (_c *MockProductRepository_Get_Call) RunAndReturn(run func(ctx context.Context, productID uuid.UUID) (*Product, error)) *MockProductRepository_Get_Call {
+func (_c *MockProductRepository_Get_Call) RunAndReturn(run func(ctx context.Context, params ProductRepositoryGetParam) (*Product, error)) *MockProductRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function for the type MockProductRepository
-func (_mock *MockProductRepository) List(ctx context.Context, ids *[]uuid.UUID, search *string, minPrice *int64, maxPrice *int64, rating *float64, variantIDs *[]uuid.UUID, categoryIDs *[]uuid.UUID, deleted DeletedParam, sortRating *string, sortPrice *string, limit int, offset int) (*[]Product, error) {
-	ret := _mock.Called(ctx, ids, search, minPrice, maxPrice, rating, variantIDs, categoryIDs, deleted, sortRating, sortPrice, limit, offset)
+func (_mock *MockProductRepository) List(ctx context.Context, params ProductRepositoryListParam) (*[]Product, error) {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -214,18 +183,18 @@ func (_mock *MockProductRepository) List(ctx context.Context, ids *[]uuid.UUID, 
 
 	var r0 *[]Product
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *string, *int64, *int64, *float64, *[]uuid.UUID, *[]uuid.UUID, DeletedParam, *string, *string, int, int) (*[]Product, error)); ok {
-		return returnFunc(ctx, ids, search, minPrice, maxPrice, rating, variantIDs, categoryIDs, deleted, sortRating, sortPrice, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ProductRepositoryListParam) (*[]Product, error)); ok {
+		return returnFunc(ctx, params)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *string, *int64, *int64, *float64, *[]uuid.UUID, *[]uuid.UUID, DeletedParam, *string, *string, int, int) *[]Product); ok {
-		r0 = returnFunc(ctx, ids, search, minPrice, maxPrice, rating, variantIDs, categoryIDs, deleted, sortRating, sortPrice, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ProductRepositoryListParam) *[]Product); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*[]Product)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]uuid.UUID, *string, *int64, *int64, *float64, *[]uuid.UUID, *[]uuid.UUID, DeletedParam, *string, *string, int, int) error); ok {
-		r1 = returnFunc(ctx, ids, search, minPrice, maxPrice, rating, variantIDs, categoryIDs, deleted, sortRating, sortPrice, limit, offset)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ProductRepositoryListParam) error); ok {
+		r1 = returnFunc(ctx, params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -239,90 +208,24 @@ type MockProductRepository_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - ids *[]uuid.UUID
-//   - search *string
-//   - minPrice *int64
-//   - maxPrice *int64
-//   - rating *float64
-//   - variantIDs *[]uuid.UUID
-//   - categoryIDs *[]uuid.UUID
-//   - deleted DeletedParam
-//   - sortRating *string
-//   - sortPrice *string
-//   - limit int
-//   - offset int
-func (_e *MockProductRepository_Expecter) List(ctx interface{}, ids interface{}, search interface{}, minPrice interface{}, maxPrice interface{}, rating interface{}, variantIDs interface{}, categoryIDs interface{}, deleted interface{}, sortRating interface{}, sortPrice interface{}, limit interface{}, offset interface{}) *MockProductRepository_List_Call {
-	return &MockProductRepository_List_Call{Call: _e.mock.On("List", ctx, ids, search, minPrice, maxPrice, rating, variantIDs, categoryIDs, deleted, sortRating, sortPrice, limit, offset)}
+//   - params ProductRepositoryListParam
+func (_e *MockProductRepository_Expecter) List(ctx interface{}, params interface{}) *MockProductRepository_List_Call {
+	return &MockProductRepository_List_Call{Call: _e.mock.On("List", ctx, params)}
 }
 
-func (_c *MockProductRepository_List_Call) Run(run func(ctx context.Context, ids *[]uuid.UUID, search *string, minPrice *int64, maxPrice *int64, rating *float64, variantIDs *[]uuid.UUID, categoryIDs *[]uuid.UUID, deleted DeletedParam, sortRating *string, sortPrice *string, limit int, offset int)) *MockProductRepository_List_Call {
+func (_c *MockProductRepository_List_Call) Run(run func(ctx context.Context, params ProductRepositoryListParam)) *MockProductRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *[]uuid.UUID
+		var arg1 ProductRepositoryListParam
 		if args[1] != nil {
-			arg1 = args[1].(*[]uuid.UUID)
-		}
-		var arg2 *string
-		if args[2] != nil {
-			arg2 = args[2].(*string)
-		}
-		var arg3 *int64
-		if args[3] != nil {
-			arg3 = args[3].(*int64)
-		}
-		var arg4 *int64
-		if args[4] != nil {
-			arg4 = args[4].(*int64)
-		}
-		var arg5 *float64
-		if args[5] != nil {
-			arg5 = args[5].(*float64)
-		}
-		var arg6 *[]uuid.UUID
-		if args[6] != nil {
-			arg6 = args[6].(*[]uuid.UUID)
-		}
-		var arg7 *[]uuid.UUID
-		if args[7] != nil {
-			arg7 = args[7].(*[]uuid.UUID)
-		}
-		var arg8 DeletedParam
-		if args[8] != nil {
-			arg8 = args[8].(DeletedParam)
-		}
-		var arg9 *string
-		if args[9] != nil {
-			arg9 = args[9].(*string)
-		}
-		var arg10 *string
-		if args[10] != nil {
-			arg10 = args[10].(*string)
-		}
-		var arg11 int
-		if args[11] != nil {
-			arg11 = args[11].(int)
-		}
-		var arg12 int
-		if args[12] != nil {
-			arg12 = args[12].(int)
+			arg1 = args[1].(ProductRepositoryListParam)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
-			arg3,
-			arg4,
-			arg5,
-			arg6,
-			arg7,
-			arg8,
-			arg9,
-			arg10,
-			arg11,
-			arg12,
 		)
 	})
 	return _c
@@ -333,22 +236,22 @@ func (_c *MockProductRepository_List_Call) Return(products *[]Product, err error
 	return _c
 }
 
-func (_c *MockProductRepository_List_Call) RunAndReturn(run func(ctx context.Context, ids *[]uuid.UUID, search *string, minPrice *int64, maxPrice *int64, rating *float64, variantIDs *[]uuid.UUID, categoryIDs *[]uuid.UUID, deleted DeletedParam, sortRating *string, sortPrice *string, limit int, offset int) (*[]Product, error)) *MockProductRepository_List_Call {
+func (_c *MockProductRepository_List_Call) RunAndReturn(run func(ctx context.Context, params ProductRepositoryListParam) (*[]Product, error)) *MockProductRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Save provides a mock function for the type MockProductRepository
-func (_mock *MockProductRepository) Save(ctx context.Context, product Product) error {
-	ret := _mock.Called(ctx, product)
+func (_mock *MockProductRepository) Save(ctx context.Context, params ProductRepositorySaveParam) error {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, Product) error); ok {
-		r0 = returnFunc(ctx, product)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ProductRepositorySaveParam) error); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -362,20 +265,20 @@ type MockProductRepository_Save_Call struct {
 
 // Save is a helper method to define mock.On call
 //   - ctx context.Context
-//   - product Product
-func (_e *MockProductRepository_Expecter) Save(ctx interface{}, product interface{}) *MockProductRepository_Save_Call {
-	return &MockProductRepository_Save_Call{Call: _e.mock.On("Save", ctx, product)}
+//   - params ProductRepositorySaveParam
+func (_e *MockProductRepository_Expecter) Save(ctx interface{}, params interface{}) *MockProductRepository_Save_Call {
+	return &MockProductRepository_Save_Call{Call: _e.mock.On("Save", ctx, params)}
 }
 
-func (_c *MockProductRepository_Save_Call) Run(run func(ctx context.Context, product Product)) *MockProductRepository_Save_Call {
+func (_c *MockProductRepository_Save_Call) Run(run func(ctx context.Context, params ProductRepositorySaveParam)) *MockProductRepository_Save_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 Product
+		var arg1 ProductRepositorySaveParam
 		if args[1] != nil {
-			arg1 = args[1].(Product)
+			arg1 = args[1].(ProductRepositorySaveParam)
 		}
 		run(
 			arg0,
@@ -390,7 +293,7 @@ func (_c *MockProductRepository_Save_Call) Return(err error) *MockProductReposit
 	return _c
 }
 
-func (_c *MockProductRepository_Save_Call) RunAndReturn(run func(ctx context.Context, product Product) error) *MockProductRepository_Save_Call {
+func (_c *MockProductRepository_Save_Call) RunAndReturn(run func(ctx context.Context, params ProductRepositorySaveParam) error) *MockProductRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

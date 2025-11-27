@@ -19,17 +19,14 @@ FROM
   orders
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE user_id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE status_id = ANY ($3::uuid[])
   END
@@ -111,18 +108,18 @@ FROM
   order_providers
 WHERE
   CASE
-    WHEN $1::uuid IS NULL THEN TRUE
+    WHEN $1::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE id = $1::uuid
   END
   AND CASE
-    WHEN $2::text IS NULL THEN TRUE
+    WHEN $2::text = '' THEN TRUE
     ELSE name = $2::text
   END
 `
 
 type GetOrderProviderParams struct {
-	ID   pgtype.UUID
-	Name *string
+	ID   uuid.UUID
+	Name string
 }
 
 func (q *Queries) GetOrderProvider(ctx context.Context, arg GetOrderProviderParams) (OrderProvider, error) {
@@ -139,18 +136,18 @@ FROM
   order_statuses
 WHERE
   CASE
-    WHEN $1::uuid IS NULL THEN TRUE
+    WHEN $1::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE id = $1::uuid
   END
   AND CASE
-    WHEN $2::text IS NULL THEN TRUE
+    WHEN $2::text = '' THEN TRUE
     ELSE name = $2::text
   END
 `
 
 type GetOrderStatusParams struct {
-	ID   pgtype.UUID
-	Name *string
+	ID   uuid.UUID
+	Name string
 }
 
 func (q *Queries) GetOrderStatus(ctx context.Context, arg GetOrderStatusParams) (OrderStatus, error) {
@@ -167,12 +164,10 @@ FROM
   order_items
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE order_id = ANY ($2::uuid[])
   END
@@ -218,21 +213,19 @@ FROM
   order_statuses
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
-    ELSE id = ANY ($2::uuid[])
+    WHEN cardinality($1::uuid[]) = 0 THEN TRUE
+    ELSE id = ANY ($1::uuid[])
   END
 ORDER BY
   id ASC
 `
 
 type ListOrderStatusesParams struct {
-	ID  []uuid.UUID
 	IDs []uuid.UUID
 }
 
 func (q *Queries) ListOrderStatuses(ctx context.Context, arg ListOrderStatusesParams) ([]OrderStatus, error) {
-	rows, err := q.db.Query(ctx, listOrderStatuses, arg.ID, arg.IDs)
+	rows, err := q.db.Query(ctx, listOrderStatuses, arg.IDs)
 	if err != nil {
 		return nil, err
 	}
@@ -258,17 +251,14 @@ FROM
   orders
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE user_id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE status_id = ANY ($3::uuid[])
   END

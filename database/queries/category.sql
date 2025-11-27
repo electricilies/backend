@@ -11,13 +11,13 @@ VALUES (
   sqlc.arg('name'),
   sqlc.arg('created_at'),
   sqlc.arg('updated_at'),
-  sqlc.narg('deleted_at')
+  NULLIF(sqlc.arg('deleted_at'), '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   created_at = EXCLUDED.created_at,
   updated_at = EXCLUDED.updated_at,
-  deleted_at = EXCLUDED.deleted_at;
+  deleted_at = COALESCE(EXCLUDED.deleted_at, categories.deleted_at);
 
 -- name: ListCategories :many
 SELECT
@@ -26,13 +26,12 @@ FROM
   categories
 WHERE
   CASE
-    WHEN sqlc.narg('search')::text IS NULL THEN TRUE
-    ELSE name ||| (sqlc.narg('search')::text)
+    WHEN sqlc.arg('search')::text = '' THEN TRUE
+    ELSE name ||| (sqlc.arg('search')::text)
   END
   AND CASE
-    WHEN sqlc.narg('ids')::uuid[] IS NULL THEN TRUE
-    WHEN cardinality(sqlc.narg('ids')::uuid[]) = 0 THEN TRUE
-    ELSE id = ANY (sqlc.narg('ids')::uuid[])
+    WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
+    ELSE id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL

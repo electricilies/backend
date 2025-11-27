@@ -9,43 +9,67 @@ import (
 type AttributeRepository interface {
 	Count(
 		ctx context.Context,
-		ids *[]uuid.UUID,
-		deleted DeletedParam,
+		params AttributeRepositoryCountParam,
 	) (*int, error)
 
 	List(
 		ctx context.Context,
-		ids *[]uuid.UUID,
-		attributeValueIDs *[]uuid.UUID,
-		search *string,
-		deleted DeletedParam,
-		limit int,
-		offset int,
+		params AttributeRepositoryListParam,
 	) (*[]Attribute, error)
 
 	ListValues(
 		ctx context.Context,
-		attributeID uuid.UUID,
-		attributeValueIDs *[]uuid.UUID,
-		search *string,
-		deleted DeletedParam,
-		limit int,
-		offset int,
+		params AttributeRepositoryListValuesParam,
 	) (*[]AttributeValue, error)
 
 	CountValues(
 		ctx context.Context,
-		attributeID uuid.UUID,
-		attributeValueIDs *[]uuid.UUID,
+		params AttributeRepositoryCountValuesParam,
 	) (*int, error)
 
 	Get(
 		ctx context.Context,
-		id uuid.UUID,
+		params AttributeRepositoryGetParam,
 	) (*Attribute, error)
 
 	Save(
 		ctx context.Context,
-		attribute Attribute,
+		params AttributeRepositorySaveParam,
 	) error
+}
+
+type AttributeRepositoryCountParam struct {
+	IDs     []uuid.UUID
+	Deleted DeletedParam
+}
+
+type AttributeRepositoryListParam struct {
+	IDs               []uuid.UUID
+	AttributeValueIDs []uuid.UUID
+	Search            string
+	Deleted           DeletedParam
+	Limit             int
+	Offset            int
+}
+
+type AttributeRepositoryListValuesParam struct {
+	AttributeID       uuid.UUID
+	AttributeValueIDs []uuid.UUID
+	Search            string
+	Deleted           DeletedParam
+	Limit             int
+	Offset            int
+}
+
+type AttributeRepositoryCountValuesParam struct {
+	AttributeID       uuid.UUID
+	AttributeValueIDs []uuid.UUID
+}
+
+type AttributeRepositoryGetParam struct {
+	ID uuid.UUID
+}
+
+type AttributeRepositorySaveParam struct {
+	Attribute Attribute
 }

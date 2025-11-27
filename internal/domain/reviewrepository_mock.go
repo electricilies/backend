@@ -7,7 +7,6 @@ package domain
 import (
 	"context"
 
-	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -39,8 +38,8 @@ func (_m *MockReviewRepository) EXPECT() *MockReviewRepository_Expecter {
 }
 
 // Count provides a mock function for the type MockReviewRepository
-func (_mock *MockReviewRepository) Count(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted DeletedParam) (*int, error) {
-	ret := _mock.Called(ctx, orderItemIDs, productVariantID, userIDs, deleted)
+func (_mock *MockReviewRepository) Count(ctx context.Context, params ReviewRepositoryCountParam) (*int, error) {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Count")
@@ -48,18 +47,18 @@ func (_mock *MockReviewRepository) Count(ctx context.Context, orderItemIDs *[]uu
 
 	var r0 *int
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *uuid.UUID, *[]uuid.UUID, DeletedParam) (*int, error)); ok {
-		return returnFunc(ctx, orderItemIDs, productVariantID, userIDs, deleted)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ReviewRepositoryCountParam) (*int, error)); ok {
+		return returnFunc(ctx, params)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *uuid.UUID, *[]uuid.UUID, DeletedParam) *int); ok {
-		r0 = returnFunc(ctx, orderItemIDs, productVariantID, userIDs, deleted)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ReviewRepositoryCountParam) *int); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*int)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]uuid.UUID, *uuid.UUID, *[]uuid.UUID, DeletedParam) error); ok {
-		r1 = returnFunc(ctx, orderItemIDs, productVariantID, userIDs, deleted)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ReviewRepositoryCountParam) error); ok {
+		r1 = returnFunc(ctx, params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -73,42 +72,24 @@ type MockReviewRepository_Count_Call struct {
 
 // Count is a helper method to define mock.On call
 //   - ctx context.Context
-//   - orderItemIDs *[]uuid.UUID
-//   - productVariantID *uuid.UUID
-//   - userIDs *[]uuid.UUID
-//   - deleted DeletedParam
-func (_e *MockReviewRepository_Expecter) Count(ctx interface{}, orderItemIDs interface{}, productVariantID interface{}, userIDs interface{}, deleted interface{}) *MockReviewRepository_Count_Call {
-	return &MockReviewRepository_Count_Call{Call: _e.mock.On("Count", ctx, orderItemIDs, productVariantID, userIDs, deleted)}
+//   - params ReviewRepositoryCountParam
+func (_e *MockReviewRepository_Expecter) Count(ctx interface{}, params interface{}) *MockReviewRepository_Count_Call {
+	return &MockReviewRepository_Count_Call{Call: _e.mock.On("Count", ctx, params)}
 }
 
-func (_c *MockReviewRepository_Count_Call) Run(run func(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted DeletedParam)) *MockReviewRepository_Count_Call {
+func (_c *MockReviewRepository_Count_Call) Run(run func(ctx context.Context, params ReviewRepositoryCountParam)) *MockReviewRepository_Count_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *[]uuid.UUID
+		var arg1 ReviewRepositoryCountParam
 		if args[1] != nil {
-			arg1 = args[1].(*[]uuid.UUID)
-		}
-		var arg2 *uuid.UUID
-		if args[2] != nil {
-			arg2 = args[2].(*uuid.UUID)
-		}
-		var arg3 *[]uuid.UUID
-		if args[3] != nil {
-			arg3 = args[3].(*[]uuid.UUID)
-		}
-		var arg4 DeletedParam
-		if args[4] != nil {
-			arg4 = args[4].(DeletedParam)
+			arg1 = args[1].(ReviewRepositoryCountParam)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
-			arg3,
-			arg4,
 		)
 	})
 	return _c
@@ -119,14 +100,14 @@ func (_c *MockReviewRepository_Count_Call) Return(n *int, err error) *MockReview
 	return _c
 }
 
-func (_c *MockReviewRepository_Count_Call) RunAndReturn(run func(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted DeletedParam) (*int, error)) *MockReviewRepository_Count_Call {
+func (_c *MockReviewRepository_Count_Call) RunAndReturn(run func(ctx context.Context, params ReviewRepositoryCountParam) (*int, error)) *MockReviewRepository_Count_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Get provides a mock function for the type MockReviewRepository
-func (_mock *MockReviewRepository) Get(ctx context.Context, id uuid.UUID) (*Review, error) {
-	ret := _mock.Called(ctx, id)
+func (_mock *MockReviewRepository) Get(ctx context.Context, params ReviewRepositoryGetParam) (*Review, error) {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -134,18 +115,18 @@ func (_mock *MockReviewRepository) Get(ctx context.Context, id uuid.UUID) (*Revi
 
 	var r0 *Review
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*Review, error)); ok {
-		return returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ReviewRepositoryGetParam) (*Review, error)); ok {
+		return returnFunc(ctx, params)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *Review); ok {
-		r0 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ReviewRepositoryGetParam) *Review); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Review)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ReviewRepositoryGetParam) error); ok {
+		r1 = returnFunc(ctx, params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -159,20 +140,20 @@ type MockReviewRepository_Get_Call struct {
 
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id uuid.UUID
-func (_e *MockReviewRepository_Expecter) Get(ctx interface{}, id interface{}) *MockReviewRepository_Get_Call {
-	return &MockReviewRepository_Get_Call{Call: _e.mock.On("Get", ctx, id)}
+//   - params ReviewRepositoryGetParam
+func (_e *MockReviewRepository_Expecter) Get(ctx interface{}, params interface{}) *MockReviewRepository_Get_Call {
+	return &MockReviewRepository_Get_Call{Call: _e.mock.On("Get", ctx, params)}
 }
 
-func (_c *MockReviewRepository_Get_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockReviewRepository_Get_Call {
+func (_c *MockReviewRepository_Get_Call) Run(run func(ctx context.Context, params ReviewRepositoryGetParam)) *MockReviewRepository_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uuid.UUID
+		var arg1 ReviewRepositoryGetParam
 		if args[1] != nil {
-			arg1 = args[1].(uuid.UUID)
+			arg1 = args[1].(ReviewRepositoryGetParam)
 		}
 		run(
 			arg0,
@@ -187,14 +168,14 @@ func (_c *MockReviewRepository_Get_Call) Return(review *Review, err error) *Mock
 	return _c
 }
 
-func (_c *MockReviewRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (*Review, error)) *MockReviewRepository_Get_Call {
+func (_c *MockReviewRepository_Get_Call) RunAndReturn(run func(ctx context.Context, params ReviewRepositoryGetParam) (*Review, error)) *MockReviewRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function for the type MockReviewRepository
-func (_mock *MockReviewRepository) List(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted DeletedParam, limit int, offset int) (*[]Review, error) {
-	ret := _mock.Called(ctx, orderItemIDs, productVariantID, userIDs, deleted, limit, offset)
+func (_mock *MockReviewRepository) List(ctx context.Context, params ReviewRepositoryListParam) (*[]Review, error) {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -202,18 +183,18 @@ func (_mock *MockReviewRepository) List(ctx context.Context, orderItemIDs *[]uui
 
 	var r0 *[]Review
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *uuid.UUID, *[]uuid.UUID, DeletedParam, int, int) (*[]Review, error)); ok {
-		return returnFunc(ctx, orderItemIDs, productVariantID, userIDs, deleted, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ReviewRepositoryListParam) (*[]Review, error)); ok {
+		return returnFunc(ctx, params)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *[]uuid.UUID, *uuid.UUID, *[]uuid.UUID, DeletedParam, int, int) *[]Review); ok {
-		r0 = returnFunc(ctx, orderItemIDs, productVariantID, userIDs, deleted, limit, offset)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ReviewRepositoryListParam) *[]Review); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*[]Review)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *[]uuid.UUID, *uuid.UUID, *[]uuid.UUID, DeletedParam, int, int) error); ok {
-		r1 = returnFunc(ctx, orderItemIDs, productVariantID, userIDs, deleted, limit, offset)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ReviewRepositoryListParam) error); ok {
+		r1 = returnFunc(ctx, params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -227,54 +208,24 @@ type MockReviewRepository_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - orderItemIDs *[]uuid.UUID
-//   - productVariantID *uuid.UUID
-//   - userIDs *[]uuid.UUID
-//   - deleted DeletedParam
-//   - limit int
-//   - offset int
-func (_e *MockReviewRepository_Expecter) List(ctx interface{}, orderItemIDs interface{}, productVariantID interface{}, userIDs interface{}, deleted interface{}, limit interface{}, offset interface{}) *MockReviewRepository_List_Call {
-	return &MockReviewRepository_List_Call{Call: _e.mock.On("List", ctx, orderItemIDs, productVariantID, userIDs, deleted, limit, offset)}
+//   - params ReviewRepositoryListParam
+func (_e *MockReviewRepository_Expecter) List(ctx interface{}, params interface{}) *MockReviewRepository_List_Call {
+	return &MockReviewRepository_List_Call{Call: _e.mock.On("List", ctx, params)}
 }
 
-func (_c *MockReviewRepository_List_Call) Run(run func(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted DeletedParam, limit int, offset int)) *MockReviewRepository_List_Call {
+func (_c *MockReviewRepository_List_Call) Run(run func(ctx context.Context, params ReviewRepositoryListParam)) *MockReviewRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *[]uuid.UUID
+		var arg1 ReviewRepositoryListParam
 		if args[1] != nil {
-			arg1 = args[1].(*[]uuid.UUID)
-		}
-		var arg2 *uuid.UUID
-		if args[2] != nil {
-			arg2 = args[2].(*uuid.UUID)
-		}
-		var arg3 *[]uuid.UUID
-		if args[3] != nil {
-			arg3 = args[3].(*[]uuid.UUID)
-		}
-		var arg4 DeletedParam
-		if args[4] != nil {
-			arg4 = args[4].(DeletedParam)
-		}
-		var arg5 int
-		if args[5] != nil {
-			arg5 = args[5].(int)
-		}
-		var arg6 int
-		if args[6] != nil {
-			arg6 = args[6].(int)
+			arg1 = args[1].(ReviewRepositoryListParam)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
-			arg3,
-			arg4,
-			arg5,
-			arg6,
 		)
 	})
 	return _c
@@ -285,22 +236,22 @@ func (_c *MockReviewRepository_List_Call) Return(reviews *[]Review, err error) *
 	return _c
 }
 
-func (_c *MockReviewRepository_List_Call) RunAndReturn(run func(ctx context.Context, orderItemIDs *[]uuid.UUID, productVariantID *uuid.UUID, userIDs *[]uuid.UUID, deleted DeletedParam, limit int, offset int) (*[]Review, error)) *MockReviewRepository_List_Call {
+func (_c *MockReviewRepository_List_Call) RunAndReturn(run func(ctx context.Context, params ReviewRepositoryListParam) (*[]Review, error)) *MockReviewRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Save provides a mock function for the type MockReviewRepository
-func (_mock *MockReviewRepository) Save(ctx context.Context, review Review) error {
-	ret := _mock.Called(ctx, review)
+func (_mock *MockReviewRepository) Save(ctx context.Context, params ReviewRepositorySaveParam) error {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, Review) error); ok {
-		r0 = returnFunc(ctx, review)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ReviewRepositorySaveParam) error); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -314,20 +265,20 @@ type MockReviewRepository_Save_Call struct {
 
 // Save is a helper method to define mock.On call
 //   - ctx context.Context
-//   - review Review
-func (_e *MockReviewRepository_Expecter) Save(ctx interface{}, review interface{}) *MockReviewRepository_Save_Call {
-	return &MockReviewRepository_Save_Call{Call: _e.mock.On("Save", ctx, review)}
+//   - params ReviewRepositorySaveParam
+func (_e *MockReviewRepository_Expecter) Save(ctx interface{}, params interface{}) *MockReviewRepository_Save_Call {
+	return &MockReviewRepository_Save_Call{Call: _e.mock.On("Save", ctx, params)}
 }
 
-func (_c *MockReviewRepository_Save_Call) Run(run func(ctx context.Context, review Review)) *MockReviewRepository_Save_Call {
+func (_c *MockReviewRepository_Save_Call) Run(run func(ctx context.Context, params ReviewRepositorySaveParam)) *MockReviewRepository_Save_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 Review
+		var arg1 ReviewRepositorySaveParam
 		if args[1] != nil {
-			arg1 = args[1].(Review)
+			arg1 = args[1].(ReviewRepositorySaveParam)
 		}
 		run(
 			arg0,
@@ -342,7 +293,7 @@ func (_c *MockReviewRepository_Save_Call) Return(err error) *MockReviewRepositor
 	return _c
 }
 
-func (_c *MockReviewRepository_Save_Call) RunAndReturn(run func(ctx context.Context, review Review) error) *MockReviewRepository_Save_Call {
+func (_c *MockReviewRepository_Save_Call) RunAndReturn(run func(ctx context.Context, params ReviewRepositorySaveParam) error) *MockReviewRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

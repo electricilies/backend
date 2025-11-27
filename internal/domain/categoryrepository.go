@@ -9,10 +9,7 @@ import (
 type CategoryRepository interface {
 	List(
 		ctx context.Context,
-		ids *[]uuid.UUID,
-		search *string,
-		limit int,
-		offset int,
+		params CategoryRepositoryListParam,
 	) (*[]Category, error)
 
 	Count(
@@ -21,11 +18,26 @@ type CategoryRepository interface {
 
 	Get(
 		ctx context.Context,
-		id uuid.UUID,
+		params CategoryRepositoryGetParam,
 	) (*Category, error)
 
 	Save(
 		ctx context.Context,
-		category Category,
+		params CategoryRepositorySaveParam,
 	) error
+}
+
+type CategoryRepositoryListParam struct {
+	IDs    []uuid.UUID
+	Search string
+	Limit  int
+	Offset int
+}
+
+type CategoryRepositoryGetParam struct {
+	ID uuid.UUID
+}
+
+type CategoryRepositorySaveParam struct {
+	Category Category
 }

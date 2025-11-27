@@ -19,28 +19,26 @@ FROM
   products
 WHERE
   CASE
-    WHEN $1::uuid IS NULL THEN TRUE
+    WHEN $1::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE products.id = $1::uuid
   END
   AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE products.id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::decimal IS NULL THEN TRUE
+    WHEN $3::decimal = 0 THEN TRUE
     ELSE products.price >= $3::decimal
   END
   AND CASE
-    WHEN $4::decimal IS NULL THEN TRUE
+    WHEN $4::decimal = 0 THEN TRUE
     ELSE products.price <= $4::decimal
   END
   AND CASE
-    WHEN $5::real IS NULL THEN TRUE
+    WHEN $5::real = 0 THEN TRUE
     ELSE products.rating >= $5::real
   END
   AND CASE
-    WHEN $6::uuid[] IS NULL THEN TRUE
     WHEN cardinality($6::uuid[]) = 0 THEN TRUE
     ELSE products.category_id = ANY ($6::uuid[])
   END
@@ -53,11 +51,11 @@ WHERE
 `
 
 type CountProductsParams struct {
-	ID          pgtype.UUID
+	ID          uuid.UUID
 	IDs         []uuid.UUID
 	MinPrice    pgtype.Numeric
 	MaxPrice    pgtype.Numeric
-	Rating      *float32
+	Rating      float32
 	CategoryIDs []uuid.UUID
 	Deleted     string
 }
@@ -283,17 +281,14 @@ FROM
   product_images
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE product_variant_id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY ($3::uuid[])
   END
@@ -342,24 +337,22 @@ FROM
   product_variants
 WHERE
   CASE
-    WHEN $1::uuid IS NULL THEN TRUE
+    WHEN $1::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE id = $1::uuid
   END
   AND CASE
-    WHEN $2::text IS NULL THEN TRUE
+    WHEN $2::text = '' THEN TRUE
     ELSE sku = $2::text
   END
   AND CASE
-    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($3::uuid[])
   END
   AND CASE
-    WHEN $4::uuid IS NULL THEN TRUE
+    WHEN $4::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE product_id = $4::uuid
   END
   AND CASE
-    WHEN $5::uuid[] IS NULL THEN TRUE
     WHEN cardinality($5::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY ($5::uuid[])
   END
@@ -376,10 +369,10 @@ LIMIT NULLIF($8::integer, 0)
 `
 
 type ListProductVariantsParams struct {
-	ID         pgtype.UUID
-	SKU        *string
+	ID         uuid.UUID
+	SKU        string
 	IDs        []uuid.UUID
-	ProductID  pgtype.UUID
+	ProductID  uuid.UUID
 	ProductIDs []uuid.UUID
 	Deleted    string
 	Offset     int32
@@ -438,7 +431,7 @@ LEFT JOIN (
   INNER JOIN categories
     ON products.category_id = categories.id
   WHERE
-    CASE WHEN $1::text IS NULL THEN TRUE
+    CASE WHEN $1::text = '' THEN TRUE
       ELSE (
         categories.name ||| $1::text
         AND categories.deleted_at IS NULL
@@ -453,8 +446,7 @@ LEFT JOIN (
   INNER JOIN products
     ON product_variants.product_id = products.id
   WHERE
-    CASE WHEN $2::uuid[] IS NULL THEN TRUE
-      WHEN cardinality($2::uuid[]) = 0 THEN TRUE
+    CASE WHEN cardinality($2::uuid[]) = 0 THEN TRUE
       ELSE product_variants.id = ANY ($2::uuid[])
     END
   GROUP BY products.id
@@ -462,32 +454,30 @@ LEFT JOIN (
   ON products.id = variant_filter.id
 WHERE
   CASE
-    WHEN $3::uuid IS NULL THEN TRUE
+    WHEN $3::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE products.id = $3::uuid
   END
   AND CASE
-    WHEN $4::uuid[] IS NULL THEN TRUE
     WHEN cardinality($4::uuid[]) = 0 THEN TRUE
     ELSE products.id = ANY ($4::uuid[])
   END
   AND CASE
-    WHEN $1::text IS NULL THEN TRUE
+    WHEN $1::text = '' THEN TRUE
     ELSE products.name ||| $1::text
   END
   AND CASE
-    WHEN $5::decimal IS NULL THEN TRUE
+    WHEN $5::decimal = 0 THEN TRUE
     ELSE products.price >= $5::decimal
   END
   AND CASE
-    WHEN $6::decimal IS NULL THEN TRUE
+    WHEN $6::decimal = 0 THEN TRUE
     ELSE products.price <= $6::decimal
   END
   AND CASE
-    WHEN $7::real IS NULL THEN TRUE
+    WHEN $7::real = 0 THEN TRUE
     ELSE products.rating >= $7::real
   END
   AND CASE
-    WHEN $8::uuid[] IS NULL THEN TRUE
     WHEN cardinality($8::uuid[]) = 0 THEN TRUE
     ELSE products.category_id = ANY ($8::uuid[])
   END
@@ -499,7 +489,7 @@ WHERE
   END
 ORDER BY
   CASE WHEN
-    $1 IS NOT NULL THEN pdb.score(products.id) + category_scores.category_score + products.trending_score
+    $1::text <> '' THEN pdb.score(products.id) + category_scores.category_score + products.trending_score
   END DESC,
   CASE WHEN
     $10::text = 'asc' THEN products.rating
@@ -518,17 +508,17 @@ LIMIT NULLIF($13::integer, 0)
 `
 
 type ListProductsParams struct {
-	Search      *string
+	Search      string
 	VariantIDs  []uuid.UUID
-	ID          pgtype.UUID
+	ID          uuid.UUID
 	IDs         []uuid.UUID
 	MinPrice    pgtype.Numeric
 	MaxPrice    pgtype.Numeric
-	Rating      *float32
+	Rating      float32
 	CategoryIDs []uuid.UUID
 	Deleted     string
-	SortRating  *string
-	SortPrice   *string
+	SortRating  string
+	SortPrice   string
 	Offset      int32
 	Limit       int32
 }
@@ -588,16 +578,14 @@ FROM
   products_attribute_values
 WHERE
   CASE
-    WHEN $1::uuid IS NULL THEN TRUE
+    WHEN $1::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE product_id = $1::uuid
   END
   AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE attribute_value_id = ANY ($3::uuid[])
   END
@@ -607,7 +595,7 @@ ORDER BY
 `
 
 type ListProductsAttributeValuesParams struct {
-	ProductID         pgtype.UUID
+	ProductID         uuid.UUID
 	ProductIDs        []uuid.UUID
 	AttributeValueIDs []uuid.UUID
 }
@@ -666,7 +654,7 @@ WHEN MATCHED THEN
     product_id = source.product_id,
     product_variant_id = source.product_variant_id,
     created_at = source.created_at,
-    deleted_at = source.deleted_at
+    deleted_at = COALESCE(NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz), target.deleted_at)
 WHEN NOT MATCHED THEN
   INSERT (
     id,
@@ -684,7 +672,7 @@ WHEN NOT MATCHED THEN
     source.product_id,
     source.product_variant_id,
     source.created_at,
-    source.deleted_at
+    NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz)
   )
 WHEN NOT MATCHED BY SOURCE
   AND target.product_id = ANY (SELECT DISTINCT product_id FROM temp_product_images) THEN
@@ -709,7 +697,7 @@ WHEN MATCHED THEN
     product_id = source.product_id,
     created_at = source.created_at,
     updated_at = source.updated_at,
-    deleted_at = source.deleted_at
+    deleted_at = COALESCE(NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz), target.deleted_at)
 WHEN NOT MATCHED THEN
   INSERT (
     id,
@@ -731,7 +719,7 @@ WHEN NOT MATCHED THEN
     source.product_id,
     source.created_at,
     source.updated_at,
-    source.deleted_at
+    NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz)
   )
 WHEN NOT MATCHED BY SOURCE
   AND target.product_id = ANY (SELECT DISTINCT id FROM temp_product_variants) THEN
@@ -794,7 +782,7 @@ VALUES (
   $9,
   $10,
   $11,
-  $12
+  NULLIF($12, '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
@@ -807,7 +795,7 @@ ON CONFLICT (id) DO UPDATE SET
   category_id = EXCLUDED.category_id,
   created_at = EXCLUDED.created_at,
   updated_at = EXCLUDED.updated_at,
-  deleted_at = EXCLUDED.deleted_at
+  deleted_at = COALESCE(EXCLUDED.deleted_at, products.deleted_at)
 `
 
 type UpsertProductParams struct {
@@ -822,7 +810,7 @@ type UpsertProductParams struct {
 	CategoryID    uuid.UUID
 	CreatedAt     pgtype.Timestamptz
 	UpdatedAt     pgtype.Timestamptz
-	DeletedAt     pgtype.Timestamptz
+	DeletedAt     interface{}
 }
 
 func (q *Queries) UpsertProduct(ctx context.Context, arg UpsertProductParams) error {

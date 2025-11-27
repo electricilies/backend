@@ -7,7 +7,6 @@ package domain
 import (
 	"context"
 
-	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -39,8 +38,8 @@ func (_m *MockCartRepository) EXPECT() *MockCartRepository_Expecter {
 }
 
 // Get provides a mock function for the type MockCartRepository
-func (_mock *MockCartRepository) Get(ctx context.Context, id *uuid.UUID, userID *uuid.UUID) (*Cart, error) {
-	ret := _mock.Called(ctx, id, userID)
+func (_mock *MockCartRepository) Get(ctx context.Context, params CartRepositoryGetParam) (*Cart, error) {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -48,18 +47,18 @@ func (_mock *MockCartRepository) Get(ctx context.Context, id *uuid.UUID, userID 
 
 	var r0 *Cart
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *uuid.UUID, *uuid.UUID) (*Cart, error)); ok {
-		return returnFunc(ctx, id, userID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CartRepositoryGetParam) (*Cart, error)); ok {
+		return returnFunc(ctx, params)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *uuid.UUID, *uuid.UUID) *Cart); ok {
-		r0 = returnFunc(ctx, id, userID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CartRepositoryGetParam) *Cart); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Cart)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *uuid.UUID, *uuid.UUID) error); ok {
-		r1 = returnFunc(ctx, id, userID)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, CartRepositoryGetParam) error); ok {
+		r1 = returnFunc(ctx, params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -73,30 +72,24 @@ type MockCartRepository_Get_Call struct {
 
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id *uuid.UUID
-//   - userID *uuid.UUID
-func (_e *MockCartRepository_Expecter) Get(ctx interface{}, id interface{}, userID interface{}) *MockCartRepository_Get_Call {
-	return &MockCartRepository_Get_Call{Call: _e.mock.On("Get", ctx, id, userID)}
+//   - params CartRepositoryGetParam
+func (_e *MockCartRepository_Expecter) Get(ctx interface{}, params interface{}) *MockCartRepository_Get_Call {
+	return &MockCartRepository_Get_Call{Call: _e.mock.On("Get", ctx, params)}
 }
 
-func (_c *MockCartRepository_Get_Call) Run(run func(ctx context.Context, id *uuid.UUID, userID *uuid.UUID)) *MockCartRepository_Get_Call {
+func (_c *MockCartRepository_Get_Call) Run(run func(ctx context.Context, params CartRepositoryGetParam)) *MockCartRepository_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *uuid.UUID
+		var arg1 CartRepositoryGetParam
 		if args[1] != nil {
-			arg1 = args[1].(*uuid.UUID)
-		}
-		var arg2 *uuid.UUID
-		if args[2] != nil {
-			arg2 = args[2].(*uuid.UUID)
+			arg1 = args[1].(CartRepositoryGetParam)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
 		)
 	})
 	return _c
@@ -107,22 +100,22 @@ func (_c *MockCartRepository_Get_Call) Return(cart *Cart, err error) *MockCartRe
 	return _c
 }
 
-func (_c *MockCartRepository_Get_Call) RunAndReturn(run func(ctx context.Context, id *uuid.UUID, userID *uuid.UUID) (*Cart, error)) *MockCartRepository_Get_Call {
+func (_c *MockCartRepository_Get_Call) RunAndReturn(run func(ctx context.Context, params CartRepositoryGetParam) (*Cart, error)) *MockCartRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Save provides a mock function for the type MockCartRepository
-func (_mock *MockCartRepository) Save(ctx context.Context, cart Cart) error {
-	ret := _mock.Called(ctx, cart)
+func (_mock *MockCartRepository) Save(ctx context.Context, params CartRepositorySaveParam) error {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Save")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, Cart) error); ok {
-		r0 = returnFunc(ctx, cart)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CartRepositorySaveParam) error); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -136,20 +129,20 @@ type MockCartRepository_Save_Call struct {
 
 // Save is a helper method to define mock.On call
 //   - ctx context.Context
-//   - cart Cart
-func (_e *MockCartRepository_Expecter) Save(ctx interface{}, cart interface{}) *MockCartRepository_Save_Call {
-	return &MockCartRepository_Save_Call{Call: _e.mock.On("Save", ctx, cart)}
+//   - params CartRepositorySaveParam
+func (_e *MockCartRepository_Expecter) Save(ctx interface{}, params interface{}) *MockCartRepository_Save_Call {
+	return &MockCartRepository_Save_Call{Call: _e.mock.On("Save", ctx, params)}
 }
 
-func (_c *MockCartRepository_Save_Call) Run(run func(ctx context.Context, cart Cart)) *MockCartRepository_Save_Call {
+func (_c *MockCartRepository_Save_Call) Run(run func(ctx context.Context, params CartRepositorySaveParam)) *MockCartRepository_Save_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 Cart
+		var arg1 CartRepositorySaveParam
 		if args[1] != nil {
-			arg1 = args[1].(Cart)
+			arg1 = args[1].(CartRepositorySaveParam)
 		}
 		run(
 			arg0,
@@ -164,7 +157,7 @@ func (_c *MockCartRepository_Save_Call) Return(err error) *MockCartRepository_Sa
 	return _c
 }
 
-func (_c *MockCartRepository_Save_Call) RunAndReturn(run func(ctx context.Context, cart Cart) error) *MockCartRepository_Save_Call {
+func (_c *MockCartRepository_Save_Call) RunAndReturn(run func(ctx context.Context, params CartRepositorySaveParam) error) *MockCartRepository_Save_Call {
 	_c.Call.Return(run)
 	return _c
 }

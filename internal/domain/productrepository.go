@@ -9,37 +9,53 @@ import (
 type ProductRepository interface {
 	List(
 		ctx context.Context,
-		ids *[]uuid.UUID,
-		search *string,
-		minPrice *int64,
-		maxPrice *int64,
-		rating *float64,
-		variantIDs *[]uuid.UUID,
-		categoryIDs *[]uuid.UUID,
-		deleted DeletedParam,
-		sortRating *string,
-		sortPrice *string,
-		limit int,
-		offset int,
+		params ProductRepositoryListParam,
 	) (*[]Product, error)
 
 	Count(
 		ctx context.Context,
-		ids *[]uuid.UUID,
-		minPrice *int64,
-		maxPrice *int64,
-		rating *float64,
-		categoryIDs *[]uuid.UUID,
-		deleted DeletedParam,
+		params ProductRepositoryCountParam,
 	) (*int, error)
 
 	Get(
 		ctx context.Context,
-		productID uuid.UUID,
+		params ProductRepositoryGetParam,
 	) (*Product, error)
 
 	Save(
 		ctx context.Context,
-		product Product,
+		params ProductRepositorySaveParam,
 	) error
+}
+
+type ProductRepositoryListParam struct {
+	IDs         []uuid.UUID
+	Search      string
+	MinPrice    int64
+	MaxPrice    int64
+	Rating      float64
+	VariantIDs  []uuid.UUID
+	CategoryIDs []uuid.UUID
+	Deleted     DeletedParam
+	SortRating  string
+	SortPrice   string
+	Limit       int
+	Offset      int
+}
+
+type ProductRepositoryCountParam struct {
+	IDs         []uuid.UUID
+	MinPrice    int64
+	MaxPrice    int64
+	Rating      float64
+	CategoryIDs []uuid.UUID
+	Deleted     DeletedParam
+}
+
+type ProductRepositoryGetParam struct {
+	ProductID uuid.UUID
+}
+
+type ProductRepositorySaveParam struct {
+	Product Product
 }

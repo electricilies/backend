@@ -93,12 +93,10 @@ FROM
   option_values
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE option_values.id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE option_values.option_id = ANY ($2::uuid[])
   END
@@ -150,12 +148,10 @@ FROM
   option_values_product_variants
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE option_values_product_variants.option_value_id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE option_values_product_variants.product_variant_id = ANY ($2::uuid[])
   END
@@ -193,12 +189,11 @@ FROM
   options
 WHERE
   CASE
-    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE options.id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::uuid IS NULL THEN TRUE
+    WHEN $2::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE options.product_id = $2::uuid
   END
   AND CASE
@@ -213,7 +208,7 @@ ORDER BY
 
 type ListOptionsParams struct {
 	IDs       []uuid.UUID
-	ProductID pgtype.UUID
+	ProductID uuid.UUID
 	Deleted   string
 }
 
@@ -250,7 +245,7 @@ WHEN MATCHED THEN
   UPDATE SET
     value = source.value,
     option_id = source.option_id,
-    deleted_at = source.deleted_at
+    deleted_at = COALESCE(NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz), target.deleted_at)
 WHEN NOT MATCHED THEN
   INSERT (
     id,
@@ -262,7 +257,7 @@ WHEN NOT MATCHED THEN
     source.id,
     source.value,
     source.option_id,
-    source.deleted_at
+    NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz)
   )
 WHEN NOT MATCHED BY SOURCE
   AND target.option_id = (SELECT DISTINCT option_id FROM temp_option_values) THEN
@@ -282,7 +277,7 @@ WHEN MATCHED THEN
   UPDATE SET
     name = source.name,
     product_id = source.product_id,
-    deleted_at = source.deleted_at
+    deleted_at = COALESCE(NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz), target.deleted_at)
 WHEN NOT MATCHED THEN
   INSERT (
     id,
@@ -294,7 +289,7 @@ WHEN NOT MATCHED THEN
     source.id,
     source.name,
     source.product_id,
-    source.deleted_at
+    NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz)
   )
 WHEN NOT MATCHED BY SOURCE
   AND target.product_id = (SELECT DISTINCT product_id FROM temp_options) THEN
@@ -317,19 +312,19 @@ VALUES (
   $1,
   $2,
   $3,
-  $4
+  NULLIF($4, '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   product_id = EXCLUDED.product_id,
-  deleted_at = EXCLUDED.deleted_at
+  deleted_at = COALESCE(EXCLUDED.deleted_at, options.deleted_at)
 `
 
 type UpsertOptionParams struct {
 	ID        uuid.UUID
 	Name      string
 	ProductID uuid.UUID
-	DeletedAt pgtype.Timestamptz
+	DeletedAt interface{}
 }
 
 func (q *Queries) UpsertOption(ctx context.Context, arg UpsertOptionParams) error {
