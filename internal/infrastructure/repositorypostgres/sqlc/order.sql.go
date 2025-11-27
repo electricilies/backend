@@ -187,12 +187,19 @@ FROM
   order_items
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE order_id = ANY ($2::uuid[])
+  END
+  AND CASE
+    WHEN $3::uuid IS NULL THEN TRUE
+    WHEN $3::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
+    ELSE order_id = $3::uuid
   END
 ORDER BY
   id
@@ -200,11 +207,12 @@ ORDER BY
 
 type ListOrderItemsParams struct {
 	IDs      []uuid.UUID
-	OrderIds []uuid.UUID
+	OrderIDs []uuid.UUID
+	OrderID  uuid.UUID
 }
 
 func (q *Queries) ListOrderItems(ctx context.Context, arg ListOrderItemsParams) ([]OrderItem, error) {
-	rows, err := q.db.Query(ctx, listOrderItems, arg.IDs, arg.OrderIds)
+	rows, err := q.db.Query(ctx, listOrderItems, arg.IDs, arg.OrderIDs, arg.OrderID)
 	if err != nil {
 		return nil, err
 	}

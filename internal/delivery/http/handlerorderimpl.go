@@ -32,7 +32,7 @@ func ProvideOrderHandler(orderApp OrderApplication) *OrderHandlerImpl {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order_id	path		int	true	"Order ID"	format(uuid)
+//	@Param			order_id	path		string	true	"Order ID"	format(uuid)
 //	@Success		200			{object}	domain.Order
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
@@ -121,12 +121,8 @@ func (h *OrderHandlerImpl) Create(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: Get userID from auth context
-	userID := uuid.New() // Placeholder
-
 	order, err := h.orderApp.Create(ctx, CreateOrderRequestDto{
-		UserID: userID,
-		Data:   data,
+		Data: data,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -142,14 +138,14 @@ func (h *OrderHandlerImpl) Create(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order_id	path		int				true	"Order ID"	format(uuid)
+//	@Param			order_id	path		string			true	"Order ID"	format(uuid)
 //	@Param			status		body		UpdateOrderData	true	"Update order status request"
 //	@Success		200			{object}	domain.Order
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
 //	@Failure		409			{object}	Error
 //	@Failure		500			{object}	Error
-//	@Router			/orders/{order_id} [patch]
+//	@Router			/orders/{order_id} [put]
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *OrderHandlerImpl) Update(ctx *gin.Context) {

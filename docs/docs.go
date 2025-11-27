@@ -1367,7 +1367,7 @@ const docTemplate = `{
                 "summary": "Get order by ID",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "format": "uuid",
                         "description": "Order ID",
                         "name": "order_id",
@@ -1396,7 +1396,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "patch": {
+            "put": {
                 "security": [
                     {
                         "OAuth2AccessCode": []
@@ -1418,7 +1418,7 @@ const docTemplate = `{
                 "summary": "Update order",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "format": "uuid",
                         "description": "Order ID",
                         "name": "order_id",
@@ -2559,7 +2559,8 @@ const docTemplate = `{
             "required": [
                 "address",
                 "items",
-                "provider"
+                "provider",
+                "userId"
             ],
             "properties": {
                 "address": {
@@ -2573,6 +2574,9 @@ const docTemplate = `{
                 },
                 "provider": {
                     "$ref": "#/definitions/OrderProvider"
+                },
+                "userId": {
+                    "type": "string"
                 }
             }
         },
@@ -2801,31 +2805,10 @@ const docTemplate = `{
                     }
                 },
                 "provider": {
-                    "enum": [
-                        "COD",
-                        "VNPAY",
-                        "MOMO",
-                        "ZALOPAY"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/OrderProvider"
-                        }
-                    ]
+                    "$ref": "#/definitions/OrderProvider"
                 },
                 "status": {
-                    "enum": [
-                        "Pending",
-                        "Processing",
-                        "Shipped",
-                        "Delivered",
-                        "Cancelled"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/OrderStatus"
-                        }
-                    ]
+                    "$ref": "#/definitions/OrderStatus"
                 },
                 "totalAmount": {
                     "type": "integer"

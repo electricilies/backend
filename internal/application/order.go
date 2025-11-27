@@ -76,7 +76,7 @@ func (o *Order) Create(ctx context.Context, param http.CreateOrderRequestDto) (*
 		items = append(items, *item)
 	}
 	order, err := domain.NewOrder(
-		param.UserID,
+		param.Data.UserID,
 		param.Data.Address,
 		param.Data.Provider,
 		items,

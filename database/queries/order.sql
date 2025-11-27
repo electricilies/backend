@@ -87,12 +87,19 @@ FROM
   order_items
 WHERE
   CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('order_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('order_ids')::uuid[]) = 0 THEN TRUE
     ELSE order_id = ANY (sqlc.arg('order_ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.arg('order_id')::uuid IS NULL THEN TRUE
+    WHEN sqlc.arg('order_id')::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
+    ELSE order_id = sqlc.arg('order_id')::uuid
   END
 ORDER BY
   id;

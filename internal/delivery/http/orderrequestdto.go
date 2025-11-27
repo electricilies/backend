@@ -14,14 +14,14 @@ type ListOrderRequestDto struct {
 }
 
 type CreateOrderRequestDto struct {
-	UserID uuid.UUID
-	Data   CreateOrderData
+	Data CreateOrderData
 }
 
 type CreateOrderData struct {
 	Address  string                `json:"address"  binding:"required"`
 	Provider domain.OrderProvider  `json:"provider" binding:"required"`
 	Items    []CreateOrderItemData `json:"items"    binding:"required,dive"`
+	UserID   uuid.UUID             `json:"userId"   binding:"required"`
 }
 
 type CreateOrderItemData struct {

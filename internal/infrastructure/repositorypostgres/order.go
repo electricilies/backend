@@ -45,7 +45,7 @@ func (r *Order) List(ctx context.Context, params domain.OrderRepositoryListParam
 	}
 
 	orderItems, err := r.queries.ListOrderItems(ctx, sqlc.ListOrderItemsParams{
-		OrderIds: orderIDs,
+		OrderIDs: orderIDs,
 	})
 	if err != nil {
 		return nil, toDomainError(err)
@@ -126,7 +126,7 @@ func (r *Order) Get(ctx context.Context, params domain.OrderRepositoryGetParam) 
 	}
 
 	orderItems, err := r.queries.ListOrderItems(ctx, sqlc.ListOrderItemsParams{
-		OrderIds: []uuid.UUID{params.ID},
+		OrderID: params.ID,
 	})
 	if err != nil {
 		return nil, toDomainError(err)
