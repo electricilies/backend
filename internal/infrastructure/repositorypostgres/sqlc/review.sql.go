@@ -195,7 +195,7 @@ VALUES (
   $6,
   $7,
   $8,
-  NULLIF($9, '0001-01-01T00:00:00Z'::timestamptz)
+  NULLIF($9::timestamptz, '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   rating = EXCLUDED.rating,
@@ -217,7 +217,7 @@ type UpsertReviewParams struct {
 	OrderItemID uuid.UUID
 	CreatedAt   pgtype.Timestamptz
 	UpdatedAt   pgtype.Timestamptz
-	DeletedAt   interface{}
+	DeletedAt   pgtype.Timestamptz
 }
 
 func (q *Queries) UpsertReview(ctx context.Context, arg UpsertReviewParams) error {

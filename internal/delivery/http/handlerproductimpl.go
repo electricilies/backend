@@ -7,7 +7,6 @@ import (
 	"backend/internal/domain"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type ProductHandlerImpl struct {
@@ -40,16 +39,12 @@ func ProvideProductHandler(productApp ProductApplication) *ProductHandlerImpl {
 //	@Router			/products/{product_id} [get]
 func (h *ProductHandlerImpl) Get(ctx *gin.Context) {
 	productID, ok := pathToUUID(ctx, "product_id")
-	if *productID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredProductID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidProductID))
 		return
 	}
 	product, err := h.productApp.Get(ctx.Request.Context(), GetProductRequestDto{
-		ProductID: *productID,
+		ProductID: productID,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -86,54 +81,39 @@ func (h *ProductHandlerImpl) List(ctx *gin.Context) {
 		return
 	}
 
-	var productIDs *[]uuid.UUID
-	if productIDsQuery, ok := queryArrayToUUIDSlice(ctx, "product_ids"); ok {
-		productIDs = productIDsQuery
-	}
+	productIDs, _ := queryArrayToUUIDSlice(ctx, "product_ids")
 
-	var categoryIDs *[]uuid.UUID
-	if categoryIDsQuery, ok := queryArrayToUUIDSlice(ctx, "category_ids"); ok {
-		categoryIDs = categoryIDsQuery
-	}
+	categoryIDs, _ := queryArrayToUUIDSlice(ctx, "category_ids")
 
-	var search *string
-	if searchQuery, ok := ctx.GetQuery("search"); ok {
-		search = &searchQuery
-	}
+	search, _ := ctx.GetQuery("search")
 
-	var minPrice *int64
+	var minPrice int64
 	if minPriceQuery, ok := ctx.GetQuery("min_price"); ok {
 		var price int64
 		if _, err := fmt.Sscanf(minPriceQuery, "%d", &price); err == nil {
-			minPrice = &price
+			minPrice = price
 		}
 	}
 
-	var maxPrice *int64
+	var maxPrice int64
 	if maxPriceQuery, ok := ctx.GetQuery("max_price"); ok {
 		var price int64
 		if _, err := fmt.Sscanf(maxPriceQuery, "%d", &price); err == nil {
-			maxPrice = &price
+			maxPrice = price
 		}
 	}
 
-	var rating *float64
+	var rating float64
 	if ratingQuery, ok := ctx.GetQuery("rating"); ok {
 		var r float64
 		if _, err := fmt.Sscanf(ratingQuery, "%f", &r); err == nil {
-			rating = &r
+			rating = r
 		}
 	}
 
-	var sortPrice *string
-	if sortPriceQuery, ok := ctx.GetQuery("sort_price"); ok {
-		sortPrice = &sortPriceQuery
-	}
+	sortPrice, _ := ctx.GetQuery("sort_price")
 
-	var sortRating *string
-	if sortRatingQuery, ok := ctx.GetQuery("sort_rating"); ok {
-		sortRating = &sortRatingQuery
-	}
+	sortRating, _ := ctx.GetQuery("sort_rating")
 
 	deleted := domain.DeletedExcludeParam
 	if deletedQuery, ok := ctx.GetQuery("deleted"); ok {
@@ -210,10 +190,6 @@ func (h *ProductHandlerImpl) Create(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *ProductHandlerImpl) Update(ctx *gin.Context) {
 	productID, ok := pathToUUID(ctx, "product_id")
-	if *productID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredProductID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidProductID))
 		return
@@ -226,7 +202,7 @@ func (h *ProductHandlerImpl) Update(ctx *gin.Context) {
 	}
 
 	product, err := h.productApp.Update(ctx.Request.Context(), UpdateProductRequestDto{
-		ProductID: *productID,
+		ProductID: productID,
 		Data:      data,
 	})
 	if err != nil {
@@ -252,17 +228,13 @@ func (h *ProductHandlerImpl) Update(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *ProductHandlerImpl) Delete(ctx *gin.Context) {
 	productID, ok := pathToUUID(ctx, "product_id")
-	if *productID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredProductID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidProductID))
 		return
 	}
 
 	err := h.productApp.Delete(ctx.Request.Context(), DeleteProductRequestDto{
-		ProductID: *productID,
+		ProductID: productID,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -289,10 +261,6 @@ func (h *ProductHandlerImpl) Delete(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *ProductHandlerImpl) AddImages(ctx *gin.Context) {
 	productID, ok := pathToUUID(ctx, "product_id")
-	if *productID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredProductID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidProductID))
 		return
@@ -305,7 +273,7 @@ func (h *ProductHandlerImpl) AddImages(ctx *gin.Context) {
 	}
 
 	images, err := h.productApp.AddImages(ctx.Request.Context(), AddProductImagesRequestDto{
-		ProductID: *productID,
+		ProductID: productID,
 		Data:      data,
 	})
 	if err != nil {
@@ -332,24 +300,20 @@ func (h *ProductHandlerImpl) AddImages(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *ProductHandlerImpl) DeleteImages(ctx *gin.Context) {
 	productID, ok := pathToUUID(ctx, "product_id")
-	if *productID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredProductID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidProductID))
 		return
 	}
 
 	imageIDs, ok := queryArrayToUUIDSlice(ctx, "ids")
-	if !ok || imageIDs == nil || len(*imageIDs) == 0 {
+	if !ok || len(imageIDs) == 0 {
 		ctx.JSON(http.StatusBadRequest, NewError("image ids are required"))
 		return
 	}
 
 	err := h.productApp.DeleteImages(ctx.Request.Context(), DeleteProductImagesRequestDto{
-		ProductID: *productID,
-		ImageIDs:  *imageIDs,
+		ProductID: productID,
+		ImageIDs:  imageIDs,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -376,10 +340,6 @@ func (h *ProductHandlerImpl) DeleteImages(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *ProductHandlerImpl) AddVariants(ctx *gin.Context) {
 	productID, ok := pathToUUID(ctx, "product_id")
-	if *productID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredProductID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidProductID))
 		return
@@ -392,7 +352,7 @@ func (h *ProductHandlerImpl) AddVariants(ctx *gin.Context) {
 	}
 
 	variants, err := h.productApp.AddVariants(ctx.Request.Context(), AddProductVariantsRequestDto{
-		ProductID: *productID,
+		ProductID: productID,
 		Data:      data,
 	})
 	if err != nil {
@@ -422,20 +382,12 @@ func (h *ProductHandlerImpl) AddVariants(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *ProductHandlerImpl) UpdateVariant(ctx *gin.Context) {
 	productID, ok := pathToUUID(ctx, "product_id")
-	if *productID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredProductID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidProductID))
 		return
 	}
 
 	variantID, ok := pathToUUID(ctx, "variant_id")
-	if *variantID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError("variant_id is required"))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError("invalid variant_id"))
 		return
@@ -448,8 +400,8 @@ func (h *ProductHandlerImpl) UpdateVariant(ctx *gin.Context) {
 	}
 
 	variant, err := h.productApp.UpdateVariant(ctx.Request.Context(), UpdateProductVariantRequestDto{
-		ProductID:        *productID,
-		ProductVariantID: *variantID,
+		ProductID:        productID,
+		ProductVariantID: variantID,
 		Data:             data,
 	})
 	if err != nil {
@@ -478,10 +430,6 @@ func (h *ProductHandlerImpl) UpdateVariant(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *ProductHandlerImpl) UpdateOptions(ctx *gin.Context) {
 	productID, ok := pathToUUID(ctx, "product_id")
-	if *productID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredProductID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidProductID))
 		return
@@ -494,7 +442,7 @@ func (h *ProductHandlerImpl) UpdateOptions(ctx *gin.Context) {
 	}
 
 	options, err := h.productApp.UpdateOptions(ctx.Request.Context(), UpdateProductOptionsRequestDto{
-		ProductID: *productID,
+		ProductID: productID,
 		Data:      data,
 	})
 	if err != nil {
@@ -539,16 +487,12 @@ func (h *ProductHandlerImpl) GetUploadImageURL(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *ProductHandlerImpl) GetDeleteImageURL(ctx *gin.Context) {
 	imageID, ok := pathToUUID(ctx, "image_id")
-	if *imageID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError("image_id is required"))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError("invalid image_id"))
 		return
 	}
 
-	deleteURL, err := h.productApp.GetDeleteImageURL(ctx.Request.Context(), *imageID)
+	deleteURL, err := h.productApp.GetDeleteImageURL(ctx.Request.Context(), imageID)
 	if err != nil {
 		SendError(ctx, err)
 		return

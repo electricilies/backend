@@ -3,7 +3,6 @@ package repositorypostgres
 import (
 	"context"
 	"math/big"
-	"time"
 
 	"backend/internal/domain"
 	"backend/internal/helper/ptr"
@@ -58,13 +57,13 @@ func (r *Product) List(
 		Offset:      int32(params.Offset),
 	})
 	if err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	products := make([]domain.Product, 0, len(productEntities))
 	for _, productEntity := range productEntities {
 		product, err := r.Get(ctx, domain.ProductRepositoryGetParam{ProductID: productEntity.ID})
 		if err != nil {
-			return nil, ToDomainErrorFromPostgres(err)
+			return nil, ToDomainError(err)
 		}
 		products = append(products, *product)
 	}
@@ -92,20 +91,18 @@ func (r *Product) Count(
 		Deleted:     string(params.Deleted),
 	})
 	if err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	return ptr.To(int(productEntities)), nil
 }
 
 // FIXME: Missing deleted
-// HACK: This should take only product
-// Category and attribute need to take from those domains
 func (r *Product) Get(ctx context.Context, params domain.ProductRepositoryGetParam) (*domain.Product, error) {
 	productEntity, err := r.queries.GetProduct(ctx, sqlc.GetProductParams{
 		ID: params.ProductID,
 	})
 	if err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	product := &domain.Product{
 		ID:            productEntity.ID,
@@ -119,19 +116,19 @@ func (r *Product) Get(ctx context.Context, params domain.ProductRepositoryGetPar
 		CategoryID:    productEntity.CategoryID,
 		CreatedAt:     productEntity.CreatedAt.Time,
 		UpdatedAt:     productEntity.UpdatedAt.Time,
-		DeletedAt:     fromPgValidToPtr(productEntity.DeletedAt.Time, productEntity.DeletedAt.Valid),
+		DeletedAt:     productEntity.DeletedAt.Time,
 	}
 	if err := getAttributeValueIDs(ctx, *r.queries, product); err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	if err := getOptionsAndValues(ctx, *r.queries, product); err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	if err := getVariants(ctx, *r.queries, product); err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	if err := getImages(ctx, *r.queries, product); err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	return product, nil
 }
@@ -180,7 +177,7 @@ func getOptionsAndValues(ctx context.Context,
 		optionValueMap[ov.OptionID] = append(optionValueMap[ov.OptionID], domain.OptionValue{
 			ID:        ov.ID,
 			Value:     ov.Value,
-			DeletedAt: fromPgValidToPtr(ov.DeletedAt.Time, ov.DeletedAt.Valid),
+			DeletedAt: ov.DeletedAt.Time,
 		})
 	}
 	options := make([]domain.Option, 0, len(optionEntities))
@@ -189,7 +186,7 @@ func getOptionsAndValues(ctx context.Context,
 			ID:        option.ID,
 			Name:      option.Name,
 			Values:    optionValueMap[option.ID],
-			DeletedAt: fromPgValidToPtr(option.DeletedAt.Time, option.DeletedAt.Valid),
+			DeletedAt: option.DeletedAt.Time,
 		})
 	}
 	product.Options = options
@@ -217,7 +214,7 @@ func getVariants(
 			PurchaseCount: int(variant.PurchaseCount),
 			CreatedAt:     variant.CreatedAt.Time,
 			UpdatedAt:     variant.UpdatedAt.Time,
-			DeletedAt:     fromPgValidToPtr(variant.DeletedAt.Time, variant.DeletedAt.Valid),
+			DeletedAt:     variant.DeletedAt.Time,
 		})
 	}
 	product.Variants = variants
@@ -288,10 +285,7 @@ func getImages(
 			URL:       imgEntity.URL,
 			Order:     int(imgEntity.Order),
 			CreatedAt: imgEntity.CreatedAt.Time,
-			DeletedAt: fromPgValidToPtr(
-				imgEntity.DeletedAt.Time,
-				imgEntity.DeletedAt.Valid,
-			),
+			DeletedAt: imgEntity.DeletedAt.Time,
 		}
 		if !imgEntity.ProductVariantID.Valid {
 			product.Images = append(product.Images, img)
@@ -307,34 +301,34 @@ func getImages(
 func (r *Product) Save(ctx context.Context, params domain.ProductRepositorySaveParam) error {
 	tx, err := r.conn.Begin(ctx)
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	qtx := r.queries.WithTx(tx)
 	if err := upsertProduct(ctx, *qtx, params.Product); err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	if err := mergeAttributeValues(ctx, *qtx, params.Product); err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	if err := mergeOptions(ctx, *qtx, params.Product); err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	if err := mergeOptionValues(ctx, *qtx, params.Product); err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	if err := mergeVariants(ctx, *qtx, params.Product); err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	if err := mergeOptionValuesProductVariants(ctx, *qtx, params.Product); err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	if err := mergeImages(ctx, *qtx, params.Product); err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	err = tx.Commit(ctx)
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	return nil
 }
@@ -365,8 +359,8 @@ func upsertProduct(
 			Valid: true,
 		},
 		DeletedAt: pgtype.Timestamptz{
-			Time:  ptr.Deref(product.DeletedAt, time.Time{}),
-			Valid: product.DeletedAt != nil,
+			Time:  product.DeletedAt,
+			Valid: !product.DeletedAt.IsZero(),
 		},
 		CategoryID: product.CategoryID,
 	})
@@ -409,8 +403,8 @@ func mergeOptions(
 			ID:        option.ID,
 			Name:      option.Name,
 			DeletedAt: pgtype.Timestamptz{
-				Time:  ptr.Deref(option.DeletedAt, time.Time{}),
-				Valid: option.DeletedAt != nil,
+				Time:  option.DeletedAt,
+				Valid: !option.DeletedAt.IsZero(),
 			},
 		})
 	}
@@ -437,8 +431,8 @@ func mergeOptionValues(
 				ID:       ov.ID,
 				Value:    ov.Value,
 				DeletedAt: pgtype.Timestamptz{
-					Time:  ptr.Deref(ov.DeletedAt, time.Time{}),
-					Valid: ov.DeletedAt != nil,
+					Time:  ov.DeletedAt,
+					Valid: !ov.DeletedAt.IsZero(),
 				},
 			})
 		}
@@ -479,8 +473,8 @@ func mergeVariants(
 			},
 			PurchaseCount: int32(variant.PurchaseCount),
 			DeletedAt: pgtype.Timestamptz{
-				Time:  ptr.Deref(variant.DeletedAt, time.Time{}),
-				Valid: variant.DeletedAt != nil,
+				Time:  variant.DeletedAt,
+				Valid: !variant.DeletedAt.IsZero(),
 			},
 		})
 	}
@@ -543,8 +537,8 @@ func mergeImages(
 				Valid: true,
 			},
 			DeletedAt: pgtype.Timestamptz{
-				Time:  ptr.Deref(img.DeletedAt, time.Time{}),
-				Valid: img.DeletedAt != nil,
+				Time:  img.DeletedAt,
+				Valid: !img.DeletedAt.IsZero(),
 			},
 		})
 	}
@@ -564,8 +558,8 @@ func mergeImages(
 					Valid: true,
 				},
 				DeletedAt: pgtype.Timestamptz{
-					Time:  ptr.Deref(img.DeletedAt, time.Time{}),
-					Valid: img.DeletedAt != nil,
+					Time:  img.DeletedAt,
+					Valid: !img.DeletedAt.IsZero(),
 				},
 			})
 		}

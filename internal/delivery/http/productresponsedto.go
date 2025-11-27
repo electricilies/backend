@@ -104,6 +104,10 @@ func ToProductResponseDto(p *domain.Product) *ProductResponseDto {
 		images = append(images, *ToProductImageResponseDto(&img))
 	}
 
+	var deletedAt *time.Time
+	if !p.DeletedAt.IsZero() {
+		deletedAt = &p.DeletedAt
+	}
 	return &ProductResponseDto{
 		ID:            p.ID,
 		Name:          p.Name,
@@ -114,7 +118,7 @@ func ToProductResponseDto(p *domain.Product) *ProductResponseDto {
 		Rating:        p.Rating,
 		CreatedAt:     p.CreatedAt,
 		UpdatedAt:     p.UpdatedAt,
-		DeletedAt:     p.DeletedAt,
+		DeletedAt:     deletedAt,
 		Category:      ProductCategoryResponseDto{},    // To be populated separately
 		Attributes:    []ProductAttributeResponseDto{}, // To be populated separately
 		Options:       options,
@@ -134,11 +138,16 @@ func ToProductOptionResponseDto(o *domain.Option) *ProductOptionResponseDto {
 		values = append(values, *ToProductOptionValueResponseDto(&v))
 	}
 
+	var deletedAt *time.Time
+	if !o.DeletedAt.IsZero() {
+		deletedAt = &o.DeletedAt
+	}
+
 	return &ProductOptionResponseDto{
 		ID:        o.ID,
 		Name:      o.Name,
 		Values:    values,
-		DeletedAt: o.DeletedAt,
+		DeletedAt: deletedAt,
 	}
 }
 
@@ -148,10 +157,14 @@ func ToProductOptionValueResponseDto(ov *domain.OptionValue) *ProductOptionValue
 		return nil
 	}
 
+	var deletedAt *time.Time
+	if !ov.DeletedAt.IsZero() {
+		deletedAt = &ov.DeletedAt
+	}
 	return &ProductOptionValueResponseDto{
 		ID:        ov.ID,
 		Value:     ov.Value,
-		DeletedAt: ov.DeletedAt,
+		DeletedAt: deletedAt,
 	}
 }
 
@@ -171,6 +184,10 @@ func ToProductVariantResponseDto(v *domain.ProductVariant) *ProductVariantRespon
 		images = append(images, *ToProductImageResponseDto(&img))
 	}
 
+	var deletedAt *time.Time
+	if !v.DeletedAt.IsZero() {
+		deletedAt = &v.DeletedAt
+	}
 	return &ProductVariantResponseDto{
 		ID:            v.ID,
 		SKU:           v.SKU,
@@ -179,7 +196,7 @@ func ToProductVariantResponseDto(v *domain.ProductVariant) *ProductVariantRespon
 		PurchaseCount: v.PurchaseCount,
 		CreatedAt:     v.CreatedAt,
 		UpdatedAt:     v.UpdatedAt,
-		DeletedAt:     v.DeletedAt,
+		DeletedAt:     deletedAt,
 		OptionValues:  optionValues,
 		Images:        images,
 	}
@@ -191,12 +208,17 @@ func ToProductImageResponseDto(img *domain.ProductImage) *ProductImageResponseDt
 		return nil
 	}
 
+	var deletedAt *time.Time
+	if !img.DeletedAt.IsZero() {
+		deletedAt = &img.DeletedAt
+	}
+
 	return &ProductImageResponseDto{
 		ID:        img.ID,
 		URL:       img.URL,
 		Order:     img.Order,
 		CreatedAt: img.CreatedAt,
-		DeletedAt: img.DeletedAt,
+		DeletedAt: deletedAt,
 	}
 }
 
@@ -266,12 +288,16 @@ func ToProductCategoryResponseDto(c *domain.Category) *ProductCategoryResponseDt
 		return nil
 	}
 
+	var deletedAt *time.Time
+	if !c.DeletedAt.IsZero() {
+		deletedAt = &c.DeletedAt
+	}
 	return &ProductCategoryResponseDto{
 		ID:        c.ID,
 		Name:      c.Name,
 		CreatedAt: c.CreatedAt,
 		UpdatedAt: c.UpdatedAt,
-		DeletedAt: c.DeletedAt,
+		DeletedAt: deletedAt,
 	}
 }
 
@@ -294,6 +320,14 @@ func ToProductAttributeResponseDto(attr *domain.Attribute, valueID uuid.UUID) *P
 		return nil
 	}
 
+	var deletedAt *time.Time
+	if !attr.DeletedAt.IsZero() {
+		deletedAt = &attr.DeletedAt
+	}
+	var valueDeletedAt *time.Time
+	if !attrValue.DeletedAt.IsZero() {
+		valueDeletedAt = &attrValue.DeletedAt
+	}
 	return &ProductAttributeResponseDto{
 		ID:   attr.ID,
 		Code: attr.Code,
@@ -301,9 +335,9 @@ func ToProductAttributeResponseDto(attr *domain.Attribute, valueID uuid.UUID) *P
 		Value: ProductAttributeValueResponseDto{
 			ID:        attrValue.ID,
 			Value:     attrValue.Value,
-			DeletedAt: attrValue.DeletedAt,
+			DeletedAt: valueDeletedAt,
 		},
-		DeletedAt: attr.DeletedAt,
+		DeletedAt: deletedAt,
 	}
 }
 

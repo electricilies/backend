@@ -2654,7 +2654,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "code",
-                "deletedAt",
                 "id",
                 "name",
                 "values"
@@ -3155,7 +3154,7 @@ const docTemplate = `{
                 "status",
                 "totalAmount",
                 "updatedAt",
-                "userId"
+                "userID"
             ],
             "properties": {
                 "address": {
@@ -3209,7 +3208,7 @@ const docTemplate = `{
                 "updatedAt": {
                     "type": "string"
                 },
-                "userId": {
+                "userID": {
                     "type": "string"
                 }
             }
@@ -3219,8 +3218,8 @@ const docTemplate = `{
             "required": [
                 "id",
                 "price",
-                "productId",
-                "productVariantId",
+                "productID",
+                "productVariantID",
                 "quantity"
             ],
             "properties": {
@@ -3230,10 +3229,10 @@ const docTemplate = `{
                 "price": {
                     "type": "integer"
                 },
-                "productId": {
+                "productID": {
                     "type": "string"
                 },
-                "productVariantId": {
+                "productVariantID": {
                     "type": "string"
                 },
                 "quantity": {
@@ -3659,8 +3658,8 @@ const docTemplate = `{
             "required": [
                 "createdAt",
                 "id",
-                "orderId",
-                "orderItemId",
+                "orderID",
+                "orderItemID",
                 "rating",
                 "updatedAt"
             ],
@@ -3678,13 +3677,13 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "imageUrl": {
+                "imageURL": {
                     "type": "string"
                 },
-                "orderId": {
+                "orderID": {
                     "type": "string"
                 },
-                "orderItemId": {
+                "orderItemID": {
                     "type": "string"
                 },
                 "rating": {

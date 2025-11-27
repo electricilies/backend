@@ -7,15 +7,15 @@ import (
 )
 
 type Review struct {
-	ID          uuid.UUID `json:"id"          binding:"required"                      validate:"required"`
-	Rating      int       `json:"rating"      binding:"required"                      validate:"required,gte=1,lte=5"`
-	Content     string    `json:"content"     validate:"omitempty,gte=10"`
-	OrderID     uuid.UUID `json:"orderId"     binding:"required"                      validate:"required"`
-	OrderItemID uuid.UUID `json:"orderItemId" binding:"required"                      validate:"required"`
-	ImageURL    string    `json:"imageUrl"    validate:"omitempty,url"`
-	CreatedAt   time.Time `json:"createdAt"   binding:"required"                      validate:"required"`
-	UpdatedAt   time.Time `json:"updatedAt"   binding:"required"                      validate:"required,gtefield=CreatedAt"`
-	DeletedAt   time.Time `json:"deletedAt"   validate:"omitempty,gtefield=CreatedAt"`
+	ID          uuid.UUID `validate:"required"`
+	Rating      int       `validate:"required,gte=1,lte=5"`
+	Content     string    `validate:"omitempty,gte=10"`
+	OrderID     uuid.UUID `validate:"required"`
+	OrderItemID uuid.UUID `validate:"required"`
+	ImageURL    string    `validate:"omitempty,url"`
+	CreatedAt   time.Time `validate:"required"`
+	UpdatedAt   time.Time `validate:"required,gtefield=CreatedAt"`
+	DeletedAt   time.Time `validate:"omitempty,gtefield=CreatedAt"`
 }
 
 func NewReview(
@@ -24,13 +24,13 @@ func NewReview(
 	orderID uuid.UUID,
 	orderItemID uuid.UUID,
 	imageURL string,
-) (Review, error) {
+) (*Review, error) {
 	now := time.Now()
 	id, err := uuid.NewV7()
 	if err != nil {
-		return Review{}, err
+		return nil, err
 	}
-	return Review{
+	return &Review{
 		ID:          id,
 		Rating:      rating,
 		Content:     content,

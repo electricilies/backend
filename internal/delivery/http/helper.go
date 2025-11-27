@@ -4,13 +4,12 @@ import (
 	"strconv"
 
 	"backend/internal/domain"
-	"backend/internal/helper/ptr"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-func queryArrayToUUIDSlice(ctx *gin.Context, key string) (*[]uuid.UUID, bool) {
+func queryArrayToUUIDSlice(ctx *gin.Context, key string) ([]uuid.UUID, bool) {
 	queryArr := ctx.QueryArray(key)
 	if len(queryArr) == 0 {
 		return nil, false
@@ -23,47 +22,47 @@ func queryArrayToUUIDSlice(ctx *gin.Context, key string) (*[]uuid.UUID, bool) {
 		}
 		ids = append(ids, id)
 	}
-	return &ids, true
+	return ids, true
 }
 
-func queryToUUID(ctx *gin.Context, key string) (*uuid.UUID, bool) {
+func queryToUUID(ctx *gin.Context, key string) (uuid.UUID, bool) {
 	idStr := ctx.Query(key)
 	if idStr == "" {
-		return nil, false
+		return uuid.Nil, false
 	}
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		return nil, false
+		return uuid.Nil, false
 	}
-	return &id, true
+	return id, true
 }
 
-func ctxValueToUUID(ctx *gin.Context, key string) (*uuid.UUID, bool) {
+func ctxValueToUUID(ctx *gin.Context, key string) (uuid.UUID, bool) {
 	idVal, exists := ctx.Get(key)
 	if !exists {
-		return nil, false
+		return uuid.Nil, false
 	}
 	idStr, ok := idVal.(string)
 	if !ok {
-		return nil, false
+		return uuid.Nil, false
 	}
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		return nil, false
+		return uuid.Nil, false
 	}
-	return &id, true
+	return id, true
 }
 
-func pathToUUID(ctx *gin.Context, key string) (*uuid.UUID, bool) {
+func pathToUUID(ctx *gin.Context, key string) (uuid.UUID, bool) {
 	idStr := ctx.Param(key)
 	if idStr == "" {
-		return ptr.To(uuid.Nil), false
+		return uuid.Nil, false
 	}
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		return nil, false
+		return uuid.Nil, false
 	}
-	return &id, true
+	return id, true
 }
 
 func createPaginationRequestDtoFromQuery(ctx *gin.Context) (*PaginationRequestDto, error) {

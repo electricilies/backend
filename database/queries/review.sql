@@ -19,7 +19,7 @@ VALUES (
   sqlc.arg('order_item_id'),
   sqlc.arg('created_at'),
   sqlc.arg('updated_at'),
-  NULLIF(sqlc.arg('deleted_at'), '0001-01-01T00:00:00Z'::timestamptz)
+  NULLIF(sqlc.arg('deleted_at')::timestamptz, '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   rating = EXCLUDED.rating,

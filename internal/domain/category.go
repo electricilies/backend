@@ -7,20 +7,20 @@ import (
 )
 
 type Category struct {
-	ID        uuid.UUID  `json:"id"        binding:"required"                    validate:"required"`
-	Name      string     `json:"name"      binding:"required"                    validate:"required,gte=2,lte=100"`
-	CreatedAt time.Time  `json:"createdAt" binding:"required"                    validate:"required"`
-	UpdatedAt time.Time  `json:"updatedAt" binding:"required"                    validate:"required,gtefield=CreatedAt"`
-DeletedAt *time.Time `json:"deletedAt" validate:"omitempty,gtefield=CreatedAt"`
+	ID        uuid.UUID `validate:"required"`
+	Name      string    `validate:"required,gte=2,lte=100"`
+	CreatedAt time.Time `validate:"required"`
+	UpdatedAt time.Time `validate:"required,gtefield=CreatedAt"`
+	DeletedAt time.Time `validate:"omitempty,gtefield=CreatedAt"`
 }
 
-func NewCategory(name string) (Category, error) {
+func NewCategory(name string) (*Category, error) {
 	now := time.Now()
 	id, err := uuid.NewV7()
 	if err != nil {
-		return Category{}, err
+		return nil, err
 	}
-	category := Category{
+	category := &Category{
 		ID:        id,
 		Name:      name,
 		CreatedAt: now,
@@ -29,13 +29,10 @@ func NewCategory(name string) (Category, error) {
 	return category, nil
 }
 
-func (c *Category) Update(name *string) {
-	if c == nil {
-		return
-	}
+func (c *Category) Update(name string) {
 	updated := false
-	if name != nil {
-		c.Name = *name
+	if name != "" && c.Name != name {
+		c.Name = name
 		updated = true
 	}
 	if updated {

@@ -79,23 +79,11 @@ func (h *ReviewHandlerImpl) List(ctx *gin.Context) {
 		return
 	}
 
-	var orderItemIDs *[]uuid.UUID
-	if orderItemIDsQuery, ok := queryArrayToUUIDSlice(ctx, "order_item_ids"); ok {
-		orderItemIDs = orderItemIDsQuery
-	}
+	orderItemIDs, _ := queryArrayToUUIDSlice(ctx, "order_item_ids")
 
-	var productVariantID *uuid.UUID
-	if productVariantIDQuery, ok := ctx.GetQuery("product_variant_id"); ok {
-		parsedID, err := uuid.Parse(productVariantIDQuery)
-		if err == nil {
-			productVariantID = &parsedID
-		}
-	}
+	productVariantID, _ := queryToUUID(ctx, "product_variant_id")
 
-	var userIDs *[]uuid.UUID
-	if userIDsQuery, ok := queryArrayToUUIDSlice(ctx, "user_ids"); ok {
-		userIDs = userIDsQuery
-	}
+	userIDs, _ := queryArrayToUUIDSlice(ctx, "user_ids")
 
 	deleted := domain.DeletedExcludeParam
 	if deletedQuery, ok := ctx.GetQuery("deleted"); ok {
@@ -178,6 +166,7 @@ func (h *ReviewHandlerImpl) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredReviewID))
 		return
 	}
+	// TODO: refactor to use helper
 	reviewID, err := uuid.Parse(reviewIDString)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidReviewID))
@@ -221,6 +210,7 @@ func (h *ReviewHandlerImpl) Delete(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredReviewID))
 		return
 	}
+	// TODO: refactor to use helper
 	reviewID, err := uuid.Parse(reviewIDString)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidReviewID))

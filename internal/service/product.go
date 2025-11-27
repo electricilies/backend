@@ -44,7 +44,7 @@ func (p *Product) CreateOptionsWithOptionValues(
 			return nil, err
 		}
 		option.Values = optionValues
-		options = append(options, option)
+		options = append(options, *option)
 	}
 	return &options, nil
 }

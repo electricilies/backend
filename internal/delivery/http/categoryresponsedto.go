@@ -23,12 +23,16 @@ func ToCategoryResponseDto(cat *domain.Category) *CategoryResponseDto {
 		return nil
 	}
 
+	var deletedAt *time.Time
+	if !cat.DeletedAt.IsZero() {
+		deletedAt = &cat.DeletedAt
+	}
 	return &CategoryResponseDto{
 		ID:        cat.ID,
 		Name:      cat.Name,
 		CreatedAt: cat.CreatedAt,
 		UpdatedAt: cat.UpdatedAt,
-		DeletedAt: cat.DeletedAt,
+		DeletedAt: deletedAt,
 	}
 }
 

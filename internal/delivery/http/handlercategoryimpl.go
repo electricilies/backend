@@ -43,10 +43,7 @@ func (h *CategoryHandlerImpl) List(ctx *gin.Context) {
 		return
 	}
 
-	var search *string
-	if searchQuery, ok := ctx.GetQuery("search"); ok {
-		search = &searchQuery
-	}
+	search, _ := ctx.GetQuery("search")
 
 	categories, err := h.categoryApp.List(ctx, ListCategoryRequestDto{
 		PaginationRequestDto: *paginateParam,

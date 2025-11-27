@@ -35,8 +35,9 @@ func (c *Cart) Get(ctx context.Context, param http.GetCartRequestDto) (*http.Car
 
 	cart, err := c.cartRepo.Get(
 		ctx,
-		&param.CartID,
-		nil,
+		domain.CartRepositoryGetParam{
+			ID: param.CartID,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -57,8 +58,9 @@ func (c *Cart) Get(ctx context.Context, param http.GetCartRequestDto) (*http.Car
 func (c *Cart) GetByUser(ctx context.Context, param http.GetCartByUserRequestDto) (*http.CartResponseDto, error) {
 	cart, err := c.cartRepo.Get(
 		ctx,
-		nil,
-		&param.UserID,
+		domain.CartRepositoryGetParam{
+			UserID: param.UserID,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -82,7 +84,7 @@ func (c *Cart) Create(ctx context.Context, param http.CreateCartRequestDto) (*ht
 	if err := c.cartService.Validate(*cart); err != nil {
 		return nil, err
 	}
-	err = c.cartRepo.Save(ctx, *cart)
+	err = c.cartRepo.Save(ctx, domain.CartRepositorySaveParam{Cart: *cart})
 	if err != nil {
 		return nil, err
 	}
@@ -102,8 +104,9 @@ func (c *Cart) Create(ctx context.Context, param http.CreateCartRequestDto) (*ht
 func (c *Cart) CreateItem(ctx context.Context, param http.CreateCartItemRequestDto) (*http.CartItemResponseDto, error) {
 	cart, err := c.cartRepo.Get(
 		ctx,
-		&param.CartID,
-		nil,
+		domain.CartRepositoryGetParam{
+			ID: param.CartID,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -128,7 +131,7 @@ func (c *Cart) CreateItem(ctx context.Context, param http.CreateCartItemRequestD
 		return nil, err
 	}
 
-	err = c.cartRepo.Save(ctx, *cart)
+	err = c.cartRepo.Save(ctx, domain.CartRepositorySaveParam{Cart: *cart})
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +139,7 @@ func (c *Cart) CreateItem(ctx context.Context, param http.CreateCartItemRequestD
 	_ = c.cartCache.InvalidateCart(ctx, param.CartID)
 
 	// Enrich the cart item with product and variant data
-	product, err := c.productRepo.Get(ctx, cartItem.ProductID)
+	product, err := c.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: cartItem.ProductID})
 	if err != nil {
 		return nil, err
 	}
@@ -152,8 +155,9 @@ func (c *Cart) CreateItem(ctx context.Context, param http.CreateCartItemRequestD
 func (c *Cart) UpdateItem(ctx context.Context, param http.UpdateCartItemRequestDto) (*http.CartItemResponseDto, error) {
 	cart, err := c.cartRepo.Get(
 		ctx,
-		&param.CartID,
-		nil,
+		domain.CartRepositoryGetParam{
+			ID: param.CartID,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -169,7 +173,7 @@ func (c *Cart) UpdateItem(ctx context.Context, param http.UpdateCartItemRequestD
 		return nil, err
 	}
 
-	err = c.cartRepo.Save(ctx, *cart)
+	err = c.cartRepo.Save(ctx, domain.CartRepositorySaveParam{Cart: *cart})
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +185,7 @@ func (c *Cart) UpdateItem(ctx context.Context, param http.UpdateCartItemRequestD
 				_ = c.cartCache.InvalidateCart(ctx, param.CartID)
 
 				// Enrich the cart item with product and variant data
-				product, err := c.productRepo.Get(ctx, item.ProductID)
+				product, err := c.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: item.ProductID})
 				if err != nil {
 					return nil, err
 				}
@@ -202,8 +206,9 @@ func (c *Cart) UpdateItem(ctx context.Context, param http.UpdateCartItemRequestD
 func (c *Cart) DeleteItem(ctx context.Context, param http.DeleteCartItemRequestDto) error {
 	cart, err := c.cartRepo.Get(
 		ctx,
-		&param.CartID,
-		nil,
+		domain.CartRepositoryGetParam{
+			ID: param.CartID,
+		},
 	)
 	if err != nil {
 		return err
@@ -219,7 +224,7 @@ func (c *Cart) DeleteItem(ctx context.Context, param http.DeleteCartItemRequestD
 		return err
 	}
 
-	err = c.cartRepo.Save(ctx, *cart)
+	err = c.cartRepo.Save(ctx, domain.CartRepositorySaveParam{Cart: *cart})
 	if err != nil {
 		return err
 	}
@@ -249,18 +254,10 @@ func (c *Cart) enrichCartItems(ctx context.Context, cartDto *http.CartResponseDt
 	// Fetch all products at once
 	products, err := c.productRepo.List(
 		ctx,
-		&productIDs,
-		nil, // search
-		nil, // minPrice
-		nil, // maxPrice
-		nil, // rating
-		nil, // variantIDs
-		nil, // categoryIDs
-		domain.DeletedExcludeParam,
-		nil, // sortRating
-		nil, // sortPrice
-		0,   // limit (no limit)
-		0,   // offset
+		domain.ProductRepositoryListParam{
+			IDs:     productIDs,
+			Deleted: domain.DeletedExcludeParam,
+		},
 	)
 	if err != nil {
 		return err

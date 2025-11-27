@@ -7,28 +7,28 @@ import (
 )
 
 type Attribute struct {
-	ID        uuid.UUID        `json:"id"        binding:"required"                                validate:"required"               example:"123"`
-	Code      string           `json:"code"      binding:"required"                                validate:"required,gte=2,lte=50"  example:"color"`
-	Name      string           `json:"name"      binding:"required"                                validate:"required,gte=2,lte=100" example:"Color"`
-	Values    []AttributeValue `json:"values"    validate:"omitempty,unique_attribute_values,dive"`
-	DeletedAt *time.Time       `json:"deletedAt"`
+	ID        uuid.UUID        `validate:"required"                               example:"123"`
+	Code      string           `validate:"required,gte=2,lte=50"                  example:"color"`
+	Name      string           `validate:"required,gte=2,lte=100"                 example:"Color"`
+	Values    []AttributeValue `validate:"omitempty,unique_attribute_values,dive"`
+	DeletedAt time.Time
 }
 
 type AttributeValue struct {
-	ID        uuid.UUID  `json:"id"        binding:"required"   validate:"required"               example:"1"`
-	Value     string     `json:"value"     binding:"required"   validate:"required,gte=1,lte=100" example:"Red"`
-	DeletedAt *time.Time `json:"deletedAt" validate:"omitempty"`
+	ID        uuid.UUID `validate:"required"               example:"1"`
+	Value     string    `validate:"required,gte=1,lte=100" example:"Red"`
+	DeletedAt time.Time
 }
 
 func NewAttribute(
 	code string,
 	name string,
-) (Attribute, error) {
+) (*Attribute, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return Attribute{}, err
+		return nil, err
 	}
-	attribute := Attribute{
+	attribute := &Attribute{
 		ID:     id,
 		Code:   code,
 		Name:   name,
@@ -37,21 +37,21 @@ func NewAttribute(
 	return attribute, nil
 }
 
-func NewAttributeValue(value string) (AttributeValue, error) {
+func NewAttributeValue(value string) (*AttributeValue, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return AttributeValue{}, err
+		return nil, err
 	}
-	attributeValue := AttributeValue{
+	attributeValue := &AttributeValue{
 		ID:    id,
 		Value: value,
 	}
 	return attributeValue, nil
 }
 
-func (a *Attribute) Update(name *string) {
-	if name != nil {
-		a.Name = *name
+func (a *Attribute) Update(name string) {
+	if name != "" && a.Name != name {
+		a.Name = name
 	}
 }
 
@@ -73,12 +73,12 @@ func (a *Attribute) AddValues(attributeValues ...AttributeValue) {
 
 func (a *Attribute) UpdateValue(
 	attributeValueID uuid.UUID,
-	value *string,
+	value string,
 ) error {
 	for i, v := range a.Values {
 		if v.ID == attributeValueID {
-			if value != nil {
-				a.Values[i].Value = *value
+			if value != "" {
+				a.Values[i].Value = value
 			}
 			return nil
 		}
@@ -88,13 +88,9 @@ func (a *Attribute) UpdateValue(
 
 func (a *Attribute) Remove() {
 	now := time.Now()
-	if a.DeletedAt == nil {
-		a.DeletedAt = &now
-	}
+	a.DeletedAt = now
 	for i := range a.Values {
-		if a.Values[i].DeletedAt == nil {
-			a.Values[i].DeletedAt = &now
-		}
+		a.Values[i].DeletedAt = now
 	}
 }
 

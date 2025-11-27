@@ -149,7 +149,7 @@ VALUES (
   $2,
   $3,
   $4,
-  NULLIF($5, '0001-01-01T00:00:00Z'::timestamptz)
+  NULLIF($5::timestamptz, '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
@@ -163,7 +163,7 @@ type UpsertCategoryParams struct {
 	Name      string
 	CreatedAt pgtype.Timestamptz
 	UpdatedAt pgtype.Timestamptz
-	DeletedAt interface{}
+	DeletedAt pgtype.Timestamptz
 }
 
 func (q *Queries) UpsertCategory(ctx context.Context, arg UpsertCategoryParams) error {

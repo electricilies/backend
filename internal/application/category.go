@@ -32,7 +32,7 @@ func (c *Category) Create(ctx context.Context, param http.CreateCategoryRequestD
 		return nil, err
 	}
 
-	err = c.categoryRepo.Save(ctx, *category)
+	err = c.categoryRepo.Save(ctx, domain.CategoryRepositorySaveParam{Category: *category})
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (c *Category) Create(ctx context.Context, param http.CreateCategoryRequestD
 
 func (c *Category) List(ctx context.Context, param http.ListCategoryRequestDto) (*http.PaginationResponseDto[http.CategoryResponseDto], error) {
 	cacheKey := c.categoryCache.BuildListCacheKey(
-		param.Search,
+		&param.Search,
 		param.Limit,
 		param.Page,
 	)
@@ -56,10 +56,11 @@ func (c *Category) List(ctx context.Context, param http.ListCategoryRequestDto) 
 
 	categories, err := c.categoryRepo.List(
 		ctx,
-		nil,
-		param.Search,
-		param.Limit,
-		(param.Page-1)*param.Limit,
+		domain.CategoryRepositoryListParam{
+			Search: param.Search,
+			Limit:  param.Limit,
+			Offset: (param.Page - 1) * param.Limit,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -91,7 +92,7 @@ func (c *Category) Get(ctx context.Context, param http.GetCategoryRequestDto) (*
 		return cachedCategory, nil
 	}
 
-	category, err := c.categoryRepo.Get(ctx, param.CategoryID)
+	category, err := c.categoryRepo.Get(ctx, domain.CategoryRepositoryGetParam{ID: param.CategoryID})
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +104,7 @@ func (c *Category) Get(ctx context.Context, param http.GetCategoryRequestDto) (*
 }
 
 func (c *Category) Update(ctx context.Context, param http.UpdateCategoryRequestDto) (*http.CategoryResponseDto, error) {
-	category, err := c.categoryRepo.Get(ctx, param.CategoryID)
+	category, err := c.categoryRepo.Get(ctx, domain.CategoryRepositoryGetParam{ID: param.CategoryID})
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +114,7 @@ func (c *Category) Update(ctx context.Context, param http.UpdateCategoryRequestD
 		return nil, err
 	}
 
-	err = c.categoryRepo.Save(ctx, *category)
+	err = c.categoryRepo.Save(ctx, domain.CategoryRepositorySaveParam{Category: *category})
 	if err != nil {
 		return nil, err
 	}

@@ -14,7 +14,7 @@ type AttributeResponseDto struct {
 	Code      string                      `json:"code"      binding:"required"`
 	Name      string                      `json:"name"      binding:"required"`
 	Values    []AttributeValueResponseDto `json:"values"    binding:"required"`
-	DeletedAt *time.Time                  `json:"deletedAt" binding:"required"`
+	DeletedAt *time.Time                  `json:"deletedAt"`
 }
 
 // AttributeValueResponseDto represents the response structure for an attribute value
@@ -32,19 +32,27 @@ func ToAttributeResponseDto(attr *domain.Attribute) *AttributeResponseDto {
 
 	values := make([]AttributeValueResponseDto, 0, len(attr.Values))
 	for _, v := range attr.Values {
+		var deletedAt *time.Time
+		if !v.DeletedAt.IsZero() {
+			deletedAt = &v.DeletedAt
+		}
 		values = append(values, AttributeValueResponseDto{
 			ID:        v.ID,
 			Value:     v.Value,
-			DeletedAt: v.DeletedAt,
+			DeletedAt: deletedAt,
 		})
 	}
 
+	var deletedAt *time.Time
+	if !attr.DeletedAt.IsZero() {
+		deletedAt = &attr.DeletedAt
+	}
 	return &AttributeResponseDto{
 		ID:        attr.ID,
 		Code:      attr.Code,
 		Name:      attr.Name,
 		Values:    values,
-		DeletedAt: attr.DeletedAt,
+		DeletedAt: deletedAt,
 	}
 }
 
@@ -53,11 +61,15 @@ func ToAttributeValueResponseDto(val *domain.AttributeValue) *AttributeValueResp
 	if val == nil {
 		return nil
 	}
+	var deletedAt *time.Time
+	if !val.DeletedAt.IsZero() {
+		deletedAt = &val.DeletedAt
+	}
 
 	return &AttributeValueResponseDto{
 		ID:        val.ID,
 		Value:     val.Value,
-		DeletedAt: val.DeletedAt,
+		DeletedAt: deletedAt,
 	}
 }
 

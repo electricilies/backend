@@ -401,7 +401,7 @@ VALUES (
   $1,
   $2,
   $3,
-  NULLIF($4, '0001-01-01T00:00:00Z'::timestamptz)
+  NULLIF($4::timestamptz, '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   code = EXCLUDED.code,
@@ -413,7 +413,7 @@ type UpsertAttributeParams struct {
 	ID        uuid.UUID
 	Code      string
 	Name      string
-	DeletedAt interface{}
+	DeletedAt pgtype.Timestamptz
 }
 
 func (q *Queries) UpsertAttribute(ctx context.Context, arg UpsertAttributeParams) error {

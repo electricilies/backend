@@ -7,25 +7,25 @@ import (
 )
 
 type Cart struct {
-	ID        uuid.UUID  `json:"id"        binding:"required"                          validate:"required"`
-	Items     []CartItem `json:"items"     validate:"omitempty,unique_cart_items,dive"`
-	UserID    uuid.UUID  `json:"userId"    binding:"required"                          validate:"required"`
-	UpdatedAt time.Time  `json:"updatedAt" binding:"required"                          validate:"required"`
+	ID        uuid.UUID  `validate:"required"`
+	Items     []CartItem `validate:"omitempty,unique_cart_items,dive"`
+	UserID    uuid.UUID  `validate:"required"`
+	UpdatedAt time.Time  `validate:"required"`
 }
 
 type CartItem struct {
-	ID               uuid.UUID `json:"id"                         binding:"required"   validate:"required"`
-	ProductID        uuid.UUID `json:"productId"                  binding:"required"   validate:"required"`
-	ProductVariantID uuid.UUID `json:"productVariantId,omitempty" validate:"omitempty"`
-	Quantity         int       `json:"quantity"                   binding:"required"   validate:"required,gt=0,lte=100"`
+	ID               uuid.UUID `validate:"required"`
+	ProductID        uuid.UUID `validate:"required"`
+	ProductVariantID uuid.UUID `validate:"omitempty"`
+	Quantity         int       `validate:"required,gt=0,lte=100"`
 }
 
-func NewCart(userID uuid.UUID) (Cart, error) {
+func NewCart(userID uuid.UUID) (*Cart, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return Cart{}, err
+		return nil, err
 	}
-	cart := Cart{
+	cart := &Cart{
 		ID:        id,
 		UserID:    userID,
 		Items:     []CartItem{},
@@ -38,12 +38,12 @@ func NewCartItem(
 	productID uuid.UUID,
 	productVariantID uuid.UUID,
 	quantity int,
-) (CartItem, error) {
+) (*CartItem, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return CartItem{}, err
+		return nil, err
 	}
-	cartItem := CartItem{
+	cartItem := &CartItem{
 		ID:               id,
 		ProductID:        productID,
 		ProductVariantID: productVariantID,

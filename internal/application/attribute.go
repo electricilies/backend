@@ -31,7 +31,7 @@ func (a *Attribute) Create(ctx context.Context, param http.CreateAttributeReques
 	if err := a.attributeService.Validate(*attribute); err != nil {
 		return nil, err
 	}
-	err = a.attributeRepo.Save(ctx, *attribute)
+	err = a.attributeRepo.Save(ctx, domain.AttributeRepositorySaveParam{Attribute: *attribute})
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (a *Attribute) Create(ctx context.Context, param http.CreateAttributeReques
 }
 
 func (a *Attribute) CreateValue(ctx context.Context, param http.CreateAttributeValueRequestDto) (*http.AttributeValueResponseDto, error) {
-	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
+	attribute, err := a.attributeRepo.Get(ctx, domain.AttributeRepositoryGetParam{ID: param.AttributeID})
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (a *Attribute) CreateValue(ctx context.Context, param http.CreateAttributeV
 	if err := a.attributeService.Validate(*attribute); err != nil {
 		return nil, err
 	}
-	err = a.attributeRepo.Save(ctx, *attribute)
+	err = a.attributeRepo.Save(ctx, domain.AttributeRepositorySaveParam{Attribute: *attribute})
 	if err != nil {
 		return nil, err
 	}
@@ -66,8 +66,8 @@ func (a *Attribute) CreateValue(ctx context.Context, param http.CreateAttributeV
 
 func (a *Attribute) List(ctx context.Context, param http.ListAttributesRequestDto) (*http.PaginationResponseDto[http.AttributeResponseDto], error) {
 	cacheKey := a.attributeCache.BuildListCacheKey(
-		param.AttributeIDs,
-		param.Search,
+		&param.AttributeIDs,
+		&param.Search,
 		param.Deleted,
 		param.Limit,
 		param.Page,
@@ -80,20 +80,23 @@ func (a *Attribute) List(ctx context.Context, param http.ListAttributesRequestDt
 
 	attributes, err := a.attributeRepo.List(
 		ctx,
-		param.AttributeIDs,
-		nil,
-		param.Search,
-		param.Deleted,
-		param.Limit,
-		(param.Page-1)*param.Limit,
+		domain.AttributeRepositoryListParam{
+			IDs:     param.AttributeIDs,
+			Search:  param.Search,
+			Deleted: param.Deleted,
+			Limit:   param.Limit,
+			Offset:  (param.Page - 1) * param.Limit,
+		},
 	)
 	if err != nil {
 		return nil, err
 	}
 	count, err := a.attributeRepo.Count(
 		ctx,
-		param.AttributeIDs,
-		param.Deleted,
+		domain.AttributeRepositoryCountParam{
+			IDs:     param.AttributeIDs,
+			Deleted: param.Deleted,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -123,7 +126,7 @@ func (a *Attribute) Get(ctx context.Context, param http.GetAttributeRequestDto) 
 		return cachedAttribute, nil
 	}
 
-	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
+	attribute, err := a.attributeRepo.Get(ctx, domain.AttributeRepositoryGetParam{ID: param.AttributeID})
 	if err != nil {
 		return nil, err
 	}
@@ -137,8 +140,8 @@ func (a *Attribute) Get(ctx context.Context, param http.GetAttributeRequestDto) 
 func (a *Attribute) ListValues(ctx context.Context, param http.ListAttributeValuesRequestDto) (*http.PaginationResponseDto[http.AttributeValueResponseDto], error) {
 	cacheKey := a.attributeCache.BuildValueListCacheKey(
 		param.AttributeID,
-		param.AttributeValueIDs,
-		param.Search,
+		&param.AttributeValueIDs,
+		&param.Search,
 		param.Limit,
 		param.Page,
 	)
@@ -147,20 +150,24 @@ func (a *Attribute) ListValues(ctx context.Context, param http.ListAttributeValu
 	}
 	attributeValues, err := a.attributeRepo.ListValues(
 		ctx,
-		param.AttributeID,
-		param.AttributeValueIDs,
-		param.Search,
-		param.Deleted,
-		param.Limit,
-		(param.Page-1)*param.Limit,
+		domain.AttributeRepositoryListValuesParam{
+			AttributeID:       param.AttributeID,
+			AttributeValueIDs: param.AttributeValueIDs,
+			Search:            param.Search,
+			Deleted:           param.Deleted,
+			Limit:             param.Limit,
+			Offset:            (param.Page - 1) * param.Limit,
+		},
 	)
 	if err != nil {
 		return nil, err
 	}
 	count, err := a.attributeRepo.CountValues(
 		ctx,
-		param.AttributeID,
-		param.AttributeValueIDs,
+		domain.AttributeRepositoryCountValuesParam{
+			AttributeID:       param.AttributeID,
+			AttributeValueIDs: param.AttributeValueIDs,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -180,7 +187,7 @@ func (a *Attribute) ListValues(ctx context.Context, param http.ListAttributeValu
 }
 
 func (a *Attribute) Update(ctx context.Context, param http.UpdateAttributeRequestDto) (*http.AttributeResponseDto, error) {
-	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
+	attribute, err := a.attributeRepo.Get(ctx, domain.AttributeRepositoryGetParam{ID: param.AttributeID})
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +195,7 @@ func (a *Attribute) Update(ctx context.Context, param http.UpdateAttributeReques
 	if err := a.attributeService.Validate(*attribute); err != nil {
 		return nil, err
 	}
-	err = a.attributeRepo.Save(ctx, *attribute)
+	err = a.attributeRepo.Save(ctx, domain.AttributeRepositorySaveParam{Attribute: *attribute})
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +205,7 @@ func (a *Attribute) Update(ctx context.Context, param http.UpdateAttributeReques
 }
 
 func (a *Attribute) UpdateValue(ctx context.Context, param http.UpdateAttributeValueRequestDto) (*http.AttributeValueResponseDto, error) {
-	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
+	attribute, err := a.attributeRepo.Get(ctx, domain.AttributeRepositoryGetParam{ID: param.AttributeID})
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +215,7 @@ func (a *Attribute) UpdateValue(ctx context.Context, param http.UpdateAttributeV
 	if err := a.attributeService.Validate(*attribute); err != nil {
 		return nil, err
 	}
-	err = a.attributeRepo.Save(ctx, *attribute)
+	err = a.attributeRepo.Save(ctx, domain.AttributeRepositorySaveParam{Attribute: *attribute})
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +228,7 @@ func (a *Attribute) UpdateValue(ctx context.Context, param http.UpdateAttributeV
 }
 
 func (a *Attribute) Delete(ctx context.Context, param http.DeleteAttributeRequestDto) error {
-	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
+	attribute, err := a.attributeRepo.Get(ctx, domain.AttributeRepositoryGetParam{ID: param.AttributeID})
 	if err != nil {
 		return err
 	}
@@ -229,7 +236,7 @@ func (a *Attribute) Delete(ctx context.Context, param http.DeleteAttributeReques
 	if err := a.attributeService.Validate(*attribute); err != nil {
 		return err
 	}
-	err = a.attributeRepo.Save(ctx, *attribute)
+	err = a.attributeRepo.Save(ctx, domain.AttributeRepositorySaveParam{Attribute: *attribute})
 	if err != nil {
 		return err
 	}
@@ -239,7 +246,7 @@ func (a *Attribute) Delete(ctx context.Context, param http.DeleteAttributeReques
 }
 
 func (a *Attribute) DeleteValue(ctx context.Context, param http.DeleteAttributeValueRequestDto) error {
-	attribute, err := a.attributeRepo.Get(ctx, param.AttributeID)
+	attribute, err := a.attributeRepo.Get(ctx, domain.AttributeRepositoryGetParam{ID: param.AttributeID})
 	if err != nil {
 		return err
 	}
@@ -249,7 +256,7 @@ func (a *Attribute) DeleteValue(ctx context.Context, param http.DeleteAttributeV
 	if err := a.attributeService.Validate(*attribute); err != nil {
 		return err
 	}
-	err = a.attributeRepo.Save(ctx, *attribute)
+	err = a.attributeRepo.Save(ctx, domain.AttributeRepositorySaveParam{Attribute: *attribute})
 	if err != nil {
 		return err
 	}

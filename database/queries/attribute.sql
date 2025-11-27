@@ -9,7 +9,7 @@ VALUES (
   sqlc.arg('id'),
   sqlc.arg('code'),
   sqlc.arg('name'),
-  NULLIF(sqlc.arg('deleted_at'), '0001-01-01T00:00:00Z'::timestamptz)
+  NULLIF(sqlc.arg('deleted_at')::timestamptz, '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   code = EXCLUDED.code,

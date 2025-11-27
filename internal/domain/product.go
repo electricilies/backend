@@ -8,70 +8,70 @@ import (
 )
 
 type Product struct {
-	ID                uuid.UUID        `json:"id"                validate:"required"`
-	Name              string           `json:"name"              validate:"required,gte=3,lte=200"`
-	Description       string           `json:"description"       validate:"required,gte=10"`
-	ViewsCount        int              `json:"viewsCount"        validate:"gte=0"`
-	TotalPurchase     int              `json:"totalPurchase"     validate:"gte=0"`
-	TrendingScore     int64            `json:"trendingScore"     validate:"gte=0"`
-	Price             int64            `json:"price"             validate:"required,gt=0"`
-	Rating            float64          `json:"rating"            validate:"gte=0,lte=5"`
-	Options           []Option         `json:"options"           validate:"omitempty,dive"`
-	Images            []ProductImage   `json:"images"            validate:"omitempty,dive"`
-	CreatedAt         time.Time        `json:"createdAt"         validate:"required"`
-	UpdatedAt         time.Time        `json:"updatedAt"         validate:"required,gtefield=CreatedAt"`
-	DeletedAt         *time.Time       `json:"deletedAt"         validate:"omitempty,gtefield=CreatedAt"`
-	CategoryID        uuid.UUID        `json:"categoryId"`
-	AttributeIDs      []uuid.UUID      `json:"attributeIds"      validate:"omitempty,dive,required"`
-	AttributeValueIDs []uuid.UUID      `json:"attributeValueIds" validate:"omitempty,dive,required"`
-	Variants          []ProductVariant `json:"variants"          validate:"omitempty,product_variant_structure,dive"`
+	ID                uuid.UUID      `validate:"required"`
+	Name              string         `validate:"required,gte=3,lte=200"`
+	Description       string         `validate:"required,gte=10"`
+	ViewsCount        int            `validate:"gte=0"`
+	TotalPurchase     int            `validate:"gte=0"`
+	TrendingScore     int64          `validate:"gte=0"`
+	Price             int64          `validate:"required,gt=0"`
+	Rating            float64        `validate:"gte=0,lte=5"`
+	Options           []Option       `validate:"omitempty,dive"`
+	Images            []ProductImage `validate:"omitempty,dive"`
+	CreatedAt         time.Time      `validate:"required"`
+	UpdatedAt         time.Time      `validate:"required,gtefield=CreatedAt"`
+	DeletedAt         time.Time      `validate:"omitempty,gtefield=CreatedAt"`
+	CategoryID        uuid.UUID
+	AttributeIDs      []uuid.UUID      `validate:"omitempty,dive,required"`
+	AttributeValueIDs []uuid.UUID      `validate:"omitempty,dive,required"`
+	Variants          []ProductVariant `validate:"omitempty,product_variant_structure,dive"`
 }
 
 type Option struct {
-	ID        uuid.UUID     `json:"id"        validate:"required"`
-	Name      string        `json:"name"      validate:"required"`
-	Values    []OptionValue `json:"values"    validate:"omitempty,dive"`
-	DeletedAt *time.Time    `json:"deletedAt" validate:"omitempty"`
+	ID        uuid.UUID     `validate:"required"`
+	Name      string        `validate:"required"`
+	Values    []OptionValue `validate:"omitempty,dive"`
+	DeletedAt time.Time     `validate:"omitempty"`
 }
 
 type OptionValue struct {
-	ID        uuid.UUID  `json:"id"        validate:"required"`
-	Value     string     `json:"value"     validate:"required"`
-	DeletedAt *time.Time `json:"deletedAt" validate:"omitempty"`
+	ID        uuid.UUID `validate:"required"`
+	Value     string    `validate:"required"`
+	DeletedAt time.Time `validate:"omitempty"`
 }
 
 type ProductVariant struct {
-	ID            uuid.UUID      `json:"id"            validate:"required"`
-	SKU           string         `json:"sku"           validate:"required"`
-	Price         int64          `json:"price"         validate:"required,gt=0"`
-	Quantity      int            `json:"quantity"      validate:"gte=0"`
-	PurchaseCount int            `json:"purchaseCount" validate:"gte=0"`
-	CreatedAt     time.Time      `json:"createdAt"     validate:"required"`
-	UpdatedAt     time.Time      `json:"updatedAt"     validate:"required,gtefield=CreatedAt"`
-	DeletedAt     *time.Time     `json:"deletedAt"     validate:"omitempty,gtefield=CreatedAt"`
-	OptionValues  []OptionValue  `json:"optionValues"  validate:"omitempty,dive"`
-	Images        []ProductImage `json:"images"        validate:"omitempty,dive"`
+	ID            uuid.UUID      `validate:"required"`
+	SKU           string         `validate:"required"`
+	Price         int64          `validate:"required,gt=0"`
+	Quantity      int            `validate:"gte=0"`
+	PurchaseCount int            `validate:"gte=0"`
+	CreatedAt     time.Time      `validate:"required"`
+	UpdatedAt     time.Time      `validate:"required,gtefield=CreatedAt"`
+	DeletedAt     time.Time      `validate:"omitempty,gtefield=CreatedAt"`
+	OptionValues  []OptionValue  `validate:"omitempty,dive"`
+	Images        []ProductImage `validate:"omitempty,dive"`
 }
 
 type ProductImage struct {
-	ID        uuid.UUID  `json:"id"        validate:"required"`
-	URL       string     `json:"url"       validate:"required,url"`
-	Order     int        `json:"order"     validate:"required,gte=0"`
-	CreatedAt time.Time  `json:"createdAt" validate:"required"`
-	DeletedAt *time.Time `json:"deletedAt" validate:"omitempty,gtefield=CreatedAt"`
+	ID        uuid.UUID `validate:"required"`
+	URL       string    `validate:"required,url"`
+	Order     int       `validate:"required,gte=0"`
+	CreatedAt time.Time `validate:"required"`
+	DeletedAt time.Time `validate:"omitempty,gtefield=CreatedAt"`
 }
 
 func NewProduct(
 	name string,
 	description string,
 	categoryID uuid.UUID,
-) (Product, error) {
+) (*Product, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return Product{}, multierror.Append(ErrInternal, err)
+		return nil, multierror.Append(ErrInternal, err)
 	}
 	now := time.Now()
-	product := Product{
+	product := &Product{
 		ID:          id,
 		Name:        name,
 		Description: description,
@@ -84,12 +84,12 @@ func NewProduct(
 
 func NewProductOption(
 	name string,
-) (Option, error) {
+) (*Option, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return Option{}, multierror.Append(ErrInternal, err)
+		return nil, multierror.Append(ErrInternal, err)
 	}
-	option := Option{
+	option := &Option{
 		ID:   id,
 		Name: name,
 	}
@@ -99,12 +99,12 @@ func NewProductOption(
 func NewProductImage(
 	url string,
 	order int,
-) (ProductImage, error) {
+) (*ProductImage, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return ProductImage{}, multierror.Append(ErrInternal, err)
+		return nil, multierror.Append(ErrInternal, err)
 	}
-	productImage := ProductImage{
+	productImage := &ProductImage{
 		ID:        id,
 		URL:       url,
 		Order:     order,
@@ -117,13 +117,13 @@ func NewVariant(
 	sku string,
 	price int64,
 	quantity int,
-) (ProductVariant, error) {
+) (*ProductVariant, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
-		return ProductVariant{}, multierror.Append(ErrInternal, err)
+		return nil, multierror.Append(ErrInternal, err)
 	}
 	now := time.Now()
-	productVariant := ProductVariant{
+	productVariant := &ProductVariant{
 		ID:            id,
 		SKU:           sku,
 		Price:         price,
@@ -171,21 +171,21 @@ func (p *Product) AddVariantImages(variantID uuid.UUID, images ...ProductImage) 
 }
 
 func (p *Product) Update(
-	name *string,
-	description *string,
-	categoryID *uuid.UUID,
+	name string,
+	description string,
+	categoryID uuid.UUID,
 ) {
 	updated := false
-	if name != nil {
-		p.Name = *name
+	if name != "" && p.Name != name {
+		p.Name = name
 		updated = true
 	}
-	if description != nil {
-		p.Description = *description
+	if description != "" && p.Description != description {
+		p.Description = description
 		updated = true
 	}
-	if categoryID != nil {
-		p.CategoryID = *categoryID
+	if categoryID != uuid.Nil {
+		p.CategoryID = categoryID
 		updated = true
 	}
 	if updated {
@@ -195,8 +195,8 @@ func (p *Product) Update(
 
 func (p *Product) UpdateVariant(
 	variantID uuid.UUID,
-	price *int64,
-	quantity *int,
+	price int64,
+	quantity int,
 ) error {
 	var variant *ProductVariant
 	for i := range p.Variants {
@@ -209,12 +209,12 @@ func (p *Product) UpdateVariant(
 		return multierror.Append(ErrNotFound, nil)
 	}
 	updated := false
-	if price != nil {
-		variant.Price = *price
+	if price != 0 && variant.Price != price {
+		variant.Price = price
 		updated = true
 	}
-	if quantity != nil {
-		variant.Quantity = *quantity
+	if quantity != 0 {
+		variant.Quantity = quantity
 		updated = true
 	}
 	if updated {
@@ -225,7 +225,7 @@ func (p *Product) UpdateVariant(
 
 func (p *Product) UpdateOption(
 	optionID uuid.UUID,
-	name *string,
+	name string,
 ) error {
 	var option *Option
 	for i := range p.Options {
@@ -237,8 +237,8 @@ func (p *Product) UpdateOption(
 	if option == nil {
 		return multierror.Append(ErrNotFound, nil)
 	}
-	if name != nil {
-		option.Name = *name
+	if name != "" && option.Name != name {
+		option.Name = name
 	}
 	return nil
 }
@@ -246,7 +246,7 @@ func (p *Product) UpdateOption(
 func (p *Product) UpdateOptionValue(
 	optionID uuid.UUID,
 	optionValueID uuid.UUID,
-	value *string,
+	value string,
 ) error {
 	var option *Option
 	for i := range p.Options {
@@ -268,8 +268,8 @@ func (p *Product) UpdateOptionValue(
 	if optionValue == nil {
 		return multierror.Append(ErrNotFound, nil)
 	}
-	if value != nil {
-		optionValue.Value = *value
+	if value != "" && optionValue.Value != value {
+		optionValue.Value = value
 	}
 	return nil
 }
@@ -283,15 +283,15 @@ func (p *Product) GetOptionByID(optionID uuid.UUID) *Option {
 	return nil
 }
 
-func (p *Product) GetOptionsByIDs(optionIDs []uuid.UUID) []*Option {
-	var options []*Option
+func (p *Product) GetOptionsByIDs(optionIDs []uuid.UUID) []Option {
+	var options []Option
 	optionIDSet := make(map[uuid.UUID]struct{})
 	for _, id := range optionIDs {
 		optionIDSet[id] = struct{}{}
 	}
 	for _, option := range p.Options {
 		if _, exists := optionIDSet[option.ID]; exists {
-			options = append(options, &option)
+			options = append(options, option)
 		}
 	}
 	return options
@@ -321,10 +321,8 @@ func (p *Product) UpdateMinPrice() {
 
 func (p *Product) Remove() {
 	now := time.Now()
-	if p.DeletedAt == nil {
-		p.UpdatedAt = now
-		p.DeletedAt = &now
-	}
+	p.UpdatedAt = now
+	p.DeletedAt = now
 	for i := range p.Options {
 		p.Options[i].Remove()
 	}
@@ -342,9 +340,7 @@ func (o *Option) AddOptionValues(optionValues ...OptionValue) {
 
 func (o *Option) Remove() {
 	now := time.Now()
-	if o.DeletedAt == nil {
-		o.DeletedAt = &now
-	}
+	o.DeletedAt = now
 	for i := range o.Values {
 		o.Values[i].Remove()
 	}
@@ -352,24 +348,18 @@ func (o *Option) Remove() {
 
 func (ov *OptionValue) Remove() {
 	now := time.Now()
-	if ov.DeletedAt == nil {
-		ov.DeletedAt = &now
-	}
+	ov.DeletedAt = now
 }
 
 func (v *ProductVariant) Remove() {
 	now := time.Now()
-	if v.DeletedAt == nil {
-		v.DeletedAt = &now
-		v.UpdatedAt = now
-	}
+	v.DeletedAt = now
+	v.UpdatedAt = now
 }
 
 func (img *ProductImage) Remove() {
 	now := time.Now()
-	if img.DeletedAt == nil {
-		img.DeletedAt = &now
-	}
+	img.DeletedAt = now
 }
 
 func CreateOptionValues(
@@ -399,15 +389,15 @@ func (o *Option) GetValueByID(optionValueID uuid.UUID) *OptionValue {
 	return nil
 }
 
-func (o *Option) GetValuesByIDs(optionValueIDs []uuid.UUID) []*OptionValue {
-	var values []*OptionValue
+func (o *Option) GetValuesByIDs(optionValueIDs []uuid.UUID) []OptionValue {
+	var values []OptionValue
 	optionValueIDSet := make(map[uuid.UUID]struct{})
 	for _, id := range optionValueIDs {
 		optionValueIDSet[id] = struct{}{}
 	}
 	for _, value := range o.Values {
 		if _, exists := optionValueIDSet[value.ID]; exists {
-			values = append(values, &value)
+			values = append(values, value)
 		}
 	}
 	return values

@@ -22,8 +22,8 @@ type CreateReviewRequestDto struct {
 
 type CreateReviewData struct {
 	Rating   int    `json:"rating"   binding:"required,gte=1,lte=5"`
-	Content  string `json:"content"  binding:"omitnil"`
-	ImageURL string `json:"imageUrl" binding:"omitnil,url"`
+	Content  string `json:"content"  binding:"omitempty"`
+	ImageURL string `json:"imageUrl" binding:"omitempty,url"`
 }
 
 type UpdateReviewRequestDto struct {

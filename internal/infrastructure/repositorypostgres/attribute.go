@@ -2,7 +2,6 @@ package repositorypostgres
 
 import (
 	"context"
-	"time"
 
 	"backend/internal/domain"
 	"backend/internal/helper/ptr"
@@ -51,7 +50,7 @@ func (r *Attribute) List(
 		Offset:            int32(params.Offset),
 	})
 	if err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	attributeIDs := make([]uuid.UUID, 0, len(attributes))
 	for _, attr := range attributes {
@@ -62,7 +61,7 @@ func (r *Attribute) List(
 		Deleted:      string(params.Deleted),
 	})
 	if err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	result := make([]domain.Attribute, 0, len(attributes))
 	for _, attribute := range attributes {
@@ -74,10 +73,7 @@ func (r *Attribute) List(
 				attribute.ID,
 				attributeValues,
 			),
-			DeletedAt: fromPgValidToPtr(
-				attribute.DeletedAt.Time,
-				attribute.DeletedAt.Valid,
-			),
+			DeletedAt: attribute.DeletedAt.Time,
 		})
 	}
 	return &result, err
@@ -99,17 +95,14 @@ func (r *Attribute) ListValues(
 		},
 	)
 	if err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	result := make([]domain.AttributeValue, 0, len(attributeValues))
 	for _, attrVal := range attributeValues {
 		result = append(result, domain.AttributeValue{
-			ID:    attrVal.ID,
-			Value: attrVal.Value,
-			DeletedAt: fromPgValidToPtr(
-				attrVal.DeletedAt.Time,
-				attrVal.DeletedAt.Valid,
-			),
+			ID:        attrVal.ID,
+			Value:     attrVal.Value,
+			DeletedAt: attrVal.DeletedAt.Time,
 		})
 	}
 	return &result, nil
@@ -132,7 +125,7 @@ func (r *Attribute) Get(ctx context.Context, params domain.AttributeRepositoryGe
 		ID: params.ID,
 	})
 	if err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 
 	attributeValues, err := r.ListValues(ctx, domain.AttributeRepositoryListValuesParam{
@@ -140,18 +133,15 @@ func (r *Attribute) Get(ctx context.Context, params domain.AttributeRepositoryGe
 		Deleted:     domain.DeletedExcludeParam,
 	})
 	if err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 
 	result := domain.Attribute{
-		ID:     attribute.ID,
-		Code:   attribute.Code,
-		Name:   attribute.Name,
-		Values: *attributeValues,
-		DeletedAt: fromPgValidToPtr(
-			attribute.DeletedAt.Time,
-			attribute.DeletedAt.Valid,
-		),
+		ID:        attribute.ID,
+		Code:      attribute.Code,
+		Name:      attribute.Name,
+		Values:    *attributeValues,
+		DeletedAt: attribute.DeletedAt.Time,
 	}
 	return &result, nil
 }
@@ -159,7 +149,7 @@ func (r *Attribute) Get(ctx context.Context, params domain.AttributeRepositoryGe
 func (r *Attribute) Save(ctx context.Context, params domain.AttributeRepositorySaveParam) error {
 	tx, err := r.conn.Begin(ctx)
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	qtx := r.queries.WithTx(tx)
@@ -168,28 +158,28 @@ func (r *Attribute) Save(ctx context.Context, params domain.AttributeRepositoryS
 		Code: params.Attribute.Code,
 		Name: params.Attribute.Name,
 		DeletedAt: pgtype.Timestamptz{
-			Time:  ptr.Deref(params.Attribute.DeletedAt, time.Time{}),
-			Valid: params.Attribute.DeletedAt != nil,
+			Time:  params.Attribute.DeletedAt,
+			Valid: !params.Attribute.DeletedAt.IsZero(),
 		},
 	})
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	err = qtx.CreateTempTableAttributeValues(ctx)
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	_, err = qtx.InsertTempTableAttributeValues(ctx, buildInsertTempTableAttributeValuesParams(params.Attribute))
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	err = qtx.MergeAttributeValuesFromTemp(ctx)
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	err = tx.Commit(ctx)
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	return nil
 }
@@ -199,12 +189,9 @@ func buildAttributeValues(attributeID uuid.UUID, attributeValues []sqlc.Attribut
 	for _, val := range attributeValues {
 		if val.AttributeID == attributeID {
 			values = append(values, domain.AttributeValue{
-				ID:    val.ID,
-				Value: val.Value,
-				DeletedAt: fromPgValidToPtr(
-					val.DeletedAt.Time,
-					val.DeletedAt.Valid,
-				),
+				ID:        val.ID,
+				Value:     val.Value,
+				DeletedAt: val.DeletedAt.Time,
 			})
 		}
 	}

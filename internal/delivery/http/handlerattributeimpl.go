@@ -46,7 +46,7 @@ func ProvideAttributeHandler(attributeApp AttributeApplication) *AttributeHandle
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Get(ctx *gin.Context) {
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
-	if *attributeID == uuid.Nil {
+	if attributeID == uuid.Nil {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
 		return
 	}
@@ -55,7 +55,7 @@ func (h *AttributeHandlerImpl) Get(ctx *gin.Context) {
 		return
 	}
 	attribute, err := h.attributeApp.Get(ctx, GetAttributeRequestDto{
-		AttributeID: *attributeID,
+		AttributeID: attributeID,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -88,14 +88,8 @@ func (h *AttributeHandlerImpl) List(ctx *gin.Context) {
 		SendError(ctx, err)
 		return
 	}
-	var attributeIDs *[]uuid.UUID
-	if attributeIDsQuery, ok := queryArrayToUUIDSlice(ctx, "attribute_ids"); ok {
-		attributeIDs = attributeIDsQuery
-	}
-	var search *string
-	if searchQuery, ok := ctx.GetQuery("search"); ok {
-		search = &searchQuery
-	}
+	attributeIDs, _ := queryArrayToUUIDSlice(ctx, "attribute_ids")
+	search, _ := ctx.GetQuery("search")
 	deleted := domain.DeletedExcludeParam
 	if deletedQuery, ok := ctx.GetQuery("deleted"); ok {
 		deleted = domain.DeletedParam(deletedQuery)
@@ -139,30 +133,23 @@ func (h *AttributeHandlerImpl) ListValues(ctx *gin.Context) {
 	}
 
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
-	if *attributeID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
+		return
 	}
 
-	var attributeValueIDs *[]uuid.UUID
-	if attributeValueIDsQuery, ok := queryArrayToUUIDSlice(ctx, "attribute_value_ids"); ok {
-		attributeValueIDs = attributeValueIDsQuery
-	}
+	attributeValueIDs, _ := queryArrayToUUIDSlice(ctx, "attribute_value_ids")
 
-	var search *string
-	if searchQuery, ok := ctx.GetQuery("search"); ok {
-		search = &searchQuery
-	}
+	search, _ := ctx.GetQuery("search")
+
 	deleted := domain.DeletedExcludeParam
 	if deletedQuery, ok := ctx.GetQuery("deleted"); ok {
 		deleted = domain.DeletedParam(deletedQuery)
 	}
+
 	attributeValues, err := h.attributeApp.ListValues(ctx, ListAttributeValuesRequestDto{
 		PaginationRequestDto: *paginateParam,
-		AttributeID:          *attributeID,
+		AttributeID:          attributeID,
 		AttributeValueIDs:    attributeValueIDs,
 		Deleted:              deleted,
 		Search:               search,
@@ -225,10 +212,6 @@ func (h *AttributeHandlerImpl) Create(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
-	if *attributeID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
@@ -241,7 +224,7 @@ func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 	}
 
 	attributeValue, err := h.attributeApp.CreateValue(ctx, CreateAttributeValueRequestDto{
-		AttributeID: *attributeID,
+		AttributeID: attributeID,
 		Data:        data,
 	})
 	if err != nil {
@@ -270,10 +253,6 @@ func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Update(ctx *gin.Context) {
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
-	if *attributeID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
@@ -286,7 +265,7 @@ func (h *AttributeHandlerImpl) Update(ctx *gin.Context) {
 	}
 
 	attribute, err := h.attributeApp.Update(ctx, UpdateAttributeRequestDto{
-		AttributeID: *attributeID,
+		AttributeID: attributeID,
 		Data:        data,
 	})
 	if err != nil {
@@ -312,17 +291,13 @@ func (h *AttributeHandlerImpl) Update(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Delete(ctx *gin.Context) {
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
-	if *attributeID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
 
 	err := h.attributeApp.Delete(ctx, DeleteAttributeRequestDto{
-		AttributeID: *attributeID,
+		AttributeID: attributeID,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -348,28 +323,20 @@ func (h *AttributeHandlerImpl) Delete(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
-	if *attributeID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
 
 	valueID, ok := pathToUUID(ctx, "value_id")
-	if *valueID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeValueID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeValueID))
 		return
 	}
 
 	err := h.attributeApp.DeleteValue(ctx, DeleteAttributeValueRequestDto{
-		AttributeID:      *attributeID,
-		AttributeValueID: *valueID,
+		AttributeID:      attributeID,
+		AttributeValueID: valueID,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -398,20 +365,12 @@ func (h *AttributeHandlerImpl) DeleteValue(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) UpdateValue(ctx *gin.Context) {
 	attributeID, ok := pathToUUID(ctx, "attribute_id")
-	if *attributeID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeID))
 		return
 	}
 
 	valueID, ok := pathToUUID(ctx, "value_id")
-	if *valueID == uuid.Nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredAttributeValueID))
-		return
-	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidAttributeValueID))
 		return
@@ -423,8 +382,8 @@ func (h *AttributeHandlerImpl) UpdateValue(ctx *gin.Context) {
 	}
 
 	attributeValue, err := h.attributeApp.UpdateValue(ctx, UpdateAttributeValueRequestDto{
-		AttributeID:      *attributeID,
-		AttributeValueID: *valueID,
+		AttributeID:      attributeID,
+		AttributeValueID: valueID,
 		Data:             data,
 	})
 	if err != nil {

@@ -45,7 +45,7 @@ func ProvideCartHandler(cartApp CartApplication) *CartHandlerImpl {
 //	@Security		OAuth2Password
 func (h *CartHandlerImpl) Get(ctx *gin.Context) {
 	cartID, ok := pathToUUID(ctx, "cart_id")
-	if *cartID == uuid.Nil {
+	if cartID == uuid.Nil {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartID))
 		return
 	}
@@ -54,7 +54,7 @@ func (h *CartHandlerImpl) Get(ctx *gin.Context) {
 		return
 	}
 	cart, err := h.cartApp.Get(ctx, GetCartRequestDto{
-		CartID: *cartID,
+		CartID: cartID,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -84,7 +84,7 @@ func (h *CartHandlerImpl) GetByUser(ctx *gin.Context) {
 		return
 	}
 	cart, err := h.cartApp.GetByUser(ctx, GetCartByUserRequestDto{
-		UserID: *userID,
+		UserID: userID,
 	})
 	if err != nil {
 		SendError(ctx, err)
@@ -140,7 +140,7 @@ func (h *CartHandlerImpl) Create(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *CartHandlerImpl) CreateItem(ctx *gin.Context) {
 	cartID, ok := pathToUUID(ctx, "cart_id")
-	if *cartID == uuid.Nil {
+	if cartID == uuid.Nil {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartID))
 		return
 	}
@@ -162,8 +162,8 @@ func (h *CartHandlerImpl) CreateItem(ctx *gin.Context) {
 	}
 
 	cartItem, err := h.cartApp.CreateItem(ctx, CreateCartItemRequestDto{
-		UserID: *userID,
-		CartID: *cartID,
+		UserID: userID,
+		CartID: cartID,
 		Data:   data,
 	})
 	if err != nil {
@@ -192,7 +192,7 @@ func (h *CartHandlerImpl) CreateItem(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *CartHandlerImpl) UpdateItem(ctx *gin.Context) {
 	cartID, ok := pathToUUID(ctx, "cart_id")
-	if *cartID == uuid.Nil {
+	if cartID == uuid.Nil {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartID))
 		return
 	}
@@ -202,7 +202,7 @@ func (h *CartHandlerImpl) UpdateItem(ctx *gin.Context) {
 	}
 
 	itemID, ok := pathToUUID(ctx, "cart_item_id")
-	if *itemID == uuid.Nil {
+	if itemID == uuid.Nil {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartItemID))
 		return
 	}
@@ -224,9 +224,9 @@ func (h *CartHandlerImpl) UpdateItem(ctx *gin.Context) {
 	}
 
 	cartItem, err := h.cartApp.UpdateItem(ctx, UpdateCartItemRequestDto{
-		UserID: *userID,
-		CartID: *cartID,
-		ItemID: *itemID,
+		UserID: userID,
+		CartID: cartID,
+		ItemID: itemID,
 		Data:   data,
 	})
 	if err != nil {
@@ -253,7 +253,7 @@ func (h *CartHandlerImpl) UpdateItem(ctx *gin.Context) {
 //	@Security		OAuth2Password
 func (h *CartHandlerImpl) RemoveItem(ctx *gin.Context) {
 	cartID, ok := pathToUUID(ctx, "cart_id")
-	if *cartID == uuid.Nil {
+	if cartID == uuid.Nil {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartID))
 		return
 	}
@@ -263,7 +263,7 @@ func (h *CartHandlerImpl) RemoveItem(ctx *gin.Context) {
 	}
 
 	itemID, ok := pathToUUID(ctx, "item_id")
-	if *itemID == uuid.Nil {
+	if itemID == uuid.Nil {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartItemID))
 		return
 	}
@@ -279,9 +279,9 @@ func (h *CartHandlerImpl) RemoveItem(ctx *gin.Context) {
 	}
 
 	err := h.cartApp.DeleteItem(ctx, DeleteCartItemRequestDto{
-		UserID: *userID,
-		CartID: *cartID,
-		ItemID: *itemID,
+		UserID: userID,
+		CartID: cartID,
+		ItemID: itemID,
 	})
 	if err != nil {
 		SendError(ctx, err)

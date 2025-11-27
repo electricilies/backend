@@ -82,20 +82,9 @@ func (h *OrderHandlerImpl) List(ctx *gin.Context) {
 		return
 	}
 
-	var orderIDs *[]uuid.UUID
-	if orderIDsQuery, ok := queryArrayToUUIDSlice(ctx, "order_ids"); ok {
-		orderIDs = orderIDsQuery
-	}
-
-	var userIDs *[]uuid.UUID
-	if userIDsQuery, ok := queryArrayToUUIDSlice(ctx, "user_ids"); ok {
-		userIDs = userIDsQuery
-	}
-
-	var statusIDs *[]uuid.UUID
-	if statusIDsQuery, ok := queryArrayToUUIDSlice(ctx, "status_ids"); ok {
-		statusIDs = statusIDsQuery
-	}
+	orderIDs, _ := queryArrayToUUIDSlice(ctx, "order_ids")
+	userIDs, _ := queryArrayToUUIDSlice(ctx, "user_ids")
+	statusIDs, _ := queryArrayToUUIDSlice(ctx, "status_ids")
 
 	orders, err := h.orderApp.List(ctx, ListOrderRequestDto{
 		PaginationRequestDto: *paginateRequestDto,

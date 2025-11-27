@@ -782,7 +782,7 @@ VALUES (
   $9,
   $10,
   $11,
-  NULLIF($12, '0001-01-01T00:00:00Z'::timestamptz)
+  NULLIF($12::timestamptz, '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
@@ -810,7 +810,7 @@ type UpsertProductParams struct {
 	CategoryID    uuid.UUID
 	CreatedAt     pgtype.Timestamptz
 	UpdatedAt     pgtype.Timestamptz
-	DeletedAt     interface{}
+	DeletedAt     pgtype.Timestamptz
 }
 
 func (q *Queries) UpsertProduct(ctx context.Context, arg UpsertProductParams) error {

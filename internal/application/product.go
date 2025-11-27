@@ -6,8 +6,6 @@ import (
 
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
-	"backend/internal/helper/ptr"
-	"backend/internal/helper/slice"
 
 	"github.com/google/uuid"
 )
@@ -46,15 +44,15 @@ var _ http.ProductApplication = (*Product)(nil)
 
 func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*http.PaginationResponseDto[http.ProductResponseDto], error) {
 	cacheKey := p.productCache.BuildListCacheKey(
-		param.ProductIDs,
-		param.Search,
-		param.MinPrice,
-		param.MaxPrice,
-		param.Rating,
-		param.CategoryIDs,
+		&param.ProductIDs,
+		&param.Search,
+		&param.MinPrice,
+		&param.MaxPrice,
+		&param.Rating,
+		&param.CategoryIDs,
 		param.Deleted,
-		param.SortRating,
-		param.SortPrice,
+		&param.SortRating,
+		&param.SortPrice,
 		param.Limit,
 		param.Page,
 	)
@@ -66,18 +64,19 @@ func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*
 
 	products, err := p.productRepo.List(
 		ctx,
-		param.ProductIDs,
-		param.Search,
-		param.MinPrice,
-		param.MaxPrice,
-		param.Rating,
-		nil,
-		param.CategoryIDs,
-		param.Deleted,
-		param.SortRating,
-		param.SortPrice,
-		param.Limit,
-		(param.Page-1)*param.Limit,
+		domain.ProductRepositoryListParam{
+			IDs:         param.ProductIDs,
+			Search:      param.Search,
+			MinPrice:    param.MinPrice,
+			MaxPrice:    param.MaxPrice,
+			Rating:      param.Rating,
+			CategoryIDs: param.CategoryIDs,
+			Deleted:     param.Deleted,
+			SortRating:  param.SortRating,
+			SortPrice:   param.SortPrice,
+			Limit:       param.Limit,
+			Offset:      (param.Page - 1) * param.Limit,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -85,12 +84,14 @@ func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*
 
 	count, err := p.productRepo.Count(
 		ctx,
-		param.ProductIDs,
-		param.MinPrice,
-		param.MaxPrice,
-		param.Rating,
-		param.CategoryIDs,
-		param.Deleted,
+		domain.ProductRepositoryCountParam{
+			IDs:         param.ProductIDs,
+			MinPrice:    param.MinPrice,
+			MaxPrice:    param.MaxPrice,
+			Rating:      param.Rating,
+			CategoryIDs: param.CategoryIDs,
+			Deleted:     param.Deleted,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -103,9 +104,9 @@ func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*
 
 	categories, err := p.categoryRepo.List(
 		ctx,
-		&categoryIDs,
-		nil,
-		0, 0,
+		domain.CategoryRepositoryListParam{
+			IDs: categoryIDs,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -123,11 +124,10 @@ func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*
 
 	attributes, err := p.attributeRepo.List(
 		ctx,
-		nil,
-		&attributeValuesIDs,
-		nil,
-		domain.DeletedExcludeParam,
-		0, 0,
+		domain.AttributeRepositoryListParam{
+			AttributeValueIDs: attributeValuesIDs,
+			Deleted:           domain.DeletedExcludeParam,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -167,23 +167,22 @@ func (p *Product) Get(ctx context.Context, param http.GetProductRequestDto) (*ht
 	if cachedProduct, err := p.productCache.GetProduct(ctx, param.ProductID); err == nil {
 		return cachedProduct, nil
 	}
-	product, err := p.productRepo.Get(ctx, param.ProductID)
+	product, err := p.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: param.ProductID})
 	if err != nil {
 		return nil, err
 	}
 
-	category, err := p.categoryRepo.Get(ctx, product.CategoryID)
+	category, err := p.categoryRepo.Get(ctx, domain.CategoryRepositoryGetParam{ID: product.CategoryID})
 	if err != nil {
 		return nil, err
 	}
 
 	attributes, err := p.attributeRepo.List(
 		ctx,
-		nil,
-		&product.AttributeValueIDs,
-		nil,
-		domain.DeletedExcludeParam,
-		0, 0,
+		domain.AttributeRepositoryListParam{
+			AttributeValueIDs: product.AttributeValueIDs,
+			Deleted:           domain.DeletedExcludeParam,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -191,12 +190,10 @@ func (p *Product) Get(ctx context.Context, param http.GetProductRequestDto) (*ht
 
 	productDto := http.ToProductResponseDto(product)
 	productDto.WithCategory(category)
-	if attributes != nil {
-		productDto.WithAttributes(
-			*attributes,
-			product.AttributeValueIDs,
-		)
-	}
+	productDto.WithAttributes(
+		*attributes,
+		product.AttributeValueIDs,
+	)
 	_ = p.productCache.SetProduct(ctx, param.ProductID, productDto)
 
 	return productDto, nil
@@ -213,14 +210,14 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 	}
 
 	// Get and validate category
-	category, err := p.categoryRepo.Get(ctx, param.Data.CategoryID)
+	category, err := p.categoryRepo.Get(ctx, domain.CategoryRepositoryGetParam{ID: param.Data.CategoryID})
 	if err != nil {
 		return nil, err
 	}
-	if param.Data.AttributeValueIDs != nil {
-		attributeIDs := make([]uuid.UUID, 0, len(*param.Data.AttributeValueIDs))
-		attributeValueIDs := make([]uuid.UUID, 0, len(*param.Data.AttributeValueIDs))
-		for _, a := range *param.Data.AttributeValueIDs {
+	{
+		attributeIDs := make([]uuid.UUID, 0, len(param.Data.AttributeValueIDs))
+		attributeValueIDs := make([]uuid.UUID, 0, len(param.Data.AttributeValueIDs))
+		for _, a := range param.Data.AttributeValueIDs {
 			attributeIDs = append(attributeIDs, a.AttributeID)
 			attributeValueIDs = append(attributeValueIDs, a.ValueID)
 		}
@@ -228,11 +225,10 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 		// Validate that attributes exist
 		attributes, err := p.attributeRepo.List(
 			ctx,
-			&attributeIDs,
-			nil,
-			nil,
-			domain.DeletedExcludeParam,
-			0, 0,
+			domain.AttributeRepositoryListParam{
+				IDs:     attributeIDs,
+				Deleted: domain.DeletedExcludeParam,
+			},
 		)
 		if err != nil {
 			return nil, err
@@ -245,9 +241,9 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 		product.AddAttributeValueIDs(attributeValueIDs...)
 	}
 	var options *[]domain.Option
-	if param.Data.Options != nil {
-		optionsWithOptionValues := make(map[string][]string, len(*param.Data.Options))
-		for _, optionData := range *param.Data.Options {
+	{
+		optionsWithOptionValues := make(map[string][]string, len(param.Data.Options))
+		for _, optionData := range param.Data.Options {
 			optionValues := make([]string, 0, len(optionData.Values))
 			optionValues = append(optionValues, optionData.Values...)
 			optionsWithOptionValues[optionData.Name] = optionValues
@@ -280,21 +276,19 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 			return nil, err
 		}
 		product.AddVariants(*variant)
-		if variantData.Images != nil {
-			variantImages := make([]domain.ProductImage, 0, len(*variantData.Images))
-			for _, imgData := range *variantData.Images {
-				image, err := domain.NewProductImage(
-					imgData.URL,
-					imgData.Order,
-				)
-				if err != nil {
-					return nil, err
-				}
-				variantImages = append(variantImages, *image)
-			}
-			if err := product.AddVariantImages(variant.ID, variantImages...); err != nil {
+		variantImages := make([]domain.ProductImage, 0, len(variantData.Images))
+		for _, imgData := range variantData.Images {
+			image, err := domain.NewProductImage(
+				imgData.URL,
+				imgData.Order,
+			)
+			if err != nil {
 				return nil, err
 			}
+			variantImages = append(variantImages, *image)
+		}
+		if err := product.AddVariantImages(variant.ID, variantImages...); err != nil {
+			return nil, err
 		}
 		if options != nil {
 			err = linkProductVariantsToOptionValues(product, *options, param)
@@ -308,7 +302,7 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 	if err != nil {
 		return nil, err
 	}
-	err = p.productRepo.Save(ctx, *product)
+	err = p.productRepo.Save(ctx, domain.ProductRepositorySaveParam{Product: *product})
 	if err != nil {
 		return nil, err
 	}
@@ -319,11 +313,10 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 	if len(product.AttributeIDs) > 0 {
 		attributes, err = p.attributeRepo.List(
 			ctx,
-			&product.AttributeIDs,
-			nil,
-			nil,
-			domain.DeletedExcludeParam,
-			0, 0,
+			domain.AttributeRepositoryListParam{
+				IDs:     product.AttributeIDs,
+				Deleted: domain.DeletedExcludeParam,
+			},
 		)
 		if err != nil {
 			return nil, err
@@ -339,25 +332,20 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 }
 
 func (p *Product) Update(ctx context.Context, param http.UpdateProductRequestDto) (*http.ProductResponseDto, error) {
-	product, err := p.productRepo.Get(ctx, param.ProductID)
+	product, err := p.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: param.ProductID})
 	if err != nil {
 		return nil, err
 	}
 
-	var category *domain.Category
-	if param.Data.CategoryID != nil {
-		cat, err := p.categoryRepo.Get(ctx, *param.Data.CategoryID)
-		if err != nil {
-			return nil, err
-		}
-		category = cat
-	} else {
-		// Get existing category
-		cat, err := p.categoryRepo.Get(ctx, product.CategoryID)
-		if err != nil {
-			return nil, err
-		}
-		category = cat
+	categoryID := product.CategoryID
+	if param.Data.CategoryID != uuid.Nil {
+		categoryID = param.Data.CategoryID
+	}
+	category, err := p.categoryRepo.Get(ctx, domain.CategoryRepositoryGetParam{
+		ID: categoryID,
+	})
+	if err != nil {
+		return nil, err
 	}
 	err = p.productService.Validate(*product)
 	if err != nil {
@@ -366,9 +354,9 @@ func (p *Product) Update(ctx context.Context, param http.UpdateProductRequestDto
 	product.Update(
 		param.Data.Name,
 		param.Data.Description,
-		ptr.To(category.ID),
+		category.ID,
 	)
-	err = p.productRepo.Save(ctx, *product)
+	err = p.productRepo.Save(ctx, domain.ProductRepositorySaveParam{Product: *product})
 	if err != nil {
 		return nil, err
 	}
@@ -380,11 +368,10 @@ func (p *Product) Update(ctx context.Context, param http.UpdateProductRequestDto
 	if len(product.AttributeIDs) > 0 {
 		attributes, err = p.attributeRepo.List(
 			ctx,
-			&product.AttributeIDs,
-			nil,
-			nil,
-			domain.DeletedExcludeParam,
-			0, 0,
+			domain.AttributeRepositoryListParam{
+				IDs:     product.AttributeIDs,
+				Deleted: domain.DeletedExcludeParam,
+			},
 		)
 		if err != nil {
 			return nil, err
@@ -400,7 +387,7 @@ func (p *Product) Update(ctx context.Context, param http.UpdateProductRequestDto
 }
 
 func (p *Product) Delete(ctx context.Context, param http.DeleteProductRequestDto) error {
-	product, err := p.productRepo.Get(ctx, param.ProductID)
+	product, err := p.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: param.ProductID})
 	if err != nil {
 		return err
 	}
@@ -409,7 +396,7 @@ func (p *Product) Delete(ctx context.Context, param http.DeleteProductRequestDto
 		return err
 	}
 	product.Remove()
-	err = p.productRepo.Save(ctx, *product)
+	err = p.productRepo.Save(ctx, domain.ProductRepositorySaveParam{Product: *product})
 	if err != nil {
 		return err
 	}
@@ -419,7 +406,7 @@ func (p *Product) Delete(ctx context.Context, param http.DeleteProductRequestDto
 }
 
 func (p *Product) AddVariants(ctx context.Context, param http.AddProductVariantsRequestDto) (*[]http.ProductVariantResponseDto, error) {
-	product, err := p.productRepo.Get(ctx, param.ProductID)
+	product, err := p.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: param.ProductID})
 	if err != nil {
 		return nil, err
 	}
@@ -436,7 +423,7 @@ func (p *Product) AddVariants(ctx context.Context, param http.AddProductVariants
 		variants = append(variants, *variant)
 	}
 	product.AddVariants(variants...)
-	err = p.productRepo.Save(ctx, *product)
+	err = p.productRepo.Save(ctx, domain.ProductRepositorySaveParam{Product: *product})
 	if err != nil {
 		return nil, err
 	}
@@ -447,7 +434,7 @@ func (p *Product) AddVariants(ctx context.Context, param http.AddProductVariants
 }
 
 func (p *Product) UpdateVariant(ctx context.Context, param http.UpdateProductVariantRequestDto) (*http.ProductVariantResponseDto, error) {
-	product, err := p.productRepo.Get(ctx, param.ProductID)
+	product, err := p.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: param.ProductID})
 	if err != nil {
 		return nil, err
 	}
@@ -465,7 +452,7 @@ func (p *Product) UpdateVariant(ctx context.Context, param http.UpdateProductVar
 	if err := p.productService.Validate(*product); err != nil {
 		return nil, err
 	}
-	err = p.productRepo.Save(ctx, *product)
+	err = p.productRepo.Save(ctx, domain.ProductRepositorySaveParam{Product: *product})
 	if err != nil {
 		return nil, err
 	}
@@ -475,7 +462,7 @@ func (p *Product) UpdateVariant(ctx context.Context, param http.UpdateProductVar
 }
 
 func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequestDto) (*[]http.ProductImageResponseDto, error) {
-	product, err := p.productRepo.Get(ctx, param.ProductID)
+	product, err := p.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: param.ProductID})
 	if err != nil {
 		return nil, err
 	}
@@ -488,8 +475,8 @@ func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequ
 		if err != nil {
 			return nil, err
 		}
-		if imgData.ProductVariantID != nil {
-			if err := product.AddVariantImages(*imgData.ProductVariantID, *image); err != nil {
+		if imgData.ProductVariantID != uuid.Nil {
+			if err := product.AddVariantImages(imgData.ProductVariantID, *image); err != nil {
 				return nil, err
 			}
 		} else {
@@ -497,7 +484,7 @@ func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequ
 		}
 	}
 	product.AddImages(images...)
-	err = p.productRepo.Save(ctx, *product)
+	err = p.productRepo.Save(ctx, domain.ProductRepositorySaveParam{Product: *product})
 	if err != nil {
 		return nil, err
 	}
@@ -508,7 +495,7 @@ func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequ
 }
 
 func (p *Product) DeleteImages(ctx context.Context, param http.DeleteProductImagesRequestDto) error {
-	product, err := p.productRepo.Get(ctx, param.ProductID)
+	product, err := p.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: param.ProductID})
 	if err != nil {
 		return err
 	}
@@ -528,7 +515,7 @@ func (p *Product) DeleteImages(ctx context.Context, param http.DeleteProductImag
 			}
 		}
 	}
-	err = p.productRepo.Save(ctx, *product)
+	err = p.productRepo.Save(ctx, domain.ProductRepositorySaveParam{Product: *product})
 	if err != nil {
 		return err
 	}
@@ -537,7 +524,7 @@ func (p *Product) DeleteImages(ctx context.Context, param http.DeleteProductImag
 }
 
 func (p *Product) UpdateOptions(ctx context.Context, param http.UpdateProductOptionsRequestDto) (*[]http.ProductOptionResponseDto, error) {
-	product, err := p.productRepo.Get(ctx, param.ProductID)
+	product, err := p.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: param.ProductID})
 	if err != nil {
 		return nil, err
 	}
@@ -555,17 +542,17 @@ func (p *Product) UpdateOptions(ctx context.Context, param http.UpdateProductOpt
 	if options == nil {
 		return nil, domain.ErrNotFound
 	}
-	err = p.productRepo.Save(ctx, *product)
+	err = p.productRepo.Save(ctx, domain.ProductRepositorySaveParam{Product: *product})
 	if err != nil {
 		return nil, err
 	}
 	_ = p.productCache.InvalidateAllProducts(ctx)
-	optionDtos := http.ToProductOptionResponseDtoList(*slice.SlicePtrToPtrSlice(options))
+	optionDtos := http.ToProductOptionResponseDtoList(options)
 	return &optionDtos, nil
 }
 
 func (p *Product) UpdateOptionValues(ctx context.Context, param http.UpdateProductOptionValuesRequestDto) (*[]http.ProductOptionValueResponseDto, error) {
-	product, err := p.productRepo.Get(ctx, param.ProductID)
+	product, err := p.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: param.ProductID})
 	if err != nil {
 		return nil, err
 	}
@@ -584,12 +571,12 @@ func (p *Product) UpdateOptionValues(ctx context.Context, param http.UpdateProdu
 		return nil, domain.ErrNotFound
 	}
 	optionValues := option.GetValuesByIDs(optionValueIDs)
-	err = p.productRepo.Save(ctx, *product)
+	err = p.productRepo.Save(ctx, domain.ProductRepositorySaveParam{Product: *product})
 	if err != nil {
 		return nil, err
 	}
 	_ = p.productCache.InvalidateAllProducts(ctx)
-	optionValueDtos := http.ToProductOptionValueResponseDtoList(*slice.SlicePtrToPtrSlice(optionValues))
+	optionValueDtos := http.ToProductOptionValueResponseDtoList(optionValues)
 	return &optionValueDtos, nil
 }
 
@@ -621,8 +608,8 @@ func linkProductVariantsToOptionValues(
 		}
 	}
 	for i := range product.Variants {
-		optionValues := make([]domain.OptionValue, len(*param.Data.Variants[i].Options))
-		for j, optionData := range *param.Data.Variants[i].Options {
+		optionValues := make([]domain.OptionValue, len(param.Data.Variants[i].Options))
+		for j, optionData := range param.Data.Variants[i].Options {
 			optionValue, exists := optionsMap[fmt.Sprintf("%s/%s", optionData.Name, optionData.Value)]
 			if !exists {
 				return domain.ErrInvalid

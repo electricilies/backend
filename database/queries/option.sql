@@ -9,7 +9,7 @@ VALUES (
   sqlc.arg('id'),
   sqlc.arg('name'),
   sqlc.arg('product_id'),
-  NULLIF(sqlc.arg('deleted_at'), '0001-01-01T00:00:00Z'::timestamptz)
+  NULLIF(sqlc.arg('deleted_at')::timestamptz, '0001-01-01T00:00:00Z'::timestamptz)
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,

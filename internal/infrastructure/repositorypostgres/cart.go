@@ -34,7 +34,7 @@ func (r *Cart) Get(
 		UserID: params.UserID,
 	})
 	if err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	cart := &domain.Cart{
 		ID:        cartEntity.ID,
@@ -45,7 +45,7 @@ func (r *Cart) Get(
 		CartID: params.ID,
 	})
 	if err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	productVariantIDs := make([]uuid.UUID, 0, len(cartItems))
 	for _, item := range cartItems {
@@ -55,7 +55,7 @@ func (r *Cart) Get(
 		IDs: productVariantIDs,
 	})
 	if err != nil {
-		return nil, ToDomainErrorFromPostgres(err)
+		return nil, ToDomainError(err)
 	}
 	productVariantIDproductIDMap := make(map[uuid.UUID]uuid.UUID, len(productVariantEntities))
 	for _, pv := range productVariantEntities {
@@ -75,7 +75,7 @@ func (r *Cart) Get(
 func (r *Cart) Save(ctx context.Context, params domain.CartRepositorySaveParam) error {
 	tx, err := r.conn.Begin(ctx)
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	qtx := r.queries.WithTx(tx)
 	defer func() { _ = tx.Rollback(ctx) }()
@@ -88,11 +88,11 @@ func (r *Cart) Save(ctx context.Context, params domain.CartRepositorySaveParam) 
 		},
 	})
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	err = qtx.CreateTempTableCartItems(ctx)
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	itemParams := make([]sqlc.InsertTempTableCartItemsParams, len(params.Cart.Items))
 	for i, item := range params.Cart.Items {
@@ -105,15 +105,15 @@ func (r *Cart) Save(ctx context.Context, params domain.CartRepositorySaveParam) 
 	}
 	_, err = qtx.InsertTempTableCartItems(ctx, itemParams)
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	err = qtx.MergeCartItemsFromTemp(ctx)
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	err = tx.Commit(ctx)
 	if err != nil {
-		return ToDomainErrorFromPostgres(err)
+		return ToDomainError(err)
 	}
 	return nil
 }
