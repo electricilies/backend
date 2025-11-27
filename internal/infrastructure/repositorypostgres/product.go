@@ -34,19 +34,11 @@ func (r *Product) List(
 	ctx context.Context,
 	params domain.ProductRepositoryListParam,
 ) (*[]domain.Product, error) {
-	minPriceParam := pgtype.Numeric{
-		Int:   big.NewInt(params.MinPrice),
-		Valid: params.MinPrice != 0,
-	}
-	maxPriceParam := pgtype.Numeric{
-		Int:   big.NewInt(params.MaxPrice),
-		Valid: params.MaxPrice != 0,
-	}
 	productEntities, err := r.queries.ListProducts(ctx, sqlc.ListProductsParams{
 		IDs:         params.IDs,
 		Search:      params.Search,
-		MinPrice:    minPriceParam,
-		MaxPrice:    maxPriceParam,
+		MinPrice:    int64ToNumeric(params.MinPrice),
+		MaxPrice:    int64ToNumeric(params.MaxPrice),
 		Rating:      float32(params.Rating),
 		VariantIDs:  params.VariantIDs,
 		CategoryIDs: params.CategoryIDs,
@@ -74,18 +66,10 @@ func (r *Product) Count(
 	ctx context.Context,
 	params domain.ProductRepositoryCountParam,
 ) (*int, error) {
-	minPriceParam := pgtype.Numeric{
-		Int:   big.NewInt(params.MinPrice),
-		Valid: params.MinPrice != 0,
-	}
-	maxPriceParam := pgtype.Numeric{
-		Int:   big.NewInt(params.MaxPrice),
-		Valid: params.MaxPrice != 0,
-	}
 	productEntities, err := r.queries.CountProducts(ctx, sqlc.CountProductsParams{
 		IDs:         params.IDs,
-		MinPrice:    minPriceParam,
-		MaxPrice:    maxPriceParam,
+		MinPrice:    int64ToNumeric(params.MinPrice),
+		MaxPrice:    int64ToNumeric(params.MaxPrice),
 		Rating:      float32(params.Rating),
 		CategoryIDs: params.CategoryIDs,
 		Deleted:     string(params.Deleted),

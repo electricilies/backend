@@ -83,7 +83,7 @@ WHERE
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
-    ELSE id::uuid = ANY ($2::uuid[])
+    ELSE id = ANY ($2::uuid[])
   END
   AND CASE
     WHEN $3::text = 'exclude' THEN deleted_at IS NULL

@@ -54,7 +54,8 @@ LEFT JOIN (
   INNER JOIN categories
     ON products.category_id = categories.id
   WHERE
-    CASE WHEN sqlc.arg('search')::text = '' THEN TRUE
+    CASE
+      WHEN sqlc.arg('search')::text = '' THEN TRUE
       ELSE (
         categories.name ||| sqlc.arg('search')::text
         AND categories.deleted_at IS NULL
@@ -79,6 +80,7 @@ LEFT JOIN (
   ON products.id = variant_filter.id
 WHERE
   CASE
+    WHEN sqlc.arg('id')::uuid IS NULL THEN TRUE
     WHEN sqlc.arg('id')::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE products.id = sqlc.arg('id')::uuid
   END

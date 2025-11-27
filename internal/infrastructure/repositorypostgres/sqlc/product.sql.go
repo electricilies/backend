@@ -438,7 +438,8 @@ LEFT JOIN (
   INNER JOIN categories
     ON products.category_id = categories.id
   WHERE
-    CASE WHEN $1::text = '' THEN TRUE
+    CASE
+      WHEN $1::text = '' THEN TRUE
       ELSE (
         categories.name ||| $1::text
         AND categories.deleted_at IS NULL
@@ -463,6 +464,7 @@ LEFT JOIN (
   ON products.id = variant_filter.id
 WHERE
   CASE
+    WHEN $3::uuid IS NULL THEN TRUE
     WHEN $3::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE products.id = $3::uuid
   END
