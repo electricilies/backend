@@ -48,7 +48,6 @@ func ToCartResponseDto(cart *domain.Cart) *CartResponseDto {
 
 	return &CartResponseDto{
 		ID:        cart.ID,
-		Items:     []CartItemResponseDto{},
 		UserID:    cart.UserID,
 		UpdatedAt: cart.UpdatedAt,
 	}
