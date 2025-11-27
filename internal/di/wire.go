@@ -66,11 +66,11 @@ var ServiceSet = wire.NewSet(
 		new(domain.ProductService),
 		new(*service.Product),
 	),
-	service.ProvideReview,
-	wire.Bind(
-		new(domain.ReviewService),
-		new(*service.Review),
-	),
+	// service.ProvideReview,
+	// wire.Bind(
+	// 	new(domain.ReviewService),
+	// 	new(*service.Review),
+	// ),
 )
 
 var MiddlewareSet = wire.NewSet(
@@ -97,46 +97,46 @@ var MiddlewareSet = wire.NewSet(
 )
 
 var HandlerSet = wire.NewSet(
-	http.ProvideAttributeHandler,
-	wire.Bind(
-		new(http.AttributeHandler),
-		new(*http.AttributeHandlerImpl),
-	),
 	http.ProvideAuthHandler,
 	wire.Bind(
 		new(http.AuthHandler),
 		new(*http.AuthHandlerImpl),
-	),
-	http.ProvideCategoryHandler,
-	wire.Bind(
-		new(http.CategoryHandler),
-		new(*http.CategoryHandlerImpl),
 	),
 	http.ProvideHealthHandler,
 	wire.Bind(
 		new(http.HealthHandler),
 		new(*http.HealthHandlerImpl),
 	),
-	http.ProvideOrderHandler,
+	http.ProvideAttributeHandler,
 	wire.Bind(
-		new(http.OrderHandler),
-		new(*http.OrderHandlerImpl),
+		new(http.AttributeHandler),
+		new(*http.AttributeHandlerImpl),
+	),
+	http.ProvideCategoryHandler,
+	wire.Bind(
+		new(http.CategoryHandler),
+		new(*http.CategoryHandlerImpl),
 	),
 	http.ProvideProductHandler,
 	wire.Bind(
 		new(http.ProductHandler),
 		new(*http.ProductHandlerImpl),
 	),
-	http.ProvideReviewHandler,
-	wire.Bind(
-		new(http.ReviewHandler),
-		new(*http.ReviewHandlerImpl),
-	),
 	http.ProvideCartHandler,
 	wire.Bind(
 		new(http.CartHandler),
 		new(*http.CartHandlerImpl),
 	),
+	http.ProvideOrderHandler,
+	wire.Bind(
+		new(http.OrderHandler),
+		new(*http.OrderHandlerImpl),
+	),
+	// http.ProvideReviewHandler,
+	// wire.Bind(
+	// 	new(http.ReviewHandler),
+	// 	new(*http.ReviewHandlerImpl),
+	// ),
 )
 
 var ApplicationSet = wire.NewSet(
@@ -165,11 +165,11 @@ var ApplicationSet = wire.NewSet(
 		new(http.ProductApplication),
 		new(*application.Product),
 	),
-	application.ProvideReview,
-	wire.Bind(
-		new(http.ReviewApplication),
-		new(*application.Review),
-	),
+	// application.ProvideReview,
+	// wire.Bind(
+	// 	new(http.ReviewApplication),
+	// 	new(*application.Review),
+	// ),
 )
 
 var RepositorySet = wire.NewSet(
@@ -198,11 +198,11 @@ var RepositorySet = wire.NewSet(
 		new(domain.ProductRepository),
 		new(*repositorypostgres.Product),
 	),
-	repositorypostgres.ProvideReview,
-	wire.Bind(
-		new(domain.ReviewRepository),
-		new(*repositorypostgres.Review),
-	),
+	// repositorypostgres.ProvideReview,
+	// wire.Bind(
+	// 	new(domain.ReviewRepository),
+	// 	new(*repositorypostgres.Review),
+	// ),
 )
 
 var RouterSet = wire.NewSet(
@@ -227,11 +227,11 @@ var CacheSet = wire.NewSet(
 		new(application.ProductCache),
 		new(*cacheredis.Product),
 	),
-	cacheredis.ProvideReview,
-	wire.Bind(
-		new(application.ReviewCache),
-		new(*cacheredis.Review),
-	),
+	// cacheredis.ProvideReview,
+	// wire.Bind(
+	// 	new(application.ReviewCache),
+	// 	new(*cacheredis.Review),
+	// ),
 	cacheredis.ProvideCategory,
 	wire.Bind(
 		new(application.CategoryCache),

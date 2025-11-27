@@ -7,9 +7,8 @@ import (
 )
 
 type OrderApplication interface {
-	Create(ctx context.Context, param CreateOrderRequestDto) (*domain.Order, error)
-	Update(ctx context.Context, param UpdateOrderRequestDto) (*domain.Order, error)
-	Get(ctx context.Context, param GetOrderRequestDto) (*domain.Order, error)
-	Delete(ctx context.Context, param DeleteOrderRequestDto) error
 	List(ctx context.Context, param ListOrderRequestDto) (*PaginationResponseDto[domain.Order], error)
+	Create(ctx context.Context, param CreateOrderRequestDto) (*OrderResponseDto, error)
+	Get(ctx context.Context, param GetOrderRequestDto) (*OrderResponseDto, error)
+	Update(ctx context.Context, param UpdateOrderRequestDto) (*OrderResponseDto, error)
 }

@@ -9,5 +9,4 @@ type OrderHandler interface {
 	List(*gin.Context)
 	Create(*gin.Context)
 	Update(*gin.Context)
-	Delete(*gin.Context)
 }

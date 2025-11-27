@@ -19,5 +19,8 @@ func NewValidate() *validator.Validate {
 	if err := domain.RegisterProductValidators(validate); err != nil {
 		panic(err)
 	}
+	if err := domain.RegisterOrderValidators(validate); err != nil {
+		panic(err)
+	}
 	return validate
 }

@@ -216,55 +216,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "delete": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    },
-                    {
-                        "OAuth2Password": []
-                    }
-                ],
-                "description": "Delete attribute by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Attribute"
-                ],
-                "summary": "Delete an attribute",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "format": "uuid",
-                        "description": "Attribute ID",
-                        "name": "attribute_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            },
-            "patch": {
+            "put": {
                 "security": [
                     {
                         "OAuth2AccessCode": []
@@ -324,6 +276,54 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "OAuth2AccessCode": []
+                    },
+                    {
+                        "OAuth2Password": []
+                    }
+                ],
+                "description": "Delete attribute by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attribute"
+                ],
+                "summary": "Delete an attribute",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Attribute ID",
+                        "name": "attribute_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/Error"
                         }
@@ -1396,54 +1396,6 @@ const docTemplate = `{
                     }
                 }
             },
-            "delete": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    },
-                    {
-                        "OAuth2Password": []
-                    }
-                ],
-                "description": "Delete an order by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Order"
-                ],
-                "summary": "Delete order",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "format": "uuid",
-                        "description": "Order ID",
-                        "name": "order_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            },
             "patch": {
                 "security": [
                     {
@@ -2315,296 +2267,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/reviews": {
-            "get": {
-                "description": "Get all reviews",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Review"
-                ],
-                "summary": "List all reviews",
-                "parameters": [
-                    {
-                        "type": "array",
-                        "format": "uuid",
-                        "items": {
-                            "type": "integer"
-                        },
-                        "collectionFormat": "csv",
-                        "description": "Product IDs",
-                        "name": "product_ids",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "include",
-                            "only",
-                            "exclude"
-                        ],
-                        "type": "string",
-                        "description": "Include deleted reviews",
-                        "name": "deleted",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Page for pagination",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 20,
-                        "description": "Limit for pagination",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/PaginationResponseDto-Review"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    },
-                    {
-                        "OAuth2Password": []
-                    }
-                ],
-                "description": "Create a new review",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Review"
-                ],
-                "summary": "Create a review",
-                "parameters": [
-                    {
-                        "description": "Review request",
-                        "name": "review",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/CreateReviewData"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/Review"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/reviews/{review_id}": {
-            "get": {
-                "description": "Get review details by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Review"
-                ],
-                "summary": "Get review by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "format": "uuid",
-                        "description": "Review ID",
-                        "name": "review_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/Review"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    },
-                    {
-                        "OAuth2Password": []
-                    }
-                ],
-                "description": "Delete review by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Review"
-                ],
-                "summary": "Delete a review",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "format": "uuid",
-                        "description": "Review ID",
-                        "name": "review_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "OAuth2AccessCode": []
-                    },
-                    {
-                        "OAuth2Password": []
-                    }
-                ],
-                "description": "Update review by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Review"
-                ],
-                "summary": "Update a review",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "format": "uuid",
-                        "description": "Review ID",
-                        "name": "review_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Update review request",
-                        "name": "review",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/UpdateReviewData"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "$ref": "#/definitions/Review"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Error"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -2897,8 +2559,7 @@ const docTemplate = `{
             "required": [
                 "address",
                 "items",
-                "provider",
-                "totalAmount"
+                "provider"
             ],
             "properties": {
                 "address": {
@@ -2911,35 +2572,18 @@ const docTemplate = `{
                     }
                 },
                 "provider": {
-                    "enum": [
-                        "COD",
-                        "VNPAY",
-                        "MOMO",
-                        "ZALOPAY"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/OrderProvider"
-                        }
-                    ]
-                },
-                "totalAmount": {
-                    "type": "integer"
+                    "$ref": "#/definitions/OrderProvider"
                 }
             }
         },
         "CreateOrderItemData": {
             "type": "object",
             "required": [
-                "price",
                 "productId",
                 "productVariantId",
                 "quantity"
             ],
             "properties": {
-                "price": {
-                    "type": "integer"
-                },
                 "productId": {
                     "type": "string"
                 },
@@ -3102,25 +2746,6 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "string"
-                }
-            }
-        },
-        "CreateReviewData": {
-            "type": "object",
-            "required": [
-                "rating"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "imageUrl": {
-                    "type": "string"
-                },
-                "rating": {
-                    "type": "integer",
-                    "maximum": 5,
-                    "minimum": 1
                 }
             }
         },
@@ -3341,24 +2966,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/ProductResponseDto"
-                    }
-                },
-                "meta": {
-                    "$ref": "#/definitions/PaginationMetaResponseDto"
-                }
-            }
-        },
-        "PaginationResponseDto-Review": {
-            "type": "object",
-            "required": [
-                "data",
-                "meta"
-            ],
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Review"
                     }
                 },
                 "meta": {
@@ -3653,54 +3260,8 @@ const docTemplate = `{
                 }
             }
         },
-        "Review": {
-            "type": "object",
-            "required": [
-                "createdAt",
-                "id",
-                "orderID",
-                "orderItemID",
-                "rating",
-                "updatedAt"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string",
-                    "minLength": 10
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "imageURL": {
-                    "type": "string"
-                },
-                "orderID": {
-                    "type": "string"
-                },
-                "orderItemID": {
-                    "type": "string"
-                },
-                "rating": {
-                    "type": "integer",
-                    "maximum": 5,
-                    "minimum": 1
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
         "UpdateAttributeValueData": {
             "type": "object",
-            "required": [
-                "value"
-            ],
             "properties": {
                 "value": {
                     "type": "string"
@@ -3709,9 +3270,6 @@ const docTemplate = `{
         },
         "UpdateCartItemData": {
             "type": "object",
-            "required": [
-                "quantity"
-            ],
             "properties": {
                 "quantity": {
                     "type": "integer"
@@ -3728,23 +3286,20 @@ const docTemplate = `{
         },
         "UpdateOrderData": {
             "type": "object",
+            "required": [
+                "address",
+                "is_paid",
+                "status"
+            ],
             "properties": {
                 "address": {
                     "type": "string"
                 },
+                "is_paid": {
+                    "type": "boolean"
+                },
                 "status": {
-                    "enum": [
-                        "Pending",
-                        "Processing",
-                        "Shipped",
-                        "Delivered",
-                        "Cancelled"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/OrderStatus"
-                        }
-                    ]
+                    "$ref": "#/definitions/OrderStatus"
                 }
             }
         },
@@ -3784,22 +3339,6 @@ const docTemplate = `{
                 },
                 "quantity": {
                     "type": "integer"
-                }
-            }
-        },
-        "UpdateReviewData": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "imageUrl": {
-                    "type": "string"
-                },
-                "rating": {
-                    "type": "integer",
-                    "maximum": 5,
-                    "minimum": 1
                 }
             }
         },

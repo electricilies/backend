@@ -4,6 +4,7 @@ import (
 	"backend/internal/domain"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
 )
 
@@ -47,4 +48,23 @@ func (p *Product) CreateOptionsWithOptionValues(
 		options = append(options, *option)
 	}
 	return &options, nil
+}
+
+func (p *Product) FilterProductVariantsInProducts(
+	products []domain.Product,
+	productVariantIDs []uuid.UUID,
+) (*[]domain.ProductVariant, error) {
+	var filteredVariants []domain.ProductVariant
+	variantIDSet := make(map[uuid.UUID]struct{})
+	for _, id := range productVariantIDs {
+		variantIDSet[id] = struct{}{}
+	}
+	for _, product := range products {
+		for _, variant := range product.Variants {
+			if _, exists := variantIDSet[variant.ID]; exists {
+				filteredVariants = append(filteredVariants, variant)
+			}
+		}
+	}
+	return &filteredVariants, nil
 }

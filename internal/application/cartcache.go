@@ -8,17 +8,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// CartCache defines the interface for cart caching operations
 type CartCache interface {
-	// GetCart retrieves a cached cart by ID
-	GetCart(ctx context.Context, cartID uuid.UUID) (*http.CartResponseDto, error)
+	Get(ctx context.Context, param CartCacheParam) (*http.CartResponseDto, error)
+	Set(ctx context.Context, param CartCacheParam, cart *http.CartResponseDto) error
+	Invalidate(ctx context.Context, param CartCacheParam) error
+	InvalidateAlls(ctx context.Context) error
+}
 
-	// SetCart caches a cart with the specified TTL in seconds
-	SetCart(ctx context.Context, cartID uuid.UUID, cart *http.CartResponseDto) error
-
-	// InvalidateCart removes the cached cart by ID
-	InvalidateCart(ctx context.Context, cartID uuid.UUID) error
-
-	// InvalidateUserCart removes the cached cart for a specific user
-	InvalidateUserCart(ctx context.Context, userID uuid.UUID) error
+type CartCacheParam struct {
+	ID uuid.UUID
 }

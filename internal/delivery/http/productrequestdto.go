@@ -69,9 +69,9 @@ type UpdateProductRequestDto struct {
 }
 
 type UpdateProductData struct {
-	Name        string    `json:"name,omitempty"`
-	Description string    `json:"description,omitempty"`
-	CategoryID  uuid.UUID `json:"categoryId,omitempty"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CategoryID  uuid.UUID `json:"categoryId"`
 }
 
 type GetProductRequestDto struct {
@@ -117,8 +117,8 @@ type UpdateProductVariantRequestDto struct {
 }
 
 type UpdateProductVariantData struct {
-	Price    int64 `json:"price,omitempty"`
-	Quantity int   `json:"quantity,omitempty"`
+	Price    int64 `json:"price"`
+	Quantity int   `json:"quantity"`
 }
 
 type UpdateProductOptionsRequestDto struct {
@@ -127,8 +127,8 @@ type UpdateProductOptionsRequestDto struct {
 }
 
 type UpdateProductOptionsData struct {
-	ID   uuid.UUID `json:"id"             binding:"required"`
-	Name string    `json:"name,omitempty"`
+	ID   uuid.UUID `json:"id"   binding:"required"`
+	Name string    `json:"name"`
 }
 
 type UpdateProductOptionValuesRequestDto struct {
@@ -138,6 +138,6 @@ type UpdateProductOptionValuesRequestDto struct {
 }
 
 type UpdateProductOptionValuesData struct {
-	ID    uuid.UUID `json:"id"              binding:"required"`
-	Value string    `json:"value,omitempty"`
+	ID    uuid.UUID `json:"id"    binding:"required"`
+	Value string    `json:"value"`
 }

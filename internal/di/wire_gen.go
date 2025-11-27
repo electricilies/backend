@@ -57,19 +57,14 @@ func InitializeServer(ctx context.Context) *http.Server {
 	attributeHandlerImpl := http.ProvideAttributeHandler(applicationAttribute)
 	order := repositorypostgres.ProvideOrder(queries)
 	serviceOrder := service.ProvideOrder(validate)
-	applicationOrder := application.ProvideOrder(order, serviceOrder)
+	applicationOrder := application.ProvideOrder(order, serviceOrder, repositorypostgresProduct, serviceProduct)
 	orderHandlerImpl := http.ProvideOrderHandler(applicationOrder)
-	review := repositorypostgres.ProvideReview(queries)
-	serviceReview := service.ProvideReview(validate)
-	cacheredisReview := cacheredis.ProvideReview(redisClient)
-	applicationReview := application.ProvideReview(review, serviceReview, cacheredisReview)
-	reviewHandlerImpl := http.ProvideReviewHandler(applicationReview)
 	cart := repositorypostgres.ProvideCart(queries, pool)
 	serviceCart := service.ProvideCart(validate)
 	cacheredisCart := cacheredis.ProvideCart(redisClient)
 	applicationCart := application.ProvideCart(cart, serviceCart, cacheredisCart, repositorypostgresProduct)
 	cartHandlerImpl := http.ProvideCartHandler(applicationCart)
-	ginRouter := http.ProvideRouter(healthHandlerImpl, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, categoryHandlerImpl, productHandlerImpl, attributeHandlerImpl, orderHandlerImpl, reviewHandlerImpl, cartHandlerImpl)
+	ginRouter := http.ProvideRouter(healthHandlerImpl, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, categoryHandlerImpl, productHandlerImpl, attributeHandlerImpl, orderHandlerImpl, cartHandlerImpl)
 	authHandlerImpl := http.ProvideAuthHandler(server)
 	httpServer := http.NewServer(engine, ginRouter, server, authHandlerImpl)
 	return httpServer
@@ -100,9 +95,6 @@ var ServiceSet = wire.NewSet(service.ProvideAttribute, wire.Bind(
 ), service.ProvideProduct, wire.Bind(
 	new(domain.ProductService),
 	new(*service.Product),
-), service.ProvideReview, wire.Bind(
-	new(domain.ReviewService),
-	new(*service.Review),
 ),
 )
 
@@ -121,30 +113,27 @@ var MiddlewareSet = wire.NewSet(http.ProvideAuthMiddleware, wire.Bind(
 ),
 )
 
-var HandlerSet = wire.NewSet(http.ProvideAttributeHandler, wire.Bind(
-	new(http.AttributeHandler),
-	new(*http.AttributeHandlerImpl),
-), http.ProvideAuthHandler, wire.Bind(
+var HandlerSet = wire.NewSet(http.ProvideAuthHandler, wire.Bind(
 	new(http.AuthHandler),
 	new(*http.AuthHandlerImpl),
-), http.ProvideCategoryHandler, wire.Bind(
-	new(http.CategoryHandler),
-	new(*http.CategoryHandlerImpl),
 ), http.ProvideHealthHandler, wire.Bind(
 	new(http.HealthHandler),
 	new(*http.HealthHandlerImpl),
-), http.ProvideOrderHandler, wire.Bind(
-	new(http.OrderHandler),
-	new(*http.OrderHandlerImpl),
+), http.ProvideAttributeHandler, wire.Bind(
+	new(http.AttributeHandler),
+	new(*http.AttributeHandlerImpl),
+), http.ProvideCategoryHandler, wire.Bind(
+	new(http.CategoryHandler),
+	new(*http.CategoryHandlerImpl),
 ), http.ProvideProductHandler, wire.Bind(
 	new(http.ProductHandler),
 	new(*http.ProductHandlerImpl),
-), http.ProvideReviewHandler, wire.Bind(
-	new(http.ReviewHandler),
-	new(*http.ReviewHandlerImpl),
 ), http.ProvideCartHandler, wire.Bind(
 	new(http.CartHandler),
 	new(*http.CartHandlerImpl),
+), http.ProvideOrderHandler, wire.Bind(
+	new(http.OrderHandler),
+	new(*http.OrderHandlerImpl),
 ),
 )
 
@@ -163,9 +152,6 @@ var ApplicationSet = wire.NewSet(application.ProvideAttribute, wire.Bind(
 ), application.ProvideProduct, wire.Bind(
 	new(http.ProductApplication),
 	new(*application.Product),
-), application.ProvideReview, wire.Bind(
-	new(http.ReviewApplication),
-	new(*application.Review),
 ),
 )
 
@@ -184,9 +170,6 @@ var RepositorySet = wire.NewSet(repositorypostgres.ProvideAttribute, wire.Bind(
 ), repositorypostgres.ProvideProduct, wire.Bind(
 	new(domain.ProductRepository),
 	new(*repositorypostgres.Product),
-), repositorypostgres.ProvideReview, wire.Bind(
-	new(domain.ReviewRepository),
-	new(*repositorypostgres.Review),
 ),
 )
 
@@ -201,9 +184,6 @@ var ClientSet = wire.NewSet(client.NewKeycloak, client.NewRedis, client.NewS3, c
 var CacheSet = wire.NewSet(cacheredis.ProvideProduct, wire.Bind(
 	new(application.ProductCache),
 	new(*cacheredis.Product),
-), cacheredis.ProvideReview, wire.Bind(
-	new(application.ReviewCache),
-	new(*cacheredis.Review),
 ), cacheredis.ProvideCategory, wire.Bind(
 	new(application.CategoryCache),
 	new(*cacheredis.Category),

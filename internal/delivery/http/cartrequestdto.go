@@ -38,7 +38,7 @@ type UpdateCartItemRequestDto struct {
 }
 
 type UpdateCartItemData struct {
-	Quantity int `json:"quantity" binding:"required"`
+	Quantity int `json:"quantity"`
 }
 
 type DeleteCartItemRequestDto struct {

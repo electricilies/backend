@@ -180,39 +180,3 @@ func (h *OrderHandlerImpl) Update(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, order)
 }
-
-// DeleteOrder godoc
-//
-//	@Summary		Delete order
-//	@Description	Delete an order by ID
-//	@Tags			Order
-//	@Accept			json
-//	@Produce		json
-//	@Param			order_id	path	int	true	"Order ID"	format(uuid)
-//	@Success		204
-//	@Failure		404	{object}	Error
-//	@Failure		500	{object}	Error
-//	@Router			/orders/{order_id} [delete]
-//	@Security		OAuth2AccessCode
-//	@Security		OAuth2Password
-func (h *OrderHandlerImpl) Delete(ctx *gin.Context) {
-	orderIDString := ctx.Param("order_id")
-	if orderIDString == "" {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredOrderID))
-		return
-	}
-	orderID, err := uuid.Parse(orderIDString)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidOrderID))
-		return
-	}
-
-	err = h.orderApp.Delete(ctx, DeleteOrderRequestDto{
-		OrderID: orderID,
-	})
-	if err != nil {
-		SendError(ctx, err)
-		return
-	}
-	ctx.Status(http.StatusNoContent)
-}

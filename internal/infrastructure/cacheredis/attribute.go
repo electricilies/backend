@@ -3,22 +3,20 @@ package cacheredis
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"sort"
+	"strings"
 	"time"
 
 	"backend/internal/application"
 	"backend/internal/delivery/http"
-	"backend/internal/domain"
-
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
-// Attribute implements application.Attribute interface using Redis
 type Attribute struct {
 	redisClient *redis.Client
 }
 
-// ProvideAttribute creates a new AttributeCache instance
 func ProvideAttribute(redisClient *redis.Client) *Attribute {
 	return &Attribute{
 		redisClient: redisClient,
@@ -27,213 +25,214 @@ func ProvideAttribute(redisClient *redis.Client) *Attribute {
 
 var _ application.AttributeCache = (*Attribute)(nil)
 
-// GetAttribute retrieves a cached attribute by ID
-func (c *Attribute) GetAttribute(ctx context.Context, attributeID uuid.UUID) (*http.AttributeResponseDto, error) {
-	if c.redisClient == nil {
-		return nil, redis.Nil
+func (a *Attribute) Get(
+	ctx context.Context,
+	param application.AttributeCacheParam,
+) (*http.AttributeResponseDto, error) {
+	if a.redisClient == nil {
+		return nil, toDomainError(ErrClientNil)
 	}
-
-	cacheKey := AttributeGetKey(attributeID)
-	cachedData, err := c.redisClient.Get(ctx, cacheKey).Result()
+	key := a.getKey(param)
+	data, err := a.redisClient.Get(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
-
-	if cachedData == "" {
+	if data == "" {
 		return nil, redis.Nil
 	}
-
-	var attribute http.AttributeResponseDto
-	if err := json.Unmarshal([]byte(cachedData), &attribute); err != nil {
+	var result http.AttributeResponseDto
+	if err := json.Unmarshal([]byte(data), &result); err != nil {
 		return nil, err
 	}
-
-	return &attribute, nil
+	return &result, nil
 }
 
-// SetAttribute caches an attribute with the specified TTL in seconds
-func (c *Attribute) SetAttribute(ctx context.Context, attributeID uuid.UUID, attribute *http.AttributeResponseDto) error {
-	if c.redisClient == nil {
-		return nil
+func (a *Attribute) Set(
+	ctx context.Context,
+	param application.AttributeCacheParam,
+	attribute *http.AttributeResponseDto,
+) error {
+	if a.redisClient == nil {
+		return toDomainError(ErrClientNil)
 	}
-
-	cacheKey := AttributeGetKey(attributeID)
+	key := a.getKey(param)
 	data, err := json.Marshal(attribute)
 	if err != nil {
 		return err
 	}
-
-	return c.redisClient.Set(ctx, cacheKey, data, time.Duration(CacheTTLAttribute)*time.Second).Err()
+	return a.redisClient.Set(ctx, key, data, time.Duration(CacheTTLAttribute)*time.Second).Err()
 }
 
-// GetAttributeList retrieves a cached attribute list pagination result
-func (c *Attribute) GetAttributeList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[http.AttributeResponseDto], error) {
-	if c.redisClient == nil {
-		return nil, redis.Nil
+func (a *Attribute) Invalidate(
+	ctx context.Context,
+	param application.AttributeCacheParam,
+) error {
+	if a.redisClient == nil {
+		return toDomainError(ErrClientNil)
 	}
+	key := a.getKey(param)
+	return a.redisClient.Del(ctx, key).Err()
+}
 
-	cachedData, err := c.redisClient.Get(ctx, cacheKey).Result()
+func (a *Attribute) GetList(
+	ctx context.Context,
+	param application.AttributeCacheListParam,
+) (*http.PaginationResponseDto[http.AttributeResponseDto], error) {
+	if a.redisClient == nil {
+		return nil, toDomainError(ErrClientNil)
+	}
+	key := a.getListKey(param)
+	data, err := a.redisClient.Get(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
-
-	if cachedData == "" {
+	if data == "" {
 		return nil, redis.Nil
 	}
-
-	var pagination http.PaginationResponseDto[http.AttributeResponseDto]
-	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
+	var result http.PaginationResponseDto[http.AttributeResponseDto]
+	if err := json.Unmarshal([]byte(data), &result); err != nil {
 		return nil, err
 	}
-
-	return &pagination, nil
+	return &result, nil
 }
 
-// SetAttributeList caches an attribute list pagination result with the specified TTL in seconds
-func (c *Attribute) SetAttributeList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[http.AttributeResponseDto]) error {
-	if c.redisClient == nil {
-		return nil
+func (a *Attribute) SetList(
+	ctx context.Context,
+	param application.AttributeCacheListParam,
+	pagination *http.PaginationResponseDto[http.AttributeResponseDto],
+) error {
+	if a.redisClient == nil {
+		return toDomainError(ErrClientNil)
 	}
-
+	key := a.getListKey(param)
 	data, err := json.Marshal(pagination)
 	if err != nil {
 		return err
 	}
-
-	return c.redisClient.Set(ctx, cacheKey, data, time.Duration(CacheTTLAttribute)*time.Second).Err()
+	return a.redisClient.Set(ctx, key, data, time.Duration(CacheTTLAttribute)*time.Second).Err()
 }
 
-// GetAttributeValueList retrieves a cached attribute value list pagination result
-func (c *Attribute) GetAttributeValueList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[http.AttributeValueResponseDto], error) {
-	if c.redisClient == nil {
-		return nil, redis.Nil
+func (a *Attribute) InvalidateList(
+	ctx context.Context,
+	param application.AttributeCacheListParam,
+) error {
+	if a.redisClient == nil {
+		return toDomainError(ErrClientNil)
 	}
+	key := a.getListKey(param)
+	return a.redisClient.Del(ctx, key).Err()
+}
 
-	cachedData, err := c.redisClient.Get(ctx, cacheKey).Result()
+func (a *Attribute) GetValueList(
+	ctx context.Context,
+	param application.AttributeCacheValueListParam,
+) (*http.PaginationResponseDto[http.AttributeValueResponseDto], error) {
+	if a.redisClient == nil {
+		return nil, toDomainError(ErrClientNil)
+	}
+	key := a.getValueListKey(param)
+	data, err := a.redisClient.Get(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
-
-	if cachedData == "" {
+	if data == "" {
 		return nil, redis.Nil
 	}
-
-	var pagination http.PaginationResponseDto[http.AttributeValueResponseDto]
-	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
+	var result http.PaginationResponseDto[http.AttributeValueResponseDto]
+	if err := json.Unmarshal([]byte(data), &result); err != nil {
 		return nil, err
 	}
-
-	return &pagination, nil
+	return &result, nil
 }
 
-// SetAttributeValueList caches an attribute value list pagination result with the specified TTL in seconds
-func (c *Attribute) SetAttributeValueList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[http.AttributeValueResponseDto]) error {
-	if c.redisClient == nil {
-		return nil
+func (a *Attribute) SetValueList(
+	ctx context.Context,
+	param application.AttributeCacheValueListParam,
+	pagination *http.PaginationResponseDto[http.AttributeValueResponseDto],
+) error {
+	if a.redisClient == nil {
+		return toDomainError(ErrClientNil)
 	}
-
+	key := a.getValueListKey(param)
 	data, err := json.Marshal(pagination)
 	if err != nil {
 		return err
 	}
-
-	return c.redisClient.Set(ctx, cacheKey, data, time.Duration(CacheTTLAttributeValue)*time.Second).Err()
+	return a.redisClient.Set(ctx, key, data, time.Duration(CacheTTLAttributeValue)*time.Second).Err()
 }
 
-// InvalidateAttribute removes the cached attribute by ID
-func (c *Attribute) InvalidateAttribute(ctx context.Context, attributeID uuid.UUID) error {
-	if c.redisClient == nil {
-		return nil
+func (a *Attribute) InvalidateValueList(
+	ctx context.Context,
+	param application.AttributeCacheValueListParam,
+) error {
+	if a.redisClient == nil {
+		return toDomainError(ErrClientNil)
 	}
-
-	cacheKey := AttributeGetKey(attributeID)
-	return c.redisClient.Del(ctx, cacheKey).Err()
+	key := a.getValueListKey(param)
+	return a.redisClient.Del(ctx, key).Err()
 }
 
-// InvalidateAttributeList removes all cached attribute list entries
-func (c *Attribute) InvalidateAttributeList(ctx context.Context) error {
-	if c.redisClient == nil {
-		return nil
+func (a *Attribute) InvalidateAlls(
+	ctx context.Context,
+) error {
+	if a.redisClient == nil {
+		return toDomainError(ErrClientNil)
 	}
-
-	iter := c.redisClient.Scan(ctx, 0, AttributeListPrefix+"*", 0).Iterator()
-	for iter.Next(ctx) {
-		if err := c.redisClient.Del(ctx, iter.Val()).Err(); err != nil {
+	patterns := []string{
+		AttributeGetPrefix + "*",
+		AttributeListPrefix + "*",
+		AttributeValueListPrefix + "*",
+	}
+	for _, pattern := range patterns {
+		iter := a.redisClient.Scan(ctx, 0, pattern, 0).Iterator()
+		for iter.Next(ctx) {
+			a.redisClient.Del(ctx, iter.Val())
+		}
+		if err := iter.Err(); err != nil {
 			return err
 		}
 	}
-	return iter.Err()
+	return nil
 }
 
-// InvalidateAttributeValueList removes all cached attribute value list entries
-func (c *Attribute) InvalidateAttributeValueList(ctx context.Context) error {
-	if c.redisClient == nil {
-		return nil
-	}
+func (a *Attribute) getKey(param application.AttributeCacheParam) string {
+	return fmt.Sprintf("%s%s", AttributeGetPrefix, param.ID.String())
+}
 
-	iter := c.redisClient.Scan(ctx, 0, AttributeValueListPrefix+"*", 0).Iterator()
-	for iter.Next(ctx) {
-		if err := c.redisClient.Del(ctx, iter.Val()).Err(); err != nil {
-			return err
+func (a *Attribute) getListKey(param application.AttributeCacheListParam) string {
+	var parts []string
+	if len(param.IDs) > 0 {
+		ids := make([]string, len(param.IDs))
+		for i, id := range param.IDs {
+			ids[i] = id.String()
 		}
+		sort.Strings(ids)
+		parts = append(parts, fmt.Sprintf("ids:%s", strings.Join(ids, ",")))
 	}
-	return iter.Err()
+	if param.Search != "" {
+		parts = append(parts, fmt.Sprintf("search:%s", param.Search))
+	}
+	parts = append(parts, fmt.Sprintf("deleted:%s", param.Deleted))
+	parts = append(parts, fmt.Sprintf("limit:%d", param.Limit))
+	parts = append(parts, fmt.Sprintf("page:%d", param.Page))
+	return fmt.Sprintf("%s%s", AttributeListPrefix, strings.Join(parts, ":"))
 }
 
-// InvalidateAllAttributes removes all attribute-related caches (attribute, list, and value list)
-func (c *Attribute) InvalidateAllAttributes(ctx context.Context) error {
-	if c.redisClient == nil {
-		return nil
-	}
-
-	// Invalidate attribute get caches
-	iter := c.redisClient.Scan(ctx, 0, AttributeGetPrefix+"*", 0).Iterator()
-	for iter.Next(ctx) {
-		if err := c.redisClient.Del(ctx, iter.Val()).Err(); err != nil {
-			return err
+func (a *Attribute) getValueListKey(param application.AttributeCacheValueListParam) string {
+	var parts []string
+	parts = append(parts, fmt.Sprintf("attr:%s", param.ID.String()))
+	if len(param.ValueIDs) > 0 {
+		ids := make([]string, len(param.ValueIDs))
+		for i, id := range param.ValueIDs {
+			ids[i] = id.String()
 		}
+		sort.Strings(ids)
+		parts = append(parts, fmt.Sprintf("ids:%s", strings.Join(ids, ",")))
 	}
-	if err := iter.Err(); err != nil {
-		return err
+	if param.Search != "" {
+		parts = append(parts, fmt.Sprintf("search:%s", param.Search))
 	}
-
-	// Invalidate attribute list caches
-	if err := c.InvalidateAttributeList(ctx); err != nil {
-		return err
-	}
-
-	// Invalidate attribute value list caches
-	return c.InvalidateAttributeValueList(ctx)
-}
-
-// BuildListCacheKey builds a cache key for attribute list queries
-func (c *Attribute) BuildListCacheKey(
-	ids *[]uuid.UUID,
-	search *string,
-	deleted domain.DeletedParam,
-	limit, page int,
-) string {
-	return AttributeListKey(
-		ids,
-		search,
-		deleted,
-		limit,
-		page,
-	)
-}
-
-// BuildValueListCacheKey builds a cache key for attribute value list queries
-func (c *Attribute) BuildValueListCacheKey(
-	attributeID uuid.UUID,
-	valueIDs *[]uuid.UUID,
-	search *string,
-	limit, page int,
-) string {
-	return AttributeValueListKey(
-		attributeID,
-		valueIDs,
-		search,
-		limit,
-		page,
-	)
+	parts = append(parts, fmt.Sprintf("limit:%d", param.Limit))
+	parts = append(parts, fmt.Sprintf("page:%d", param.Page))
+	return fmt.Sprintf("%s%s", AttributeValueListPrefix, strings.Join(parts, ":"))
 }

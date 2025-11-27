@@ -39,7 +39,7 @@ func (r *Category) List(
 		Offset:  int32(params.Offset),
 	})
 	if err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 	result := make([]domain.Category, 0, len(categories))
 	for _, cat := range categories {
@@ -60,7 +60,7 @@ func (r *Category) Get(ctx context.Context, params domain.CategoryRepositoryGetP
 		Deleted: string(domain.DeletedExcludeParam),
 	})
 	if err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 	result := domain.Category{
 		ID:        cat.ID,

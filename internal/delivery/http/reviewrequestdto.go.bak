@@ -33,9 +33,9 @@ type UpdateReviewRequestDto struct {
 }
 
 type UpdateReviewData struct {
-	Rating   int    `json:"rating,omitempty"   binding:"omitempty,gte=1,lte=5"`
-	Content  string `json:"content,omitempty"`
-	ImageURL string `json:"imageUrl,omitempty" binding:"omitempty,url"`
+	Rating   int    `json:"rating"   binding:"omitempty,gte=1,lte=5"`
+	Content  string `json:"content"`
+	ImageURL string `json:"imageUrl" binding:"omitempty,url"`
 }
 
 type GetReviewRequestDto struct {

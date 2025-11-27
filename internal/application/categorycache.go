@@ -8,29 +8,22 @@ import (
 	"github.com/google/uuid"
 )
 
-// CategoryCache defines the interface for category caching operations
 type CategoryCache interface {
-	// GetCategory retrieves a cached category by ID
-	GetCategory(ctx context.Context, categoryID uuid.UUID) (*http.CategoryResponseDto, error)
+	Get(ctx context.Context, param CategoryCacheParam) (*http.CategoryResponseDto, error)
+	Set(ctx context.Context, param CategoryCacheParam, category *http.CategoryResponseDto) error
+	Invalidate(ctx context.Context, param CategoryCacheParam) error
+	GetList(ctx context.Context, param CategoryCacheListParam) (*http.PaginationResponseDto[http.CategoryResponseDto], error)
+	SetList(ctx context.Context, param CategoryCacheListParam, pagination *http.PaginationResponseDto[http.CategoryResponseDto]) error
+	InvalidateList(ctx context.Context, param CategoryCacheListParam) error
+	InvalidateAlls(ctx context.Context) error
+}
 
-	// SetCategory caches a category with the specified TTL in seconds
-	SetCategory(ctx context.Context, categoryID uuid.UUID, category *http.CategoryResponseDto) error
+type CategoryCacheParam struct {
+	ID uuid.UUID
+}
 
-	// GetCategoryList retrieves a cached category list pagination result
-	GetCategoryList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[http.CategoryResponseDto], error)
-
-	// SetCategoryList caches a category list pagination result with the specified TTL in seconds
-	SetCategoryList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[http.CategoryResponseDto]) error
-
-	// InvalidateCategory removes the cached category by ID
-	InvalidateCategory(ctx context.Context, categoryID uuid.UUID) error
-
-	// InvalidateCategoryList removes all cached category list entries
-	InvalidateCategoryList(ctx context.Context) error
-
-	// BuildListCacheKey builds a cache key for category list queries
-	BuildListCacheKey(
-		search *string,
-		limit, page int,
-	) string
+type CategoryCacheListParam struct {
+	Search string
+	Limit  int
+	Page   int
 }

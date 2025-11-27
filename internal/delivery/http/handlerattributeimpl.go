@@ -248,7 +248,7 @@ func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 //	@Failure		404				{object}	Error
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
-//	@Router			/attributes/{attribute_id} [patch]
+//	@Router			/attributes/{attribute_id} [put]
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Update(ctx *gin.Context) {

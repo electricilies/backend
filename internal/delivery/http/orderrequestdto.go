@@ -19,17 +19,15 @@ type CreateOrderRequestDto struct {
 }
 
 type CreateOrderData struct {
-	Address     string                `json:"address"     binding:"required"`
-	Provider    domain.OrderProvider  `json:"provider"    binding:"required,oneof=COD VNPAY MOMO ZALOPAY"`
-	Items       []CreateOrderItemData `json:"items"       binding:"required,dive"`
-	TotalAmount int64                 `json:"totalAmount" binding:"required"`
+	Address  string                `json:"address"  binding:"required"`
+	Provider domain.OrderProvider  `json:"provider" binding:"required"`
+	Items    []CreateOrderItemData `json:"items"    binding:"required,dive"`
 }
 
 type CreateOrderItemData struct {
 	ProductID        uuid.UUID `json:"productId"        binding:"required"`
 	ProductVariantID uuid.UUID `json:"productVariantId" binding:"required"`
 	Quantity         int       `json:"quantity"         binding:"required"`
-	Price            int64     `json:"price"            binding:"required"`
 }
 
 type UpdateOrderRequestDto struct {
@@ -38,8 +36,9 @@ type UpdateOrderRequestDto struct {
 }
 
 type UpdateOrderData struct {
-	Status  domain.OrderStatus `json:"status,omitempty"  binding:"omitempty,oneof=Pending Processing Shipped Delivered Cancelled"`
-	Address string             `json:"address,omitempty"`
+	Address string             `json:"address" binding:"required"`
+	Status  domain.OrderStatus `json:"status"  binding:"required"`
+	IsPaid  bool               `json:"is_paid" binding:"required"`
 }
 
 type GetOrderRequestDto struct {

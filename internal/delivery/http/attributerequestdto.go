@@ -40,7 +40,7 @@ type UpdateAttributeRequestDto struct {
 }
 
 type UpdateAttributeData struct {
-	Name string `json:"name,omitempty"`
+	Name string `json:"name"`
 }
 
 type DeleteAttributeRequestDto struct {
@@ -63,7 +63,7 @@ type UpdateAttributeValueRequestDto struct {
 }
 
 type UpdateAttributeValueData struct {
-	Value string `json:"value" binding:"required"`
+	Value string `json:"value"`
 }
 
 type DeleteAttributeValueRequestDto struct {

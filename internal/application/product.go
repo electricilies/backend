@@ -43,22 +43,21 @@ func ProvideProduct(
 var _ http.ProductApplication = (*Product)(nil)
 
 func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*http.PaginationResponseDto[http.ProductResponseDto], error) {
-	cacheKey := p.productCache.BuildListCacheKey(
-		&param.ProductIDs,
-		&param.Search,
-		&param.MinPrice,
-		&param.MaxPrice,
-		&param.Rating,
-		&param.CategoryIDs,
-		param.Deleted,
-		&param.SortRating,
-		&param.SortPrice,
-		param.Limit,
-		param.Page,
-	)
+	cacheParam := ProductCacheListParam{
+		IDs:         param.ProductIDs,
+		Search:      param.Search,
+		MinPrice:    param.MinPrice,
+		MaxPrice:    param.MaxPrice,
+		Rating:      param.Rating,
+		CategoryIDs: param.CategoryIDs,
+		Deleted:     param.Deleted,
+		SortRating:  param.SortRating,
+		SortPrice:   param.SortPrice,
+		Limit:       param.Limit,
+		Page:        param.Page,
+	}
 
-	// Try to get from cache
-	if cachedPagination, err := p.productCache.GetProductList(ctx, cacheKey); err == nil {
+	if cachedPagination, err := p.productCache.GetList(ctx, cacheParam); err == nil {
 		return cachedPagination, nil
 	}
 
@@ -133,16 +132,13 @@ func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*
 		return nil, err
 	}
 
-	// Map domain models to response DTOs
 	productDtos := make([]http.ProductResponseDto, 0, len(*products))
 	for _, product := range *products {
 		dto := http.ToProductResponseDto(&product)
 		if dto != nil {
-			// Merge category
 			if category, exists := categoryMap[product.CategoryID]; exists {
 				dto.WithCategory(category)
 			}
-			// Merge attributes
 			if attributes != nil {
 				dto.WithAttributes(*attributes, product.AttributeValueIDs)
 			}
@@ -157,16 +153,18 @@ func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*
 		param.Limit,
 	)
 
-	// Cache the result
-	_ = p.productCache.SetProductList(ctx, cacheKey, pagination)
+	_ = p.productCache.SetList(ctx, cacheParam, pagination)
 
 	return pagination, nil
 }
 
 func (p *Product) Get(ctx context.Context, param http.GetProductRequestDto) (*http.ProductResponseDto, error) {
-	if cachedProduct, err := p.productCache.GetProduct(ctx, param.ProductID); err == nil {
+	cacheParam := ProductCacheParam{ID: param.ProductID}
+
+	if cachedProduct, err := p.productCache.Get(ctx, cacheParam); err == nil {
 		return cachedProduct, nil
 	}
+
 	product, err := p.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: param.ProductID})
 	if err != nil {
 		return nil, err
@@ -194,7 +192,7 @@ func (p *Product) Get(ctx context.Context, param http.GetProductRequestDto) (*ht
 		*attributes,
 		product.AttributeValueIDs,
 	)
-	_ = p.productCache.SetProduct(ctx, param.ProductID, productDto)
+	_ = p.productCache.Set(ctx, cacheParam, productDto)
 
 	return productDto, nil
 }
@@ -306,7 +304,7 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 	if err != nil {
 		return nil, err
 	}
-	_ = p.productCache.InvalidateProductList(ctx)
+	_ = p.productCache.InvalidateAlls(ctx)
 
 	// Fetch the created product with all relations
 	var attributes *[]domain.Attribute
@@ -360,8 +358,7 @@ func (p *Product) Update(ctx context.Context, param http.UpdateProductRequestDto
 	if err != nil {
 		return nil, err
 	}
-	_ = p.productCache.InvalidateProduct(ctx, param.ProductID)
-	_ = p.productCache.InvalidateProductList(ctx)
+	_ = p.productCache.InvalidateAlls(ctx)
 
 	// Fetch attributes if any
 	var attributes *[]domain.Attribute
@@ -400,8 +397,7 @@ func (p *Product) Delete(ctx context.Context, param http.DeleteProductRequestDto
 	if err != nil {
 		return err
 	}
-	_ = p.productCache.InvalidateProduct(ctx, param.ProductID)
-	_ = p.productCache.InvalidateProductList(ctx)
+	_ = p.productCache.InvalidateAlls(ctx)
 	return nil
 }
 
@@ -427,8 +423,7 @@ func (p *Product) AddVariants(ctx context.Context, param http.AddProductVariants
 	if err != nil {
 		return nil, err
 	}
-	_ = p.productCache.InvalidateProduct(ctx, param.ProductID)
-	_ = p.productCache.InvalidateProductList(ctx)
+	_ = p.productCache.InvalidateAlls(ctx)
 	variantDtos := http.ToProductVariantResponseDtoList(variants)
 	return &variantDtos, nil
 }
@@ -457,7 +452,7 @@ func (p *Product) UpdateVariant(ctx context.Context, param http.UpdateProductVar
 		return nil, err
 	}
 	// Invalidate product list caches
-	_ = p.productCache.InvalidateProductList(ctx)
+	_ = p.productCache.InvalidateAlls(ctx)
 	return http.ToProductVariantResponseDto(variant), nil
 }
 
@@ -489,7 +484,7 @@ func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequ
 		return nil, err
 	}
 	// Invalidate product caches
-	_ = p.productCache.InvalidateAllProducts(ctx)
+	_ = p.productCache.InvalidateAlls(ctx)
 	imageDtos := http.ToProductImageResponseDtoList(images)
 	return &imageDtos, nil
 }
@@ -519,7 +514,7 @@ func (p *Product) DeleteImages(ctx context.Context, param http.DeleteProductImag
 	if err != nil {
 		return err
 	}
-	_ = p.productCache.InvalidateAllProducts(ctx)
+	_ = p.productCache.InvalidateAlls(ctx)
 	return nil
 }
 
@@ -546,7 +541,7 @@ func (p *Product) UpdateOptions(ctx context.Context, param http.UpdateProductOpt
 	if err != nil {
 		return nil, err
 	}
-	_ = p.productCache.InvalidateAllProducts(ctx)
+	_ = p.productCache.InvalidateAlls(ctx)
 	optionDtos := http.ToProductOptionResponseDtoList(options)
 	return &optionDtos, nil
 }
@@ -575,7 +570,7 @@ func (p *Product) UpdateOptionValues(ctx context.Context, param http.UpdateProdu
 	if err != nil {
 		return nil, err
 	}
-	_ = p.productCache.InvalidateAllProducts(ctx)
+	_ = p.productCache.InvalidateAlls(ctx)
 	optionValueDtos := http.ToProductOptionValueResponseDtoList(optionValues)
 	return &optionValueDtos, nil
 }

@@ -5,108 +5,106 @@ import (
 
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
+
+	"github.com/google/uuid"
 )
 
 type Order struct {
-	orderRepo    domain.OrderRepository
-	orderService domain.OrderService
+	orderRepo      domain.OrderRepository
+	orderService   domain.OrderService
+	productRepo    domain.ProductRepository
+	productService domain.ProductService
 }
 
-func ProvideOrder(orderRepo domain.OrderRepository, orderService domain.OrderService) *Order {
+func ProvideOrder(
+	orderRepo domain.OrderRepository,
+	orderService domain.OrderService,
+	productRepo domain.ProductRepository,
+	productService domain.ProductService,
+) *Order {
 	return &Order{
-		orderRepo:    orderRepo,
-		orderService: orderService,
+		orderRepo:      orderRepo,
+		orderService:   orderService,
+		productRepo:    productRepo,
+		productService: productService,
 	}
 }
 
 var _ http.OrderApplication = &Order{}
 
-func (o *Order) Create(ctx context.Context, param http.CreateOrderRequestDto) (*domain.Order, error) {
-	// Convert CreateOrderItemData to OrderItems
+func (o *Order) Create(ctx context.Context, param http.CreateOrderRequestDto) (*http.OrderResponseDto, error) {
+	productIDs := make([]uuid.UUID, 0, len(param.Data.Items))
+	for _, item := range param.Data.Items {
+		productIDs = append(productIDs, item.ProductID)
+	}
+	productVariantIDs := make([]uuid.UUID, 0, len(param.Data.Items))
+	for _, item := range param.Data.Items {
+		productVariantIDs = append(productVariantIDs, item.ProductVariantID)
+	}
+	products, err := o.productRepo.List(ctx, domain.ProductRepositoryListParam{
+		IDs: productIDs,
+	})
+	if err != nil {
+		return nil, err
+	}
+	productVariants, err := o.productService.FilterProductVariantsInProducts(
+		*products,
+		productVariantIDs,
+	)
+	if err != nil {
+		return nil, err
+	}
+	productVariantIDProductVariantMap := make(map[uuid.UUID]domain.ProductVariant, len(*productVariants))
+	for _, variant := range *productVariants {
+		productVariantIDProductVariantMap[variant.ID] = variant
+	}
 	items := make([]domain.OrderItem, 0, len(param.Data.Items))
 	for _, itemData := range param.Data.Items {
-		item, err := o.orderService.CreateItem(
+		variant, ok := productVariantIDProductVariantMap[itemData.ProductVariantID]
+		if !ok {
+			return nil, domain.ErrNotFound
+		}
+		item, err := domain.NewOrderItem(
 			itemData.ProductID,
 			itemData.ProductVariantID,
 			itemData.Quantity,
-			itemData.Price,
+			variant.Price,
 		)
 		if err != nil {
 			return nil, err
 		}
 		items = append(items, *item)
 	}
-
-	order, err := o.orderService.Create(
+	order, err := domain.NewOrder(
 		param.UserID,
 		param.Data.Address,
 		param.Data.Provider,
-		param.Data.TotalAmount,
 		items,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	err = o.orderRepo.Save(ctx, *order)
+	err = o.orderRepo.Save(ctx, domain.OrderRepositorySaveParam{
+		Order: *order,
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	return order, nil
-}
-
-func (o *Order) Update(ctx context.Context, param http.UpdateOrderRequestDto) (*domain.Order, error) {
-	order, err := o.orderRepo.Get(ctx, param.OrderID)
-	if err != nil {
-		return nil, err
-	}
-
-	err = o.orderService.Update(order, param.Data.Status, param.Data.Address)
-	if err != nil {
-		return nil, err
-	}
-
-	err = o.orderRepo.Save(ctx, *order)
-	if err != nil {
-		return nil, err
-	}
-
-	return order, nil
-}
-
-func (o *Order) Get(ctx context.Context, param http.GetOrderRequestDto) (*domain.Order, error) {
-	order, err := o.orderRepo.Get(ctx, param.OrderID)
-	if err != nil {
-		return nil, err
-	}
-	return order, nil
-}
-
-func (o *Order) Delete(ctx context.Context, param http.DeleteOrderRequestDto) error {
-	order, err := o.orderRepo.Get(ctx, param.OrderID)
-	if err != nil {
-		return err
-	}
-
-	// Mark as deleted or set appropriate status
-	// Since there's no Remove method, we'll need to use Save with updated state
-	// This assumes the domain model has a DeletedAt field or similar
-	// For now, just return the order unchanged to match the Save signature
-	err = o.orderRepo.Save(ctx, *order)
-	return err
+	// TODO: map the order to OrderResponseDto, binding the products and variants into dto, then return
+	return nil, nil
 }
 
 func (o *Order) List(ctx context.Context, param http.ListOrderRequestDto) (*http.PaginationResponseDto[domain.Order], error) {
-	// TODO: OrderRepository.List uses search and deleted params, not userIDs and statusIDs
-	// We need to adapt the parameters
+	// TODO: Get the product and variant and link them to the response dto just like cart
 	orders, err := o.orderRepo.List(
 		ctx,
-		param.IDs,
-		nil, // search parameter - not in http.ListOrderRequestDto
-		domain.DeletedExcludeParam,
-		param.Limit,
-		param.Page,
+		domain.OrderRepositoryListParam{
+			IDs:     param.IDs,
+			Deleted: domain.DeletedExcludeParam,
+			Limit:   param.Limit,
+			Offset:  (param.Page - 1) * param.Limit,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -114,8 +112,10 @@ func (o *Order) List(ctx context.Context, param http.ListOrderRequestDto) (*http
 
 	count, err := o.orderRepo.Count(
 		ctx,
-		param.IDs,
-		domain.DeletedExcludeParam,
+		domain.OrderRepositoryCountParam{
+			IDs:     param.IDs,
+			Deleted: domain.DeletedExcludeParam,
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -128,4 +128,44 @@ func (o *Order) List(ctx context.Context, param http.ListOrderRequestDto) (*http
 		param.Limit,
 	)
 	return pagination, nil
+}
+
+func (o *Order) Get(ctx context.Context, param http.GetOrderRequestDto) (*http.OrderResponseDto, error) {
+	// TODO: Get the product and variant and link them to the response dto just like cart
+	_, err := o.orderRepo.Get(ctx, domain.OrderRepositoryGetParam{
+		ID: param.OrderID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	// TODO: map to response dto
+	return nil, nil
+}
+
+func (o *Order) Update(ctx context.Context, param http.UpdateOrderRequestDto) (*http.OrderResponseDto, error) {
+	// TODO: Get the product and variant and link them to the response dto just like cart
+	order, err := o.orderRepo.Get(ctx, domain.OrderRepositoryGetParam{
+		ID: param.OrderID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	order.Update(
+		param.Data.Address,
+		param.Data.Status,
+		param.Data.IsPaid,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	err = o.orderRepo.Save(ctx, domain.OrderRepositorySaveParam{
+		Order: *order,
+	})
+	if err != nil {
+		return nil, err
+	}
+	// TODO: map to response dto
+	return nil, nil
 }

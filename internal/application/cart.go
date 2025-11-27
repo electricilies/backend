@@ -28,8 +28,9 @@ func ProvideCart(cartRepo domain.CartRepository, cartService domain.CartService,
 var _ http.CartApplication = &Cart{}
 
 func (c *Cart) Get(ctx context.Context, param http.GetCartRequestDto) (*http.CartResponseDto, error) {
-	// Try to get from cache
-	if cachedCart, err := c.cartCache.GetCart(ctx, param.CartID); err == nil {
+	cacheParam := CartCacheParam{ID: param.CartID}
+
+	if cachedCart, err := c.cartCache.Get(ctx, cacheParam); err == nil {
 		return cachedCart, nil
 	}
 
@@ -45,12 +46,11 @@ func (c *Cart) Get(ctx context.Context, param http.GetCartRequestDto) (*http.Car
 
 	cartDto := http.ToCartResponseDto(cart)
 
-	// Enrich cart items with product and variant data
 	if err := c.enrichCartItems(ctx, cartDto, cart); err != nil {
 		return nil, err
 	}
 
-	_ = c.cartCache.SetCart(ctx, param.CartID, cartDto)
+	_ = c.cartCache.Set(ctx, cacheParam, cartDto)
 
 	return cartDto, nil
 }
@@ -68,7 +68,6 @@ func (c *Cart) GetByUser(ctx context.Context, param http.GetCartByUserRequestDto
 
 	cartDto := http.ToCartResponseDto(cart)
 
-	// Enrich cart items with product and variant data
 	if err := c.enrichCartItems(ctx, cartDto, cart); err != nil {
 		return nil, err
 	}
@@ -91,12 +90,12 @@ func (c *Cart) Create(ctx context.Context, param http.CreateCartRequestDto) (*ht
 
 	cartDto := http.ToCartResponseDto(cart)
 
-	// Enrich cart items with product and variant data (cart will be empty on creation)
 	if err := c.enrichCartItems(ctx, cartDto, cart); err != nil {
 		return nil, err
 	}
 
-	_ = c.cartCache.SetCart(ctx, cart.ID, cartDto)
+	cacheParam := CartCacheParam{ID: cart.ID}
+	_ = c.cartCache.Set(ctx, cacheParam, cartDto)
 
 	return cartDto, nil
 }
@@ -136,7 +135,7 @@ func (c *Cart) CreateItem(ctx context.Context, param http.CreateCartItemRequestD
 		return nil, err
 	}
 
-	_ = c.cartCache.InvalidateCart(ctx, param.CartID)
+	_ = c.cartCache.Invalidate(ctx, CartCacheParam{ID: param.CartID})
 
 	// Enrich the cart item with product and variant data
 	product, err := c.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: cartItem.ProductID})
@@ -182,7 +181,7 @@ func (c *Cart) UpdateItem(ctx context.Context, param http.UpdateCartItemRequestD
 	if cart.Items != nil {
 		for _, item := range cart.Items {
 			if item.ID == param.ItemID {
-				_ = c.cartCache.InvalidateCart(ctx, param.CartID)
+				_ = c.cartCache.Invalidate(ctx, CartCacheParam{ID: param.CartID})
 
 				// Enrich the cart item with product and variant data
 				product, err := c.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: item.ProductID})
@@ -229,12 +228,11 @@ func (c *Cart) DeleteItem(ctx context.Context, param http.DeleteCartItemRequestD
 		return err
 	}
 
-	_ = c.cartCache.InvalidateCart(ctx, param.CartID)
+	_ = c.cartCache.Invalidate(ctx, CartCacheParam{ID: param.CartID})
 
 	return nil
 }
 
-// enrichCartItems fetches product and variant data for all cart items
 func (c *Cart) enrichCartItems(ctx context.Context, cartDto *http.CartResponseDto, cart *domain.Cart) error {
 	if len(cart.Items) == 0 {
 		return nil

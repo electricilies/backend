@@ -14,7 +14,6 @@ type GinRouter struct {
 	productHandler   ProductHandler
 	attributeHandler AttributeHandler
 	orderHandler     OrderHandler
-	reviewHandler    ReviewHandler
 	cartHandler      CartHandler
 
 	healthHandler     HealthHandler
@@ -32,7 +31,6 @@ func ProvideRouter(
 	productHandler ProductHandler,
 	attributeHandler AttributeHandler,
 	orderHandler OrderHandler,
-	reviewHandler ReviewHandler,
 	cartHandler CartHandler,
 ) *GinRouter {
 	return &GinRouter{
@@ -44,7 +42,6 @@ func ProvideRouter(
 		productHandler:    productHandler,
 		attributeHandler:  attributeHandler,
 		orderHandler:      orderHandler,
-		reviewHandler:     reviewHandler,
 		cartHandler:       cartHandler,
 	}
 }
@@ -114,8 +111,7 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 			orders.GET("", r.orderHandler.List)
 			orders.POST("", r.orderHandler.Create)
 			orders.GET("/:order_id", r.orderHandler.Get)
-			orders.PATCH("/:order_id", r.orderHandler.Update)
-			orders.DELETE("/:order_id", r.orderHandler.Delete)
+			orders.PUT("/:order_id", r.orderHandler.Update)
 		}
 
 		// returnRequests := api.Group("/return-requests")
@@ -125,21 +121,21 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 		// 	returnRequests.GET("/:return_request_id", r.returnHandler.Get)
 		// 	returnRequests.PATCH("/:return_request_id", r.returnHandler.Update)
 		// }
-		//
+
 		// refunds := api.Group("/refunds")
 		// {
 		// 	refunds.GET("", r.refundHandler.List)
 		// 	refunds.GET("/:refund_id", r.refundHandler.Get)
 		// }
 
-		reviews := api.Group("/reviews")
-		{
-			reviews.Use(r.authMiddleware.Handler())
-			reviews.GET("", r.reviewHandler.List)
-			reviews.POST("", r.reviewHandler.Create)
-			reviews.GET("/:review_id", r.reviewHandler.Get)
-			reviews.PATCH("/:review_id", r.reviewHandler.Update)
-			reviews.DELETE("/:review_id", r.reviewHandler.Delete)
-		}
+		// reviews := api.Group("/reviews")
+		// {
+		// 	reviews.Use(r.authMiddleware.Handler())
+		// 	reviews.GET("", r.reviewHandler.List)
+		// 	reviews.POST("", r.reviewHandler.Create)
+		// 	reviews.GET("/:review_id", r.reviewHandler.Get)
+		// 	reviews.PATCH("/:review_id", r.reviewHandler.Update)
+		// 	reviews.DELETE("/:review_id", r.reviewHandler.Delete)
+		// }
 	}
 }

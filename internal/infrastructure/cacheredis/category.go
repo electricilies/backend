@@ -3,21 +3,19 @@ package cacheredis
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"backend/internal/application"
 	"backend/internal/delivery/http"
 
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
-// Category implements application.Category interface using Redis
 type Category struct {
 	redisClient *redis.Client
 }
 
-// ProvideCategory creates a new CategoryCache instance
 func ProvideCategory(redisClient *redis.Client) *Category {
 	return &Category{
 		redisClient: redisClient,
@@ -26,115 +24,135 @@ func ProvideCategory(redisClient *redis.Client) *Category {
 
 var _ application.CategoryCache = (*Category)(nil)
 
-// GetCategory retrieves a cached category by ID
-func (c *Category) GetCategory(ctx context.Context, categoryID uuid.UUID) (*http.CategoryResponseDto, error) {
+func (c *Category) Get(
+	ctx context.Context,
+	param application.CategoryCacheParam,
+) (*http.CategoryResponseDto, error) {
 	if c.redisClient == nil {
-		return nil, redis.Nil
+		return nil, toDomainError(ErrClientNil)
 	}
-
-	cacheKey := CategoryGetKey(categoryID)
-	cachedData, err := c.redisClient.Get(ctx, cacheKey).Result()
+	key := c.getKey(param)
+	data, err := c.redisClient.Get(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
-
-	if cachedData == "" {
+	if data == "" {
 		return nil, redis.Nil
 	}
-
-	var category http.CategoryResponseDto
-	if err := json.Unmarshal([]byte(cachedData), &category); err != nil {
+	var result http.CategoryResponseDto
+	if err := json.Unmarshal([]byte(data), &result); err != nil {
 		return nil, err
 	}
-
-	return &category, nil
+	return &result, nil
 }
 
-// SetCategory caches a category with the specified TTL in seconds
-func (c *Category) SetCategory(ctx context.Context, categoryID uuid.UUID, category *http.CategoryResponseDto) error {
+func (c *Category) Set(
+	ctx context.Context,
+	param application.CategoryCacheParam,
+	category *http.CategoryResponseDto,
+) error {
 	if c.redisClient == nil {
-		return nil
+		return toDomainError(ErrClientNil)
 	}
-
-	cacheKey := CategoryGetKey(categoryID)
+	key := c.getKey(param)
 	data, err := json.Marshal(category)
 	if err != nil {
 		return err
 	}
-
-	return c.redisClient.Set(ctx, cacheKey, data, time.Duration(CacheTTLCategory)*time.Second).Err()
+	return c.redisClient.Set(ctx, key, data, time.Duration(CacheTTLCategory)*time.Second).Err()
 }
 
-// GetCategoryList retrieves a cached category list pagination result
-func (c *Category) GetCategoryList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[http.CategoryResponseDto], error) {
+func (c *Category) Invalidate(
+	ctx context.Context,
+	param application.CategoryCacheParam,
+) error {
 	if c.redisClient == nil {
-		return nil, redis.Nil
+		return toDomainError(ErrClientNil)
 	}
+	key := c.getKey(param)
+	return c.redisClient.Del(ctx, key).Err()
+}
 
-	cachedData, err := c.redisClient.Get(ctx, cacheKey).Result()
+func (c *Category) GetList(
+	ctx context.Context,
+	param application.CategoryCacheListParam,
+) (*http.PaginationResponseDto[http.CategoryResponseDto], error) {
+	if c.redisClient == nil {
+		return nil, toDomainError(ErrClientNil)
+	}
+	key := c.getListKey(param)
+	data, err := c.redisClient.Get(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
-
-	if cachedData == "" {
+	if data == "" {
 		return nil, redis.Nil
 	}
-
-	var pagination http.PaginationResponseDto[http.CategoryResponseDto]
-	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
+	var result http.PaginationResponseDto[http.CategoryResponseDto]
+	if err := json.Unmarshal([]byte(data), &result); err != nil {
 		return nil, err
 	}
-
-	return &pagination, nil
+	return &result, nil
 }
 
-// SetCategoryList caches a category list pagination result with the specified TTL in seconds
-func (c *Category) SetCategoryList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[http.CategoryResponseDto]) error {
+func (c *Category) SetList(
+	ctx context.Context,
+	param application.CategoryCacheListParam,
+	pagination *http.PaginationResponseDto[http.CategoryResponseDto],
+) error {
 	if c.redisClient == nil {
-		return nil
+		return toDomainError(ErrClientNil)
 	}
-
+	key := c.getListKey(param)
 	data, err := json.Marshal(pagination)
 	if err != nil {
 		return err
 	}
-
-	return c.redisClient.Set(ctx, cacheKey, data, time.Duration(CacheTTLCategory)*time.Second).Err()
+	return c.redisClient.Set(ctx, key, data, time.Duration(CacheTTLCategory)*time.Second).Err()
 }
 
-// InvalidateCategory removes the cached category by ID
-func (c *Category) InvalidateCategory(ctx context.Context, categoryID uuid.UUID) error {
+func (c *Category) InvalidateList(
+	ctx context.Context,
+	param application.CategoryCacheListParam,
+) error {
 	if c.redisClient == nil {
-		return nil
+		return toDomainError(ErrClientNil)
 	}
-
-	cacheKey := CategoryGetKey(categoryID)
-	return c.redisClient.Del(ctx, cacheKey).Err()
+	key := c.getListKey(param)
+	return c.redisClient.Del(ctx, key).Err()
 }
 
-// InvalidateCategoryList removes all cached category list entries
-func (c *Category) InvalidateCategoryList(ctx context.Context) error {
+func (c *Category) InvalidateAlls(
+	ctx context.Context,
+) error {
 	if c.redisClient == nil {
-		return nil
+		return toDomainError(ErrClientNil)
 	}
-
-	iter := c.redisClient.Scan(ctx, 0, CategoryListPrefix+"*", 0).Iterator()
-	for iter.Next(ctx) {
-		if err := c.redisClient.Del(ctx, iter.Val()).Err(); err != nil {
+	patterns := []string{
+		CategoryGetPrefix + "*",
+		CategoryListPrefix + "*",
+	}
+	for _, pattern := range patterns {
+		iter := c.redisClient.Scan(ctx, 0, pattern, 0).Iterator()
+		for iter.Next(ctx) {
+			c.redisClient.Del(ctx, iter.Val())
+		}
+		if err := iter.Err(); err != nil {
 			return err
 		}
 	}
-	return iter.Err()
+	return nil
 }
 
-// BuildListCacheKey builds a cache key for category list queries
-func (c *Category) BuildListCacheKey(
-	search *string,
-	limit, page int,
-) string {
-	return CategoryListKey(
-		search,
-		limit,
-		page,
-	)
+func (c *Category) getKey(param application.CategoryCacheParam) string {
+	return fmt.Sprintf("%s%s", CategoryGetPrefix, param.ID.String())
+}
+
+func (c *Category) getListKey(param application.CategoryCacheListParam) string {
+	var parts string
+	if param.Search != "" {
+		parts = fmt.Sprintf("search:%s:", param.Search)
+	}
+	parts += fmt.Sprintf("limit:%d:page:%d", param.Limit, param.Page)
+	return fmt.Sprintf("%s%s", CategoryListPrefix, parts)
 }

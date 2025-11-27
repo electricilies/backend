@@ -3,21 +3,19 @@ package cacheredis
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"backend/internal/application"
 	"backend/internal/delivery/http"
 
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
-// Cart implements application.CartCache interface using Redis
 type Cart struct {
 	redisClient *redis.Client
 }
 
-// ProvideCart creates a new CartCache instance
 func ProvideCart(redisClient *redis.Client) *Cart {
 	return &Cart{
 		redisClient: redisClient,
@@ -26,67 +24,72 @@ func ProvideCart(redisClient *redis.Client) *Cart {
 
 var _ application.CartCache = (*Cart)(nil)
 
-// GetCart retrieves a cached cart by ID
-func (c *Cart) GetCart(ctx context.Context, cartID uuid.UUID) (*http.CartResponseDto, error) {
+func (c *Cart) Get(
+	ctx context.Context,
+	param application.CartCacheParam,
+) (*http.CartResponseDto, error) {
 	if c.redisClient == nil {
-		return nil, redis.Nil
+		return nil, toDomainError(ErrClientNil)
 	}
-
-	cacheKey := CartGetKey(cartID)
-	cachedData, err := c.redisClient.Get(ctx, cacheKey).Result()
+	key := c.getKey(param)
+	data, err := c.redisClient.Get(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
-
-	if cachedData == "" {
+	if data == "" {
 		return nil, redis.Nil
 	}
-
-	var cart http.CartResponseDto
-	if err := json.Unmarshal([]byte(cachedData), &cart); err != nil {
+	var result http.CartResponseDto
+	if err := json.Unmarshal([]byte(data), &result); err != nil {
 		return nil, err
 	}
-
-	return &cart, nil
+	return &result, nil
 }
 
-// SetCart caches a cart with the specified TTL in seconds
-func (c *Cart) SetCart(ctx context.Context, cartID uuid.UUID, cart *http.CartResponseDto) error {
+func (c *Cart) Set(
+	ctx context.Context,
+	param application.CartCacheParam,
+	cart *http.CartResponseDto,
+) error {
 	if c.redisClient == nil {
-		return nil
+		return toDomainError(ErrClientNil)
 	}
-
-	cacheKey := CartGetKey(cartID)
+	key := c.getKey(param)
 	data, err := json.Marshal(cart)
 	if err != nil {
 		return err
 	}
-
-	return c.redisClient.Set(ctx, cacheKey, data, time.Duration(CacheTTLCart)*time.Second).Err()
+	return c.redisClient.Set(ctx, key, data, time.Duration(CacheTTLCart)*time.Second).Err()
 }
 
-// InvalidateCart removes the cached cart by ID
-func (c *Cart) InvalidateCart(ctx context.Context, cartID uuid.UUID) error {
+func (c *Cart) Invalidate(
+	ctx context.Context,
+	param application.CartCacheParam,
+) error {
 	if c.redisClient == nil {
-		return nil
+		return toDomainError(ErrClientNil)
 	}
-
-	cacheKey := CartGetKey(cartID)
-	return c.redisClient.Del(ctx, cacheKey).Err()
+	key := c.getKey(param)
+	return c.redisClient.Del(ctx, key).Err()
 }
 
-// InvalidateUserCart removes the cached cart for a specific user
-func (c *Cart) InvalidateUserCart(ctx context.Context, userID uuid.UUID) error {
+func (c *Cart) InvalidateAlls(
+	ctx context.Context,
+) error {
 	if c.redisClient == nil {
-		return nil
+		return toDomainError(ErrClientNil)
 	}
-
-	// Scan and delete all cart entries for this user
-	iter := c.redisClient.Scan(ctx, 0, CartUserPrefix+userID.String()+"*", 0).Iterator()
+	pattern := CartGetPrefix + "*"
+	iter := c.redisClient.Scan(ctx, 0, pattern, 0).Iterator()
 	for iter.Next(ctx) {
-		if err := c.redisClient.Del(ctx, iter.Val()).Err(); err != nil {
-			return err
-		}
+		c.redisClient.Del(ctx, iter.Val())
 	}
-	return iter.Err()
+	if err := iter.Err(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Cart) getKey(param application.CartCacheParam) string {
+	return fmt.Sprintf("%s%s", CartGetPrefix, param.ID.String())
 }

@@ -9,12 +9,12 @@ import (
 type Order struct {
 	ID          uuid.UUID     `validate:"required"`
 	Address     string        `validate:"required"`
-	Provider    OrderProvider `validate:"required,oneof=COD VNPAY MOMO ZALOPAY"`
-	Status      OrderStatus   `validate:"required,oneof=Pending Processing Shipped Delivered Cancelled"`
+	Provider    OrderProvider `validate:"required"`
+	Status      OrderStatus   `validate:"required"`
 	IsPaid      bool          `validate:"required"`
 	CreatedAt   time.Time     `validate:"required"`
 	UpdatedAt   time.Time     `validate:"required,gtefield=CreatedAt"`
-	Items       []OrderItem   `validate:"omitempty,dive"`
+	Items       []OrderItem   `validate:"omitempty,order_total_amount,dive"`
 	TotalAmount int64         `validate:"required"`
 	UserID      uuid.UUID     `validate:"required"`
 }
@@ -56,17 +56,22 @@ func NewOrder(
 	if err != nil {
 		return nil, err
 	}
+	totalAmount := int64(0)
+	for _, item := range items {
+		totalAmount += item.Price * int64(item.Quantity)
+	}
 	now := time.Now()
 	return &Order{
-		ID:        id,
-		UserID:    userID,
-		Address:   address,
-		Provider:  provider,
-		Status:    OrderStatusPending,
-		IsPaid:    false,
-		CreatedAt: now,
-		UpdatedAt: now,
-		Items:     items,
+		ID:          id,
+		UserID:      userID,
+		Address:     address,
+		Provider:    provider,
+		Status:      OrderStatusPending,
+		IsPaid:      false,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+		Items:       items,
+		TotalAmount: totalAmount,
 	}, nil
 }
 
@@ -89,6 +94,25 @@ func NewOrderItem(
 	}, nil
 }
 
-func (o *Order) AddItems(items ...OrderItem) {
-	o.Items = append(o.Items, items...)
+func (o *Order) Update(
+	address string,
+	status OrderStatus,
+	isPaid bool,
+) {
+	updated := false
+	if o.Address != address {
+		o.Address = address
+		updated = true
+	}
+	if o.Status != status {
+		o.Status = status
+		updated = true
+	}
+	if o.IsPaid != isPaid {
+		o.IsPaid = isPaid
+		updated = true
+	}
+	if updated {
+		o.UpdatedAt = time.Now()
+	}
 }

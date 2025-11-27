@@ -57,13 +57,13 @@ func (r *Product) List(
 		Offset:      int32(params.Offset),
 	})
 	if err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 	products := make([]domain.Product, 0, len(productEntities))
 	for _, productEntity := range productEntities {
 		product, err := r.Get(ctx, domain.ProductRepositoryGetParam{ProductID: productEntity.ID})
 		if err != nil {
-			return nil, ToDomainError(err)
+			return nil, toDomainError(err)
 		}
 		products = append(products, *product)
 	}
@@ -91,7 +91,7 @@ func (r *Product) Count(
 		Deleted:     string(params.Deleted),
 	})
 	if err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 	return ptr.To(int(productEntities)), nil
 }
@@ -102,7 +102,7 @@ func (r *Product) Get(ctx context.Context, params domain.ProductRepositoryGetPar
 		ID: params.ProductID,
 	})
 	if err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 	product := &domain.Product{
 		ID:            productEntity.ID,
@@ -119,16 +119,16 @@ func (r *Product) Get(ctx context.Context, params domain.ProductRepositoryGetPar
 		DeletedAt:     productEntity.DeletedAt.Time,
 	}
 	if err := getAttributeValueIDs(ctx, *r.queries, product); err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 	if err := getOptionsAndValues(ctx, *r.queries, product); err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 	if err := getVariants(ctx, *r.queries, product); err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 	if err := getImages(ctx, *r.queries, product); err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 	return product, nil
 }
@@ -301,34 +301,34 @@ func getImages(
 func (r *Product) Save(ctx context.Context, params domain.ProductRepositorySaveParam) error {
 	tx, err := r.conn.Begin(ctx)
 	if err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	qtx := r.queries.WithTx(tx)
 	if err := upsertProduct(ctx, *qtx, params.Product); err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	if err := mergeAttributeValues(ctx, *qtx, params.Product); err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	if err := mergeOptions(ctx, *qtx, params.Product); err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	if err := mergeOptionValues(ctx, *qtx, params.Product); err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	if err := mergeVariants(ctx, *qtx, params.Product); err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	if err := mergeOptionValuesProductVariants(ctx, *qtx, params.Product); err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	if err := mergeImages(ctx, *qtx, params.Product); err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	err = tx.Commit(ctx)
 	if err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	return nil
 }

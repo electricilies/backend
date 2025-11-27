@@ -15,7 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-func ToDomainError(err error) error {
+func toDomainError(err error) error {
 	if err == nil {
 		return nil
 	}

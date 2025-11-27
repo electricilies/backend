@@ -50,7 +50,7 @@ func (r *Attribute) List(
 		Offset:            int32(params.Offset),
 	})
 	if err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 	attributeIDs := make([]uuid.UUID, 0, len(attributes))
 	for _, attr := range attributes {
@@ -61,7 +61,7 @@ func (r *Attribute) List(
 		Deleted:      string(params.Deleted),
 	})
 	if err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 	result := make([]domain.Attribute, 0, len(attributes))
 	for _, attribute := range attributes {
@@ -95,7 +95,7 @@ func (r *Attribute) ListValues(
 		},
 	)
 	if err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 	result := make([]domain.AttributeValue, 0, len(attributeValues))
 	for _, attrVal := range attributeValues {
@@ -125,7 +125,7 @@ func (r *Attribute) Get(ctx context.Context, params domain.AttributeRepositoryGe
 		ID: params.ID,
 	})
 	if err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 
 	attributeValues, err := r.ListValues(ctx, domain.AttributeRepositoryListValuesParam{
@@ -133,7 +133,7 @@ func (r *Attribute) Get(ctx context.Context, params domain.AttributeRepositoryGe
 		Deleted:     domain.DeletedExcludeParam,
 	})
 	if err != nil {
-		return nil, ToDomainError(err)
+		return nil, toDomainError(err)
 	}
 
 	result := domain.Attribute{
@@ -149,7 +149,7 @@ func (r *Attribute) Get(ctx context.Context, params domain.AttributeRepositoryGe
 func (r *Attribute) Save(ctx context.Context, params domain.AttributeRepositorySaveParam) error {
 	tx, err := r.conn.Begin(ctx)
 	if err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	qtx := r.queries.WithTx(tx)
@@ -163,23 +163,23 @@ func (r *Attribute) Save(ctx context.Context, params domain.AttributeRepositoryS
 		},
 	})
 	if err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	err = qtx.CreateTempTableAttributeValues(ctx)
 	if err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	_, err = qtx.InsertTempTableAttributeValues(ctx, buildInsertTempTableAttributeValuesParams(params.Attribute))
 	if err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	err = qtx.MergeAttributeValuesFromTemp(ctx)
 	if err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	err = tx.Commit(ctx)
 	if err != nil {
-		return ToDomainError(err)
+		return toDomainError(err)
 	}
 	return nil
 }

@@ -1,5 +1,7 @@
 package domain
 
+import "github.com/google/uuid"
+
 type ProductService interface {
 	Validate(
 		product Product,
@@ -8,4 +10,9 @@ type ProductService interface {
 	CreateOptionsWithOptionValues(
 		optionsWithOptionValues map[string][]string,
 	) (*[]Option, error)
+
+	FilterProductVariantsInProducts(
+		products []Product,
+		productVariantIDs []uuid.UUID,
+	) (*[]ProductVariant, error)
 }

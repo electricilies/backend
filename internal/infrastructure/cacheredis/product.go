@@ -3,22 +3,21 @@ package cacheredis
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"sort"
+	"strings"
 	"time"
 
 	"backend/internal/application"
 	"backend/internal/delivery/http"
-	"backend/internal/domain"
 
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
-// Product implements application.Product interface using Redis
 type Product struct {
 	redisClient *redis.Client
 }
 
-// ProvideProduct creates a new ProductCache instance
 func ProvideProduct(redisClient *redis.Client) *Product {
 	return &Product{
 		redisClient: redisClient,
@@ -27,152 +26,168 @@ func ProvideProduct(redisClient *redis.Client) *Product {
 
 var _ application.ProductCache = (*Product)(nil)
 
-// GetProduct retrieves a cached product by ID
-func (c *Product) GetProduct(ctx context.Context, productID uuid.UUID) (*http.ProductResponseDto, error) {
-	if c.redisClient == nil {
-		return nil, redis.Nil
+func (p *Product) Get(
+	ctx context.Context,
+	param application.ProductCacheParam,
+) (*http.ProductResponseDto, error) {
+	if p.redisClient == nil {
+		return nil, toDomainError(ErrClientNil)
 	}
-
-	cacheKey := ProductGetKey(productID)
-	cachedData, err := c.redisClient.Get(ctx, cacheKey).Result()
+	key := p.getKey(param)
+	data, err := p.redisClient.Get(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
-
-	if cachedData == "" {
+	if data == "" {
 		return nil, redis.Nil
 	}
-
-	var product http.ProductResponseDto
-	if err := json.Unmarshal([]byte(cachedData), &product); err != nil {
+	var result http.ProductResponseDto
+	if err := json.Unmarshal([]byte(data), &result); err != nil {
 		return nil, err
 	}
-
-	return &product, nil
+	return &result, nil
 }
 
-// SetProduct caches a product with the specified TTL in seconds
-func (c *Product) SetProduct(ctx context.Context, productID uuid.UUID, product *http.ProductResponseDto) error {
-	if c.redisClient == nil {
-		return nil
+func (p *Product) Set(
+	ctx context.Context,
+	param application.ProductCacheParam,
+	product *http.ProductResponseDto,
+) error {
+	if p.redisClient == nil {
+		return toDomainError(ErrClientNil)
 	}
-
-	cacheKey := ProductGetKey(productID)
+	key := p.getKey(param)
 	data, err := json.Marshal(product)
 	if err != nil {
 		return err
 	}
-
-	return c.redisClient.Set(ctx, cacheKey, data, time.Duration(CacheTTLProduct)*time.Second).Err()
+	return p.redisClient.Set(ctx, key, data, time.Duration(CacheTTLProduct)*time.Second).Err()
 }
 
-// GetProductList retrieves a cached product list pagination result
-func (c *Product) GetProductList(ctx context.Context, cacheKey string) (*http.PaginationResponseDto[http.ProductResponseDto], error) {
-	if c.redisClient == nil {
-		return nil, redis.Nil
+func (p *Product) Invalidate(
+	ctx context.Context,
+	param application.ProductCacheParam,
+) error {
+	if p.redisClient == nil {
+		return toDomainError(ErrClientNil)
 	}
+	key := p.getKey(param)
+	return p.redisClient.Del(ctx, key).Err()
+}
 
-	cachedData, err := c.redisClient.Get(ctx, cacheKey).Result()
+func (p *Product) GetList(
+	ctx context.Context,
+	param application.ProductCacheListParam,
+) (*http.PaginationResponseDto[http.ProductResponseDto], error) {
+	if p.redisClient == nil {
+		return nil, toDomainError(ErrClientNil)
+	}
+	key := p.getListKey(param)
+	data, err := p.redisClient.Get(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
-
-	if cachedData == "" {
+	if data == "" {
 		return nil, redis.Nil
 	}
-
-	var pagination http.PaginationResponseDto[http.ProductResponseDto]
-	if err := json.Unmarshal([]byte(cachedData), &pagination); err != nil {
+	var result http.PaginationResponseDto[http.ProductResponseDto]
+	if err := json.Unmarshal([]byte(data), &result); err != nil {
 		return nil, err
 	}
-
-	return &pagination, nil
+	return &result, nil
 }
 
-// SetProductList caches a product list pagination result with the specified TTL in seconds
-func (c *Product) SetProductList(ctx context.Context, cacheKey string, pagination *http.PaginationResponseDto[http.ProductResponseDto]) error {
-	if c.redisClient == nil {
-		return nil
+func (p *Product) SetList(
+	ctx context.Context,
+	param application.ProductCacheListParam,
+	pagination *http.PaginationResponseDto[http.ProductResponseDto],
+) error {
+	if p.redisClient == nil {
+		return toDomainError(ErrClientNil)
 	}
-
+	key := p.getListKey(param)
 	data, err := json.Marshal(pagination)
 	if err != nil {
 		return err
 	}
-
-	return c.redisClient.Set(ctx, cacheKey, data, time.Duration(CacheTTLProduct)*time.Second).Err()
+	return p.redisClient.Set(ctx, key, data, time.Duration(CacheTTLProduct)*time.Second).Err()
 }
 
-// InvalidateProduct removes the cached product by ID
-func (c *Product) InvalidateProduct(ctx context.Context, productID uuid.UUID) error {
-	if c.redisClient == nil {
-		return nil
+func (p *Product) InvalidateList(
+	ctx context.Context,
+	param application.ProductCacheListParam,
+) error {
+	if p.redisClient == nil {
+		return toDomainError(ErrClientNil)
 	}
-
-	cacheKey := ProductGetKey(productID)
-	return c.redisClient.Del(ctx, cacheKey).Err()
+	key := p.getListKey(param)
+	return p.redisClient.Del(ctx, key).Err()
 }
 
-// InvalidateProductList removes all cached product list entries
-func (c *Product) InvalidateProductList(ctx context.Context) error {
-	if c.redisClient == nil {
-		return nil
+func (p *Product) InvalidateAlls(
+	ctx context.Context,
+) error {
+	if p.redisClient == nil {
+		return toDomainError(ErrClientNil)
 	}
-
-	iter := c.redisClient.Scan(ctx, 0, ProductListPrefix+"*", 0).Iterator()
-	for iter.Next(ctx) {
-		if err := c.redisClient.Del(ctx, iter.Val()).Err(); err != nil {
+	patterns := []string{
+		ProductGetPrefix + "*",
+		ProductListPrefix + "*",
+	}
+	for _, pattern := range patterns {
+		iter := p.redisClient.Scan(ctx, 0, pattern, 0).Iterator()
+		for iter.Next(ctx) {
+			p.redisClient.Del(ctx, iter.Val())
+		}
+		if err := iter.Err(); err != nil {
 			return err
 		}
 	}
-	return iter.Err()
+	return nil
 }
 
-// InvalidateAllProducts removes all product-related caches (both get and list)
-func (c *Product) InvalidateAllProducts(ctx context.Context) error {
-	if c.redisClient == nil {
-		return nil
-	}
+func (p *Product) getKey(param application.ProductCacheParam) string {
+	return fmt.Sprintf("%s%s", ProductGetPrefix, param.ID.String())
+}
 
-	// Invalidate all product get caches
-	iter := c.redisClient.Scan(ctx, 0, ProductGetPrefix+"*", 0).Iterator()
-	for iter.Next(ctx) {
-		if err := c.redisClient.Del(ctx, iter.Val()).Err(); err != nil {
-			return err
+func (p *Product) getListKey(param application.ProductCacheListParam) string {
+	var parts []string
+	if len(param.IDs) > 0 {
+		ids := make([]string, len(param.IDs))
+		for i, id := range param.IDs {
+			ids[i] = id.String()
 		}
+		sort.Strings(ids)
+		parts = append(parts, fmt.Sprintf("ids:%s", strings.Join(ids, ",")))
 	}
-	if err := iter.Err(); err != nil {
-		return err
+	if param.Search != "" {
+		parts = append(parts, fmt.Sprintf("search:%s", param.Search))
 	}
-
-	// Invalidate all product list caches
-	return c.InvalidateProductList(ctx)
-}
-
-// BuildListCacheKey builds a cache key for product list queries
-func (c *Product) BuildListCacheKey(
-	ids *[]uuid.UUID,
-	search *string,
-	minPrice *int64,
-	maxPrice *int64,
-	rating *float64,
-	categoryIDs *[]uuid.UUID,
-	deleted domain.DeletedParam,
-	sortRating *string,
-	sortPrice *string,
-	limit, page int,
-) string {
-	return ProductListKey(
-		ids,
-		search,
-		minPrice,
-		maxPrice,
-		rating,
-		categoryIDs,
-		deleted,
-		sortRating,
-		sortPrice,
-		limit,
-		page,
-	)
+	if param.MinPrice != 0 {
+		parts = append(parts, fmt.Sprintf("min_price:%d", param.MinPrice))
+	}
+	if param.MaxPrice != 0 {
+		parts = append(parts, fmt.Sprintf("max_price:%d", param.MaxPrice))
+	}
+	if param.Rating != 0 {
+		parts = append(parts, fmt.Sprintf("rating:%.2f", param.Rating))
+	}
+	if len(param.CategoryIDs) > 0 {
+		ids := make([]string, len(param.CategoryIDs))
+		for i, id := range param.CategoryIDs {
+			ids[i] = id.String()
+		}
+		sort.Strings(ids)
+		parts = append(parts, fmt.Sprintf("category_ids:%s", strings.Join(ids, ",")))
+	}
+	parts = append(parts, fmt.Sprintf("deleted:%s", param.Deleted))
+	if param.SortRating != "" {
+		parts = append(parts, fmt.Sprintf("sort_rating:%s", param.SortRating))
+	}
+	if param.SortPrice != "" {
+		parts = append(parts, fmt.Sprintf("sort_price:%s", param.SortPrice))
+	}
+	parts = append(parts, fmt.Sprintf("limit:%d", param.Limit))
+	parts = append(parts, fmt.Sprintf("page:%d", param.Page))
+	return fmt.Sprintf("%s%s", ProductListPrefix, strings.Join(parts, ":"))
 }
