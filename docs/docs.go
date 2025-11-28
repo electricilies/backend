@@ -1273,7 +1273,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/Order"
+                                "$ref": "#/definitions/OrderResponseDto"
                             }
                         }
                     },
@@ -1320,7 +1320,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/Order"
+                            "$ref": "#/definitions/OrderResponseDto"
                         }
                     },
                     "400": {
@@ -1379,7 +1379,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Order"
+                            "$ref": "#/definitions/OrderResponseDto"
                         }
                     },
                     "404": {
@@ -1439,7 +1439,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Order"
+                            "$ref": "#/definitions/OrderResponseDto"
                         }
                     },
                     "400": {
@@ -2772,62 +2772,51 @@ const docTemplate = `{
                 }
             }
         },
-        "Order": {
+        "OrderItemProductResponseDto": {
             "type": "object",
             "required": [
-                "address",
-                "createdAt",
                 "id",
-                "isPaid",
-                "provider",
-                "status",
-                "totalAmount",
-                "updatedAt",
-                "userID"
+                "name",
+                "price",
+                "rating"
             ],
             "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "string"
                 },
-                "isPaid": {
-                    "type": "boolean"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/OrderItem"
-                    }
-                },
-                "provider": {
-                    "$ref": "#/definitions/OrderProvider"
-                },
-                "status": {
-                    "$ref": "#/definitions/OrderStatus"
-                },
-                "totalAmount": {
-                    "type": "integer"
-                },
-                "updatedAt": {
+                "name": {
                     "type": "string"
                 },
-                "userID": {
+                "price": {
+                    "type": "number"
+                },
+                "rating": {
+                    "type": "number"
+                }
+            }
+        },
+        "OrderItemProductVariantResponseDto": {
+            "type": "object",
+            "required": [
+                "id",
+                "sku"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "sku": {
                     "type": "string"
                 }
             }
         },
-        "OrderItem": {
+        "OrderItemResponseDto": {
             "type": "object",
             "required": [
                 "id",
                 "price",
-                "productID",
-                "productVariantID",
+                "product",
+                "productVariant",
                 "quantity"
             ],
             "properties": {
@@ -2837,11 +2826,11 @@ const docTemplate = `{
                 "price": {
                     "type": "integer"
                 },
-                "productID": {
-                    "type": "string"
+                "product": {
+                    "$ref": "#/definitions/OrderItemProductResponseDto"
                 },
-                "productVariantID": {
-                    "type": "string"
+                "productVariant": {
+                    "$ref": "#/definitions/OrderItemProductVariantResponseDto"
                 },
                 "quantity": {
                     "type": "integer"
@@ -2862,6 +2851,55 @@ const docTemplate = `{
                 "PaymentProviderMOMO",
                 "PaymentProviderZALOPAY"
             ]
+        },
+        "OrderResponseDto": {
+            "type": "object",
+            "required": [
+                "address",
+                "created_at",
+                "id",
+                "is_paid",
+                "provider",
+                "status",
+                "total_amount",
+                "updated_at",
+                "user_id"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_paid": {
+                    "type": "boolean"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/OrderItemResponseDto"
+                    }
+                },
+                "provider": {
+                    "$ref": "#/definitions/OrderProvider"
+                },
+                "status": {
+                    "$ref": "#/definitions/OrderStatus"
+                },
+                "total_amount": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
         },
         "OrderStatus": {
             "type": "string",

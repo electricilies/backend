@@ -3,8 +3,6 @@ package http
 import (
 	"net/http"
 
-	_ "backend/internal/domain"
-
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -33,7 +31,7 @@ func ProvideOrderHandler(orderApp OrderApplication) *OrderHandlerImpl {
 //	@Accept			json
 //	@Produce		json
 //	@Param			order_id	path		string	true	"Order ID"	format(uuid)
-//	@Success		200			{object}	domain.Order
+//	@Success		200			{object}	OrderResponseDto
 //	@Failure		404			{object}	Error
 //	@Failure		500			{object}	Error
 //	@Router			/orders/{order_id} [get]
@@ -70,7 +68,7 @@ func (h *OrderHandlerImpl) Get(ctx *gin.Context) {
 //	@Param			order_ids	query		[]string	false	"Filter by order IDs"	collectionFormat(csv)	format(uuid)
 //	@Param			user_ids	query		[]string	false	"Filter by user IDs"	collectionFormat(csv)	format(uuid)
 //	@Param			status_ids	query		[]string	false	"Filter by status IDs"	collectionFormat(csv)	format(uuid)
-//	@Success		200			{array}		domain.Order
+//	@Success		200			{array}		OrderResponseDto
 //	@Failure		500			{object}	Error
 //	@Router			/orders [get]
 //	@Security		OAuth2AccessCode
@@ -107,7 +105,7 @@ func (h *OrderHandlerImpl) List(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			order	body		CreateOrderData	true	"Order request"
-//	@Success		201		{object}	domain.Order
+//	@Success		201		{object}	OrderResponseDto
 //	@Failure		400		{object}	Error
 //	@Failure		409		{object}	Error
 //	@Failure		500		{object}	Error
@@ -140,7 +138,7 @@ func (h *OrderHandlerImpl) Create(ctx *gin.Context) {
 //	@Produce		json
 //	@Param			order_id	path		string			true	"Order ID"	format(uuid)
 //	@Param			status		body		UpdateOrderData	true	"Update order status request"
-//	@Success		200			{object}	domain.Order
+//	@Success		200			{object}	OrderResponseDto
 //	@Failure		400			{object}	Error
 //	@Failure		404			{object}	Error
 //	@Failure		409			{object}	Error
