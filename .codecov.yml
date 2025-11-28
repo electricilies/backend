@@ -34,9 +34,30 @@ component_management:
         - internal/delivery/
         - internal/server/
         - pkg/
+    - component_id: attribute
+      name: Attribute
+      paths:
+        - internal/*attribute*
+    - component_id: Cart
+      name: Cart
+      paths:
+        - internal/*cart*
+    - name: Category
+      paths:
+        - internal/*category*
+    - name: Order
+      paths:
+        - internal/*order*
+    - name: Product
+      paths:
+        - internal/*product*
+    - name: Review
+      paths:
+        - internal/*review*
 ignore:
   - test/
   - docs/
   - internal/**/*_test.go
   - internal/**/*_mock.go
+  - "**/*.sql.go"
   - "**/wire.go"

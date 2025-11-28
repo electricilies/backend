@@ -14,10 +14,10 @@
     <img alt="SonarQube Quality Maintainability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=electricilies_backend&metric=sqale_rating"/>
   </a>
   <a href="https://codecov.io/gh/electricilies/backend">
-    <img alt="Codecov Business Logic" src="https://codecov.io/gh/electricilies/backend/branch/main/graph/badge.svg?component=business-logic"/>
+    <img alt="Codecov Business Logic" src="https://img.shields.io/codecov/c/github/electricilies/backend?component=business-logic&label=coverage%20business%20logic"/>
   </a>
   <a href="https://codecov.io/gh/electricilies/backend">
-    <img alt="Codecov Application" src="https://codecov.io/gh/electricilies/backend/branch/main/graph/badge.svg?component=application"/>
+    <img alt="Codecov Application" src="https://img.shields.io/codecov/c/github/electricilies/backend?component=application&label=coverage%20application"/>
   </a>
   <br />
   <a href="https://wakatime.com/badge/github/electricilies/backend">

@@ -108,8 +108,8 @@ jobs:
           fi
           echo "All checks passed successfully"
 
-  test:
-    name: Test ${{ matrix.os }}/${{ matrix.arch }}
+  test-unit:
+    name: Unit Test ${{ matrix.os }}/${{ matrix.arch }}
     needs: check
     strategy:
       matrix:
@@ -153,20 +153,8 @@ jobs:
         with:
           experimental: true
 
-      - name: Cache Docker images.
-        uses: ScribeMD/docker-cache@0.5.0
-        if: matrix.os == 'linux' # This action only supports linux runners? Windows cannot run docker, MacOS cannot spawn /usr/bin/bash
-        with:
-          key: testcontainers-${{ runner.os }}-${{ hashFiles('**/containersimages.go') }}
-
-      - name: Unit tests
-        run: just test-unit -coverprofile=unit.txt
-        continue-on-error: true
-
-      - name: Integration tests
-        id: unit-tests
-        if: ${{ matrix.os == 'linux' }}
-        run: just test-integration -coverprofile=integration.txt
+      - name: test
+        run: just test-unit -covermode=atomic
         continue-on-error: true
 
       - name: Upload results to Codecov
@@ -178,25 +166,58 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           env_vars: OS,ARCH
+          flags: unittests
           slug: ${{ github.repository }}
-          files: ./unit.txt${{ matrix.os == 'linux' && ',./integration.txt' || '' }}
 
-      - name: Fail test if tests failed
-        shell: bash
-        run: |
-          fail=false
-          if [ "${{ steps.unit-tests.outcome }}" = "failure" ]; then
-            echo "Unit tests failed" >&2
-            fail=true
-          fi
-          if [ "${{ matrix.os }}" = "linux" ] && [ "${{ steps.integration-tests.outcome }}" = "failure" ]; then
-            echo "Integration tests failed" >&2
-            fail=true
-          fi
-          if [ "$fail" = true ]; then
-            exit 1
-          fi
-          echo "All tests passed"
+  test-integration:
+    name: Test ${{ matrix.os }}/${{ matrix.arch }}
+    needs: check
+    strategy:
+      matrix:
+        runner:
+          - ubuntu-24.04
+          - ubuntu-24.04-arm
+        include:
+          - runner: ubuntu-24.04
+            os: linux
+            arch: amd64
+          - runner: ubuntu-24.04-arm
+            os: linux
+            arch: arm64
+      fail-fast: false
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - uses: jdx/mise-action@v3
+        with:
+          experimental: true
+
+      - name: Cache Docker images.
+        uses: ScribeMD/docker-cache@0.5.0
+        with:
+          key: testcontainers-${{ runner.os }}-${{ hashFiles('**/containersimages.go') }}
+
+      - name: test
+        run: just test-integration -covermode=atomic
+        continue-on-error: true
+
+      - name: Upload results to Codecov
+        id: integration-tests
+        uses: codecov/codecov-action@v5
+        env:
+          OS: ${{ matrix.os }}
+          ARCH: ${{ matrix.arch }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          env_vars: OS,ARCH
+          flags: integrationtests
+          slug: ${{ github.repository }}
 
   sonar:
     name: SonarQube
