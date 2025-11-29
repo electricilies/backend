@@ -246,6 +246,7 @@ jobs:
     concurrency: gen-migration
     permissions:
       contents: write
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v5
