@@ -93,6 +93,35 @@ func (h *CartHandlerImpl) GetByUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, cart)
 }
 
+// GetMe godoc
+//
+//	@Summary		Get my cart
+//	@Description	Get cart for the authenticated user
+//	@Tags			Cart
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	CartResponseDto
+//	@Failure		404	{object}	Error
+//	@Failure		500	{object}	Error
+//	@Router			/carts/me [get]
+//	@Security		OAuth2AccessCode
+//	@Security		OAuth2Password
+func (h *CartHandlerImpl) GetMe(ctx *gin.Context) {
+	userID, ok := ctxValueToUUID(ctx, "userID")
+	if !ok {
+		ctx.JSON(http.StatusBadRequest, NewError(h.ErrInvalidUserID))
+		return
+	}
+	cart, err := h.cartApp.GetByUser(ctx, GetCartByUserRequestDto{
+		UserID: userID,
+	})
+	if err != nil {
+		SendError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, cart)
+}
+
 // CreateCart godoc
 //
 //	@Summary		Create cart

@@ -63,6 +63,7 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 			cart.POST("", r.cartHandler.Create)
 			cart.GET("/:cart_id", r.cartHandler.Get)
 			cart.GET("/users/:user_id", r.cartHandler.GetByUser)
+			cart.GET("/me", r.cartHandler.GetMe)
 			cart.POST("/:cart_id/item", r.cartHandler.CreateItem)
 			cart.PATCH("/:cart_id/item/:item_id", r.cartHandler.UpdateItem)
 			cart.DELETE("/:cart_id/item/:item_id", r.cartHandler.RemoveItem)
