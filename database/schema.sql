@@ -27,7 +27,7 @@ CREATE TABLE products (
 CREATE TABLE attributes (
   id UUID PRIMARY KEY,
   code VARCHAR(100) UNIQUE NOT NULL,
-  name TEXT NOT NULL,
+  name TEXT UNIQUE NOT NULL,
   deleted_at TIMESTAMPTZ
 );
 

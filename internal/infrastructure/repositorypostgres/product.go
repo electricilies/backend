@@ -95,7 +95,7 @@ func (r *Product) Get(ctx context.Context, params domain.ProductRepositoryGetPar
 		ViewsCount:    int(productEntity.ViewsCount),
 		TotalPurchase: int(productEntity.TotalPurchase),
 		TrendingScore: int64(productEntity.TrendingScore),
-		Price:         productEntity.Price.Int.Int64(),
+		Price:         numericToInt64(productEntity.Price),
 		Rating:        float64(productEntity.Rating),
 		CategoryID:    productEntity.CategoryID,
 		CreatedAt:     productEntity.CreatedAt.Time,
@@ -193,7 +193,7 @@ func getVariants(
 		variants = append(variants, domain.ProductVariant{
 			ID:            variant.ID,
 			SKU:           variant.SKU,
-			Price:         variant.Price.Int.Int64(),
+			Price:         numericToInt64(variant.Price),
 			Quantity:      int(variant.Quantity),
 			PurchaseCount: int(variant.PurchaseCount),
 			CreatedAt:     variant.CreatedAt.Time,
