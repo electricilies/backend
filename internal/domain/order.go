@@ -23,7 +23,7 @@ type OrderItem struct {
 	ID               uuid.UUID `validate:"required"`
 	ProductID        uuid.UUID `validate:"required"`
 	ProductVariantID uuid.UUID `validate:"required"`
-	Quantity         int       `validate:"required,gt=0"`
+	Quantity         int       `validate:"required,gt=0,lt=100"`
 	Price            int64     `validate:"required,gt=0"`
 }
 

@@ -31,6 +31,7 @@ func (p *Product) Validate(
 	return nil
 }
 
+// CreateOptionsWithOptionValues asfasdfsd
 func (p *Product) CreateOptionsWithOptionValues(
 	optionsWithOptionValues map[string][]string,
 ) (*[]domain.Option, error) {
