@@ -248,6 +248,7 @@ jobs:
       contents: write
     outputs:
       committed: ${{ steps.add-and-commit.outputs.committed }}
+      commit_sha: ${{ steps.add-and-commit.outputs.commit_sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -280,7 +281,7 @@ jobs:
         if: ${{ needs.gen-migration.outputs.committed == 'true' }}
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          ref: ${{ needs.gen-migration.outputs.commit_sha }}
 
       - name: Get commit hash
         if: ${{ needs.gen-migration.outputs.committed == 'true' }}
@@ -324,8 +325,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
 
       - name: Get commit hash
         id: commit-hash
