@@ -20,12 +20,13 @@ func ProvideAuthHandler(cfg *config.Server) *AuthHandlerImpl {
 }
 
 func (h *AuthHandlerImpl) Handler() gin.HandlerFunc {
+	path := h.cfgSrv.PublicKeycloakURL
+	if path == "" {
+		path = h.cfgSrv.KCBasePath
+	}
 	return func(c *gin.Context) {
-		path := h.cfgSrv.PublicKeycloakURL
-		if path == "" {
-			path = h.cfgSrv.KCBasePath
-		}
 		redirectURL := path + strings.TrimPrefix(c.Request.URL.String(), "/auth")
+		c.Header("Access-Control-Allow-Origin", path)
 		c.Redirect(http.StatusTemporaryRedirect, redirectURL)
 	}
 }
