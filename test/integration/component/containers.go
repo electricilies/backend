@@ -65,7 +65,7 @@ func NewContainersConfig() *ContainersConfig {
 				filepath.Join("..", "testdata", "00-init.sql"),
 				filepath.Join("..", "testdata", "20-schema.sql"),
 				filepath.Join("..", "testdata", "21-trigger.sql"),
-				filepath.Join("..", "testdata", "30-seed.sql"),
+				// filepath.Join("..", "testdata", "30-seed.sql"),
 				filepath.Join("..", "testdata", "40-paradedb-index.sql"),
 			},
 		},

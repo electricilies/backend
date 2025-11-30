@@ -27,12 +27,12 @@ debug:
   dlv debug --headless --listen=:4444 {{main-go}}
 
 [doc("Run unit test")]
-test-unit *args="":
-  go test ./... {{args}}
+test-unit coverprofile="coverage.out" *args="":
+  go test ./... -coverprofile={{coverprofile}} {{args}}
 
 [doc("Run integration test")]
-test-integration *args="":
-  go test -tags=integration ./test/integration/... -coverpkg=./internal/... {{args}}
+test-integration coverprofile="coverage.out" *args="":
+  go test -tags=integration ./test/integration/... -coverpkg=./internal/... -coverprofile={{coverprofile}} {{args}}
 
 [doc("Run test (unit, integration)")]
 test: test-unit test-integration
