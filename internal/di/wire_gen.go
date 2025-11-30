@@ -64,7 +64,7 @@ func InitializeServer(ctx context.Context) *http.Server {
 	cacheredisCart := cacheredis.ProvideCart(redisClient)
 	applicationCart := application.ProvideCart(cart, serviceCart, cacheredisCart, repositorypostgresProduct)
 	cartHandlerImpl := http.ProvideCartHandler(applicationCart)
-	ginRouter := http.ProvideRouter(healthHandlerImpl, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, categoryHandlerImpl, productHandlerImpl, attributeHandlerImpl, orderHandlerImpl, cartHandlerImpl, server)
+	ginRouter := http.ProvideRouter(healthHandlerImpl, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, categoryHandlerImpl, productHandlerImpl, attributeHandlerImpl, orderHandlerImpl, cartHandlerImpl)
 	authHandlerImpl := http.ProvideAuthHandler(server)
 	httpServer := http.NewServer(engine, ginRouter, server, authHandlerImpl)
 	return httpServer

@@ -1,9 +1,6 @@
 package http
 
 import (
-	"backend/config"
-
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -23,8 +20,6 @@ type GinRouter struct {
 	metricMiddleware  MetricMiddleware
 	loggingMiddleware LoggingMiddleware
 	authMiddleware    AuthMiddleware
-
-	cfgSrv *config.Server
 }
 
 func ProvideRouter(
@@ -37,7 +32,6 @@ func ProvideRouter(
 	attributeHandler AttributeHandler,
 	orderHandler OrderHandler,
 	cartHandler CartHandler,
-	cfgSrv *config.Server,
 ) *GinRouter {
 	return &GinRouter{
 		healthHandler:     healthCheckHandler,
@@ -49,14 +43,10 @@ func ProvideRouter(
 		attributeHandler:  attributeHandler,
 		orderHandler:      orderHandler,
 		cartHandler:       cartHandler,
-		cfgSrv:            cfgSrv,
 	}
 }
 
 func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
-	e.Use(cors.New(cors.Config{
-		AllowOrigins: r.cfgSrv.AllowOrigins,
-	}))
 	e.Use(r.metricMiddleware.Handler())
 	e.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	health := e.Group("/health")
