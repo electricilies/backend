@@ -8,7 +8,7 @@ import (
 
 type Cart struct {
 	ID        uuid.UUID  `validate:"required"`
-	Items     []CartItem `validate:"omitempty,unique_cart_items,dive"`
+	Items     []CartItem `validate:"omitempty,uniqueCartItems,dive"`
 	UserID    uuid.UUID  `validate:"required"`
 	UpdatedAt time.Time  `validate:"required"`
 }

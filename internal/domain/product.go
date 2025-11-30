@@ -24,7 +24,7 @@ type Product struct {
 	CategoryID        uuid.UUID
 	AttributeIDs      []uuid.UUID      `validate:"omitempty,dive,required"`
 	AttributeValueIDs []uuid.UUID      `validate:"omitempty,dive,required"`
-	Variants          []ProductVariant `validate:"omitempty,product_variant_structure,dive"`
+	Variants          []ProductVariant `validate:"omitempty,productVariantStructure,dive"`
 }
 
 type Option struct {

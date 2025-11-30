@@ -7,7 +7,7 @@ import (
 
 // RegisterProductValidators registers custom validators for Product validation
 func RegisterProductValidators(v *validator.Validate) error {
-	if err := v.RegisterValidation("product_variant_structure", validateProductVariantStructure); err != nil {
+	if err := v.RegisterValidation("productVariantStructure", validateProductVariantStructure); err != nil {
 		return err
 	}
 	return nil

@@ -108,7 +108,7 @@ This document contains comprehensive test cases for the Attribute module, coveri
 | ID | Test Case Description | Test Case Procedure | Expected Output | Inter-test Case Dependence | Result | Test Date | Note |
 |----|----------------------|---------------------|-----------------|---------------------------|--------|-----------|------|
 | ATTR-VAL-REG-1 | Verify attribute validators register successfully | 1. Create new validator<br>2. Call `RegisterAttributeValidators(validator)`<br>3. Verify no error | No error returned<br>Custom validators registered | | Passed | 2025-11-25 | Automated: `TestRegisterAttributeValidators` |
-| ATTR-VAL-REG-2 | Verify custom validation tag works after registration | 1. Register validators<br>2. Create attribute with duplicate values<br>3. Call `validator.Struct(attribute)`<br>4. Verify validation fails | Validation error contains "unique_attribute_values" | ATTR-VAL-REG-1 | Passed | 2025-11-25 | Automated: `TestValidateUniqueAttributeValues` |
+| ATTR-VAL-REG-2 | Verify custom validation tag works after registration | 1. Register validators<br>2. Create attribute with duplicate values<br>3. Call `validator.Struct(attribute)`<br>4. Verify validation fails | Validation error contains "uniqueAttributeValues" | ATTR-VAL-REG-1 | Passed | 2025-11-25 | Automated: `TestValidateUniqueAttributeValues` |
 
 ---
 

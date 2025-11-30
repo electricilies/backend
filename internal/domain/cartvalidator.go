@@ -7,7 +7,7 @@ import (
 
 // RegisterCartValidators registers custom validators for Cart validation
 func RegisterCartValidators(v *validator.Validate) error {
-	if err := v.RegisterValidation("unique_cart_items", validateUniqueCartItems); err != nil {
+	if err := v.RegisterValidation("uniqueCartItems", validateUniqueCartItems); err != nil {
 		return err
 	}
 	return nil

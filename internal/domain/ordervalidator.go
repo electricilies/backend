@@ -3,7 +3,7 @@ package domain
 import "github.com/go-playground/validator/v10"
 
 func RegisterOrderValidators(v *validator.Validate) error {
-	if err := v.RegisterValidation("order_total_amount", validateOrderTotalAmount); err != nil {
+	if err := v.RegisterValidation("orderTotalAmount", validateOrderTotalAmount); err != nil {
 		return err
 	}
 	return nil
