@@ -30,6 +30,7 @@ const (
 	TimeZone            = "TIMEZONE"
 	SwaggerEnv          = "SWAGGER_ENV"
 	PublicKeycloakURL   = "PUBLIC_KEYCLOAK_URL"
+	AllowOrigins        = "ALLOW_ORIGINS"
 )
 
 type Server struct {
@@ -56,6 +57,7 @@ type Server struct {
 	TimeZone            string
 	SwaggerEnv          string
 	PublicKeycloakURL   string
+	AllowOrigins        []string
 }
 
 func NewServer() *Server {
@@ -94,5 +96,6 @@ func NewServer() *Server {
 		TimeZone:            viper.GetString(TimeZone),
 		SwaggerEnv:          viper.GetString(SwaggerEnv),
 		PublicKeycloakURL:   viper.GetString(PublicKeycloakURL),
+		AllowOrigins:        viper.GetStringSlice(AllowOrigins),
 	}
 }

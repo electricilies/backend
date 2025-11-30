@@ -32,6 +32,8 @@ PUBLIC_KEYCLOAK_URL = ""
 
 # Redis / Redis Compatible
 REDIS_ADDRESS = "localhost:6379"
+# CORS server config
+CORS_ALLOWED_ORIGINS = "*"
 
 [tools]
 air = "latest"
