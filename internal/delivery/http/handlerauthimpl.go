@@ -27,6 +27,7 @@ func (h *AuthHandlerImpl) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		redirectURL := path + strings.TrimPrefix(c.Request.URL.String(), "/auth")
 		c.Header("Access-Control-Allow-Origin", path)
+		c.Header("Access-Control-Allow-Credentials", "true")
 		c.Redirect(http.StatusTemporaryRedirect, redirectURL)
 	}
 }
