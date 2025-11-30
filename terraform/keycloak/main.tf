@@ -99,7 +99,7 @@ resource "keycloak_generic_protocol_mapper" "custom_address" {
     "jsonType.label" : "String",
     "id.token.claim" : "true",
     "access.token.claim" : "true",
-    "userinfo.token.claim" : "true"
+    "userinfo.token.claim" : "true",
     "introspection.token.claim" : "true"
   }
 }
