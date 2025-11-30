@@ -17,7 +17,7 @@ TIMEZONE = "Asia/Ho_Chi_Minh"                                                   
 KC_CLIENT_ID = "backend"
 KC_CLIENT_SECRET = "electricilies"
 KC_REALM = "electricilies"
-KC_BASE_PATH = "http://localhost:8081"
+KC_BASE_PATH = "http://localhost:8081"            # This should point to keycloak url which is in iss of the user token, ussally public domain to keycloak
 KC_HTTP_MANAGEMENT_PATH = "http://localhost:8082"
 
 # S3 / S3 Compatible (MinIO)
@@ -26,9 +26,6 @@ S3_SECRET_KEY = "electricilies"
 S3_REGION_NAME = "us-east-1"
 S3_ENDPOINT = "http://localhost:9000"
 S3_BUCKET = "electricilies"
-
-# Public, mostly used in Swagger
-PUBLIC_KEYCLOAK_URL = ""
 
 # Redis / Redis Compatible
 REDIS_ADDRESS = "localhost:6379"

@@ -21,13 +21,9 @@ func ProvideAuthHandler(cfg *config.Server) *AuthHandlerImpl {
 }
 
 func (h *AuthHandlerImpl) Handler() gin.HandlerFunc {
-	path := h.cfgSrv.PublicKeycloakURL
-	if path == "" {
-		path = h.cfgSrv.KCBasePath
-	}
 	return func(c *gin.Context) {
 		redirectURL, err := url.JoinPath(
-			path,
+			h.cfgSrv.KCBasePath,
 			"realms",
 			h.cfgSrv.KCRealm,
 			strings.TrimPrefix(c.Request.URL.String(), "/auth"),
