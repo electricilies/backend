@@ -8,29 +8,29 @@ import (
 )
 
 type Product struct {
-	ID                uuid.UUID      `validate:"required"`
-	Name              string         `validate:"required,gte=3,lte=200"`
-	Description       string         `validate:"required,gte=10"`
-	ViewsCount        int            `validate:"gte=0"`
-	TotalPurchase     int            `validate:"gte=0"`
-	TrendingScore     int64          `validate:"gte=0"`
-	Price             int64          `validate:"required,gt=0"`
-	Rating            float64        `validate:"gte=0,lte=5"`
-	Options           []Option       `validate:"omitempty,dive"`
-	Images            []ProductImage `validate:"omitempty,dive"`
-	CreatedAt         time.Time      `validate:"required"`
-	UpdatedAt         time.Time      `validate:"required,gtefield=CreatedAt"`
-	DeletedAt         time.Time      `validate:"omitempty,gtefield=CreatedAt"`
-	CategoryID        uuid.UUID
+	ID                uuid.UUID        `validate:"required"`
+	Name              string           `validate:"required,gte=3,lte=200"`
+	Description       string           `validate:"required,gte=10"`
+	ViewsCount        int              `validate:"gte=0"`
+	TotalPurchase     int              `validate:"gte=0"`
+	TrendingScore     int64            `validate:"gte=0"`
+	Price             int64            `validate:"required,gt=0"`
+	Rating            float64          `validate:"gte=0,lte=5"`
+	Options           []Option         `validate:"omitempty,unique=ID,unique=Name,dive"`
+	Images            []ProductImage   `validate:"gt=0,dive"`
+	CreatedAt         time.Time        `validate:"required"`
+	UpdatedAt         time.Time        `validate:"required,gtefield=CreatedAt"`
+	DeletedAt         time.Time        `validate:"omitempty,gtefield=CreatedAt"`
+	CategoryID        uuid.UUID        `validate:"required"`
 	AttributeIDs      []uuid.UUID      `validate:"omitempty,dive,required"`
 	AttributeValueIDs []uuid.UUID      `validate:"omitempty,dive,required"`
-	Variants          []ProductVariant `validate:"omitempty,productVariantStructure,dive"`
+	Variants          []ProductVariant `validate:"gt=0,unique=ID,unique=SKU,productVariantStructure,dive"`
 }
 
 type Option struct {
 	ID        uuid.UUID     `validate:"required"`
 	Name      string        `validate:"required"`
-	Values    []OptionValue `validate:"omitempty,dive"`
+	Values    []OptionValue `validate:"omitempty,unique=ID,unique=Value,dive"`
 	DeletedAt time.Time     `validate:"omitempty"`
 }
 
@@ -49,8 +49,8 @@ type ProductVariant struct {
 	CreatedAt     time.Time      `validate:"required"`
 	UpdatedAt     time.Time      `validate:"required,gtefield=CreatedAt"`
 	DeletedAt     time.Time      `validate:"omitempty,gtefield=CreatedAt"`
-	OptionValues  []OptionValue  `validate:"omitempty,dive"`
-	Images        []ProductImage `validate:"omitempty,dive"`
+	OptionValues  []OptionValue  `validate:"omitempty,unique=ID,unique=Value,dive"`
+	Images        []ProductImage `validate:"omitempty,unique=ID,unique=URL,unique=Order,dive"`
 }
 
 type ProductImage struct {

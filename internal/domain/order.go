@@ -14,7 +14,7 @@ type Order struct {
 	IsPaid      bool          `validate:"required"`
 	CreatedAt   time.Time     `validate:"required"`
 	UpdatedAt   time.Time     `validate:"required,gtefield=CreatedAt"`
-	Items       []OrderItem   `validate:"omitempty,orderTotalAmount,dive"`
+	Items       []OrderItem   `validate:"gt=0,orderTotalAmount,dive"`
 	TotalAmount int64         `validate:"required"`
 	UserID      uuid.UUID     `validate:"required"`
 }
