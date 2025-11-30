@@ -15,11 +15,11 @@ import (
 //	@BasePath	/api
 
 //	@securitydefinitions.oauth2.password	OAuth2Password
-//	@tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
+//	@tokenUrl								/auth/protocol/openid-connect/token
 
 //	@securitydefinitions.oauth2.accessCode	OAuth2AccessCode
-//	@tokenUrl								/auth/realms/electricilies/protocol/openid-connect/token
-//	@authorizationUrl						/auth/realms/electricilies/protocol/openid-connect/auth
+//	@tokenUrl								/auth/protocol/openid-connect/token
+//	@authorizationUrl						/auth/protocol/openid-connect/auth
 
 func main() {
 	ctx := context.Background()

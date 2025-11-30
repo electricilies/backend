@@ -30,7 +30,6 @@ resource "keycloak_openid_client" "backend" {
   access_type              = "CONFIDENTIAL"
   client_secret            = var.backend_client_secret
   service_accounts_enabled = true
-  web_origins              = var.backend_web_origins
 }
 
 resource "keycloak_openid_client" "frontend" {
@@ -101,6 +100,7 @@ resource "keycloak_generic_protocol_mapper" "custom_address" {
     "id.token.claim" : "true",
     "access.token.claim" : "true",
     "userinfo.token.claim" : "true"
+    "introspection.token.claim" : "true"
   }
 }
 
@@ -297,6 +297,7 @@ resource "keycloak_user" "users" {
     keycloak_realm_user_profile.userprofile,
   ]
 
+  import   = true
   realm_id = keycloak_realm.electricilies.id
   username = each.key
   initial_password {

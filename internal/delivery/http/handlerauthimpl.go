@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 
 	"backend/config"
@@ -25,9 +26,16 @@ func (h *AuthHandlerImpl) Handler() gin.HandlerFunc {
 		path = h.cfgSrv.KCBasePath
 	}
 	return func(c *gin.Context) {
-		redirectURL := path + strings.TrimPrefix(c.Request.URL.String(), "/auth")
-		c.Header("Access-Control-Allow-Origin", path)
-		c.Header("Access-Control-Allow-Credentials", "true")
+		redirectURL, err := url.JoinPath(
+			path,
+			"realms",
+			h.cfgSrv.KCRealm,
+			strings.TrimPrefix(c.Request.URL.String(), "/auth"),
+		)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, NewError(err.Error()))
+			return
+		}
 		c.Redirect(http.StatusTemporaryRedirect, redirectURL)
 	}
 }

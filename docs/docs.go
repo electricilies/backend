@@ -3426,13 +3426,13 @@ const docTemplate = `{
         "OAuth2AccessCode": {
             "type": "oauth2",
             "flow": "accessCode",
-            "authorizationUrl": "/auth/realms/electricilies/protocol/openid-connect/auth",
-            "tokenUrl": "/auth/realms/electricilies/protocol/openid-connect/token"
+            "authorizationUrl": "/auth/protocol/openid-connect/auth",
+            "tokenUrl": "/auth/protocol/openid-connect/token"
         },
         "OAuth2Password": {
             "type": "oauth2",
             "flow": "password",
-            "tokenUrl": "/auth/realms/electricilies/protocol/openid-connect/token"
+            "tokenUrl": "/auth/protocol/openid-connect/token"
         }
     }
 }`
