@@ -11,6 +11,7 @@ type UploadImageURLResponseDto struct {
 
 type PaginationMetaResponseDto struct {
 	TotalItems   int `json:"totalItems"   binding:"required"`
+	TotalPages   int `json:"totalPages"   binding:"required"`
 	CurrentPage  int `json:"currentPage"  binding:"required"`
 	ItemsPerPage int `json:"itemsPerPage" binding:"required"`
 	PageItems    int `json:"pageItems"`

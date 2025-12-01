@@ -2968,7 +2968,8 @@ const docTemplate = `{
             "required": [
                 "currentPage",
                 "itemsPerPage",
-                "totalItems"
+                "totalItems",
+                "totalPages"
             ],
             "properties": {
                 "currentPage": {
@@ -2981,6 +2982,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "totalItems": {
+                    "type": "integer"
+                },
+                "totalPages": {
                     "type": "integer"
                 }
             }
