@@ -2318,9 +2318,13 @@ const docTemplate = `{
         "AddProductImageData": {
             "type": "object",
             "required": [
+                "key",
                 "url"
             ],
             "properties": {
+                "key": {
+                    "type": "string"
+                },
                 "order": {
                     "type": "integer"
                 },
@@ -2707,10 +2711,14 @@ const docTemplate = `{
         "CreateProductImageData": {
             "type": "object",
             "required": [
+                "key",
                 "order",
                 "url"
             ],
             "properties": {
+                "key": {
+                    "type": "string"
+                },
                 "order": {
                     "type": "integer"
                 },
@@ -2771,10 +2779,14 @@ const docTemplate = `{
         "CreateProductVariantImage": {
             "type": "object",
             "required": [
+                "key",
                 "order",
                 "url"
             ],
             "properties": {
+                "key": {
+                    "type": "string"
+                },
                 "order": {
                     "type": "integer"
                 },
