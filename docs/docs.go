@@ -1299,14 +1299,16 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "type": "array",
-                        "format": "uuid",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "csv",
-                        "description": "Filter by status IDs",
-                        "name": "status_ids",
+                        "enum": [
+                            "Pending",
+                            "Processing",
+                            "Shipped",
+                            "Delivered",
+                            "Cancelled"
+                        ],
+                        "type": "string",
+                        "description": "Filter by statuses",
+                        "name": "status",
                         "in": "query"
                     }
                 ],

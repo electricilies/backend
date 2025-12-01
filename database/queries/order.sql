@@ -31,25 +31,45 @@ ON CONFLICT (id) DO UPDATE SET
   updated_at = EXCLUDED.updated_at;
 
 -- name: ListOrders :many
+WITH orders_with_statuses AS (
+  SELECT
+    orders.id,
+    order_statuses.name AS status_name
+  FROM
+    orders
+  INNER JOIN
+    order_statuses ON orders.status_id = order_statuses.id
+  WHERE
+    CASE
+      WHEN cardinality(sqlc.arg('status_names')::text[]) = 0 THEN TRUE
+      ELSE order_statuses.name = ANY (sqlc.arg('status_names')::text[])
+    END
+    AND CASE
+      WHEN sqlc.arg('status_name')::text = '' THEN TRUE
+      ELSE order_statuses.name = sqlc.arg('status_name')::text
+    END
+)
 SELECT
   *
 FROM
   orders
+LEFT JOIN
+  orders_with_statuses ON orders.id = orders_with_statuses.id
 WHERE
   CASE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
-    ELSE id = ANY (sqlc.arg('ids')::uuid[])
+    ELSE orders.id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
     WHEN cardinality(sqlc.arg('user_ids')::uuid[]) = 0 THEN TRUE
-    ELSE user_id = ANY (sqlc.arg('user_ids')::uuid[])
+    ELSE orders.user_id = ANY (sqlc.arg('user_ids')::uuid[])
   END
   AND CASE
     WHEN cardinality(sqlc.arg('status_ids')::uuid[]) = 0 THEN TRUE
-    ELSE status_id = ANY (sqlc.arg('status_ids')::uuid[])
+    ELSE orders.status_id = ANY (sqlc.arg('status_ids')::uuid[])
   END
 ORDER BY
-  id ASC
+  orders.id ASC
 OFFSET sqlc.arg('offset')::integer
 LIMIT NULLIF(sqlc.arg('limit')::integer, 0);
 
@@ -119,8 +139,18 @@ FROM
   order_statuses
 WHERE
   CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.arg('ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.arg('names')::text[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.arg('names')::text[]) = 0 THEN TRUE
+    ELSE name = ANY (sqlc.arg('names')::text[])
+  END
+  AND CASE
+    WHEN sqlc.arg('name')::text = '' THEN TRUE
+    ELSE name = sqlc.arg('name')::text
   END
 ORDER BY
   id ASC;

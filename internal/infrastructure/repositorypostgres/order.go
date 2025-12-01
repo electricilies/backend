@@ -27,9 +27,10 @@ func ProvideOrder(q *sqlc.Queries, conn *pgxpool.Pool) *Order {
 
 func (r *Order) List(ctx context.Context, params domain.OrderRepositoryListParam) (*[]domain.Order, error) {
 	orderEntities, err := r.queries.ListOrders(ctx, sqlc.ListOrdersParams{
-		IDs:    params.IDs,
-		Offset: int32(params.Offset),
-		Limit:  int32(params.Limit),
+		IDs:        params.IDs,
+		StatusName: string(params.Status),
+		Offset:     int32(params.Offset),
+		Limit:      int32(params.Limit),
 	})
 	if err != nil {
 		return nil, toDomainError(err)

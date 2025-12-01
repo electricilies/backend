@@ -244,19 +244,31 @@ FROM
   order_statuses
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
+  END
+  AND CASE
+    WHEN $2::text[] IS NULL THEN TRUE
+    WHEN cardinality($2::text[]) = 0 THEN TRUE
+    ELSE name = ANY ($2::text[])
+  END
+  AND CASE
+    WHEN $3::text = '' THEN TRUE
+    ELSE name = $3::text
   END
 ORDER BY
   id ASC
 `
 
 type ListOrderStatusesParams struct {
-	IDs []uuid.UUID
+	IDs   []uuid.UUID
+	Names []string
+	Name  string
 }
 
 func (q *Queries) ListOrderStatuses(ctx context.Context, arg ListOrderStatusesParams) ([]OrderStatus, error) {
-	rows, err := q.db.Query(ctx, listOrderStatuses, arg.IDs)
+	rows, err := q.db.Query(ctx, listOrderStatuses, arg.IDs, arg.Names, arg.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -276,52 +288,90 @@ func (q *Queries) ListOrderStatuses(ctx context.Context, arg ListOrderStatusesPa
 }
 
 const listOrders = `-- name: ListOrders :many
+WITH orders_with_statuses AS (
+  SELECT
+    orders.id,
+    order_statuses.name AS status_name
+  FROM
+    orders
+  INNER JOIN
+    order_statuses ON orders.status_id = order_statuses.id
+  WHERE
+    CASE
+      WHEN cardinality($6::text[]) = 0 THEN TRUE
+      ELSE order_statuses.name = ANY ($6::text[])
+    END
+    AND CASE
+      WHEN $7::text = '' THEN TRUE
+      ELSE order_statuses.name = $7::text
+    END
+)
 SELECT
-  id, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id
+  orders.id, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id, orders_with_statuses.id, status_name
 FROM
   orders
+LEFT JOIN
+  orders_with_statuses ON orders.id = orders_with_statuses.id
 WHERE
   CASE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
-    ELSE id = ANY ($1::uuid[])
+    ELSE orders.id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
-    ELSE user_id = ANY ($2::uuid[])
+    ELSE orders.user_id = ANY ($2::uuid[])
   END
   AND CASE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
-    ELSE status_id = ANY ($3::uuid[])
+    ELSE orders.status_id = ANY ($3::uuid[])
   END
 ORDER BY
-  id ASC
+  orders.id ASC
 OFFSET $4::integer
 LIMIT NULLIF($5::integer, 0)
 `
 
 type ListOrdersParams struct {
-	IDs       []uuid.UUID
-	UserIds   []uuid.UUID
-	StatusIds []uuid.UUID
-	Offset    int32
-	Limit     int32
+	IDs         []uuid.UUID
+	UserIds     []uuid.UUID
+	StatusIds   []uuid.UUID
+	Offset      int32
+	Limit       int32
+	StatusNames []string
+	StatusName  string
 }
 
-func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order, error) {
+type ListOrdersRow struct {
+	ID          uuid.UUID
+	Address     string
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
+	TotalAmount pgtype.Numeric
+	IsPaid      bool
+	UserID      uuid.UUID
+	StatusID    uuid.UUID
+	ProviderID  uuid.UUID
+	ID_2        pgtype.UUID
+	StatusName  *string
+}
+
+func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]ListOrdersRow, error) {
 	rows, err := q.db.Query(ctx, listOrders,
 		arg.IDs,
 		arg.UserIds,
 		arg.StatusIds,
 		arg.Offset,
 		arg.Limit,
+		arg.StatusNames,
+		arg.StatusName,
 	)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Order
+	var items []ListOrdersRow
 	for rows.Next() {
-		var i Order
+		var i ListOrdersRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Address,
@@ -332,6 +382,8 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order
 			&i.UserID,
 			&i.StatusID,
 			&i.ProviderID,
+			&i.ID_2,
+			&i.StatusName,
 		); err != nil {
 			return nil, err
 		}

@@ -3,6 +3,8 @@ package http
 import (
 	"net/http"
 
+	"backend/internal/domain"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -65,9 +67,9 @@ func (h *OrderHandlerImpl) Get(ctx *gin.Context) {
 //	@Tags			Order
 //	@Accept			json
 //	@Produce		json
-//	@Param			order_ids	query		[]string	false	"Filter by order IDs"	collectionFormat(csv)	format(uuid)
-//	@Param			user_ids	query		[]string	false	"Filter by user IDs"	collectionFormat(csv)	format(uuid)
-//	@Param			status_ids	query		[]string	false	"Filter by status IDs"	collectionFormat(csv)	format(uuid)
+//	@Param			order_ids	query		[]string			false	"Filter by order IDs"	collectionFormat(csv)	format(uuid)
+//	@Param			user_ids	query		[]string			false	"Filter by user IDs"	collectionFormat(csv)	format(uuid)
+//	@Param			status		query		domain.OrderStatus	false	"Filter by statuses"
 //	@Success		200			{array}		OrderResponseDto
 //	@Failure		500			{object}	Error
 //	@Router			/orders [get]
@@ -82,13 +84,15 @@ func (h *OrderHandlerImpl) List(ctx *gin.Context) {
 
 	orderIDs, _ := queryArrayToUUIDSlice(ctx, "order_ids")
 	userIDs, _ := queryArrayToUUIDSlice(ctx, "user_ids")
-	statusIDs, _ := queryArrayToUUIDSlice(ctx, "status_ids")
+
+	statusQuery := ctx.Query("status")
+	status := domain.OrderStatus(statusQuery)
 
 	orders, err := h.orderApp.List(ctx, ListOrderRequestDto{
 		PaginationRequestDto: *paginateRequestDto,
 		IDs:                  orderIDs,
 		UserIDs:              userIDs,
-		StatusIDs:            statusIDs,
+		Status:               status,
 	})
 	if err != nil {
 		SendError(ctx, err)

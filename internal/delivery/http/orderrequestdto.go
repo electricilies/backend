@@ -8,9 +8,9 @@ import (
 
 type ListOrderRequestDto struct {
 	PaginationRequestDto
-	IDs       []uuid.UUID
-	UserIDs   []uuid.UUID
-	StatusIDs []uuid.UUID
+	IDs     []uuid.UUID
+	UserIDs []uuid.UUID
+	Status  domain.OrderStatus
 }
 
 type CreateOrderRequestDto struct {

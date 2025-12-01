@@ -55,7 +55,7 @@ type Querier interface {
 	ListOptions(ctx context.Context, arg ListOptionsParams) ([]Option, error)
 	ListOrderItems(ctx context.Context, arg ListOrderItemsParams) ([]OrderItem, error)
 	ListOrderStatuses(ctx context.Context, arg ListOrderStatusesParams) ([]OrderStatus, error)
-	ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order, error)
+	ListOrders(ctx context.Context, arg ListOrdersParams) ([]ListOrdersRow, error)
 	ListProductImages(ctx context.Context, arg ListProductImagesParams) ([]ProductImage, error)
 	ListProductVariants(ctx context.Context, arg ListProductVariantsParams) ([]ProductVariant, error)
 	// This is used for list, search (with filter, order), suggest

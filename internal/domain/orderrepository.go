@@ -31,6 +31,7 @@ type OrderRepository interface {
 type OrderRepositoryListParam struct {
 	IDs     []uuid.UUID
 	Search  string
+	Status  OrderStatus
 	Deleted DeletedParam
 	Limit   int
 	Offset  int
