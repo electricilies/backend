@@ -81,6 +81,7 @@ return {
             return not g.dev_no_gen
               and (
                 filename:match("internal/delivery/http/%.conform%.%d+%.handler%w*%.go") ~= nil
+                or filename:match("internal/delivery/http/%.conform%.%d+%.%w*dto%.go") ~= nil
                 or filename:match("cmd") ~= nil
               )
           end,
