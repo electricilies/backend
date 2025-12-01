@@ -45,6 +45,7 @@ type CreateProductOptionData struct {
 
 type CreateProductImageData struct {
 	URL   string `json:"url"   binding:"required,url"`
+	Key   string `json:"key"   binding:"required"`
 	Order int    `json:"order" binding:"required"`
 }
 
@@ -90,6 +91,7 @@ type AddProductImagesRequestDto struct {
 type AddProductImageData struct {
 	URL              string    `json:"url"                        binding:"required"`
 	Order            int       `json:"order,omitempty"`
+	Key              string    `json:"key"                        binding:"required"`
 	ProductVariantID uuid.UUID `json:"productVariantId,omitempty"`
 }
 

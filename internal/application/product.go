@@ -262,6 +262,13 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 			return nil, err
 		}
 		productImages = append(productImages, *image)
+		if err = p.productObjectStorage.PersistImageFromTemp(
+			ctx,
+			imgData.Key,
+			image.ID,
+		); err != nil {
+			return nil, err
+		}
 	}
 	product.AddImages(productImages...)
 	for _, variantData := range param.Data.Variants {
@@ -284,6 +291,13 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 				return nil, err
 			}
 			variantImages = append(variantImages, *image)
+			if err = p.productObjectStorage.PersistImageFromTemp(
+				ctx,
+				imgData.Key,
+				image.ID,
+			); err != nil {
+				return nil, err
+			}
 		}
 		if err := product.AddVariantImages(variant.ID, variantImages...); err != nil {
 			return nil, err
@@ -476,6 +490,13 @@ func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequ
 			}
 		} else {
 			images = append(images, *image)
+			if err = p.productObjectStorage.PersistImageFromTemp(
+				ctx,
+				imgData.Key,
+				image.ID,
+			); err != nil {
+				return nil, err
+			}
 		}
 	}
 	product.AddImages(images...)
