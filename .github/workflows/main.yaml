@@ -154,7 +154,7 @@ jobs:
           experimental: true
 
       - name: test
-        run: just test-unit -covermode=atomic
+        run: just test-unit -covermode=atomic -coverprofile=coverage.out
         continue-on-error: true
 
       - name: Upload results to Codecov
@@ -204,7 +204,7 @@ jobs:
           key: testcontainers-${{ runner.os }}-${{ hashFiles('**/containersimages.go') }}
 
       - name: test
-        run: just test-integration -covermode=atomic
+        run: just test-integration -covermode=atomic -coverprofile=coverage.out
         continue-on-error: true
 
       - name: Upload results to Codecov
