@@ -59,9 +59,10 @@ component_management:
       paths:
         - internal/*review*
 ignore:
-  - test/
-  - docs/
-  - internal/**/*_test.go
-  - internal/**/*_mock.go
+  - "**/*.bak"
   - "**/*.sql.go"
   - "**/wire.go"
+  - docs/
+  - internal/**/*_mock.go
+  - internal/**/*_test.go
+  - test/
