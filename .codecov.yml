@@ -42,16 +42,20 @@ component_management:
       name: Cart
       paths:
         - internal/*cart*
-    - name: Category
+    - component_id: category
+      name: Category
       paths:
         - internal/*category*
-    - name: Order
+    - component_id: order
+      name: Order
       paths:
         - internal/*order*
-    - name: Product
+    - component_id: product
+      name: Product
       paths:
         - internal/*product*
-    - name: Review
+    - component_id: review
+      name: Review
       paths:
         - internal/*review*
 ignore:
