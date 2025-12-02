@@ -432,7 +432,7 @@ FROM
   products
 LEFT JOIN (
   SELECT
-    products.id,
+    categories.id AS category_id,
     pdb.score(products.id) AS category_score
   FROM products
   INNER JOIN categories
@@ -446,10 +446,10 @@ LEFT JOIN (
       )
     END
 ) AS category_scores
-  ON products.id = category_scores.id
+  ON products.category_id = category_scores.category_id
 LEFT JOIN (
   SELECT
-    products.id
+    products.id AS product_id
   FROM product_variants
   INNER JOIN products
     ON product_variants.product_id = products.id
@@ -461,7 +461,7 @@ LEFT JOIN (
     END
   GROUP BY products.id
 ) AS variant_filter
-  ON products.id = variant_filter.id
+  ON products.id = variant_filter.product_id
 WHERE
   CASE
     WHEN $3::uuid IS NULL THEN TRUE
@@ -493,6 +493,11 @@ WHERE
     WHEN $8::uuid[] IS NULL THEN TRUE
     WHEN cardinality($8::uuid[]) = 0 THEN TRUE
     ELSE products.category_id = ANY ($8::uuid[])
+  END
+  AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
+    ELSE variant_filter.product_id IS NOT NULL
   END
   AND CASE
     WHEN $9::text = 'exclude' THEN products.deleted_at IS NULL

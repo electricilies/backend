@@ -301,13 +301,13 @@ WITH orders_with_statuses AS (
     order_statuses ON orders.status_id = order_statuses.id
   WHERE
     CASE
-      WHEN $6::text[] IS NULL THEN TRUE
-      WHEN cardinality($6::text[]) = 0 THEN TRUE
-      ELSE order_statuses.name = ANY ($6::text[])
+      WHEN $4::text[] IS NULL THEN TRUE
+      WHEN cardinality($4::text[]) = 0 THEN TRUE
+      ELSE order_statuses.name = ANY ($4::text[])
     END
     AND CASE
-      WHEN $7::text = '' THEN TRUE
-      ELSE order_statuses.name = $7::text
+      WHEN $5::text = '' THEN TRUE
+      ELSE order_statuses.name = $5::text
     END
 )
 SELECT
@@ -315,7 +315,8 @@ SELECT
 FROM
   orders
 LEFT JOIN
-  orders_with_statuses ON orders.id = orders_with_statuses.id
+  orders_with_statuses
+    ON orders.id = orders_with_statuses.id
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
@@ -332,20 +333,29 @@ WHERE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE orders.status_id = ANY ($3::uuid[])
   END
+  AND CASE
+    WHEN $4::text[] IS NULL THEN TRUE
+    WHEN cardinality($4::text[]) = 0 THEN TRUE
+    ELSE orders_with_statuses.status_name IS NOT NULL
+  END
+    AND CASE
+    WHEN $5::text = '' THEN TRUE
+    ELSE orders_with_statuses.status_name IS NOT NULL
+  END
 ORDER BY
   orders.id ASC
-OFFSET $4::integer
-LIMIT NULLIF($5::integer, 0)
+OFFSET $6::integer
+LIMIT NULLIF($7::integer, 0)
 `
 
 type ListOrdersParams struct {
 	IDs         []uuid.UUID
 	UserIds     []uuid.UUID
 	StatusIds   []uuid.UUID
-	Offset      int32
-	Limit       int32
 	StatusNames []string
 	StatusName  string
+	Offset      int32
+	Limit       int32
 }
 
 func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order, error) {
@@ -353,10 +363,10 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order
 		arg.IDs,
 		arg.UserIds,
 		arg.StatusIds,
-		arg.Offset,
-		arg.Limit,
 		arg.StatusNames,
 		arg.StatusName,
+		arg.Offset,
+		arg.Limit,
 	)
 	if err != nil {
 		return nil, err

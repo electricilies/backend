@@ -55,7 +55,8 @@ SELECT
 FROM
   orders
 LEFT JOIN
-  orders_with_statuses ON orders.id = orders_with_statuses.id
+  orders_with_statuses
+    ON orders.id = orders_with_statuses.id
 WHERE
   CASE
     WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
@@ -71,6 +72,15 @@ WHERE
     WHEN sqlc.arg('status_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('status_ids')::uuid[]) = 0 THEN TRUE
     ELSE orders.status_id = ANY (sqlc.arg('status_ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.arg('status_names')::text[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.arg('status_names')::text[]) = 0 THEN TRUE
+    ELSE orders_with_statuses.status_name IS NOT NULL
+  END
+    AND CASE
+    WHEN sqlc.arg('status_name')::text = '' THEN TRUE
+    ELSE orders_with_statuses.status_name IS NOT NULL
   END
 ORDER BY
   orders.id ASC
