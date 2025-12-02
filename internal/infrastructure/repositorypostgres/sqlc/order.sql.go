@@ -19,14 +19,17 @@ FROM
   orders
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE user_id = ANY ($2::uuid[])
   END
   AND CASE
+    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE status_id = ANY ($3::uuid[])
   END
@@ -298,6 +301,7 @@ WITH orders_with_statuses AS (
     order_statuses ON orders.status_id = order_statuses.id
   WHERE
     CASE
+      WHEN $6::text[] IS NULL THEN TRUE
       WHEN cardinality($6::text[]) = 0 THEN TRUE
       ELSE order_statuses.name = ANY ($6::text[])
     END
@@ -307,21 +311,24 @@ WITH orders_with_statuses AS (
     END
 )
 SELECT
-  orders.id, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id, orders_with_statuses.id, status_name
+  orders.id, orders.address, orders.created_at, orders.updated_at, orders.total_amount, orders.is_paid, orders.user_id, orders.status_id, orders.provider_id
 FROM
   orders
 LEFT JOIN
   orders_with_statuses ON orders.id = orders_with_statuses.id
 WHERE
   CASE
+    WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
     ELSE orders.id = ANY ($1::uuid[])
   END
   AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
     ELSE orders.user_id = ANY ($2::uuid[])
   END
   AND CASE
+    WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
     ELSE orders.status_id = ANY ($3::uuid[])
   END
@@ -341,21 +348,7 @@ type ListOrdersParams struct {
 	StatusName  string
 }
 
-type ListOrdersRow struct {
-	ID          uuid.UUID
-	Address     string
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
-	TotalAmount pgtype.Numeric
-	IsPaid      bool
-	UserID      uuid.UUID
-	StatusID    uuid.UUID
-	ProviderID  uuid.UUID
-	ID_2        pgtype.UUID
-	StatusName  *string
-}
-
-func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]ListOrdersRow, error) {
+func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order, error) {
 	rows, err := q.db.Query(ctx, listOrders,
 		arg.IDs,
 		arg.UserIds,
@@ -369,9 +362,9 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]ListO
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListOrdersRow
+	var items []Order
 	for rows.Next() {
-		var i ListOrdersRow
+		var i Order
 		if err := rows.Scan(
 			&i.ID,
 			&i.Address,
@@ -382,8 +375,6 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]ListO
 			&i.UserID,
 			&i.StatusID,
 			&i.ProviderID,
-			&i.ID_2,
-			&i.StatusName,
 		); err != nil {
 			return nil, err
 		}

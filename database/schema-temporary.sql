@@ -1,5 +1,5 @@
 -- attribute_values_temp
-CREATE TEMPORARY TABLE temp_attribute_values (
+CREATE TABLE temp_attribute_values (
   id UUID PRIMARY KEY,
   attribute_id UUID NOT NULL,
   value TEXT NOT NULL,
@@ -7,7 +7,7 @@ CREATE TEMPORARY TABLE temp_attribute_values (
 );
 
 -- cart_items_temp
-CREATE TEMPORARY TABLE temp_cart_items (
+CREATE TABLE temp_cart_items (
   id UUID PRIMARY KEY,
   quantity INTEGER NOT NULL,
   cart_id UUID NOT NULL,
@@ -15,7 +15,7 @@ CREATE TEMPORARY TABLE temp_cart_items (
 );
 
 -- product_variants_temp
-CREATE TEMPORARY TABLE temp_product_variants (
+CREATE TABLE temp_product_variants (
   id UUID PRIMARY KEY,
   sku TEXT NOT NULL,
   price DECIMAL(12, 0) NOT NULL,
@@ -28,7 +28,7 @@ CREATE TEMPORARY TABLE temp_product_variants (
 );
 
 -- product_images_temp
-CREATE TEMPORARY TABLE temp_product_images (
+CREATE TABLE temp_product_images (
   id UUID PRIMARY KEY,
   url TEXT NOT NULL,
   "order" INTEGER NOT NULL,
@@ -39,22 +39,22 @@ CREATE TEMPORARY TABLE temp_product_images (
 );
 
 -- products_attribute_values_temp
-CREATE TEMPORARY TABLE temp_products_attribute_values (
+CREATE TABLE temp_products_attribute_values (
   product_id UUID NOT NULL,
   attribute_value_id UUID NOT NULL,
   PRIMARY KEY (product_id, attribute_value_id)
 );
 
 -- name: CreateTempTableOptions :exec
-CREATE TEMPORARY TABLE temp_options (
+CREATE TABLE temp_options (
   id UUID PRIMARY KEY,
   name TEXT NOT NULL,
   product_id UUID NOT NULL,
   deleted_at TIMESTAMPTZ
-) ON COMMIT DROP;
+);
 
 -- option_values_temp
-CREATE TEMPORARY TABLE temp_option_values (
+CREATE TABLE temp_option_values (
   id UUID PRIMARY KEY,
   value TEXT NOT NULL,
   option_id UUID NOT NULL,
@@ -62,17 +62,17 @@ CREATE TEMPORARY TABLE temp_option_values (
 );
 
 -- option_values_product_variants_temp
-CREATE TEMPORARY TABLE temp_option_values_product_variants (
+CREATE TABLE temp_option_values_product_variants (
   product_variant_id UUID NOT NULL,
   option_value_id UUID NOT NULL,
   PRIMARY KEY (product_variant_id, option_value_id)
 );
 
 -- name: CreateTempTableOrderItems :exec
-CREATE TEMPORARY TABLE temp_order_items (
+CREATE TABLE temp_order_items (
   id UUID PRIMARY KEY,
   quantity INTEGER NOT NULL,
   order_id UUID NOT NULL,
   price NUMERIC NOT NULL,
   product_variant_id UUID NOT NULL
-) ON COMMIT DROP;
+);

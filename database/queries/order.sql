@@ -41,6 +41,7 @@ WITH orders_with_statuses AS (
     order_statuses ON orders.status_id = order_statuses.id
   WHERE
     CASE
+      WHEN sqlc.arg('status_names')::text[] IS NULL THEN TRUE
       WHEN cardinality(sqlc.arg('status_names')::text[]) = 0 THEN TRUE
       ELSE order_statuses.name = ANY (sqlc.arg('status_names')::text[])
     END
@@ -50,21 +51,24 @@ WITH orders_with_statuses AS (
     END
 )
 SELECT
-  *
+  orders.*
 FROM
   orders
 LEFT JOIN
   orders_with_statuses ON orders.id = orders_with_statuses.id
 WHERE
   CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE orders.id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('user_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('user_ids')::uuid[]) = 0 THEN TRUE
     ELSE orders.user_id = ANY (sqlc.arg('user_ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('status_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('status_ids')::uuid[]) = 0 THEN TRUE
     ELSE orders.status_id = ANY (sqlc.arg('status_ids')::uuid[])
   END
@@ -80,14 +84,17 @@ FROM
   orders
 WHERE
   CASE
+    WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('user_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('user_ids')::uuid[]) = 0 THEN TRUE
     ELSE user_id = ANY (sqlc.arg('user_ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('status_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('status_ids')::uuid[]) = 0 THEN TRUE
     ELSE status_id = ANY (sqlc.arg('status_ids')::uuid[])
   END;
