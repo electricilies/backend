@@ -92,6 +92,9 @@ WHERE
     ELSE deleted_at IS NULL
   END
 ORDER BY
+  CASE WHEN
+    $1::text <> '' THEN pdb.score(id)
+  END DESC,
   id DESC
 OFFSET $4::integer
 LIMIT NULLIF($5::integer, 0)
