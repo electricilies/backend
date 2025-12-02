@@ -129,8 +129,8 @@ resource "keycloak_realm_user_profile" "userprofile" {
   }
 
   attribute {
-    name         = "phone"
-    display_name = "Phone"
+    name         = "phoneNumber"
+    display_name = "Phone Number"
     permissions {
       view = ["admin", "user"]
       edit = ["admin", "user"]
@@ -190,37 +190,37 @@ locals {
 
   users = {
     admin = {
-      password  = "admin",
-      role      = "admin"
-      firstName = "admin",
-      lastName  = "admin"
-      email     = "admin@example.com"
-      phone     = "0909909909"
-      street    = "admin street"
-      locality  = "admin locality"
-      birthdate = "2001-01-01"
+      password    = "admin",
+      role        = "admin"
+      firstName   = "admin",
+      lastName    = "admin"
+      email       = "admin@example.com"
+      phoneNumber = "0909909909"
+      street      = "admin street"
+      locality    = "admin locality"
+      birthdate   = "2001-01-01"
     },
     staff = {
-      password  = "staff",
-      role      = "staff",
-      firstName = "staff",
-      lastName  = "staff"
-      email     = "staff@example.com"
-      phone     = "0909909909"
-      street    = "staff street"
-      locality  = "staff locality"
-      birthdate = "2001-01-01"
+      password    = "staff",
+      role        = "staff",
+      firstName   = "staff",
+      lastName    = "staff"
+      email       = "staff@example.com"
+      phoneNumber = "0909909909"
+      street      = "staff street"
+      locality    = "staff locality"
+      birthdate   = "2001-01-01"
     },
     customer = {
-      password  = "customer",
-      role      = "customer"
-      firstName = "customer",
-      lastName  = "customer"
-      email     = "customer@example.com"
-      phone     = "0909909909"
-      street    = "customer street"
-      locality  = "customer locality"
-      birthdate = "2001-01-01"
+      password    = "customer",
+      role        = "customer"
+      firstName   = "customer",
+      lastName    = "customer"
+      email       = "customer@example.com"
+      phoneNumber = "0909909909"
+      street      = "customer street"
+      locality    = "customer locality"
+      birthdate   = "2001-01-01"
     },
   }
 }
@@ -272,7 +272,7 @@ resource "keycloak_user" "users" {
     keycloak_realm_user_profile.userprofile,
   ]
 
-  import         = false
+  import         = true
   realm_id       = keycloak_realm.electricilies.id
   username       = each.key
   first_name     = each.value.firstName
@@ -284,10 +284,10 @@ resource "keycloak_user" "users" {
     temporary = false
   }
   attributes = {
-    phone     = each.value.phone,
-    street    = each.value.street,
-    locality  = each.value.locality,
-    birthdate = each.value.birthdate,
+    phoneNumber = each.value.phoneNumber,
+    street      = each.value.street,
+    locality    = each.value.locality,
+    birthdate   = each.value.birthdate,
   }
 }
 

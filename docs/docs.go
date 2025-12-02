@@ -3445,12 +3445,20 @@ const docTemplate = `{
             "type": "oauth2",
             "flow": "accessCode",
             "authorizationUrl": "/auth/protocol/openid-connect/auth",
-            "tokenUrl": "/auth/protocol/openid-connect/token"
+            "tokenUrl": "/auth/protocol/openid-connect/token",
+            "scopes": {
+                "address": "Grants read access to address",
+                "phone": "Grants read access to phone number"
+            }
         },
         "OAuth2Password": {
             "type": "oauth2",
             "flow": "password",
-            "tokenUrl": "/auth/protocol/openid-connect/token"
+            "tokenUrl": "/auth/protocol/openid-connect/token",
+            "scopes": {
+                "address": "Grants read access to address",
+                "phone": "Grants read access to phone number"
+            }
         }
     }
 }`
