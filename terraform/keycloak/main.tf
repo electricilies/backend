@@ -63,7 +63,7 @@ data "keycloak_openid_client_scope" "roles" {
   name     = "roles"
 }
 
-resource "keycloak_generic_protocol_mapper" "realm_role_more" {
+resource "keycloak_generic_protocol_mapper" "realm_roles" {
   realm_id        = keycloak_realm.electricilies.id
   client_scope_id = data.keycloak_openid_client_scope.roles.id
   name            = "realm roles more"
@@ -71,52 +71,14 @@ resource "keycloak_generic_protocol_mapper" "realm_role_more" {
   protocol_mapper = "oidc-usermodel-realm-role-mapper"
   config = {
     "introspection.token.claim" : "true",
-    "multivalued" : "true",
     "userinfo.token.claim" : "true",
+    "multivalued" : "true",
     "id.token.claim" : "true",
     "lightweight.claim" : "false",
     "access.token.claim" : "true",
-    "claim.name" : "roles",
+    "claim.name" : "realm_access.roles",
     "jsonType.label" : "String"
   }
-}
-
-resource "keycloak_openid_client_scope" "custom_address" {
-  realm_id    = keycloak_realm.electricilies.id
-  name        = "custom-address"
-  description = "Custom Address Scope"
-}
-
-resource "keycloak_generic_protocol_mapper" "custom_address" {
-  realm_id        = keycloak_realm.electricilies.id
-  client_scope_id = keycloak_openid_client_scope.custom_address.id
-  name            = "address mapper"
-  protocol        = "openid-connect"
-  protocol_mapper = "oidc-usermodel-attribute-mapper"
-  config = {
-    "user.attribute" : "address",
-    "claim.name" : "address",
-    "jsonType.label" : "String",
-    "id.token.claim" : "true",
-    "access.token.claim" : "true",
-    "userinfo.token.claim" : "true",
-    "introspection.token.claim" : "true"
-  }
-}
-
-resource "keycloak_openid_client_default_scopes" "frontend" {
-  realm_id  = keycloak_realm.electricilies.id
-  client_id = keycloak_openid_client.frontend.id
-  default_scopes = [
-    data.keycloak_openid_client_scope.roles.name,
-    keycloak_openid_client_scope.custom_address.name,
-    "acr",
-    "email",
-    "profile",
-    "web-origins",
-    "roles",
-    "basic",
-  ]
 }
 
 resource "keycloak_realm_user_profile" "userprofile" {
@@ -132,7 +94,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
   }
 
   attribute {
-    name         = "first_name"
+    name         = "firstName"
     display_name = "First Name"
     permissions {
       view = ["admin", "user"]
@@ -145,7 +107,7 @@ resource "keycloak_realm_user_profile" "userprofile" {
   }
 
   attribute {
-    name         = "last_name"
+    name         = "lastName"
     display_name = "Last Name"
     permissions {
       view = ["admin", "user"]
@@ -167,8 +129,8 @@ resource "keycloak_realm_user_profile" "userprofile" {
   }
 
   attribute {
-    name         = "phone_number"
-    display_name = "Phone Number"
+    name         = "phone"
+    display_name = "Phone"
     permissions {
       view = ["admin", "user"]
       edit = ["admin", "user"]
@@ -186,8 +148,8 @@ resource "keycloak_realm_user_profile" "userprofile" {
   }
 
   attribute {
-    name         = "address"
-    display_name = "Address"
+    name         = "street"
+    display_name = "Street"
     permissions {
       view = ["admin", "user"]
       edit = ["admin", "user"]
@@ -196,7 +158,17 @@ resource "keycloak_realm_user_profile" "userprofile" {
   }
 
   attribute {
-    name         = "date_of_birth"
+    name         = "locality"
+    display_name = "Locality/City"
+    permissions {
+      view = ["admin", "user"]
+      edit = ["admin", "user"]
+    }
+    required_for_roles = ["admin", "user"]
+  }
+
+  attribute {
+    name         = "birthdate"
     display_name = "Date of Birth"
     permissions {
       view = ["admin", "user"]
@@ -218,34 +190,37 @@ locals {
 
   users = {
     admin = {
-      password      = "admin",
-      role          = "admin"
-      first_name    = "admin",
-      last_name     = "admin"
-      email         = "admin@example.com"
-      phone_number  = "0909909909"
-      address       = "admin address"
-      date_of_birth = "01/01/2001"
+      password  = "admin",
+      role      = "admin"
+      firstName = "admin",
+      lastName  = "admin"
+      email     = "admin@example.com"
+      phone     = "0909909909"
+      street    = "admin street"
+      locality  = "admin locality"
+      birthdate = "2001-01-01"
     },
     staff = {
-      password      = "staff",
-      role          = "staff",
-      first_name    = "staff",
-      last_name     = "staff"
-      email         = "staff@example.com"
-      phone_number  = "0909909909"
-      address       = "staff address"
-      date_of_birth = "01/01/2001"
+      password  = "staff",
+      role      = "staff",
+      firstName = "staff",
+      lastName  = "staff"
+      email     = "staff@example.com"
+      phone     = "0909909909"
+      street    = "staff street"
+      locality  = "staff locality"
+      birthdate = "2001-01-01"
     },
     customer = {
-      password      = "customer",
-      role          = "customer"
-      first_name    = "customer",
-      last_name     = "customer"
-      email         = "customer@example.com"
-      phone_number  = "0909909909"
-      address       = "customer address"
-      date_of_birth = "01/01/2001"
+      password  = "customer",
+      role      = "customer"
+      firstName = "customer",
+      lastName  = "customer"
+      email     = "customer@example.com"
+      phone     = "0909909909"
+      street    = "customer street"
+      locality  = "customer locality"
+      birthdate = "2001-01-01"
     },
   }
 }
@@ -297,22 +272,22 @@ resource "keycloak_user" "users" {
     keycloak_realm_user_profile.userprofile,
   ]
 
-  import   = true
-  realm_id = keycloak_realm.electricilies.id
-  username = each.key
+  import         = false
+  realm_id       = keycloak_realm.electricilies.id
+  username       = each.key
+  first_name     = each.value.firstName
+  last_name      = each.value.lastName
+  email          = each.value.email
+  email_verified = true
   initial_password {
     value     = each.value.password
     temporary = false
   }
-  email          = each.value.email
-  email_verified = true
   attributes = {
-    first_name    = each.value.first_name
-    first_name    = each.value.first_name,
-    last_name     = each.value.last_name,
-    phone_number  = each.value.phone_number,
-    address       = each.value.address,
-    date_of_birth = each.value.date_of_birth,
+    phone     = each.value.phone,
+    street    = each.value.street,
+    locality  = each.value.locality,
+    birthdate = each.value.birthdate,
   }
 }
 
