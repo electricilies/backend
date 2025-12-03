@@ -49,7 +49,7 @@ func (m *RoleMiddlewareImpl) Handler(rolesAllowed []UserRole) gin.HandlerFunc {
 			return
 		}
 
-		userRoles := extractRolesFromClaims(claims)
+		userRoles := extractRole(claims)
 		if len(userRoles) == 0 {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, NewError(m.noRoleFoundErr))
 			return
@@ -72,22 +72,16 @@ func (m *RoleMiddlewareImpl) Handler(rolesAllowed []UserRole) gin.HandlerFunc {
 	}
 }
 
-func extractRolesFromClaims(claims jwt.MapClaims) []string {
-	var roles []string
-	if rawRoles, ok := claims["roles"]; ok {
-		switch v := rawRoles.(type) {
-		case []interface{}:
-			for _, r := range v {
-				if s, ok := r.(string); ok {
-					roles = append(roles, s)
+func extractRole(claims jwt.MapClaims) []string {
+	roles := []string{}
+	if realmAccess, ok := claims["realm_access"].(map[string]interface{}); ok {
+		if realmRoles, ok := realmAccess["roles"].([]interface{}); ok {
+			for _, r := range realmRoles {
+				if roleStr, ok := r.(string); ok {
+					roles = append(roles, roleStr)
 				}
 			}
-		case []string:
-			roles = append(roles, v...)
 		}
-	}
-	if role, ok := claims["role"].(string); ok && role != "" {
-		roles = append(roles, role)
 	}
 	return roles
 }
