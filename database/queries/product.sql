@@ -49,13 +49,13 @@ FROM
 LEFT JOIN (
   SELECT
     categories.id AS category_id,
-    pdb.score(products.id) AS category_score
+    pdb.score(categories.id) AS category_score
   FROM products
   INNER JOIN categories
     ON products.category_id = categories.id
   WHERE
     CASE
-      WHEN sqlc.arg('search')::text = '' THEN TRUE
+      WHEN sqlc.arg('search')::text = '' THEN FALSE
       ELSE (
         categories.name ||| sqlc.arg('search')::text
         AND categories.deleted_at IS NULL

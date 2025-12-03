@@ -433,13 +433,13 @@ FROM
 LEFT JOIN (
   SELECT
     categories.id AS category_id,
-    pdb.score(products.id) AS category_score
+    pdb.score(categories.id) AS category_score
   FROM products
   INNER JOIN categories
     ON products.category_id = categories.id
   WHERE
     CASE
-      WHEN $1::text = '' THEN TRUE
+      WHEN $1::text = '' THEN FALSE
       ELSE (
         categories.name ||| $1::text
         AND categories.deleted_at IS NULL
