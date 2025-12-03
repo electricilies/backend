@@ -63,21 +63,6 @@ LEFT JOIN (
     END
 ) AS category_scores
   ON products.category_id = category_scores.category_id
-LEFT JOIN (
-  SELECT
-    products.id AS product_id
-  FROM product_variants
-  INNER JOIN products
-    ON product_variants.product_id = products.id
-  WHERE
-    CASE
-      WHEN sqlc.arg('variant_ids')::uuid[] IS NULL THEN TRUE
-      WHEN cardinality(sqlc.arg('variant_ids')::uuid[]) = 0 THEN TRUE
-      ELSE product_variants.id = ANY (sqlc.arg('variant_ids')::uuid[])
-    END
-  GROUP BY products.id
-) AS variant_filter
-  ON products.id = variant_filter.product_id
 WHERE
   CASE
     WHEN sqlc.arg('id')::uuid IS NULL THEN TRUE
@@ -113,7 +98,12 @@ WHERE
   AND CASE
     WHEN sqlc.arg('variant_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('variant_ids')::uuid[]) = 0 THEN TRUE
-    ELSE variant_filter.product_id IS NOT NULL
+    ELSE EXISTS (
+      SELECT 1
+      FROM product_variants
+      WHERE product_variants.product_id = products.id
+        AND product_variants.id = ANY (sqlc.arg('variant_ids')::uuid[])
+    )
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NULL

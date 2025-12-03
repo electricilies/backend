@@ -447,57 +447,47 @@ LEFT JOIN (
     END
 ) AS category_scores
   ON products.category_id = category_scores.category_id
-LEFT JOIN (
-  SELECT
-    products.id AS product_id
-  FROM product_variants
-  INNER JOIN products
-    ON product_variants.product_id = products.id
-  WHERE
-    CASE
-      WHEN $2::uuid[] IS NULL THEN TRUE
-      WHEN cardinality($2::uuid[]) = 0 THEN TRUE
-      ELSE product_variants.id = ANY ($2::uuid[])
-    END
-  GROUP BY products.id
-) AS variant_filter
-  ON products.id = variant_filter.product_id
 WHERE
   CASE
-    WHEN $3::uuid IS NULL THEN TRUE
-    WHEN $3::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
-    ELSE products.id = $3::uuid
+    WHEN $2::uuid IS NULL THEN TRUE
+    WHEN $2::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
+    ELSE products.id = $2::uuid
   END
   AND CASE
-    WHEN $4::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($4::uuid[]) = 0 THEN TRUE
-    ELSE products.id = ANY ($4::uuid[])
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
+    ELSE products.id = ANY ($3::uuid[])
   END
   AND CASE
     WHEN $1::text = '' THEN TRUE
     ELSE products.name ||| $1::text
   END
   AND CASE
+    WHEN $4::decimal = 0 THEN TRUE
+    ELSE products.price >= $4::decimal
+  END
+  AND CASE
     WHEN $5::decimal = 0 THEN TRUE
-    ELSE products.price >= $5::decimal
+    ELSE products.price <= $5::decimal
   END
   AND CASE
-    WHEN $6::decimal = 0 THEN TRUE
-    ELSE products.price <= $6::decimal
+    WHEN $6::real = 0 THEN TRUE
+    ELSE products.rating >= $6::real
   END
   AND CASE
-    WHEN $7::real = 0 THEN TRUE
-    ELSE products.rating >= $7::real
+    WHEN $7::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($7::uuid[]) = 0 THEN TRUE
+    ELSE products.category_id = ANY ($7::uuid[])
   END
   AND CASE
     WHEN $8::uuid[] IS NULL THEN TRUE
     WHEN cardinality($8::uuid[]) = 0 THEN TRUE
-    ELSE products.category_id = ANY ($8::uuid[])
-  END
-  AND CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
-    ELSE variant_filter.product_id IS NOT NULL
+    ELSE EXISTS (
+      SELECT 1
+      FROM product_variants
+      WHERE product_variants.product_id = products.id
+        AND product_variants.id = ANY ($8::uuid[])
+    )
   END
   AND CASE
     WHEN $9::text = 'exclude' THEN products.deleted_at IS NULL
@@ -527,13 +517,13 @@ LIMIT NULLIF($13::integer, 0)
 
 type ListProductsParams struct {
 	Search      string
-	VariantIDs  []uuid.UUID
 	ID          uuid.UUID
 	IDs         []uuid.UUID
 	MinPrice    pgtype.Numeric
 	MaxPrice    pgtype.Numeric
 	Rating      float32
 	CategoryIDs []uuid.UUID
+	VariantIDs  []uuid.UUID
 	Deleted     string
 	SortRating  string
 	SortPrice   string
@@ -545,13 +535,13 @@ type ListProductsParams struct {
 func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]Product, error) {
 	rows, err := q.db.Query(ctx, listProducts,
 		arg.Search,
-		arg.VariantIDs,
 		arg.ID,
 		arg.IDs,
 		arg.MinPrice,
 		arg.MaxPrice,
 		arg.Rating,
 		arg.CategoryIDs,
+		arg.VariantIDs,
 		arg.Deleted,
 		arg.SortRating,
 		arg.SortPrice,
