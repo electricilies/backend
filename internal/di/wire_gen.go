@@ -64,9 +64,10 @@ func InitializeServer(ctx context.Context) *http.Server {
 	cacheredisCart := cacheredis.ProvideCart(redisClient)
 	applicationCart := application.ProvideCart(cart, serviceCart, cacheredisCart, repositorypostgresProduct)
 	cartHandlerImpl := http.ProvideCartHandler(applicationCart)
-	ginRouter := http.ProvideRouter(healthHandlerImpl, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, categoryHandlerImpl, productHandlerImpl, attributeHandlerImpl, orderHandlerImpl, cartHandlerImpl)
+	flushCacheRedisHandler := http.ProvideFlushCacheRedisHandler(redisClient)
+	ginRouter := http.ProvideRouter(healthHandlerImpl, metricMiddlewareImpl, loggingMiddlewareImpl, ginAuthMiddleware, categoryHandlerImpl, productHandlerImpl, attributeHandlerImpl, orderHandlerImpl, cartHandlerImpl, flushCacheRedisHandler)
 	authHandlerImpl := http.ProvideAuthHandler(server)
-	httpServer := http.NewServer(engine, ginRouter, server, authHandlerImpl)
+	httpServer := http.NewServer(engine, ginRouter, server, redisClient, authHandlerImpl)
 	return httpServer
 }
 
@@ -116,6 +117,9 @@ var MiddlewareSet = wire.NewSet(http.ProvideAuthMiddleware, wire.Bind(
 var HandlerSet = wire.NewSet(http.ProvideAuthHandler, wire.Bind(
 	new(http.AuthHandler),
 	new(*http.AuthHandlerImpl),
+), http.ProvideFlushCacheRedisHandler, wire.Bind(
+	new(http.FlushCacheHandler),
+	new(*http.FlushCacheRedisHandler),
 ), http.ProvideHealthHandler, wire.Bind(
 	new(http.HealthHandler),
 	new(*http.HealthHandlerImpl),

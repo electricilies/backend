@@ -20,6 +20,7 @@ type GinRouter struct {
 	metricMiddleware  MetricMiddleware
 	loggingMiddleware LoggingMiddleware
 	authMiddleware    AuthMiddleware
+	flushCacheHandler FlushCacheHandler
 }
 
 func ProvideRouter(
@@ -32,6 +33,7 @@ func ProvideRouter(
 	attributeHandler AttributeHandler,
 	orderHandler OrderHandler,
 	cartHandler CartHandler,
+	flushCacheRedisHandler FlushCacheHandler,
 ) *GinRouter {
 	return &GinRouter{
 		healthHandler:     healthCheckHandler,
@@ -43,6 +45,7 @@ func ProvideRouter(
 		attributeHandler:  attributeHandler,
 		orderHandler:      orderHandler,
 		cartHandler:       cartHandler,
+		flushCacheHandler: flushCacheRedisHandler,
 	}
 }
 
@@ -138,5 +141,9 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 		// 	reviews.PATCH("/:review_id", r.reviewHandler.Update)
 		// 	reviews.DELETE("/:review_id", r.reviewHandler.Delete)
 		// }
+		dev := api.Group("/dev")
+		{
+			dev.POST("/flush-redis", r.flushCacheHandler.Handler())
+		}
 	}
 }

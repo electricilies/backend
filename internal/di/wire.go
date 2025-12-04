@@ -102,6 +102,11 @@ var HandlerSet = wire.NewSet(
 		new(http.AuthHandler),
 		new(*http.AuthHandlerImpl),
 	),
+	http.ProvideFlushCacheRedisHandler,
+	wire.Bind(
+		new(http.FlushCacheHandler),
+		new(*http.FlushCacheRedisHandler),
+	),
 	http.ProvideHealthHandler,
 	wire.Bind(
 		new(http.HealthHandler),
