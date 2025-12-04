@@ -241,14 +241,14 @@ func (h *AttributeHandlerImpl) CreateValue(ctx *gin.Context) {
 //	@Tags			Attribute
 //	@Accept			json
 //	@Produce		json
-//	@Param			attribute_id	path		string						true	"Attribute ID"	format(uuid)
-//	@Param			attribute		body		UpdateAttributeValueData	true	"Update attribute request"
+//	@Param			attribute_id	path		string				true	"Attribute ID"	format(uuid)
+//	@Param			attribute		body		UpdateAttributeData	true	"Update attribute request"
 //	@Success		200				{object}	AttributeResponseDto
 //	@Failure		400				{object}	Error
 //	@Failure		404				{object}	Error
 //	@Failure		409				{object}	Error
 //	@Failure		500				{object}	Error
-//	@Router			/attributes/{attribute_id} [put]
+//	@Router			/attributes/{attribute_id} [patch]
 //	@Security		OAuth2AccessCode
 //	@Security		OAuth2Password
 func (h *AttributeHandlerImpl) Update(ctx *gin.Context) {
