@@ -25,7 +25,8 @@ func NewServer(
 	authHandler AuthHandler,
 ) *Server {
 	e.Use(cors.New(cors.Config{
-		AllowOrigins: srvCfg.AllowOrigins,
+		AllowOrigins:     srvCfg.AllowOrigins,
+		AllowCredentials: true,
 	}))
 	r.RegisterRoutes(e)
 	auth := e.Group("/auth")
