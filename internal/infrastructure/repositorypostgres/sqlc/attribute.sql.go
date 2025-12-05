@@ -283,35 +283,28 @@ SELECT
   attributes.id, attributes.code, attributes.name, attributes.deleted_at
 FROM
   attributes
-LEFT JOIN (
-  SELECT
-    id,
-    attribute_id
-  FROM
-    attribute_values
-  WHERE
-    CASE
-      WHEN $1::uuid[] IS NULL THEN TRUE
-      WHEN cardinality($1::uuid[]) = 0 THEN TRUE
-      ELSE attribute_values.id::uuid = ANY ($1::uuid[])
-    END
-) AS av ON attributes.id = av.attribute_id
 WHERE
   CASE
-    WHEN $2::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
-    ELSE attributes.id::uuid = ANY ($2::uuid[])
-  END
-  AND CASE
-    WHEN $3::text = '' THEN TRUE
-    ELSE
-      attributes.name ||| $3::text
-      OR attributes.code ||| $3::text
-  END
-  AND CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
-    ELSE av.id IS NOT NULL
+    ELSE attributes.id::uuid = ANY ($1::uuid[])
+  END
+  AND CASE
+    WHEN $2::text = '' THEN TRUE
+    ELSE
+      attributes.name ||| $2::text
+      OR attributes.code ||| $2::text
+  END
+  AND CASE
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
+    ELSE EXISTS (
+      SELECT 1
+      FROM attribute_values
+      WHERE
+        attribute_values.attribute_id = attributes.id
+        AND attribute_values.id = ANY ($3::uuid[])
+    )
   END
   AND CASE
     WHEN $4::text = 'exclude' THEN deleted_at IS NULL
@@ -320,16 +313,16 @@ WHERE
     ELSE deleted_at IS NULL
   END
 ORDER BY
-  CASE WHEN $3::text <> '' THEN pdb.score(attributes.id) END DESC,
+  CASE WHEN $2::text <> '' THEN pdb.score(attributes.id) END DESC,
   attributes.id ASC
 OFFSET $5::integer
 LIMIT NULLIF($6::integer, 0)
 `
 
 type ListAttributesParams struct {
-	AttributeValueIDs []uuid.UUID
 	IDs               []uuid.UUID
 	Search            string
+	AttributeValueIDs []uuid.UUID
 	Deleted           string
 	Offset            int32
 	Limit             int32
@@ -337,9 +330,9 @@ type ListAttributesParams struct {
 
 func (q *Queries) ListAttributes(ctx context.Context, arg ListAttributesParams) ([]Attribute, error) {
 	rows, err := q.db.Query(ctx, listAttributes,
-		arg.AttributeValueIDs,
 		arg.IDs,
 		arg.Search,
+		arg.AttributeValueIDs,
 		arg.Deleted,
 		arg.Offset,
 		arg.Limit,

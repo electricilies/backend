@@ -21,19 +21,6 @@ SELECT
   attributes.*
 FROM
   attributes
-LEFT JOIN (
-  SELECT
-    id,
-    attribute_id
-  FROM
-    attribute_values
-  WHERE
-    CASE
-      WHEN sqlc.arg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
-      WHEN cardinality(sqlc.arg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
-      ELSE attribute_values.id::uuid = ANY (sqlc.arg('attribute_value_ids')::uuid[])
-    END
-) AS av ON attributes.id = av.attribute_id
 WHERE
   CASE
     WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
@@ -49,7 +36,13 @@ WHERE
   AND CASE
     WHEN sqlc.arg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
-    ELSE av.id IS NOT NULL
+    ELSE EXISTS (
+      SELECT 1
+      FROM attribute_values
+      WHERE
+        attribute_values.attribute_id = attributes.id
+        AND attribute_values.id = ANY (sqlc.arg('attribute_value_ids')::uuid[])
+    )
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
