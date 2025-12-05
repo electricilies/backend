@@ -24,11 +24,11 @@ func NewServer(
 	redisClient *redis.Client,
 	authHandler AuthHandler,
 ) *Server {
-	e.Use(cors.New(cors.Config{
-		AllowOrigins:     srvCfg.AllowOrigins,
-		AllowCredentials: true,
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
-	}))
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = srvCfg.AllowOrigins
+	corsConfig.AllowCredentials = true
+	e.Use(cors.New(corsConfig))
+
 	r.RegisterRoutes(e)
 	auth := e.Group("/auth")
 	{
