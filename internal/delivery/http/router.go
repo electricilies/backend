@@ -143,7 +143,7 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 		// }
 		dev := api.Group("/dev")
 		{
-			dev.POST("/flush-redis", r.flushCacheHandler.Handler())
+			dev.POST("/flush-cache", r.flushCacheHandler.Handler())
 		}
 	}
 }
