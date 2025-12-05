@@ -27,6 +27,7 @@ func NewServer(
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = srvCfg.AllowOrigins
 	corsConfig.AllowCredentials = true
+	corsConfig.AllowHeaders = []string{"Authorization", "Content-Type"}
 	e.Use(cors.New(corsConfig))
 
 	r.RegisterRoutes(e)
