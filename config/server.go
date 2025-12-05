@@ -28,6 +28,10 @@ const (
 	S3Endpoint          = "S3_ENDPOINT"
 	S3Bucket            = "S3_BUCKET"
 	TimeZone            = "TIMEZONE"
+	VNPURL              = "VNP_URL"
+	VNPSecureSecret     = "VNP_SECURE_SECRET"
+	VNPHashAlgo         = "VNP_HASH_ALGO"
+	VNPTMNCode          = "VNP_TMN_CODE"
 	AllowOrigins        = "ALLOW_ORIGINS"
 )
 
@@ -53,6 +57,10 @@ type Server struct {
 	S3Endpoint          string
 	S3Bucket            string
 	TimeZone            string
+	VNPURL              string
+	VNPSecureSecret     string
+	VNPHashAlgo         string
+	VNPTMNCode          string
 	AllowOrigins        []string
 }
 
@@ -91,6 +99,10 @@ func NewServer() *Server {
 		S3Endpoint:          viper.GetString(S3Endpoint),
 		S3Bucket:            viper.GetString(S3Bucket),
 		TimeZone:            viper.GetString(TimeZone),
+		VNPURL:              viper.GetString(VNPURL),
+		VNPSecureSecret:     viper.GetString(VNPSecureSecret),
+		VNPHashAlgo:         viper.GetString(VNPHashAlgo),
+		VNPTMNCode:          viper.GetString(VNPTMNCode),
 		AllowOrigins:        viper.GetStringSlice(AllowOrigins),
 	}
 }
