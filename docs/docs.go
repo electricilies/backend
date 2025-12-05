@@ -2642,7 +2642,9 @@ const docTemplate = `{
             "required": [
                 "address",
                 "items",
+                "phoneNumber",
                 "provider",
+                "recipientName",
                 "userId"
             ],
             "properties": {
@@ -2655,8 +2657,14 @@ const docTemplate = `{
                         "$ref": "#/definitions/CreateOrderItemData"
                     }
                 },
+                "phoneNumber": {
+                    "type": "string"
+                },
                 "provider": {
                     "$ref": "#/definitions/OrderProvider"
+                },
+                "recipientName": {
+                    "type": "string"
                 },
                 "userId": {
                     "type": "string"
@@ -2950,7 +2958,9 @@ const docTemplate = `{
                 "created_at",
                 "id",
                 "is_paid",
+                "phone_number",
                 "provider",
+                "recipent_name",
                 "status",
                 "total_amount",
                 "updated_at",
@@ -2975,8 +2985,14 @@ const docTemplate = `{
                         "$ref": "#/definitions/OrderItemResponseDto"
                     }
                 },
+                "phone_number": {
+                    "type": "string"
+                },
                 "provider": {
                     "$ref": "#/definitions/OrderProvider"
+                },
+                "recipent_name": {
+                    "type": "string"
                 },
                 "status": {
                     "$ref": "#/definitions/OrderStatus"

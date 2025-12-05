@@ -18,10 +18,12 @@ type CreateOrderRequestDto struct {
 }
 
 type CreateOrderData struct {
-	Address  string                `json:"address"  binding:"required"`
-	Provider domain.OrderProvider  `json:"provider" binding:"required"`
-	Items    []CreateOrderItemData `json:"items"    binding:"required,dive"`
-	UserID   uuid.UUID             `json:"userId"   binding:"required"`
+	RecipientName string                `json:"recipientName" binding:"required"`
+	PhoneNumber   string                `json:"phoneNumber"   binding:"required"`
+	Address       string                `json:"address"       binding:"required"`
+	Provider      domain.OrderProvider  `json:"provider"      binding:"required"`
+	Items         []CreateOrderItemData `json:"items"         binding:"required,dive"`
+	UserID        uuid.UUID             `json:"userId"        binding:"required"`
 }
 
 type CreateOrderItemData struct {

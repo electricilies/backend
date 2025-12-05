@@ -7,16 +7,18 @@ import (
 )
 
 type Order struct {
-	ID          uuid.UUID     `validate:"required"`
-	Address     string        `validate:"required"`
-	Provider    OrderProvider `validate:"required"`
-	Status      OrderStatus   `validate:"required"`
-	IsPaid      bool          `validate:"required"`
-	CreatedAt   time.Time     `validate:"required"`
-	UpdatedAt   time.Time     `validate:"required,gtefield=CreatedAt"`
-	Items       []OrderItem   `validate:"gt=0,orderTotalAmount,dive"`
-	TotalAmount int64         `validate:"required"`
-	UserID      uuid.UUID     `validate:"required"`
+	ID            uuid.UUID     `validate:"required"`
+	RecipientName string        `validate:"required"`
+	PhoneNumber   string        `validate:"required,e164"`
+	Address       string        `validate:"required"`
+	Provider      OrderProvider `validate:"required"`
+	Status        OrderStatus   `validate:"required"`
+	IsPaid        bool          `validate:"required"`
+	CreatedAt     time.Time     `validate:"required"`
+	UpdatedAt     time.Time     `validate:"required,gtefield=CreatedAt"`
+	Items         []OrderItem   `validate:"gt=0,orderTotalAmount,dive"`
+	TotalAmount   int64         `validate:"required"`
+	UserID        uuid.UUID     `validate:"required"`
 }
 
 type OrderItem struct {
@@ -48,6 +50,8 @@ const (
 
 func NewOrder(
 	userID uuid.UUID,
+	recipentName string,
+	phoneNumber string,
 	address string,
 	provider OrderProvider,
 	items []OrderItem,
@@ -62,16 +66,18 @@ func NewOrder(
 	}
 	now := time.Now()
 	return &Order{
-		ID:          id,
-		UserID:      userID,
-		Address:     address,
-		Provider:    provider,
-		Status:      OrderStatusPending,
-		IsPaid:      false,
-		CreatedAt:   now,
-		UpdatedAt:   now,
-		Items:       items,
-		TotalAmount: totalAmount,
+		ID:            id,
+		UserID:        userID,
+		RecipientName: recipentName,
+		PhoneNumber:   phoneNumber,
+		Address:       address,
+		Provider:      provider,
+		Status:        OrderStatusPending,
+		IsPaid:        false,
+		CreatedAt:     now,
+		UpdatedAt:     now,
+		Items:         items,
+		TotalAmount:   totalAmount,
 	}, nil
 }
 

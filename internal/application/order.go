@@ -77,6 +77,8 @@ func (o *Order) Create(ctx context.Context, param http.CreateOrderRequestDto) (*
 	}
 	order, err := domain.NewOrder(
 		param.Data.UserID,
+		param.Data.RecipientName,
+		param.Data.PhoneNumber,
 		param.Data.Address,
 		param.Data.Provider,
 		items,

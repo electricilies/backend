@@ -9,16 +9,18 @@ import (
 )
 
 type OrderResponseDto struct {
-	ID          uuid.UUID              `json:"id"           binding:"required"`
-	Address     string                 `json:"address"      binding:"required"`
-	Provider    domain.OrderProvider   `json:"provider"     binding:"required"`
-	Status      domain.OrderStatus     `json:"status"       binding:"required"`
-	IsPaid      bool                   `json:"is_paid"      binding:"required"`
-	CreatedAt   time.Time              `json:"created_at"   binding:"required"`
-	UpdatedAt   time.Time              `json:"updated_at"   binding:"required"`
-	Items       []OrderItemResponseDto `json:"items"        binding:"omitempty,dive"`
-	TotalAmount int64                  `json:"total_amount" binding:"required"`
-	UserID      uuid.UUID              `json:"user_id"      binding:"required"`
+	ID           uuid.UUID              `json:"id"            binding:"required"`
+	RecipentName string                 `json:"recipent_name" binding:"required"`
+	PhoneNumber  string                 `json:"phone_number"  binding:"required"`
+	Address      string                 `json:"address"       binding:"required"`
+	Provider     domain.OrderProvider   `json:"provider"      binding:"required"`
+	Status       domain.OrderStatus     `json:"status"        binding:"required"`
+	IsPaid       bool                   `json:"is_paid"       binding:"required"`
+	CreatedAt    time.Time              `json:"created_at"    binding:"required"`
+	UpdatedAt    time.Time              `json:"updated_at"    binding:"required"`
+	Items        []OrderItemResponseDto `json:"items"         binding:"omitempty,dive"`
+	TotalAmount  int64                  `json:"total_amount"  binding:"required"`
+	UserID       uuid.UUID              `json:"user_id"       binding:"required"`
 }
 
 type OrderItemResponseDto struct {
@@ -49,15 +51,17 @@ func ToOrderResponseDto(order *domain.Order) *OrderResponseDto {
 	}
 
 	return &OrderResponseDto{
-		ID:          order.ID,
-		Address:     order.Address,
-		Provider:    order.Provider,
-		Status:      order.Status,
-		IsPaid:      order.IsPaid,
-		CreatedAt:   order.CreatedAt,
-		UpdatedAt:   order.UpdatedAt,
-		TotalAmount: order.TotalAmount,
-		UserID:      order.UserID,
+		ID:           order.ID,
+		RecipentName: order.RecipientName,
+		PhoneNumber:  order.PhoneNumber,
+		Address:      order.Address,
+		Provider:     order.Provider,
+		Status:       order.Status,
+		IsPaid:       order.IsPaid,
+		CreatedAt:    order.CreatedAt,
+		UpdatedAt:    order.UpdatedAt,
+		TotalAmount:  order.TotalAmount,
+		UserID:       order.UserID,
 	}
 }
 
