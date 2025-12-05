@@ -3,6 +3,7 @@ package http
 import (
 	"backend/config"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	swaggerfiles "github.com/swaggo/files"
@@ -23,6 +24,9 @@ func NewServer(
 	redisClient *redis.Client,
 	authHandler AuthHandler,
 ) *Server {
+	e.Use(cors.New(cors.Config{
+		AllowOrigins: srvCfg.AllowOrigins,
+	}))
 	r.RegisterRoutes(e)
 	auth := e.Group("/auth")
 	{

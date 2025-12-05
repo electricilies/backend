@@ -28,7 +28,7 @@ const (
 	S3Endpoint          = "S3_ENDPOINT"
 	S3Bucket            = "S3_BUCKET"
 	TimeZone            = "TIMEZONE"
-	SwaggerEnv          = "SWAGGER_ENV"
+	AllowOrigins        = "ALLOW_ORIGINS"
 )
 
 type Server struct {
@@ -53,7 +53,7 @@ type Server struct {
 	S3Endpoint          string
 	S3Bucket            string
 	TimeZone            string
-	SwaggerEnv          string
+	AllowOrigins        []string
 }
 
 func NewServer() *Server {
@@ -62,6 +62,7 @@ func NewServer() *Server {
 	viper.SetDefault(DBPort, 5432)
 	viper.SetDefault(LogStdout, true)
 	viper.SetDefault(LogFile, false)
+	viper.SetDefault(AllowOrigins, []string{"*"})
 
 	viper.SetDefault(TimeZone, "Asia/Ho_Chi_Minh")
 	if viper.GetString(S3Bucket) == "" {
@@ -90,6 +91,6 @@ func NewServer() *Server {
 		S3Endpoint:          viper.GetString(S3Endpoint),
 		S3Bucket:            viper.GetString(S3Bucket),
 		TimeZone:            viper.GetString(TimeZone),
-		SwaggerEnv:          viper.GetString(SwaggerEnv),
+		AllowOrigins:        viper.GetStringSlice(AllowOrigins),
 	}
 }

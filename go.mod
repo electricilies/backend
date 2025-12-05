@@ -11,6 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.17
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.5
 	github.com/aws/smithy-go v1.23.1
+	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/golang-jwt/jwt/v5 v5.0.0

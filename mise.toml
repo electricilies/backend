@@ -4,6 +4,8 @@
 # '_'.file = { path = ".env", required = false }
 # _.nix = true
 
+AllowOrigins = "*" # optional
+
 DB_USERNAME = "electricilies"
 DB_PASSWORD = "electricilies"
 DB_DATABASE = "postgres"
