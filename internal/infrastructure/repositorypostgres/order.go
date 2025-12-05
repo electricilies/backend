@@ -91,16 +91,18 @@ func (r *Order) List(ctx context.Context, params domain.OrderRepositoryListParam
 	orders := make([]domain.Order, 0, len(orderEntities))
 	for _, o := range orderEntities {
 		orders = append(orders, domain.Order{
-			ID:          o.ID,
-			Address:     o.Address,
-			Provider:    providerMap[o.ProviderID],
-			Status:      statusMap[o.StatusID],
-			IsPaid:      o.IsPaid,
-			CreatedAt:   o.CreatedAt.Time,
-			UpdatedAt:   o.UpdatedAt.Time,
-			Items:       orderItemsMap[o.ID],
-			TotalAmount: numericToInt64(o.TotalAmount),
-			UserID:      o.UserID,
+			ID:            o.ID,
+			RecipientName: o.RecipientName,
+			PhoneNumber:   o.PhoneNumber,
+			Address:       o.Address,
+			Provider:      providerMap[o.ProviderID],
+			Status:        statusMap[o.StatusID],
+			IsPaid:        o.IsPaid,
+			CreatedAt:     o.CreatedAt.Time,
+			UpdatedAt:     o.UpdatedAt.Time,
+			Items:         orderItemsMap[o.ID],
+			TotalAmount:   numericToInt64(o.TotalAmount),
+			UserID:        o.UserID,
 		})
 	}
 
@@ -174,16 +176,18 @@ func (r *Order) Get(ctx context.Context, params domain.OrderRepositoryGetParam) 
 	}
 
 	order := &domain.Order{
-		ID:          orderEntity.ID,
-		Address:     orderEntity.Address,
-		Provider:    domain.OrderProvider(provider.Name),
-		Status:      domain.OrderStatus(status.Name),
-		IsPaid:      orderEntity.IsPaid,
-		CreatedAt:   orderEntity.CreatedAt.Time,
-		UpdatedAt:   orderEntity.UpdatedAt.Time,
-		Items:       items,
-		TotalAmount: numericToInt64(orderEntity.TotalAmount),
-		UserID:      orderEntity.UserID,
+		ID:            orderEntity.ID,
+		RecipientName: orderEntity.RecipientName,
+		PhoneNumber:   orderEntity.PhoneNumber,
+		Address:       orderEntity.Address,
+		Provider:      domain.OrderProvider(provider.Name),
+		Status:        domain.OrderStatus(status.Name),
+		IsPaid:        orderEntity.IsPaid,
+		CreatedAt:     orderEntity.CreatedAt.Time,
+		UpdatedAt:     orderEntity.UpdatedAt.Time,
+		Items:         items,
+		TotalAmount:   numericToInt64(orderEntity.TotalAmount),
+		UserID:        orderEntity.UserID,
 	}
 
 	return order, nil
@@ -212,13 +216,15 @@ func (r *Order) Save(ctx context.Context, params domain.OrderRepositorySaveParam
 	}
 
 	err = qtx.UpsertOrder(ctx, sqlc.UpsertOrderParams{
-		ID:          params.Order.ID,
-		UserID:      params.Order.UserID,
-		Address:     params.Order.Address,
-		TotalAmount: int64ToNumeric(params.Order.TotalAmount),
-		IsPaid:      params.Order.IsPaid,
-		ProviderID:  provider.ID,
-		StatusID:    status.ID,
+		ID:            params.Order.ID,
+		UserID:        params.Order.UserID,
+		RecipientName: params.Order.RecipientName,
+		PhoneNumber:   params.Order.PhoneNumber,
+		Address:       params.Order.Address,
+		TotalAmount:   int64ToNumeric(params.Order.TotalAmount),
+		IsPaid:        params.Order.IsPaid,
+		ProviderID:    provider.ID,
+		StatusID:      status.ID,
 		CreatedAt: pgtype.Timestamptz{
 			Time:  params.Order.CreatedAt,
 			Valid: true,

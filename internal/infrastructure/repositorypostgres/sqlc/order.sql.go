@@ -65,7 +65,7 @@ func (q *Queries) CreateTempTableOrderItems(ctx context.Context) error {
 
 const getOrder = `-- name: GetOrder :one
 SELECT
-  id, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id
+  id, recipient_name, phone_number, address, created_at, updated_at, total_amount, is_paid, user_id, status_id, provider_id
 FROM
   orders
 WHERE
@@ -81,6 +81,8 @@ func (q *Queries) GetOrder(ctx context.Context, arg GetOrderParams) (Order, erro
 	var i Order
 	err := row.Scan(
 		&i.ID,
+		&i.RecipientName,
+		&i.PhoneNumber,
 		&i.Address,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -311,7 +313,7 @@ WITH orders_with_statuses AS (
     END
 )
 SELECT
-  orders.id, orders.address, orders.created_at, orders.updated_at, orders.total_amount, orders.is_paid, orders.user_id, orders.status_id, orders.provider_id
+  orders.id, orders.recipient_name, orders.phone_number, orders.address, orders.created_at, orders.updated_at, orders.total_amount, orders.is_paid, orders.user_id, orders.status_id, orders.provider_id
 FROM
   orders
 LEFT JOIN
@@ -377,6 +379,8 @@ func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order
 		var i Order
 		if err := rows.Scan(
 			&i.ID,
+			&i.RecipientName,
+			&i.PhoneNumber,
 			&i.Address,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -434,6 +438,8 @@ func (q *Queries) MergeOrderItemsFromTemp(ctx context.Context) error {
 const upsertOrder = `-- name: UpsertOrder :exec
 INSERT INTO orders (
   id,
+  recipient_name,
+  phone_number,
   user_id,
   address,
   total_amount,
@@ -451,9 +457,13 @@ INSERT INTO orders (
   $6,
   $7,
   $8,
-  $9
+  $9,
+  $10,
+  $11
 )
 ON CONFLICT (id) DO UPDATE SET
+  recipient_name = EXCLUDED.recipient_name,
+  phone_number = EXCLUDED.phone_number,
   user_id = EXCLUDED.user_id,
   address = EXCLUDED.address,
   total_amount = EXCLUDED.total_amount,
@@ -465,20 +475,24 @@ ON CONFLICT (id) DO UPDATE SET
 `
 
 type UpsertOrderParams struct {
-	ID          uuid.UUID
-	UserID      uuid.UUID
-	Address     string
-	TotalAmount pgtype.Numeric
-	IsPaid      bool
-	ProviderID  uuid.UUID
-	StatusID    uuid.UUID
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
+	ID            uuid.UUID
+	RecipientName string
+	PhoneNumber   string
+	UserID        uuid.UUID
+	Address       string
+	TotalAmount   pgtype.Numeric
+	IsPaid        bool
+	ProviderID    uuid.UUID
+	StatusID      uuid.UUID
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
 }
 
 func (q *Queries) UpsertOrder(ctx context.Context, arg UpsertOrderParams) error {
 	_, err := q.db.Exec(ctx, upsertOrder,
 		arg.ID,
+		arg.RecipientName,
+		arg.PhoneNumber,
 		arg.UserID,
 		arg.Address,
 		arg.TotalAmount,

@@ -124,6 +124,8 @@ CREATE TABLE order_providers (
 -- orders
 CREATE TABLE orders (
   id UUID PRIMARY KEY,
+  recipient_name TEXT NOT NULL,
+  phone_number TEXT NOT NULL,
   address TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

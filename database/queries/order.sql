@@ -1,6 +1,8 @@
 -- name: UpsertOrder :exec
 INSERT INTO orders (
   id,
+  recipient_name,
+  phone_number,
   user_id,
   address,
   total_amount,
@@ -11,6 +13,8 @@ INSERT INTO orders (
   updated_at
 ) VALUES (
   sqlc.arg('id'),
+  sqlc.arg('recipient_name'),
+  sqlc.arg('phone_number'),
   sqlc.arg('user_id'),
   sqlc.arg('address'),
   sqlc.arg('total_amount'),
@@ -21,6 +25,8 @@ INSERT INTO orders (
   sqlc.arg('updated_at')
 )
 ON CONFLICT (id) DO UPDATE SET
+  recipient_name = EXCLUDED.recipient_name,
+  phone_number = EXCLUDED.phone_number,
   user_id = EXCLUDED.user_id,
   address = EXCLUDED.address,
   total_amount = EXCLUDED.total_amount,

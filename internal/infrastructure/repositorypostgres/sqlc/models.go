@@ -64,15 +64,17 @@ type OptionValuesProductVariant struct {
 }
 
 type Order struct {
-	ID          uuid.UUID
-	Address     string
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
-	TotalAmount pgtype.Numeric
-	IsPaid      bool
-	UserID      uuid.UUID
-	StatusID    uuid.UUID
-	ProviderID  uuid.UUID
+	ID            uuid.UUID
+	RecipientName string
+	PhoneNumber   string
+	Address       string
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
+	TotalAmount   pgtype.Numeric
+	IsPaid        bool
+	UserID        uuid.UUID
+	StatusID      uuid.UUID
+	ProviderID    uuid.UUID
 }
 
 type OrderItem struct {
