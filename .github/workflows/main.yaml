@@ -42,6 +42,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          submodules: recursive
 
       - uses: actions/setup-go@v6
         with:
@@ -144,6 +146,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          submodules: recursive
 
       - uses: actions/setup-go@v6
         with:
@@ -189,6 +193,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          submodules: recursive
 
       - uses: actions/setup-go@v6
         with:
@@ -228,6 +234,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          submodules: recursive
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
@@ -250,6 +257,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          submodules: recursive
 
       - uses: jdx/mise-action@v3
         with:
@@ -302,6 +311,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          submodules: recursive
 
       - name: Get commit hash
         id: commit-hash
@@ -337,6 +348,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          submodules: recursive
 
       - name: Setup Pages
         id: pages
