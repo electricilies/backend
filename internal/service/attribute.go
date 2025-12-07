@@ -4,7 +4,6 @@ import (
 	"backend/internal/domain"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
 )
 
@@ -29,23 +28,4 @@ func (a *Attribute) Validate(
 		return multierror.Append(domain.ErrInvalid, err)
 	}
 	return nil
-}
-
-func (a *Attribute) FilterAttributeValuesFromAttributes(
-	attributes []domain.Attribute,
-	attributeValueIDs []uuid.UUID,
-) []domain.AttributeValue {
-	attributeValueIDSet := make(map[uuid.UUID]struct{}, len(attributeValueIDs))
-	for _, id := range attributeValueIDs {
-		attributeValueIDSet[id] = struct{}{}
-	}
-	result := []domain.AttributeValue{}
-	for _, attribute := range attributes {
-		for _, value := range attribute.Values {
-			if _, exists := attributeValueIDSet[value.ID]; exists {
-				result = append(result, value)
-			}
-		}
-	}
-	return result
 }
