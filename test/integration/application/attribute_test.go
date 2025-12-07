@@ -328,4 +328,117 @@ func (s *AttributeTestSuite) TestAttributeLifecycle() {
 		})
 		s.Require().Error(err)
 	})
+
+	s.Run("Cache is working for Get", func() {
+		result1, err := s.app.Get(ctx, http.GetAttributeRequestDto{
+			AttributeID: secondAttributeID,
+		})
+		s.Require().NoError(err)
+		s.Require().NotNil(result1)
+
+		result2, err := s.app.Get(ctx, http.GetAttributeRequestDto{
+			AttributeID: secondAttributeID,
+		})
+		s.Require().NoError(err)
+		s.Require().NotNil(result2)
+		s.Equal(result1.ID, result2.ID)
+		s.Equal(result1.Name, result2.Name)
+	})
+
+	s.Run("Cache is working for List", func() {
+		result1, err := s.app.List(ctx, http.ListAttributesRequestDto{
+			PaginationRequestDto: http.PaginationRequestDto{
+				Page:  1,
+				Limit: 10,
+			},
+		})
+		s.Require().NoError(err)
+		s.Require().NotNil(result1)
+
+		result2, err := s.app.List(ctx, http.ListAttributesRequestDto{
+			PaginationRequestDto: http.PaginationRequestDto{
+				Page:  1,
+				Limit: 10,
+			},
+		})
+		s.Require().NoError(err)
+		s.Require().NotNil(result2)
+		s.Equal(result1.Meta.TotalItems, result2.Meta.TotalItems)
+	})
+
+	s.Run("Cache is working for ListValues", func() {
+		result1, err := s.app.ListValues(ctx, http.ListAttributeValuesRequestDto{
+			PaginationRequestDto: http.PaginationRequestDto{
+				Page:  1,
+				Limit: 10,
+			},
+			AttributeID: secondAttributeID,
+		})
+		s.Require().NoError(err)
+		s.Require().NotNil(result1)
+
+		result2, err := s.app.ListValues(ctx, http.ListAttributeValuesRequestDto{
+			PaginationRequestDto: http.PaginationRequestDto{
+				Page:  1,
+				Limit: 10,
+			},
+			AttributeID: secondAttributeID,
+		})
+		s.Require().NoError(err)
+		s.Require().NotNil(result2)
+		s.Equal(result1.Meta.TotalItems, result2.Meta.TotalItems)
+	})
+
+	s.Run("Cache is invalidated after update", func() {
+		_, err := s.app.Get(ctx, http.GetAttributeRequestDto{
+			AttributeID: secondAttributeID,
+		})
+		s.Require().NoError(err)
+
+		updated, err := s.app.Update(ctx, http.UpdateAttributeRequestDto{
+			AttributeID: secondAttributeID,
+			Data: http.UpdateAttributeData{
+				Name: "Cache Invalidation Test",
+			},
+		})
+		s.Require().NoError(err)
+		s.Equal("Cache Invalidation Test", updated.Name)
+
+		result, err := s.app.Get(ctx, http.GetAttributeRequestDto{
+			AttributeID: secondAttributeID,
+		})
+		s.Require().NoError(err)
+		s.Equal("Cache Invalidation Test", result.Name)
+	})
+
+	s.Run("Cache is invalidated after value update", func() {
+		_, err := s.app.ListValues(ctx, http.ListAttributeValuesRequestDto{
+			PaginationRequestDto: http.PaginationRequestDto{
+				Page:  1,
+				Limit: 10,
+			},
+			AttributeID: secondAttributeID,
+		})
+		s.Require().NoError(err)
+
+		updated, err := s.app.UpdateValue(ctx, http.UpdateAttributeValueRequestDto{
+			AttributeID:      secondAttributeID,
+			AttributeValueID: firstValueID,
+			Data: http.UpdateAttributeValueData{
+				Value: "Cache Test Value",
+			},
+		})
+		s.Require().NoError(err)
+		s.Equal("Cache Test Value", updated.Value)
+
+		result, err := s.app.ListValues(ctx, http.ListAttributeValuesRequestDto{
+			PaginationRequestDto: http.PaginationRequestDto{
+				Page:  1,
+				Limit: 10,
+			},
+			AttributeID: secondAttributeID,
+		})
+		s.Require().NoError(err)
+		s.Equal("Cache Test Value", result.Data[0].Value)
+	})
 }
