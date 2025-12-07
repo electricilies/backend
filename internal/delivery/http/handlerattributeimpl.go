@@ -18,7 +18,7 @@ type AttributeHandlerImpl struct {
 	ErrInvalidProductID         string
 }
 
-var _ AttributeHandler = &AttributeHandlerImpl{}
+var _ AttributeHandler = (*AttributeHandlerImpl)(nil)
 
 func ProvideAttributeHandler(attributeApp AttributeApplication) *AttributeHandlerImpl {
 	return &AttributeHandlerImpl{

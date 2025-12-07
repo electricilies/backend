@@ -21,7 +21,7 @@ func ProvideCategory(categoryRepo domain.CategoryRepository, categoryService dom
 	}
 }
 
-var _ http.CategoryApplication = &Category{}
+var _ http.CategoryApplication = (*Category)(nil)
 
 func (c *Category) Create(ctx context.Context, param http.CreateCategoryRequestDto) (*http.CategoryResponseDto, error) {
 	category, err := domain.NewCategory(param.Data.Name)

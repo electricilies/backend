@@ -19,7 +19,7 @@ func ProvideCategory(
 	}
 }
 
-var _ domain.CategoryService = &Category{}
+var _ domain.CategoryService = (*Category)(nil)
 
 func (c *Category) Validate(
 	category domain.Category,

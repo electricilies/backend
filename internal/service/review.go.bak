@@ -19,7 +19,7 @@ func ProvideReview(
 	}
 }
 
-var _ domain.ReviewService = &Review{}
+var _ domain.ReviewService = (*Review)(nil)
 
 func (r *Review) Validate(
 	review domain.Review,

@@ -15,7 +15,7 @@ type OrderHandlerImpl struct {
 	ErrInvalidOrderID  string
 }
 
-var _ OrderHandler = &OrderHandlerImpl{}
+var _ OrderHandler = (*OrderHandlerImpl)(nil)
 
 func ProvideOrderHandler(orderApp OrderApplication) *OrderHandlerImpl {
 	return &OrderHandlerImpl{

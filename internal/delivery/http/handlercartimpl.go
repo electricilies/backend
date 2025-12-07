@@ -16,7 +16,7 @@ type CartHandlerImpl struct {
 	ErrInvalidUserID      string
 }
 
-var _ CartHandler = &CartHandlerImpl{}
+var _ CartHandler = (*CartHandlerImpl)(nil)
 
 func ProvideCartHandler(cartApp CartApplication) *CartHandlerImpl {
 	return &CartHandlerImpl{

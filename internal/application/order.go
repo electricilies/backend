@@ -36,7 +36,7 @@ func ProvideOrder(
 	}
 }
 
-var _ http.OrderApplication = &Order{}
+var _ http.OrderApplication = (*Order)(nil)
 
 func (o *Order) Create(ctx context.Context, param http.CreateOrderRequestDto) (*http.OrderResponseDto, error) {
 	productIDs := make([]uuid.UUID, 0, len(param.Data.Items))

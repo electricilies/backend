@@ -21,7 +21,7 @@ func ProvideReview(reviewRepo domain.ReviewRepository, reviewService domain.Revi
 	}
 }
 
-var _ http.ReviewApplication = &Review{}
+var _ http.ReviewApplication = (*Review)(nil)
 
 func (r *Review) Create(ctx context.Context, param http.CreateReviewRequestDto) (*domain.Review, error) {
 	review, err := r.reviewService.Create(

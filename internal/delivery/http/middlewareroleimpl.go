@@ -17,7 +17,7 @@ type RoleMiddlewareImpl struct {
 	srvCfg                     *config.Server
 }
 
-var _ RoleMiddleware = &RoleMiddlewareImpl{}
+var _ RoleMiddleware = (*RoleMiddlewareImpl)(nil)
 
 func ProvideRoleMiddleware(srvCfg *config.Server) *RoleMiddlewareImpl {
 	return &RoleMiddlewareImpl{

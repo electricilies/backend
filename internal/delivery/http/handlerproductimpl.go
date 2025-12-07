@@ -15,7 +15,7 @@ type ProductHandlerImpl struct {
 	ErrInvalidProductID  string
 }
 
-var _ ProductHandler = &ProductHandlerImpl{}
+var _ ProductHandler = (*ProductHandlerImpl)(nil)
 
 func ProvideProductHandler(productApp ProductApplication) *ProductHandlerImpl {
 	return &ProductHandlerImpl{

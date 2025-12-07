@@ -19,7 +19,7 @@ func ProvideCart(
 	}
 }
 
-var _ domain.CartService = &Cart{}
+var _ domain.CartService = (*Cart)(nil)
 
 func (c *Cart) Validate(
 	cart domain.Cart,

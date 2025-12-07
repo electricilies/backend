@@ -12,7 +12,7 @@ type LoggingMiddlewareImpl struct {
 	logger *zap.Logger
 }
 
-var _ LoggingMiddleware = &LoggingMiddlewareImpl{}
+var _ LoggingMiddleware = (*LoggingMiddlewareImpl)(nil)
 
 func ProvideLoggingMiddleware(logger *zap.Logger) *LoggingMiddlewareImpl {
 	return &LoggingMiddlewareImpl{

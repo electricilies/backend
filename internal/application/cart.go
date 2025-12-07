@@ -25,7 +25,7 @@ func ProvideCart(cartRepo domain.CartRepository, cartService domain.CartService,
 	}
 }
 
-var _ http.CartApplication = &Cart{}
+var _ http.CartApplication = (*Cart)(nil)
 
 func (c *Cart) Get(ctx context.Context, param http.GetCartRequestDto) (*http.CartResponseDto, error) {
 	cacheParam := CartCacheParam{ID: param.CartID}

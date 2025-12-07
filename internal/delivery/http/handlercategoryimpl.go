@@ -13,7 +13,7 @@ type CategoryHandlerImpl struct {
 	ErrInvalidCategoryID  string
 }
 
-var _ CategoryHandler = &CategoryHandlerImpl{}
+var _ CategoryHandler = (*CategoryHandlerImpl)(nil)
 
 func ProvideCategoryHandler(categoryApp CategoryApplication) *CategoryHandlerImpl {
 	return &CategoryHandlerImpl{

@@ -23,7 +23,7 @@ type HealthHandlerImpl struct {
 	srvCfg         *config.Server
 }
 
-var _ HealthHandler = &HealthHandlerImpl{}
+var _ HealthHandler = (*HealthHandlerImpl)(nil)
 
 func ProvideHealthHandler(keycloakClient *gocloak.GoCloak,
 	redisClient *redis.Client,

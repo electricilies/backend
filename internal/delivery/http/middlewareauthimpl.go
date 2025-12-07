@@ -23,7 +23,7 @@ type GinAuthMiddleware struct {
 	inactiveTokenErr    string
 }
 
-var _ AuthMiddleware = &GinAuthMiddleware{}
+var _ AuthMiddleware = (*GinAuthMiddleware)(nil)
 
 func ProvideAuthMiddleware(
 	keycloakClient *gocloak.GoCloak,

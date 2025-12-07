@@ -15,7 +15,7 @@ type ReviewHandlerImpl struct {
 	ErrInvalidReviewID  string
 }
 
-var _ ReviewHandler = &ReviewHandlerImpl{}
+var _ ReviewHandler = (*ReviewHandlerImpl)(nil)
 
 func ProvideReviewHandler(reviewApp ReviewApplication) *ReviewHandlerImpl {
 	return &ReviewHandlerImpl{

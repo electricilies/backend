@@ -21,7 +21,7 @@ func ProvideAttribute(attributeRepo domain.AttributeRepository, attributeService
 	}
 }
 
-var _ http.AttributeApplication = &Attribute{}
+var _ http.AttributeApplication = (*Attribute)(nil)
 
 func (a *Attribute) Create(ctx context.Context, param http.CreateAttributeRequestDto) (*http.AttributeResponseDto, error) {
 	attribute, err := domain.NewAttribute(param.Data.Code, param.Data.Name)

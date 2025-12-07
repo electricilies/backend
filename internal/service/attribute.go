@@ -20,7 +20,7 @@ func ProvideAttribute(
 	}
 }
 
-var _ domain.AttributeService = &Attribute{}
+var _ domain.AttributeService = (*Attribute)(nil)
 
 func (a *Attribute) Validate(
 	attribute domain.Attribute,

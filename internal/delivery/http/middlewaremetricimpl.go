@@ -14,7 +14,7 @@ type MetricMiddlewareImpl struct {
 	httpRequestDuration *prometheus.HistogramVec
 }
 
-var _ MetricMiddleware = &MetricMiddlewareImpl{}
+var _ MetricMiddleware = (*MetricMiddlewareImpl)(nil)
 
 func ProvideMetricMiddleware() *MetricMiddlewareImpl {
 	return &MetricMiddlewareImpl{

@@ -20,7 +20,7 @@ func ProvideProduct(
 	}
 }
 
-var _ domain.ProductService = &Product{}
+var _ domain.ProductService = (*Product)(nil)
 
 func (p *Product) Validate(
 	product domain.Product,

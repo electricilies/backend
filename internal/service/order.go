@@ -18,7 +18,7 @@ func ProvideOrder(
 	}
 }
 
-var _ domain.OrderService = &Order{}
+var _ domain.OrderService = (*Order)(nil)
 
 func (o *Order) Validate(
 	order domain.Order,
