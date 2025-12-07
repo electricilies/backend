@@ -402,3 +402,16 @@ func (o *Option) GetValuesByIDs(optionValueIDs []uuid.UUID) []OptionValue {
 	}
 	return values
 }
+
+func (pv *ProductVariant) DecreaseQuantity(quantity int) {
+	if quantity <= 0 {
+		return
+	}
+	if pv.Quantity >= quantity {
+		pv.Quantity -= quantity
+	} else {
+		pv.Quantity = 0
+	}
+	pv.PurchaseCount += quantity
+	pv.UpdatedAt = time.Now()
+}

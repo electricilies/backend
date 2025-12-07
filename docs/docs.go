@@ -1423,6 +1423,115 @@ const docTemplate = `{
                 }
             }
         },
+        "/orders/vnpay/ipn": {
+            "get": {
+                "description": "Verify VNPay IPN",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Verify VNPay IPN",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "vnp_Amount",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "vnp_BankCode",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "vnp_BankTranNo",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "vnp_CardType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "vnp_OrderInfo",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "vnp_PayDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "vnp_ResponseCode",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "vnp_SecureHash",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "vnp_TmnCode",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "vnp_TransactionNo",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "vnp_TransactionStatus",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "vnp_TxnRef",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/VerifyVNPayIPNResponseDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
         "/orders/{order_id}": {
             "get": {
                 "security": [
@@ -2666,6 +2775,9 @@ const docTemplate = `{
                 "recipientName": {
                     "type": "string"
                 },
+                "returnUrl": {
+                    "type": "string"
+                },
                 "userId": {
                     "type": "string"
                 }
@@ -2984,6 +3096,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/OrderItemResponseDto"
                     }
+                },
+                "payment_url": {
+                    "type": "string"
                 },
                 "phone_number": {
                     "type": "string"
@@ -3493,6 +3608,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "VerifyVNPayIPNResponseDTO": {
+            "type": "object",
+            "required": [
+                "Message",
+                "RspCode"
+            ],
+            "properties": {
+                "Message": {
+                    "type": "string"
+                },
+                "RspCode": {
                     "type": "string"
                 }
             }

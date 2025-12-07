@@ -38,3 +38,12 @@ func SendError(ctx *gin.Context, err error) {
 	}
 	ctx.JSON(httpErrCode, NewError(err.Error()))
 }
+
+func SendVNPayError(ctx *gin.Context, responseDTO *VerifyVNPayIPNResponseDTO, err error) {
+	switch {
+	case errors.Is(err, domain.ErrInvalid):
+		ctx.JSON(400, responseDTO)
+	default:
+		ctx.JSON(500, responseDTO)
+	}
+}

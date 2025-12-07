@@ -13,6 +13,7 @@ import (
 	"backend/internal/domain"
 	"backend/internal/infrastructure/cacheredis"
 	"backend/internal/infrastructure/objectstorages3"
+	"backend/internal/infrastructure/paymentservice"
 	"backend/internal/infrastructure/repositorypostgres"
 	"backend/internal/service"
 	"backend/pkg/logger"
@@ -262,6 +263,14 @@ var ObjectStorageSet = wire.NewSet(
 	),
 )
 
+var PaymentServiceSet = wire.NewSet(
+	paymentservice.ProvideVNPay,
+	wire.Bind(
+		new(application.VNPayPaymentService),
+		new(*paymentservice.VNPay),
+	),
+)
+
 func InitializeServer(ctx context.Context) *http.Server {
 	wire.Build(
 		ApplicationSet,
@@ -277,6 +286,7 @@ func InitializeServer(ctx context.Context) *http.Server {
 		RouterSet,
 		ServiceSet,
 		ObjectStorageSet,
+		PaymentServiceSet,
 		http.NewServer,
 	)
 	return nil

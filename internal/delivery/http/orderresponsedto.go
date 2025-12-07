@@ -9,18 +9,19 @@ import (
 )
 
 type OrderResponseDto struct {
-	ID           uuid.UUID              `json:"id"            binding:"required"`
-	RecipentName string                 `json:"recipent_name" binding:"required"`
-	PhoneNumber  string                 `json:"phone_number"  binding:"required"`
-	Address      string                 `json:"address"       binding:"required"`
-	Provider     domain.OrderProvider   `json:"provider"      binding:"required"`
-	Status       domain.OrderStatus     `json:"status"        binding:"required"`
-	IsPaid       bool                   `json:"is_paid"       binding:"required"`
-	CreatedAt    time.Time              `json:"created_at"    binding:"required"`
-	UpdatedAt    time.Time              `json:"updated_at"    binding:"required"`
-	Items        []OrderItemResponseDto `json:"items"         binding:"omitempty,dive"`
-	TotalAmount  int64                  `json:"total_amount"  binding:"required"`
-	UserID       uuid.UUID              `json:"user_id"       binding:"required"`
+	ID           uuid.UUID              `json:"id"                    binding:"required"`
+	RecipentName string                 `json:"recipent_name"         binding:"required"`
+	PhoneNumber  string                 `json:"phone_number"          binding:"required"`
+	Address      string                 `json:"address"               binding:"required"`
+	Provider     domain.OrderProvider   `json:"provider"              binding:"required"`
+	Status       domain.OrderStatus     `json:"status"                binding:"required"`
+	IsPaid       bool                   `json:"is_paid"               binding:"required"`
+	CreatedAt    time.Time              `json:"created_at"            binding:"required"`
+	UpdatedAt    time.Time              `json:"updated_at"            binding:"required"`
+	Items        []OrderItemResponseDto `json:"items"                 binding:"omitempty,dive"`
+	TotalAmount  int64                  `json:"total_amount"          binding:"required"`
+	UserID       uuid.UUID              `json:"user_id"               binding:"required"`
+	PaymentURL   string                 `json:"payment_url,omitempty"`
 }
 
 type OrderItemResponseDto struct {
@@ -45,7 +46,7 @@ type OrderItemProductVariantResponseDto struct {
 
 // ToOrderResponseDto maps a domain.Order to OrderResponseDto
 // Note: Items will be empty initially, use WithOrderItems to populate with product data
-func ToOrderResponseDto(order *domain.Order) *OrderResponseDto {
+func ToOrderResponseDto(order *domain.Order, paymentURL string) *OrderResponseDto {
 	if order == nil {
 		return nil
 	}
@@ -62,6 +63,7 @@ func ToOrderResponseDto(order *domain.Order) *OrderResponseDto {
 		UpdatedAt:    order.UpdatedAt,
 		TotalAmount:  order.TotalAmount,
 		UserID:       order.UserID,
+		PaymentURL:   paymentURL,
 	}
 }
 

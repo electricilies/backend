@@ -10,23 +10,29 @@ import (
 )
 
 type Order struct {
-	orderRepo      domain.OrderRepository
-	orderService   domain.OrderService
-	productRepo    domain.ProductRepository
-	productService domain.ProductService
+	vnpaypaymentService VNPayPaymentService
+	orderRepo           domain.OrderRepository
+	orderService        domain.OrderService
+	productRepo         domain.ProductRepository
+	productService      domain.ProductService
+	cartRepo            domain.CartRepository
 }
 
 func ProvideOrder(
+	vnpaypaymentService VNPayPaymentService,
 	orderRepo domain.OrderRepository,
 	orderService domain.OrderService,
 	productRepo domain.ProductRepository,
 	productService domain.ProductService,
+	cartRepo domain.CartRepository,
 ) *Order {
 	return &Order{
-		orderRepo:      orderRepo,
-		orderService:   orderService,
-		productRepo:    productRepo,
-		productService: productService,
+		vnpaypaymentService: vnpaypaymentService,
+		orderRepo:           orderRepo,
+		orderService:        orderService,
+		productRepo:         productRepo,
+		productService:      productService,
+		cartRepo:            cartRepo,
 	}
 }
 
@@ -94,7 +100,14 @@ func (o *Order) Create(ctx context.Context, param http.CreateOrderRequestDto) (*
 		return nil, err
 	}
 
-	orderDto := http.ToOrderResponseDto(order)
+	paymentURL, err := o.vnpaypaymentService.GetPaymentURL(ctx, GetPaymentURLVNPayParam{
+		ReturnURL: param.Data.ReturnURL,
+		Order:     order,
+	})
+	if err != nil {
+		return nil, err
+	}
+	orderDto := http.ToOrderResponseDto(order, paymentURL)
 	if err := o.enrichOrderItems(ctx, orderDto, order); err != nil {
 		return nil, err
 	}
@@ -193,7 +206,7 @@ func (o *Order) List(ctx context.Context, param http.ListOrderRequestDto) (*http
 	orderDtos := make([]http.OrderResponseDto, 0, len(*orders))
 	for i := range *orders {
 		order := &(*orders)[i]
-		orderDto := http.ToOrderResponseDto(order)
+		orderDto := http.ToOrderResponseDto(order, "")
 		if err := o.enrichOrderItems(ctx, orderDto, order); err != nil {
 			return nil, err
 		}
@@ -217,7 +230,7 @@ func (o *Order) Get(ctx context.Context, param http.GetOrderRequestDto) (*http.O
 		return nil, err
 	}
 
-	orderDto := http.ToOrderResponseDto(order)
+	orderDto := http.ToOrderResponseDto(order, "")
 	if err := o.enrichOrderItems(ctx, orderDto, order); err != nil {
 		return nil, err
 	}
@@ -245,10 +258,126 @@ func (o *Order) Update(ctx context.Context, param http.UpdateOrderRequestDto) (*
 		return nil, err
 	}
 
-	orderDto := http.ToOrderResponseDto(order)
+	orderDto := http.ToOrderResponseDto(order, "")
 	if err := o.enrichOrderItems(ctx, orderDto, order); err != nil {
 		return nil, err
 	}
 
 	return orderDto, nil
+}
+
+func (o *Order) VerifyVNPayIPN(ctx context.Context, param http.VerifyVNPayIPNRequestDTO) (*http.VerifyVNPayIPNResponseDTO, error) {
+	verifyParam := VerifyIPNVNPayParam{
+		Amount:            param.QueryParams.Amount,
+		BankTranNo:        param.QueryParams.BankTranNo,
+		BankCode:          param.QueryParams.BankCode,
+		CardType:          param.QueryParams.CardType,
+		OrderInfo:         param.QueryParams.OrderInfo,
+		PayDate:           param.QueryParams.PayDate,
+		ResponseCode:      param.QueryParams.ResponseCode,
+		SecureHash:        param.QueryParams.SecureHash,
+		TmnCode:           param.QueryParams.TmnCode,
+		TransactionNo:     param.QueryParams.TransactionNo,
+		TransactionStatus: param.QueryParams.TransactionStatus,
+		TxnRef:            param.QueryParams.TxnRef,
+	}
+	rspCode, message, err := o.vnpaypaymentService.VerifyIPN(
+		ctx,
+		verifyParam,
+		o.getOrder,
+		o.onVerifySuccess,
+		o.onVerifyFailure,
+	)
+	return &http.VerifyVNPayIPNResponseDTO{
+		RspCode: rspCode,
+		Message: message,
+	}, err
+}
+
+func (o *Order) getOrder(
+	ctx context.Context,
+	orderID uuid.UUID,
+) (*domain.Order, error) {
+	return o.orderRepo.Get(ctx, domain.OrderRepositoryGetParam{
+		ID: orderID,
+	})
+}
+
+func (o *Order) onVerifySuccess(
+	ctx context.Context,
+	order *domain.Order,
+) error {
+	order.Update(
+		order.Address,
+		domain.OrderStatusProcessing,
+		true,
+	)
+	cart, err := o.cartRepo.Get(ctx, domain.CartRepositoryGetParam{
+		UserID: order.UserID,
+	})
+	if err != nil {
+		return err
+	}
+	cart.ClearItems()
+	err = o.cartRepo.Save(ctx, domain.CartRepositorySaveParam{
+		Cart: *cart,
+	})
+	if err != nil {
+		return err
+	}
+	productVariantIDs := make([]uuid.UUID, 0, len(order.Items))
+	productIDproductVariantIDMap := make(map[uuid.UUID]uuid.UUID)
+	for _, item := range order.Items {
+		productVariantIDs = append(productVariantIDs, item.ProductVariantID)
+		productIDproductVariantIDMap[item.ProductID] = item.ProductVariantID
+	}
+	products, err := o.productRepo.List(ctx, domain.ProductRepositoryListParam{
+		VariantIDs: productVariantIDs,
+	})
+
+	productIDproductVariantMap := make(map[uuid.UUID]*domain.ProductVariant)
+	for _, p := range *products {
+		for _, v := range p.Variants {
+			if _, ok := productIDproductVariantIDMap[p.ID]; ok {
+				if v.ID == productIDproductVariantIDMap[p.ID] {
+					productIDproductVariantMap[p.ID] = &v
+				}
+			}
+		}
+	}
+
+	for _, item := range order.Items {
+		variant, ok := productIDproductVariantMap[item.ProductID]
+		if !ok {
+			return domain.ErrNotFound
+		}
+		variant.DecreaseQuantity(item.Quantity)
+	}
+	for _, p := range *products {
+		_ = o.productRepo.Save(ctx, domain.ProductRepositorySaveParam{
+			Product: p,
+		})
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return o.orderRepo.Save(ctx, domain.OrderRepositorySaveParam{
+		Order: *order,
+	})
+}
+
+func (o *Order) onVerifyFailure(
+	ctx context.Context,
+	order *domain.Order,
+) error {
+	order.Update(
+		order.Address,
+		domain.OrderStatusCancelled,
+		false,
+	)
+	return o.orderRepo.Save(ctx, domain.OrderRepositorySaveParam{
+		Order: *order,
+	})
 }

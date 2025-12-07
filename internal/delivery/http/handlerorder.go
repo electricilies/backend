@@ -9,4 +9,5 @@ type OrderHandler interface {
 	List(*gin.Context)
 	Create(*gin.Context)
 	Update(*gin.Context)
+	VerifyVNPayIPN(ctx *gin.Context)
 }

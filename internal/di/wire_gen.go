@@ -14,6 +14,7 @@ import (
 	"backend/internal/domain"
 	"backend/internal/infrastructure/cacheredis"
 	"backend/internal/infrastructure/objectstorages3"
+	"backend/internal/infrastructure/paymentservice"
 	"backend/internal/infrastructure/repositorypostgres"
 	"backend/internal/service"
 	"backend/pkg/logger"
@@ -55,11 +56,12 @@ func InitializeServer(ctx context.Context) *http.Server {
 	cacheredisAttribute := cacheredis.ProvideAttribute(redisClient)
 	applicationAttribute := application.ProvideAttribute(attribute, serviceAttribute, cacheredisAttribute)
 	attributeHandlerImpl := http.ProvideAttributeHandler(applicationAttribute)
+	vnPay := paymentservice.ProvideVNPay(server)
 	order := repositorypostgres.ProvideOrder(queries, pool)
 	serviceOrder := service.ProvideOrder(validate)
-	applicationOrder := application.ProvideOrder(order, serviceOrder, repositorypostgresProduct, serviceProduct)
-	orderHandlerImpl := http.ProvideOrderHandler(applicationOrder)
 	cart := repositorypostgres.ProvideCart(queries, pool)
+	applicationOrder := application.ProvideOrder(vnPay, order, serviceOrder, repositorypostgresProduct, serviceProduct, cart)
+	orderHandlerImpl := http.ProvideOrderHandler(applicationOrder)
 	serviceCart := service.ProvideCart(validate)
 	cacheredisCart := cacheredis.ProvideCart(redisClient)
 	applicationCart := application.ProvideCart(cart, serviceCart, cacheredisCart, repositorypostgresProduct)
@@ -203,5 +205,11 @@ var CacheSet = wire.NewSet(cacheredis.ProvideProduct, wire.Bind(
 var ObjectStorageSet = wire.NewSet(objectstorages3.ProvideProduct, wire.Bind(
 	new(application.ProductObjectStorage),
 	new(*objectstorages3.Product),
+),
+)
+
+var PaymentServiceSet = wire.NewSet(paymentservice.ProvideVNPay, wire.Bind(
+	new(application.VNPayPaymentService),
+	new(*paymentservice.VNPay),
 ),
 )
