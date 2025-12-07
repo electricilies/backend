@@ -174,7 +174,7 @@ jobs:
           slug: ${{ github.repository }}
 
   test-integration:
-    name: Test ${{ matrix.os }}/${{ matrix.arch }}
+    name: Integration Test ${{ matrix.os }}/${{ matrix.arch }}
     needs: check
     strategy:
       matrix:
