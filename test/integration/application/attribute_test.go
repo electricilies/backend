@@ -34,9 +34,10 @@ func TestAttributeSuite(t *testing.T) {
 }
 
 func (s *AttributeTestSuite) newContainersConfig() *component.ContainersConfig {
-	containersConfig := component.NewContainersConfig()
-	containersConfig.DB.Enabled = true
-	containersConfig.Redis.Enabled = true
+	containersConfig := component.NewContainersConfig(&component.NewContainersConfigParam{
+		DBEnabled:    true,
+		RedisEnabled: true,
+	})
 	return containersConfig
 }
 

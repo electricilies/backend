@@ -6,6 +6,7 @@ import (
 	"context"
 	"log"
 	"path/filepath"
+	"sort"
 	"testing"
 
 	keycloak "github.com/stillya/testcontainers-keycloak"
@@ -16,16 +17,16 @@ import (
 )
 
 type DBConfig struct {
-	Enabled          bool
 	Image            string
 	User             string
 	Password         string
 	Database         string
 	InitScriptsPaths []string
+	Seed             bool
+	SeedScriptsPaths []string
 }
 
 type KeycloakConfig struct {
-	Enabled       bool
 	Image         string
 	AdminUsername string
 	AdminPassword string
@@ -34,7 +35,6 @@ type KeycloakConfig struct {
 }
 
 type MinIOConfig struct {
-	Enabled  bool
 	Image    string
 	User     string
 	Password string
@@ -42,21 +42,33 @@ type MinIOConfig struct {
 }
 
 type RedisConfig struct {
-	Enabled bool
-	Image   string
+	Image string
 }
 
 type ContainersConfig struct {
-	DB       DBConfig
-	Keycloak KeycloakConfig
-	MinIO    MinIOConfig
-	Redis    RedisConfig
+	DB       *DBConfig
+	Keycloak *KeycloakConfig
+	MinIO    *MinIOConfig
+	Redis    *RedisConfig
 }
 
-func NewContainersConfig() *ContainersConfig {
-	return &ContainersConfig{
-		DB: DBConfig{
-			Enabled:  false,
+type NewContainersConfigParam struct {
+	DBEnabled       bool
+	KeycloakEnabled bool
+	MinIOEnabled    bool
+	RedisEnabled    bool
+}
+
+func NewContainersConfig(param *NewContainersConfigParam) *ContainersConfig {
+	var db *DBConfig
+	var keycloak *KeycloakConfig
+	var minIO *MinIOConfig
+	var redis *RedisConfig
+	if param == nil {
+		param = &NewContainersConfigParam{}
+	}
+	if param.DBEnabled {
+		db = &DBConfig{
 			Image:    DBImage,
 			User:     "electricilies",
 			Password: "electricilies",
@@ -65,29 +77,41 @@ func NewContainersConfig() *ContainersConfig {
 				filepath.Join("..", "testdata", "00-init.sql"),
 				filepath.Join("..", "testdata", "20-schema.sql"),
 				filepath.Join("..", "testdata", "21-trigger.sql"),
-				// filepath.Join("..", "testdata", "30-seed.sql"),
 				filepath.Join("..", "testdata", "40-paradedb-index.sql"),
 			},
-		},
-		Keycloak: KeycloakConfig{
-			Enabled:       false,
+			Seed: false,
+			SeedScriptsPaths: []string{
+				filepath.Join("..", "testdata", "30-seed.sql"),
+			},
+		}
+	}
+	if param.KeycloakEnabled {
+		keycloak = &KeycloakConfig{
 			Image:         KeycloakImage,
 			AdminUsername: "electricilies",
 			AdminPassword: "electricilies",
 			ContextPath:   "/auth",
 			RealmFilePath: filepath.Join("..", "testdata", "electricilies-realm-export.json"),
-		},
-		MinIO: MinIOConfig{
-			Enabled:  false,
+		}
+	}
+	if param.MinIOEnabled {
+		minIO = &MinIOConfig{
 			Image:    MinIOImage,
 			User:     "electricilies",
 			Password: "electricilies",
 			Bucket:   "electricilies",
-		},
-		Redis: RedisConfig{
-			Enabled: false,
-			Image:   RedisImage,
-		},
+		}
+	}
+	if param.RedisEnabled {
+		redis = &RedisConfig{
+			Image: RedisImage,
+		}
+	}
+	return &ContainersConfig{
+		DB:       db,
+		Keycloak: keycloak,
+		MinIO:    minIO,
+		Redis:    redis,
 	}
 }
 
@@ -98,9 +122,10 @@ type Containers struct {
 	Redis    *redis.RedisContainer
 }
 
-func setupPostgres(ctx context.Context, cfg DBConfig) (*postgres.PostgresContainer, error) {
-	if !cfg.Enabled {
-		return nil, nil
+func setupPostgres(ctx context.Context, cfg *DBConfig) (*postgres.PostgresContainer, error) {
+	if cfg.Seed {
+		cfg.InitScriptsPaths = append(cfg.InitScriptsPaths, cfg.SeedScriptsPaths...)
+		sort.Strings(cfg.InitScriptsPaths)
 	}
 
 	postgresContainer, err := postgres.Run(
@@ -119,11 +144,7 @@ func setupPostgres(ctx context.Context, cfg DBConfig) (*postgres.PostgresContain
 	return postgresContainer, nil
 }
 
-func setupKeycloak(ctx context.Context, cfg KeycloakConfig) (*keycloak.KeycloakContainer, error) {
-	if !cfg.Enabled {
-		return nil, nil
-	}
-
+func setupKeycloak(ctx context.Context, cfg *KeycloakConfig) (*keycloak.KeycloakContainer, error) {
 	keycloakContainer, err := keycloak.Run(
 		ctx,
 		cfg.Image,
@@ -139,11 +160,7 @@ func setupKeycloak(ctx context.Context, cfg KeycloakConfig) (*keycloak.KeycloakC
 	return keycloakContainer, nil
 }
 
-func setupMinio(ctx context.Context, cfg MinIOConfig) (*minio.MinioContainer, error) {
-	if !cfg.Enabled {
-		return nil, nil
-	}
-
+func setupMinio(ctx context.Context, cfg *MinIOConfig) (*minio.MinioContainer, error) {
 	minioContainer, err := minio.Run(
 		ctx,
 		cfg.Image,
@@ -157,11 +174,7 @@ func setupMinio(ctx context.Context, cfg MinIOConfig) (*minio.MinioContainer, er
 	return minioContainer, nil
 }
 
-func setupRedis(ctx context.Context, cfg RedisConfig) (*redis.RedisContainer, error) {
-	if !cfg.Enabled {
-		return nil, nil
-	}
-
+func setupRedis(ctx context.Context, cfg *RedisConfig) (*redis.RedisContainer, error) {
 	redisContainer, err := redis.Run(
 		ctx,
 		cfg.Image,
@@ -175,27 +188,40 @@ func setupRedis(ctx context.Context, cfg RedisConfig) (*redis.RedisContainer, er
 
 func NewContainers(ctx context.Context, cfg *ContainersConfig) (*Containers, error) {
 	if cfg == nil {
-		cfg = NewContainersConfig()
+		cfg = NewContainersConfig(nil)
+	}
+	var postgresContainer *postgres.PostgresContainer
+	var keycloakContainer *keycloak.KeycloakContainer
+	var minioContainer *minio.MinioContainer
+	var redisContainer *redis.RedisContainer
+	var err error
+
+	if cfg.DB != nil {
+		postgresContainer, err = setupPostgres(ctx, cfg.DB)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	postgresContainer, err := setupPostgres(ctx, cfg.DB)
-	if err != nil {
-		return nil, err
+	if cfg.Keycloak != nil {
+		keycloakContainer, err = setupKeycloak(ctx, cfg.Keycloak)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	keycloakContainer, err := setupKeycloak(ctx, cfg.Keycloak)
-	if err != nil {
-		return nil, err
+	if cfg.MinIO != nil {
+		minioContainer, err = setupMinio(ctx, cfg.MinIO)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	minioContainer, err := setupMinio(ctx, cfg.MinIO)
-	if err != nil {
-		return nil, err
-	}
-
-	redisContainer, err := setupRedis(ctx, cfg.Redis)
-	if err != nil {
-		return nil, err
+	if cfg.Redis != nil {
+		redisContainer, err = setupRedis(ctx, cfg.Redis)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	containers := &Containers{
