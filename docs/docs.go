@@ -2461,8 +2461,7 @@ const docTemplate = `{
         "AddProductImageData": {
             "type": "object",
             "required": [
-                "key",
-                "url"
+                "key"
             ],
             "properties": {
                 "key": {
@@ -2472,9 +2471,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "productVariantId": {
-                    "type": "string"
-                },
-                "url": {
                     "type": "string"
                 }
             }
@@ -2866,8 +2862,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "key",
-                "order",
-                "url"
+                "order"
             ],
             "properties": {
                 "key": {
@@ -2875,9 +2870,6 @@ const docTemplate = `{
                 },
                 "order": {
                     "type": "integer"
-                },
-                "url": {
-                    "type": "string"
                 }
             }
         },
@@ -2934,8 +2926,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "key",
-                "order",
-                "url"
+                "order"
             ],
             "properties": {
                 "key": {
@@ -2943,9 +2934,6 @@ const docTemplate = `{
                 },
                 "order": {
                     "type": "integer"
-                },
-                "url": {
-                    "type": "string"
                 }
             }
         },

@@ -51,7 +51,7 @@ func InitializeServer(ctx context.Context) *http.Server {
 	objectstorages3Product := objectstorages3.ProvideProduct(s3Client, presignClient, server)
 	repositorypostgresProduct := repositorypostgres.ProvideProduct(queries, pool)
 	serviceProduct := service.ProvideProduct(validate)
-	applicationProduct := application.ProvideProduct(attribute, serviceAttribute, category, product, objectstorages3Product, repositorypostgresProduct, serviceProduct)
+	applicationProduct := application.ProvideProduct(attribute, serviceAttribute, category, product, objectstorages3Product, repositorypostgresProduct, serviceProduct, server)
 	productHandlerImpl := http.ProvideProductHandler(applicationProduct)
 	cacheredisAttribute := cacheredis.ProvideAttribute(redisClient)
 	applicationAttribute := application.ProvideAttribute(attribute, serviceAttribute, cacheredisAttribute)

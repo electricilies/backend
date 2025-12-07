@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"backend/config"
 	"backend/internal/delivery/http"
 	"backend/internal/domain"
 
@@ -18,6 +19,7 @@ type Product struct {
 	productObjectStorage ProductObjectStorage
 	productRepo          domain.ProductRepository
 	productService       domain.ProductService
+	srvCfg               *config.Server
 }
 
 func ProvideProduct(
@@ -28,6 +30,7 @@ func ProvideProduct(
 	productObjectStorage ProductObjectStorage,
 	productRepo domain.ProductRepository,
 	productService domain.ProductService,
+	srvCfg *config.Server,
 ) *Product {
 	return &Product{
 		attributeRepo:        attributeRepo,
@@ -37,6 +40,7 @@ func ProvideProduct(
 		productObjectStorage: productObjectStorage,
 		productRepo:          productRepo,
 		productService:       productService,
+		srvCfg:               srvCfg,
 	}
 }
 
@@ -254,8 +258,9 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 	}
 	productImages := make([]domain.ProductImage, 0, len(param.Data.Images))
 	for _, imgData := range param.Data.Images {
+		url := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", p.srvCfg.S3Bucket, p.srvCfg.S3RegionName, imgData.Key)
 		image, err := domain.NewProductImage(
-			imgData.URL,
+			url,
 			imgData.Order,
 		)
 		if err != nil {
@@ -283,8 +288,9 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 		product.AddVariants(*variant)
 		variantImages := make([]domain.ProductImage, 0, len(variantData.Images))
 		for _, imgData := range variantData.Images {
+			url := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", p.srvCfg.S3Bucket, p.srvCfg.S3RegionName, imgData.Key)
 			image, err := domain.NewProductImage(
-				imgData.URL,
+				url,
 				imgData.Order,
 			)
 			if err != nil {
@@ -477,8 +483,9 @@ func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequ
 	}
 	images := make([]domain.ProductImage, 0, len(param.Data))
 	for _, imgData := range param.Data {
+		url := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", p.srvCfg.S3Bucket, p.srvCfg.S3RegionName, imgData.Key)
 		image, err := domain.NewProductImage(
-			imgData.URL,
+			url,
 			imgData.Order,
 		)
 		if err != nil {
