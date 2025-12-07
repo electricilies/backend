@@ -204,10 +204,11 @@ jobs:
         with:
           experimental: true
 
-      - name: Cache Docker images.
-        uses: ScribeMD/docker-cache@0.5.0
-        with:
-          key: testcontainers-${{ runner.os }}-${{ hashFiles('**/containersimages.go') }}
+      # NOTE: This doesn't work anymore
+      # - name: Cache Docker images.
+      #   uses: ScribeMD/docker-cache@0.5.0
+      #   with:
+      #     key: testcontainers-${{ runner.os }}-${{ hashFiles('**/containersimages.go') }}
 
       - name: test
         run: just test-integration -covermode=atomic -coverprofile=coverage.out
