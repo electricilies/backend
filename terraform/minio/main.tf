@@ -19,14 +19,14 @@ resource "minio_ilm_policy" "electricilies_policy" {
   rule {
     id         = "expire-temp-product-images"
     status     = "Enabled"
-    filter     = "temp/products/images/"
+    filter     = "products/temp/"
     expiration = "1d"
   }
 
   rule {
     id         = "expire-temp-reviews"
     status     = "Enabled"
-    filter     = "temp/reviews/images/"
+    filter     = "reviews/temp/"
     expiration = "1d"
   }
 }
