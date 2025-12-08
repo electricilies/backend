@@ -140,7 +140,7 @@ WHEN NOT MATCHED THEN
     NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz)
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.product_id = (SELECT DISTINCT product_id FROM temp_options) THEN
+  AND target.product_id = ANY (SELECT DISTINCT product_id FROM temp_options) THEN
   DELETE;
 
 -- name: CreateTempTableOptionValues :exec
@@ -187,5 +187,5 @@ WHEN NOT MATCHED THEN
     NULLIF(source.deleted_at, '0001-01-01T00:00:00Z'::timestamptz)
   )
 WHEN NOT MATCHED BY SOURCE
-  AND target.option_id = (SELECT DISTINCT option_id FROM temp_option_values) THEN
+  AND target.option_id = ANY (SELECT DISTINCT option_id FROM temp_option_values) THEN
   DELETE;
