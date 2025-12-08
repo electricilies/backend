@@ -12,7 +12,7 @@ func RegisterOrderValidators(v *validator.Validate) error {
 func orderTotalAmountValidator(fl validator.FieldLevel) bool {
 	order, ok := fl.Parent().Interface().(Order)
 	if !ok {
-		return false
+		return true
 	}
 	return ValidateOrderTotalAmount(&order)
 }
