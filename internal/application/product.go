@@ -275,6 +275,7 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 		}
 	}
 	product.AddImages(productImages...)
+	imageKeyImageIDMap := make(map[string]uuid.UUID, len(param.Data.Images))
 	for _, variantData := range param.Data.Variants {
 		variant, err := domain.NewVariant(
 			variantData.SKU,
@@ -295,13 +296,8 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 				return nil, err
 			}
 			variantImages = append(variantImages, *image)
-			if err = p.productObjectStorage.PersistImageFromTemp(
-				ctx,
-				imgData.Key,
-				image.ID,
-			); err != nil {
-				return nil, err
-			}
+			imageKeyImageIDMap[imgData.Key] = image.ID
+
 		}
 		if err := product.AddVariantImages(variant.ID, variantImages...); err != nil {
 			return nil, err
@@ -322,6 +318,18 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 	if err != nil {
 		return nil, err
 	}
+
+	for key, imageID := range imageKeyImageIDMap {
+		err = p.productObjectStorage.PersistImageFromTemp(
+			ctx,
+			key,
+			imageID,
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	_ = p.productCache.InvalidateAlls(ctx)
 
 	// Fetch the created product with all relations
@@ -480,6 +488,7 @@ func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequ
 		return nil, err
 	}
 	images := make([]domain.ProductImage, 0, len(param.Data))
+	imageKeyImageIDMap := make(map[string]uuid.UUID, len(param.Data))
 	for _, imgData := range param.Data {
 		image, err := domain.NewProductImage(
 			imgData.Order,
@@ -494,19 +503,23 @@ func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequ
 			}
 		} else {
 			images = append(images, *image)
-			if err = p.productObjectStorage.PersistImageFromTemp(
-				ctx,
-				imgData.Key,
-				image.ID,
-			); err != nil {
-				return nil, err
-			}
+			imageKeyImageIDMap[imgData.Key] = image.ID
 		}
 	}
 	product.AddImages(images...)
 	err = p.productRepo.Save(ctx, domain.ProductRepositorySaveParam{Product: *product})
 	if err != nil {
 		return nil, err
+	}
+	for key, imageID := range imageKeyImageIDMap {
+		err = p.productObjectStorage.PersistImageFromTemp(
+			ctx,
+			key,
+			imageID,
+		)
+		if err != nil {
+			return nil, err
+		}
 	}
 	// Invalidate product caches
 	_ = p.productCache.InvalidateAlls(ctx)
