@@ -48,7 +48,8 @@ func InitializeServer(ctx context.Context) *http.Server {
 	serviceAttribute := service.ProvideAttribute(validate)
 	product := cacheredis.ProvideProduct(redisClient)
 	presignClient := client.NewS3Presign(s3Client)
-	objectstorages3Product := objectstorages3.ProvideProduct(s3Client, presignClient, server)
+	s3 := client.ProvideS3(s3Client, presignClient)
+	objectstorages3Product := objectstorages3.ProvideProduct(s3, server)
 	repositorypostgresProduct := repositorypostgres.ProvideProduct(queries, pool)
 	serviceProduct := service.ProvideProduct(validate)
 	applicationProduct := application.ProvideProduct(attribute, serviceAttribute, category, product, objectstorages3Product, repositorypostgresProduct, serviceProduct, server)
@@ -185,7 +186,7 @@ var RouterSet = wire.NewSet(http.ProvideRouter, wire.Bind(
 ),
 )
 
-var ClientSet = wire.NewSet(client.NewKeycloak, client.NewRedis, client.NewS3, client.NewS3Presign, client.NewValidate)
+var ClientSet = wire.NewSet(client.NewKeycloak, client.NewRedis, client.NewS3, client.NewS3Presign, client.ProvideS3, client.NewValidate)
 
 var CacheSet = wire.NewSet(cacheredis.ProvideProduct, wire.Bind(
 	new(application.ProductCache),

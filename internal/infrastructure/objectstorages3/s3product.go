@@ -2,10 +2,13 @@ package objectstorages3
 
 import (
 	"context"
+	"net/url"
+	"path"
 	"time"
 
 	"backend/config"
 	"backend/internal/application"
+	"backend/internal/client"
 	"backend/internal/delivery/http"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -14,20 +17,17 @@ import (
 )
 
 type Product struct {
-	s3Client        *s3.Client
-	s3PresignClient *s3.PresignClient
-	cfgSrv          *config.Server
+	s3Client *client.S3
+	cfgSrv   *config.Server
 }
 
 func ProvideProduct(
-	s3Client *s3.Client,
-	s3PresignClient *s3.PresignClient,
+	s3Client *client.S3,
 	cfgSrv *config.Server,
 ) *Product {
 	return &Product{
-		s3Client:        s3Client,
-		s3PresignClient: s3PresignClient,
-		cfgSrv:          cfgSrv,
+		s3Client: s3Client,
+		cfgSrv:   cfgSrv,
 	}
 }
 
@@ -39,7 +39,7 @@ func (p *Product) GetUploadImageURL(ctx context.Context) (*http.UploadImageURLRe
 		return nil, ToDomainErrorFromS3(err)
 	}
 	idStr := id.String()
-	url, err := p.s3PresignClient.PresignPutObject(
+	url, err := p.s3Client.S3PresignClient.PresignPutObject(
 		ctx,
 		&s3.PutObjectInput{
 			Bucket: aws.String(p.cfgSrv.S3Bucket),
@@ -57,7 +57,7 @@ func (p *Product) GetUploadImageURL(ctx context.Context) (*http.UploadImageURLRe
 }
 
 func (p *Product) GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) (*http.DeleteImageURLResponseDto, error) {
-	url, err := p.s3PresignClient.PresignDeleteObject(
+	url, err := p.s3Client.S3PresignClient.PresignDeleteObject(
 		ctx,
 		&s3.DeleteObjectInput{
 			Bucket: aws.String(p.cfgSrv.S3Bucket),
@@ -73,16 +73,16 @@ func (p *Product) GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) (*ht
 	}, nil
 }
 
-func (p *Product) PersistImageFromTemp(ctx context.Context, key string) error {
-	_, err := p.s3Client.CopyObject(ctx, &s3.CopyObjectInput{
+func (p *Product) PersistImageFromTemp(ctx context.Context, key string, imageID uuid.UUID) error {
+	_, err := p.s3Client.S3Client.CopyObject(ctx, &s3.CopyObjectInput{
 		Bucket:     aws.String(p.cfgSrv.S3Bucket),
 		CopySource: aws.String(p.cfgSrv.S3Bucket + "/" + S3ProductImageFolderTemp + key),
-		Key:        aws.String(S3ProductImageFolder + key),
+		Key:        aws.String(S3ProductImageFolder + imageID.String()),
 	})
 	if err != nil {
 		return ToDomainErrorFromS3(err)
 	}
-	_, err = p.s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
+	_, err = p.s3Client.S3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(p.cfgSrv.S3Bucket),
 		Key:    aws.String(S3ProductImageFolderTemp + key),
 	})
@@ -90,4 +90,10 @@ func (p *Product) PersistImageFromTemp(ctx context.Context, key string) error {
 		return ToDomainErrorFromS3(err)
 	}
 	return nil
+}
+
+func (p *Product) BuildImageURL(imageID uuid.UUID) string {
+	u, _ := url.Parse(p.cfgSrv.S3Endpoint)
+	u.Path = path.Join(u.Path, p.cfgSrv.S3Bucket, S3ProductImageFolder, imageID.String())
+	return u.String()
 }

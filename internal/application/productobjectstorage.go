@@ -11,5 +11,6 @@ import (
 type ProductObjectStorage interface {
 	GetUploadImageURL(ctx context.Context) (*http.UploadImageURLResponseDto, error)
 	GetDeleteImageURL(ctx context.Context, imageID uuid.UUID) (*http.DeleteImageURLResponseDto, error)
-	PersistImageFromTemp(ctx context.Context, key string) error
+	PersistImageFromTemp(ctx context.Context, key string, imageID uuid.UUID) error
+	BuildImageURL(imageID uuid.UUID) string
 }

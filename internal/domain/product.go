@@ -97,13 +97,14 @@ func NewProductOption(
 }
 
 func NewProductImage(
-	url string,
 	order int,
+	buildImageURL func(imageID uuid.UUID) string,
 ) (*ProductImage, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return nil, multierror.Append(ErrInternal, err)
 	}
+	url := buildImageURL(id)
 	productImage := &ProductImage{
 		ID:        id,
 		URL:       url,

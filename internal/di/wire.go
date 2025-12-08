@@ -224,6 +224,7 @@ var ClientSet = wire.NewSet(
 	client.NewRedis,
 	client.NewS3,
 	client.NewS3Presign,
+	client.ProvideS3,
 	client.NewValidate,
 )
 
