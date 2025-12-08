@@ -216,7 +216,7 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 	if err != nil {
 		return nil, err
 	}
-	{
+	if len(param.Data.AttributeValueIDs) > 0 {
 		attributeIDs := make([]uuid.UUID, 0, len(param.Data.AttributeValueIDs))
 		attributeValueIDs := make([]uuid.UUID, 0, len(param.Data.AttributeValueIDs))
 		for _, a := range param.Data.AttributeValueIDs {
