@@ -28,9 +28,6 @@ func (c *Category) Get(
 	ctx context.Context,
 	param application.CategoryCacheParam,
 ) (*http.CategoryResponseDto, error) {
-	if c.redisClient == nil {
-		return nil, toDomainError(ErrClientNil)
-	}
 	key := c.getKey(param)
 	data, err := c.redisClient.Get(ctx, key).Result()
 	if err != nil {
@@ -51,9 +48,6 @@ func (c *Category) Set(
 	param application.CategoryCacheParam,
 	category *http.CategoryResponseDto,
 ) error {
-	if c.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := c.getKey(param)
 	data, err := json.Marshal(category)
 	if err != nil {
@@ -66,9 +60,6 @@ func (c *Category) Invalidate(
 	ctx context.Context,
 	param application.CategoryCacheParam,
 ) error {
-	if c.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := c.getKey(param)
 	return c.redisClient.Del(ctx, key).Err()
 }
@@ -77,9 +68,6 @@ func (c *Category) GetList(
 	ctx context.Context,
 	param application.CategoryCacheListParam,
 ) (*http.PaginationResponseDto[http.CategoryResponseDto], error) {
-	if c.redisClient == nil {
-		return nil, toDomainError(ErrClientNil)
-	}
 	key := c.getListKey(param)
 	data, err := c.redisClient.Get(ctx, key).Result()
 	if err != nil {
@@ -100,9 +88,6 @@ func (c *Category) SetList(
 	param application.CategoryCacheListParam,
 	pagination *http.PaginationResponseDto[http.CategoryResponseDto],
 ) error {
-	if c.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := c.getListKey(param)
 	data, err := json.Marshal(pagination)
 	if err != nil {
@@ -115,9 +100,6 @@ func (c *Category) InvalidateList(
 	ctx context.Context,
 	param application.CategoryCacheListParam,
 ) error {
-	if c.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := c.getListKey(param)
 	return c.redisClient.Del(ctx, key).Err()
 }
@@ -125,9 +107,6 @@ func (c *Category) InvalidateList(
 func (c *Category) InvalidateAlls(
 	ctx context.Context,
 ) error {
-	if c.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	patterns := []string{
 		CategoryGetPrefix + "*",
 		CategoryListPrefix + "*",

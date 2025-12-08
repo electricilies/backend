@@ -29,9 +29,6 @@ func (a *Attribute) Get(
 	ctx context.Context,
 	param application.AttributeCacheParam,
 ) (*http.AttributeResponseDto, error) {
-	if a.redisClient == nil {
-		return nil, toDomainError(ErrClientNil)
-	}
 	key := a.getKey(param)
 	data, err := a.redisClient.Get(ctx, key).Result()
 	if err != nil {
@@ -52,9 +49,6 @@ func (a *Attribute) Set(
 	param application.AttributeCacheParam,
 	attribute *http.AttributeResponseDto,
 ) error {
-	if a.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := a.getKey(param)
 	data, err := json.Marshal(attribute)
 	if err != nil {
@@ -67,9 +61,6 @@ func (a *Attribute) Invalidate(
 	ctx context.Context,
 	param application.AttributeCacheParam,
 ) error {
-	if a.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := a.getKey(param)
 	return a.redisClient.Del(ctx, key).Err()
 }
@@ -78,9 +69,6 @@ func (a *Attribute) GetList(
 	ctx context.Context,
 	param application.AttributeCacheListParam,
 ) (*http.PaginationResponseDto[http.AttributeResponseDto], error) {
-	if a.redisClient == nil {
-		return nil, toDomainError(ErrClientNil)
-	}
 	key := a.getListKey(param)
 	data, err := a.redisClient.Get(ctx, key).Result()
 	if err != nil {
@@ -101,9 +89,6 @@ func (a *Attribute) SetList(
 	param application.AttributeCacheListParam,
 	pagination *http.PaginationResponseDto[http.AttributeResponseDto],
 ) error {
-	if a.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := a.getListKey(param)
 	data, err := json.Marshal(pagination)
 	if err != nil {
@@ -116,9 +101,6 @@ func (a *Attribute) InvalidateList(
 	ctx context.Context,
 	param application.AttributeCacheListParam,
 ) error {
-	if a.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := a.getListKey(param)
 	return a.redisClient.Del(ctx, key).Err()
 }
@@ -127,9 +109,6 @@ func (a *Attribute) GetValueList(
 	ctx context.Context,
 	param application.AttributeCacheValueListParam,
 ) (*http.PaginationResponseDto[http.AttributeValueResponseDto], error) {
-	if a.redisClient == nil {
-		return nil, toDomainError(ErrClientNil)
-	}
 	key := a.getValueListKey(param)
 	data, err := a.redisClient.Get(ctx, key).Result()
 	if err != nil {
@@ -150,9 +129,6 @@ func (a *Attribute) SetValueList(
 	param application.AttributeCacheValueListParam,
 	pagination *http.PaginationResponseDto[http.AttributeValueResponseDto],
 ) error {
-	if a.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := a.getValueListKey(param)
 	data, err := json.Marshal(pagination)
 	if err != nil {
@@ -165,9 +141,6 @@ func (a *Attribute) InvalidateValueList(
 	ctx context.Context,
 	param application.AttributeCacheValueListParam,
 ) error {
-	if a.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := a.getValueListKey(param)
 	return a.redisClient.Del(ctx, key).Err()
 }
@@ -175,9 +148,6 @@ func (a *Attribute) InvalidateValueList(
 func (a *Attribute) InvalidateAlls(
 	ctx context.Context,
 ) error {
-	if a.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	patterns := []string{
 		AttributeGetPrefix + "*",
 		AttributeListPrefix + "*",

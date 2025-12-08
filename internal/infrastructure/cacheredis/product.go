@@ -30,9 +30,6 @@ func (p *Product) Get(
 	ctx context.Context,
 	param application.ProductCacheParam,
 ) (*http.ProductResponseDto, error) {
-	if p.redisClient == nil {
-		return nil, toDomainError(ErrClientNil)
-	}
 	key := p.getKey(param)
 	data, err := p.redisClient.Get(ctx, key).Result()
 	if err != nil {
@@ -53,9 +50,6 @@ func (p *Product) Set(
 	param application.ProductCacheParam,
 	product *http.ProductResponseDto,
 ) error {
-	if p.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := p.getKey(param)
 	data, err := json.Marshal(product)
 	if err != nil {
@@ -68,9 +62,6 @@ func (p *Product) Invalidate(
 	ctx context.Context,
 	param application.ProductCacheParam,
 ) error {
-	if p.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := p.getKey(param)
 	return p.redisClient.Del(ctx, key).Err()
 }
@@ -79,9 +70,6 @@ func (p *Product) GetList(
 	ctx context.Context,
 	param application.ProductCacheListParam,
 ) (*http.PaginationResponseDto[http.ProductResponseDto], error) {
-	if p.redisClient == nil {
-		return nil, toDomainError(ErrClientNil)
-	}
 	key := p.getListKey(param)
 	data, err := p.redisClient.Get(ctx, key).Result()
 	if err != nil {
@@ -102,9 +90,6 @@ func (p *Product) SetList(
 	param application.ProductCacheListParam,
 	pagination *http.PaginationResponseDto[http.ProductResponseDto],
 ) error {
-	if p.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := p.getListKey(param)
 	data, err := json.Marshal(pagination)
 	if err != nil {
@@ -117,9 +102,6 @@ func (p *Product) InvalidateList(
 	ctx context.Context,
 	param application.ProductCacheListParam,
 ) error {
-	if p.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := p.getListKey(param)
 	return p.redisClient.Del(ctx, key).Err()
 }
@@ -127,9 +109,6 @@ func (p *Product) InvalidateList(
 func (p *Product) InvalidateAlls(
 	ctx context.Context,
 ) error {
-	if p.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	patterns := []string{
 		ProductGetPrefix + "*",
 		ProductListPrefix + "*",

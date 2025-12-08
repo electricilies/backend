@@ -28,9 +28,6 @@ func (c *Cart) Get(
 	ctx context.Context,
 	param application.CartCacheParam,
 ) (*http.CartResponseDto, error) {
-	if c.redisClient == nil {
-		return nil, toDomainError(ErrClientNil)
-	}
 	key := c.getKey(param)
 	data, err := c.redisClient.Get(ctx, key).Result()
 	if err != nil {
@@ -51,9 +48,6 @@ func (c *Cart) Set(
 	param application.CartCacheParam,
 	cart *http.CartResponseDto,
 ) error {
-	if c.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := c.getKey(param)
 	data, err := json.Marshal(cart)
 	if err != nil {
@@ -66,9 +60,6 @@ func (c *Cart) Invalidate(
 	ctx context.Context,
 	param application.CartCacheParam,
 ) error {
-	if c.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	key := c.getKey(param)
 	return c.redisClient.Del(ctx, key).Err()
 }
@@ -76,9 +67,6 @@ func (c *Cart) Invalidate(
 func (c *Cart) InvalidateAlls(
 	ctx context.Context,
 ) error {
-	if c.redisClient == nil {
-		return toDomainError(ErrClientNil)
-	}
 	pattern := CartGetPrefix + "*"
 	iter := c.redisClient.Scan(ctx, 0, pattern, 0).Iterator()
 	for iter.Next(ctx) {
