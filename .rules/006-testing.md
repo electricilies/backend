@@ -2,8 +2,8 @@
 
 ## Layers
 
-- **Service:** Unit test, pure logic, validator only.
-- **Application:** Integration test, use testcontainers for Redis, S3, DB, etc.
+- **Service/Domain:** Unit test, pure logic, validator only. Use table-driven tests covering Normal, Abnormal, and Boundary cases.
+- **Application:** Integration test, use testcontainers. Test full lifecycles (Create->Get->Update->Delete) and side effects (Cache, DB).
 - **Repository:** Unit test, mock repository with Mockery.
 
 ## Mockery Usage
@@ -21,12 +21,14 @@
 ## Service Tests
 
 - No mocks, just validator and logic.
-- Use table-driven tests for scenarios.
+- **Strictly** use table-driven tests.
+- Cover all paths: Normal, Abnormal (Errors), Boundary (Edge cases).
 
 ## Application Tests
 
 - Use testcontainers for external dependencies (Redis, S3, DB).
-- Integration style: spin up containers, test real interactions.
+- **Lifecycle style:** Test sequences of operations (Create -> Get -> Update -> List -> Delete) to verify state persistence and cache invalidation.
+- Use `testify/suite`.
 
 ## Repository Tests
 
@@ -48,6 +50,7 @@ go test -race ./...  # Race detector
 ## Best Practices
 
 ### Parallel Testing
+
 - Use `t.Parallel()` for tests that can run concurrently
 - Mark tests parallel if they don't share state or require sequential execution
 - Example:
@@ -58,9 +61,15 @@ go test -race ./...  # Race detector
   }
   ```
 
-### Table-Driven Tests
-- Use table-driven pattern for multiple test scenarios
+### Table-Driven Tests (Unit)
+
+- Mandatory for Service/Domain logic.
+- Define explicit test cases for:
+  - **Normal:** Standard valid inputs.
+  - **Abnormal:** Invalid inputs, error conditions.
+  - **Boundary:** Edge values (min/max, empty, limits).
 - Structure:
+
   ```go
   tests := []struct {
       name        string
@@ -68,10 +77,11 @@ go test -race ./...  # Race detector
       expected    OutputType
       expectError bool
   }{
-      {name: "valid case", input: validInput, expected: validOutput},
-      {name: "error case", input: invalidInput, expectError: true},
+      {name: "Normal: valid case", input: validInput, expected: validOutput},
+      {name: "Boundary: max value", input: maxInput, expected: maxOutput},
+      {name: "Abnormal: invalid input", input: invalidInput, expectError: true},
   }
-  
+
   for _, tt := range tests {
       t.Run(tt.name, func(t *testing.T) {
           // test logic
@@ -79,27 +89,38 @@ go test -race ./...  # Race detector
   }
   ```
 
+### Lifecycle Testing (Integration)
+
+- Use for Application layer integration tests.
+- Verify state changes across multiple operations.
+- Check side effects like Cache hits/misses/invalidation.
+- Example:
+  ```go
+  s.Run("Create resource", func() { ... })
+  s.Run("Get resource (cache miss)", func() { ... })
+  s.Run("Get resource (cache hit)", func() { ... })
+  s.Run("Update resource (cache invalidation)", func() { ... })
+  ```
+
 ### Testify Suite
+
 - Use `testify/suite` for integration tests requiring setup/teardown
 - Especially useful for tests with testcontainers
-- Example structure (see `test/integration/application/product_integration_test.go.bak`)
+- Example structure (see `test/integration/application/attribute_test.go`)
 
 ### Validator Registration
+
 - Register custom validators in `internal/client/validate.go`
 - Call `domain.RegisterAttributeValidators(validate)` for attribute validators
 - Ensure all custom validation tags are registered before use
 
 ## Rules
 
-1. Service: unit test, validator only
-2. Application: integration test, testcontainers for external deps, use testify suite
-3. Repository: unit test, mock repo with Mockery
-4. Table-driven tests for multiple scenarios
-5. Mock with mockery + testify
-6. Use `t.Helper()` in utilities
-7. Use `t.Parallel()` when tests can run concurrently
-8. Run with `-race`
-9. > 80% coverage
-10. Descriptive test names
-11. Setup/teardown for integration via testify suite
-12. Register all custom validators in `internal/client/validate.go`
+1. Service/Domain: Table-driven unit tests (Normal, Abnormal, Boundary).
+2. Application: Integration tests with Testcontainers & Testify Suite.
+3. Application: Test lifecycles (Create->Get->Update->Delete) and cache side-effects.
+4. Repository: Unit test with Mockery.
+5. Coverage: > 80%, covering all logical paths.
+6. Use `t.Parallel()` where possible.
+7. Run with `-race`.
+8. Register custom validators in `internal/client/validate.go`.
