@@ -25,7 +25,7 @@ import (
 type CategoryTestSuite struct {
 	suite.Suite
 	containers *component.Containers
-	app        *application.Category
+	app        http.CategoryApplication
 }
 
 func TestCategorySuite(t *testing.T) {

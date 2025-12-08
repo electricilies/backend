@@ -25,7 +25,7 @@ import (
 type AttributeTestSuite struct {
 	suite.Suite
 	containers *component.Containers
-	app        *application.Attribute
+	app        http.AttributeApplication
 }
 
 func TestAttributeSuite(t *testing.T) {
