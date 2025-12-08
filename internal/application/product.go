@@ -270,7 +270,6 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 		if err = p.productObjectStorage.PersistImageFromTemp(
 			ctx,
 			imgData.Key,
-			image.ID,
 		); err != nil {
 			return nil, err
 		}
@@ -300,7 +299,6 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 			if err = p.productObjectStorage.PersistImageFromTemp(
 				ctx,
 				imgData.Key,
-				image.ID,
 			); err != nil {
 				return nil, err
 			}
@@ -500,7 +498,6 @@ func (p *Product) AddImages(ctx context.Context, param http.AddProductImagesRequ
 			if err = p.productObjectStorage.PersistImageFromTemp(
 				ctx,
 				imgData.Key,
-				image.ID,
 			); err != nil {
 				return nil, err
 			}
