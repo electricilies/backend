@@ -293,9 +293,13 @@ WHERE
     ELSE product_variant_id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
-    ELSE product_id = ANY ($3::uuid[])
+    WHEN $3::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
+    ELSE product_id = $3::uuid
+  END
+  AND CASE
+    WHEN $4::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($4::uuid[]) = 0 THEN TRUE
+    ELSE product_id = ANY ($4::uuid[])
   END
 ORDER BY
   id ASC
@@ -304,11 +308,17 @@ ORDER BY
 type ListProductImagesParams struct {
 	IDs               []uuid.UUID
 	ProductVariantIDs []uuid.UUID
+	ProductID         uuid.UUID
 	ProductIDs        []uuid.UUID
 }
 
 func (q *Queries) ListProductImages(ctx context.Context, arg ListProductImagesParams) ([]ProductImage, error) {
-	rows, err := q.db.Query(ctx, listProductImages, arg.IDs, arg.ProductVariantIDs, arg.ProductIDs)
+	rows, err := q.db.Query(ctx, listProductImages,
+		arg.IDs,
+		arg.ProductVariantIDs,
+		arg.ProductID,
+		arg.ProductIDs,
+	)
 	if err != nil {
 		return nil, err
 	}

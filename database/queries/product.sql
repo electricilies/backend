@@ -277,6 +277,10 @@ WHERE
     ELSE product_variant_id = ANY (sqlc.arg('product_variant_ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('product_id')::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
+    ELSE product_id = sqlc.arg('product_id')::uuid
+  END
+  AND CASE
     WHEN sqlc.arg('product_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('product_ids')::uuid[]) = 0 THEN TRUE
     ELSE product_id = ANY (sqlc.arg('product_ids')::uuid[])

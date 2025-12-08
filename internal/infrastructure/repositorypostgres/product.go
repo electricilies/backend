@@ -248,18 +248,13 @@ func getImages(
 	queries sqlc.Queries,
 	product *domain.Product,
 ) error {
-	variantLength := len(product.Variants)
-	variantIDs := make([]uuid.UUID, 0, variantLength)
-	for _, variant := range product.Variants {
-		variantIDs = append(variantIDs, variant.ID)
-	}
 	imagesEntities, err := queries.ListProductImages(ctx, sqlc.ListProductImagesParams{
-		ProductVariantIDs: variantIDs,
+		ProductID: product.ID,
 	})
 	if err != nil {
 		return err
 	}
-	variantIDvariantMap := make(map[uuid.UUID]*domain.ProductVariant, variantLength)
+	variantIDvariantMap := make(map[uuid.UUID]*domain.ProductVariant, len(product.Variants))
 	for i, variant := range product.Variants {
 		variantIDvariantMap[variant.ID] = &product.Variants[i]
 	}

@@ -16,7 +16,6 @@ func NewRedis(ctx context.Context, srvCfg *config.Server) *redis.Client {
 	status := client.Ping(ctx)
 	if err := status.Err(); err != nil {
 		log.Printf("failed to connect to client:%s", err)
-		return nil
 	}
 	return client
 }
