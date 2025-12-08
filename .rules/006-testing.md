@@ -2,9 +2,9 @@
 
 ## Layers
 
-- **Service/Domain:** Unit test, pure logic, validator only. Use table-driven tests covering Normal, Abnormal, and Boundary cases.
-- **Application:** Integration test, use testcontainers. Test full lifecycles (Create->Get->Update->Delete) and side effects (Cache, DB).
-- **Repository:** Unit test, mock repository with Mockery.
+- **Service/Domain:** Unit test, pure logic, validator only. Use table-driven tests covering Normal, Abnormal, and Boundary cases
+- **Application:** Integration test, use testcontainers. Test full lifecycles (Create->Get->Update->Delete) and side effects (Cache, DB)
+- **Repository:** Unit test, mock repository with Mockery
 
 ## Mockery Usage
 
@@ -20,24 +20,24 @@
 
 ## Service Tests
 
-- No mocks, just validator and logic.
-- **Strictly** use table-driven tests.
-- Cover all paths: Normal, Abnormal (Errors), Boundary (Edge cases).
+- No mocks, just validator and logic
+- **Strictly** use table-driven tests
+- Cover all paths: Normal, Abnormal (Errors), Boundary (Edge cases)
 
 ## Application Tests
 
-- Use testcontainers for external dependencies (Redis, S3, DB).
-- **Lifecycle style:** Test sequences of operations (Create -> Get -> Update -> List -> Delete) to verify state persistence and cache invalidation.
-- Use `testify/suite`.
+- Use testcontainers for external dependencies (Redis, S3, DB)
+- **Lifecycle style:** Test sequences of operations (Create -> Get -> Update -> List -> Delete) to verify state persistence and cache invalidation
+- Use `testify/suite`
 
 ## Repository Tests
 
-- Use Mockery-generated mocks for repository interface.
-- Test repository logic in isolation.
+- Use Mockery-generated mocks for repository interface
+- Test repository logic in isolation
 
 ## Helpers
 
-- Use `t.Helper()` in test utilities.
+- Use `t.Helper()` in test utilities
 
 ## Running Tests
 
@@ -63,11 +63,11 @@ go test -race ./...  # Race detector
 
 ### Table-Driven Tests (Unit)
 
-- Mandatory for Service/Domain logic.
+- Mandatory for Service/Domain logic
 - Define explicit test cases for:
-  - **Normal:** Standard valid inputs.
-  - **Abnormal:** Invalid inputs, error conditions.
-  - **Boundary:** Edge values (min/max, empty, limits).
+  - **Normal:** Standard valid inputs
+  - **Abnormal:** Invalid inputs, error conditions
+  - **Boundary:** Edge values (min/max, empty, limits)
 - Structure:
 
   ```go
@@ -91,9 +91,9 @@ go test -race ./...  # Race detector
 
 ### Lifecycle Testing (Integration)
 
-- Use for Application layer integration tests.
-- Verify state changes across multiple operations.
-- Check side effects like Cache hits/misses/invalidation.
+- Use for Application layer integration tests
+- Verify state changes across multiple operations
+- Check side effects like Cache hits/misses/invalidation
 - Example:
   ```go
   s.Run("Create resource", func() { ... })
@@ -114,13 +114,18 @@ go test -race ./...  # Race detector
 - Call `domain.RegisterAttributeValidators(validate)` for attribute validators
 - Ensure all custom validation tags are registered before use
 
+## Reporting & Defects
+
+- For documenting test cases and results, follow the template in ./docs/testing/whitebox-template-guidance.md
+- If any defect is found during testing, record it in ./docs/testing/defect-log.md
+
 ## Rules
 
-1. Service/Domain: Table-driven unit tests (Normal, Abnormal, Boundary).
-2. Application: Integration tests with Testcontainers & Testify Suite.
-3. Application: Test lifecycles (Create->Get->Update->Delete) and cache side-effects.
-4. Repository: Unit test with Mockery.
-5. Coverage: > 80%, covering all logical paths.
-6. Use `t.Parallel()` where possible.
-7. Run with `-race`.
-8. Register custom validators in `internal/client/validate.go`.
+1. Service/Domain: Table-driven unit tests (Normal, Abnormal, Boundary)
+2. Application: Integration tests with Testcontainers & Testify Suite
+3. Application: Test lifecycles (Create->Get->Update->Delete) and cache side-effects
+4. Repository: Unit test with Mockery
+5. Coverage: > 80%, covering all logical paths
+6. Use `t.Parallel()` where possible
+7. Run with `-race`
+8. Register custom validators in `internal/client/validate.go`
