@@ -108,8 +108,9 @@ func (c *Category) Update(ctx context.Context, param http.UpdateCategoryRequestD
 		return nil, err
 	}
 
-	// HACK: This is an exception that category update already validated, just for testing
-	category.Update(param.Data.Name)
+	if err := category.Update(param.Data.Name); err != nil {
+		return nil, err
+	}
 
 	err = c.categoryRepo.Save(ctx, domain.CategoryRepositorySaveParam{Category: *category})
 	if err != nil {
