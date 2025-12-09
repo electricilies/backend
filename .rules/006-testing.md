@@ -118,6 +118,41 @@ go test -race ./...  # Race detector
 
 - For documenting test cases and results, follow the template in ./docs/testing/whitebox-template-guidance.md
 - If any defect is found during testing, record it in ./docs/testing/defect-log.md
+- The boundary test case may appear in unit test only, hardly in integration test
+
+## Seeding
+
+- In integration tests, use seeding setting to prepare initial data state
+  ```go
+  func (s *AttributeTestSuite) newContainersConfig() *component.ContainersConfig {
+    containersConfig := component.NewContainersConfig(&component.NewContainersConfigParam{
+      DBEnabled:    true,
+    })
+    containersConfig.DB.Seed = true
+    return containersConfig
+  }
+  ```
+- The seed data include somes
+  - Product:
+    ```sql
+    INSERT INTO products (id, name, price, rating, description, category_id) VALUES
+      ('00000000-0000-7000-0000-000278469304', 'Điện thoại Masstel Izi 56 4G (LTE) Gọi HD Call ,Pin khủng ,loa lớn - Hàng Chính Hãng', 499000, 0, ..., '00000000-0000-7000-0000-000000001796'),
+      ('00000000-0000-7000-0000-000278469345', 'Điện thoại ZTE Family 4GB/128GB, Màn OLED Full HD+, Dimensity 700, Kháng nước IP67, Sạc 22,5W - Mới nguyên seal - Hàng nhập khẩu nhật', 2599000, 0, ..., '00000000-0000-7000-0000-000000001795'),
+      ...
+    ```
+  - Category: `00000000-0000-7000-0000-000000001796`
+  - Cart:
+    ```sql
+    INSERT INTO carts (id, user_id) VALUES
+      ('00000000-0000-7000-0000-000000000001', '00000000-0000-7000-0000-000000000003')
+    ```
+  - Cart items:
+    ```sql
+    INSERT INTO cart_items (id, cart_id, product_variant_id, quantity) VALUES
+      ('00000000-0000-7000-0000-000000000001', '00000000-0000-7000-0000-000000000001', '00000000-0000-7000-0000-000278469308', 10),
+      ('00000000-0000-7000-0000-000000000002', '00000000-0000-7000-0000-000000000001', '00000000-0000-7000-0000-000278620836', 1)
+    ```
+- Do not read the seed.sql file, which is very large!
 
 ## Rules
 
