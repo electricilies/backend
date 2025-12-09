@@ -23,8 +23,8 @@ func ProvideCartHandler(cartApp CartApplication) *CartHandlerImpl {
 		cartApp:               cartApp,
 		ErrRequiredCartID:     "cart_id is required",
 		ErrInvalidCartID:      "invalid cart_id",
-		ErrRequiredCartItemID: "cart_item_id is required",
-		ErrInvalidCartItemID:  "invalid cart_item_id",
+		ErrRequiredCartItemID: "item_id is required",
+		ErrInvalidCartItemID:  "invalid item_id",
 		ErrInvalidUserID:      "invalid user_id",
 	}
 }
@@ -230,7 +230,7 @@ func (h *CartHandlerImpl) UpdateItem(ctx *gin.Context) {
 		return
 	}
 
-	itemID, ok := pathToUUID(ctx, "cart_item_id")
+	itemID, ok := pathToUUID(ctx, "item_id")
 	if itemID == uuid.Nil {
 		ctx.JSON(http.StatusBadRequest, NewError(h.ErrRequiredCartItemID))
 		return
