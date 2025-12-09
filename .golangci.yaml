@@ -16,6 +16,8 @@ linters:
   settings:
     testifylint:
       enable-all: true
+      disable:
+        - require-error
     lll:
       tab-width: 8
       line-length: 180
