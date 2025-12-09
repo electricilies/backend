@@ -312,19 +312,6 @@ func (o *Order) onVerifySuccess(
 		domain.OrderStatusProcessing,
 		true,
 	)
-	cart, err := o.cartRepo.Get(ctx, domain.CartRepositoryGetParam{
-		UserID: order.UserID,
-	})
-	if err != nil {
-		return err
-	}
-	cart.ClearItems()
-	err = o.cartRepo.Save(ctx, domain.CartRepositorySaveParam{
-		Cart: *cart,
-	})
-	if err != nil {
-		return err
-	}
 	productVariantIDs := make([]uuid.UUID, 0, len(order.Items))
 	productIDproductVariantIDMap := make(map[uuid.UUID]uuid.UUID)
 	for _, item := range order.Items {
@@ -337,10 +324,10 @@ func (o *Order) onVerifySuccess(
 
 	productIDproductVariantMap := make(map[uuid.UUID]*domain.ProductVariant)
 	for _, p := range *products {
-		for _, v := range p.Variants {
+		for i, v := range p.Variants {
 			if _, ok := productIDproductVariantIDMap[p.ID]; ok {
 				if v.ID == productIDproductVariantIDMap[p.ID] {
-					productIDproductVariantMap[p.ID] = &v
+					productIDproductVariantMap[p.ID] = &p.Variants[i]
 				}
 			}
 		}

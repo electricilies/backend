@@ -111,11 +111,12 @@ func (r *GinRouter) RegisterRoutes(e *gin.Engine) {
 
 		orders := api.Group("/orders")
 		{
-			orders.Use(r.authMiddleware.Handler())
-			orders.GET("", r.orderHandler.List)
-			orders.POST("", r.orderHandler.Create)
-			orders.GET("/:order_id", r.orderHandler.Get)
-			orders.PUT("/:order_id", r.orderHandler.Update)
+			orders.GET("", r.authMiddleware.Handler(), r.orderHandler.List)
+			orders.POST("", r.authMiddleware.Handler(), r.orderHandler.Create)
+			orders.GET("/:order_id", r.authMiddleware.Handler(), r.orderHandler.Get)
+			orders.PUT("/:order_id", r.authMiddleware.Handler(), r.orderHandler.Update)
+			orders.GET("/vnpay/ipn", r.orderHandler.VerifyVNPayIPN)
+
 		}
 
 		// returnRequests := api.Group("/return-requests")
