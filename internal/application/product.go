@@ -302,11 +302,11 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 		if err := product.AddVariantImages(variant.ID, variantImages...); err != nil {
 			return nil, err
 		}
-		if options != nil {
-			err = linkProductVariantsToOptionValues(product, *options, param)
-			if err != nil {
-				return nil, err
-			}
+	}
+	if options != nil {
+		err = linkProductVariantsToOptionValues(product, *options, param)
+		if err != nil {
+			return nil, err
 		}
 	}
 	product.UpdateMinPrice()
