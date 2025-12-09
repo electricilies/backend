@@ -1,7 +1,3 @@
-# Whitebox Test Cases
-
-## Category
-
 ### `domain.NewCategory`
 
 #### Meta
