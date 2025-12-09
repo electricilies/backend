@@ -42,7 +42,7 @@ func (r *Cart) Get(
 		UpdatedAt: cartEntity.UpdatedAt.Time,
 	}
 	cartItems, err := r.queries.ListCartItems(ctx, sqlc.ListCartItemsParams{
-		CartID: params.ID,
+		CartID: cartEntity.ID,
 	})
 	if err != nil {
 		return nil, toDomainError(err)
