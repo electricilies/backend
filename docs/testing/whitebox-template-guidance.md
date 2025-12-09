@@ -3,9 +3,12 @@
 - This is an template for testing a function (whitebox)
 - Each of the call in a test, calling a function should produce a single sheet for each
 - For those value of the argument which aren't provided (use default value in go), don't need to mention
-- The function name should be in the format of "Attribute.Create", "Category.Update",..., and the function code you can decide yourself, for ex "At-C-01" which mean attribute create 01, "C-UV-01" which mean Category Update value 01
+- The function name should be in the format of `package.(StructName.)?.Func`, for ex "domain.Attribute.Create", "domain.Category.Update".
 - The defect ID should be mentioned if there is any defect found during the test, otherwise leave it blank. The ID should be in form of "DF-{Module}-{FunctionName}-01", for ex "DF-At-C-01" for Attribute Create function, "DF-P-UV-01" for Product Update variant function
 - In the integration test, there are tests with lifecycles, the precondition should note previous function calls from another sheet if any by ID. And the precondition should mention spinning up which containers, the DB need seed or not.
+- In the "Confirm" section, do not just write "Result" (Success/Error). You must list the important fields of the struct/return value (e.g., Name, Status). You may skip ID or timestamps if they are just "not nil", but for logic-critical fields, list them.
+- If an error is expected, write a sample error message or the error type (e.g., "Key: 'Category.Name' Error:Field validation for 'Name' failed...").
+- DO NOT change the format of the table (transposing,...), otherwise the parsing script may not work.
 
 ## Detailed Layout Explanation (Stylesheet)
 
