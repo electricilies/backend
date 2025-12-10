@@ -29,84 +29,72 @@ func (s *OrderTestSuite) TestNewOrderItemBoundaryValues() {
 		name      string
 		quantity  int
 		price     int64
-		expectOk  bool
 		expectErr bool
 	}{
 		{
 			name:      "quantity 0 (invalid)",
 			quantity:  0,
 			price:     1000,
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "quantity 1 (min)",
 			quantity:  1,
 			price:     1000,
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "quantity 2 (min + 1)",
 			quantity:  2,
 			price:     1000,
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "quantity 50",
 			quantity:  50,
 			price:     1000,
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "quantity 99 (max)",
 			quantity:  99,
 			price:     1000,
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "quantity 100 (max + 1, invalid)",
 			quantity:  100,
 			price:     1000,
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "quantity -1 (negative)",
 			quantity:  -1,
 			price:     1000,
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "price 0 (invalid)",
 			quantity:  1,
 			price:     0,
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "price 1 (min)",
 			quantity:  1,
 			price:     1,
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "price -1 (negative)",
 			quantity:  1,
 			price:     -1,
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "valid order item",
 			quantity:  5,
 			price:     10000,
-			expectOk:  true,
 			expectErr: false,
 		},
 	}
@@ -389,7 +377,7 @@ func (s *OrderTestSuite) TestOrderStatusTransitions() {
 				domain.PaymentProviderCOD,
 				[]domain.OrderItem{*orderItem},
 			)
-			s.Require().NoError(err)
+			s.NoError(err)
 
 			order.Status = tc.initialStatus
 			originalUpdatedAt := order.UpdatedAt

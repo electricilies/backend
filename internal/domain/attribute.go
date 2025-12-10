@@ -8,15 +8,15 @@ import (
 
 type Attribute struct {
 	ID        uuid.UUID        `validate:"required"                              example:"123"`
-	Code      string           `validate:"required,gte=2,lte=50"                 example:"color"`
-	Name      string           `validate:"required,gte=2,lte=100"                example:"Color"`
+	Code      string           `validate:"gte=2,lte=50"                          example:"color"`
+	Name      string           `validate:"gte=2,lte=100"                         example:"Color"`
 	Values    []AttributeValue `validate:"omitempty,unique=ID,unique=Value,dive"`
 	DeletedAt time.Time
 }
 
 type AttributeValue struct {
-	ID        uuid.UUID `validate:"required"               example:"1"`
-	Value     string    `validate:"required,gte=1,lte=100" example:"Red"`
+	ID        uuid.UUID `validate:"required"      example:"1"`
+	Value     string    `validate:"gte=1,lte=100" example:"Red"`
 	DeletedAt time.Time
 }
 

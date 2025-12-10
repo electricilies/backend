@@ -27,98 +27,84 @@ func (s *AttributeTestSuite) TestNewAttributeBoundaryValues() {
 		name      string
 		code      string
 		attrName  string
-		expectOk  bool
 		expectErr bool
 	}{
 		{
 			name:      "code length 1 (min - 1)",
 			code:      "a",
 			attrName:  "ValidName",
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "code length 2 (min)",
 			code:      "ab",
 			attrName:  "ValidName",
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "code length 3 (min + 1)",
 			code:      "abc",
 			attrName:  "ValidName",
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "code length 50 (max)",
 			code:      strings.Repeat("a", 50),
 			attrName:  "ValidName",
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "code length 51 (max + 1)",
 			code:      strings.Repeat("a", 51),
 			attrName:  "ValidName",
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "name length 1 (min - 1)",
 			code:      "validcode",
 			attrName:  "a",
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "name length 2 (min)",
 			code:      "validcode",
 			attrName:  "ab",
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "name length 3 (min + 1)",
 			code:      "validcode",
 			attrName:  "abc",
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "name length 100 (max)",
 			code:      "validcode",
 			attrName:  strings.Repeat("a", 100),
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "name length 101 (max + 1)",
 			code:      "validcode",
 			attrName:  strings.Repeat("a", 101),
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "valid attribute",
 			code:      "color",
 			attrName:  "Color",
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "empty code",
 			code:      "",
 			attrName:  "ValidName",
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "empty name",
 			code:      "validcode",
 			attrName:  "",
-			expectOk:  false,
 			expectErr: true,
 		},
 	}
@@ -149,49 +135,41 @@ func (s *AttributeTestSuite) TestNewAttributeValueBoundaryValues() {
 	testcases := []struct {
 		name      string
 		value     string
-		expectOk  bool
 		expectErr bool
 	}{
 		{
 			name:      "value length 0 (empty)",
 			value:     "",
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "value length 1 (min)",
 			value:     "a",
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "value length 2 (min + 1)",
 			value:     "ab",
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "value length 50",
 			value:     strings.Repeat("a", 50),
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "value length 100 (max)",
 			value:     strings.Repeat("a", 100),
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "value length 101 (max + 1)",
 			value:     strings.Repeat("a", 101),
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "valid value",
 			value:     "Red",
-			expectOk:  true,
 			expectErr: false,
 		},
 	}

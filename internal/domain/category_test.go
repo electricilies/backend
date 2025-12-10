@@ -25,55 +25,46 @@ func (s *CategoryTestSuite) TestCategoryCreationBoundaryValues() {
 	testcases := []struct {
 		name      string
 		input     string
-		expectOk  bool
 		expectErr bool
 	}{
 		{
 			name:      "name length 1 (min - 1)",
 			input:     "a",
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "name length 2 (min)",
 			input:     "ab",
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "name length 3 (min + 1)",
 			input:     "abc",
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "name length 50",
 			input:     strings.Repeat("a", 50),
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "name length 99 (max - 1)",
 			input:     strings.Repeat("a", 99),
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "name length 100 (max)",
 			input:     strings.Repeat("a", 100),
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "name length 101 (max + 1)",
 			input:     strings.Repeat("a", 101),
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "empty name",
 			input:     "",
-			expectOk:  false,
 			expectErr: true,
 		},
 	}
@@ -105,7 +96,6 @@ func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
 		name           string
 		initialName    string
 		updateName     string
-		expectOk       bool
 		expectErr      bool
 		expectedResult string
 	}{
@@ -113,7 +103,6 @@ func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
 			name:           "update to name length 1 (min - 1)",
 			initialName:    "ValidName",
 			updateName:     "a",
-			expectOk:       false,
 			expectErr:      true,
 			expectedResult: "a",
 		},
@@ -121,7 +110,6 @@ func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
 			name:           "update to name length 2 (min)",
 			initialName:    "ValidName",
 			updateName:     "ab",
-			expectOk:       true,
 			expectErr:      false,
 			expectedResult: "ab",
 		},
@@ -129,7 +117,6 @@ func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
 			name:           "update to name length 3 (min + 1)",
 			initialName:    "ValidName",
 			updateName:     "abc",
-			expectOk:       true,
 			expectErr:      false,
 			expectedResult: "abc",
 		},
@@ -137,7 +124,6 @@ func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
 			name:           "update to name length 99 (max - 1)",
 			initialName:    "ValidName",
 			updateName:     strings.Repeat("a", 99),
-			expectOk:       true,
 			expectErr:      false,
 			expectedResult: strings.Repeat("a", 99),
 		},
@@ -145,7 +131,6 @@ func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
 			name:           "update to name length 100 (max)",
 			initialName:    "ValidName",
 			updateName:     strings.Repeat("a", 100),
-			expectOk:       true,
 			expectErr:      false,
 			expectedResult: strings.Repeat("a", 100),
 		},
@@ -153,7 +138,6 @@ func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
 			name:           "update to name length 101 (max + 1)",
 			initialName:    "ValidName",
 			updateName:     strings.Repeat("a", 101),
-			expectOk:       false,
 			expectErr:      true,
 			expectedResult: strings.Repeat("a", 101),
 		},
@@ -161,7 +145,6 @@ func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
 			name:           "update with empty name (no change)",
 			initialName:    "ValidName",
 			updateName:     "",
-			expectOk:       true,
 			expectErr:      false,
 			expectedResult: "ValidName",
 		},
@@ -169,7 +152,6 @@ func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
 			name:           "update with same name (no change)",
 			initialName:    "ValidName",
 			updateName:     "ValidName",
-			expectOk:       true,
 			expectErr:      false,
 			expectedResult: "ValidName",
 		},
@@ -195,7 +177,7 @@ func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
 				s.NoError(validationErr, "category should pass validation")
 			}
 
-			if tc.expectOk && tc.updateName != "" && tc.updateName != tc.initialName {
+			if tc.updateName != "" && tc.updateName != tc.initialName {
 				s.True(category.UpdatedAt.After(originalUpdatedAt), "UpdatedAt should be updated")
 			} else if !tc.expectErr {
 				s.Equal(originalUpdatedAt, category.UpdatedAt, "UpdatedAt should not change")

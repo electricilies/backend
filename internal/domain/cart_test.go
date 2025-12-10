@@ -25,19 +25,16 @@ func (s *CartTestSuite) TestNewCart() {
 	testcases := []struct {
 		name      string
 		userID    uuid.UUID
-		expectOk  bool
 		expectErr bool
 	}{
 		{
 			name:      "valid user ID",
 			userID:    uuid.New(),
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "nil user ID",
 			userID:    uuid.Nil,
-			expectOk:  false,
 			expectErr: true,
 		},
 	}
@@ -68,55 +65,46 @@ func (s *CartTestSuite) TestNewCartItemBoundaryValues() {
 	testcases := []struct {
 		name      string
 		quantity  int
-		expectOk  bool
 		expectErr bool
 	}{
 		{
 			name:      "quantity 0 (invalid)",
 			quantity:  0,
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "quantity 1 (min)",
 			quantity:  1,
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "quantity 2 (min + 1)",
 			quantity:  2,
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "quantity 50",
 			quantity:  50,
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "quantity 99 (max - 1)",
 			quantity:  99,
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "quantity 100 (max)",
 			quantity:  100,
-			expectOk:  true,
 			expectErr: false,
 		},
 		{
 			name:      "quantity 101 (max + 1)",
 			quantity:  101,
-			expectOk:  false,
 			expectErr: true,
 		},
 		{
 			name:      "quantity -1 (negative)",
 			quantity:  -1,
-			expectOk:  false,
 			expectErr: true,
 		},
 	}
