@@ -10,6 +10,7 @@ coverage:
         threshold: 5%
         informational: true
         paths:
+          - internal/application/
           - internal/domain/
           - internal/service/
     patch:
