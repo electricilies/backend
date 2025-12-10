@@ -1,3 +1,4 @@
+// vim: tabstop=4:
 package domain_test
 
 import (
@@ -29,7 +30,6 @@ func (s *AttributeTestSuite) TestNewAttributeBoundaryValues() {
 		expectOk  bool
 		expectErr bool
 	}{
-		// Code length tests
 		{
 			name:      "code length 1 (min - 1)",
 			code:      "a",
@@ -65,7 +65,6 @@ func (s *AttributeTestSuite) TestNewAttributeBoundaryValues() {
 			expectOk:  false,
 			expectErr: true,
 		},
-		// Name length tests
 		{
 			name:      "name length 1 (min - 1)",
 			code:      "validcode",
@@ -101,7 +100,6 @@ func (s *AttributeTestSuite) TestNewAttributeBoundaryValues() {
 			expectOk:  false,
 			expectErr: true,
 		},
-		// Normal cases
 		{
 			name:      "valid attribute",
 			code:      "color",
@@ -304,7 +302,6 @@ func (s *AttributeTestSuite) TestAttributeUpdateValue() {
 			attribute, err := domain.NewAttribute("color", "Color")
 			s.Require().NoError(err)
 
-			// Add values
 			for _, val := range tc.setupValues {
 				attrVal, err := domain.NewAttributeValue(val)
 				s.Require().NoError(err)

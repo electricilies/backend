@@ -1,3 +1,4 @@
+// vim: tabstop=4:
 package domain_test
 
 import (
@@ -31,7 +32,6 @@ func (s *OrderTestSuite) TestNewOrderItemBoundaryValues() {
 		expectOk  bool
 		expectErr bool
 	}{
-		// Quantity boundary tests
 		{
 			name:      "quantity 0 (invalid)",
 			quantity:  0,
@@ -81,7 +81,6 @@ func (s *OrderTestSuite) TestNewOrderItemBoundaryValues() {
 			expectOk:  false,
 			expectErr: true,
 		},
-		// Price boundary tests
 		{
 			name:      "price 0 (invalid)",
 			quantity:  1,
@@ -103,7 +102,6 @@ func (s *OrderTestSuite) TestNewOrderItemBoundaryValues() {
 			expectOk:  false,
 			expectErr: true,
 		},
-		// Normal case
 		{
 			name:      "valid order item",
 			quantity:  5,
@@ -328,12 +326,10 @@ func (s *OrderTestSuite) TestOrderUpdate() {
 			)
 			s.Require().NoError(err)
 
-			// Set initial status and isPaid
 			order.Status = tc.initialStatus
 			order.IsPaid = tc.initialIsPaid
 			originalUpdatedAt := order.UpdatedAt
 
-			// Wait a bit to ensure time difference if update happens
 			time.Sleep(10 * time.Millisecond)
 
 			order.Update(tc.updateAddress, tc.updateStatus, tc.updateIsPaid)

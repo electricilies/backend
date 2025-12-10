@@ -1,3 +1,4 @@
+// vim: tabstop=4:
 package domain_test
 
 import (
