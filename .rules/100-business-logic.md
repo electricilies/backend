@@ -2,7 +2,7 @@
 
 ## Soft Delete Strategy
 
-**Soft deleted:** Product, ProductVariant, Category, Attribute, AttributeValue, Option, OptionValue, Review, Order  
+**Soft deleted:** Product, ProductVariant, Category, Attribute, AttributeValue, Option, OptionValue, Review, Order
 **Hard deleted:** CartItem (transient, no historical value)
 
 ## Aggregates
@@ -32,20 +32,24 @@ Product
 ## Key Rules
 
 ### Product-Category
+
 - ✅ Every product MUST have exactly one category
 - ✅ Category cannot be null
 
 ### Attributes vs Options
+
 - **Attributes:** For filtering/search (Material, Brand, Season)
 - **Options:** Create variants (Size, Color)
 
 ### Variants
+
 - ✅ Each variant has unique SKU
 - ✅ Own price, quantity, images
 - ✅ Partial matrix allowed (not all combinations required)
 - ✅ Can be soft-deleted independently
 
 **Example:**
+
 ```
 Product: T-Shirt
 Options:
@@ -60,6 +64,7 @@ Variants (partial matrix):
 ```
 
 ### Product Metrics
+
 - `views_count` - Incremented on product page view
 - `total_purchase` - Incremented on order confirmation
 - `trending_score` - Based on recent views/purchases
@@ -68,11 +73,13 @@ Variants (partial matrix):
 ## Cart Rules
 
 ### One Cart Per User
+
 - ✅ Each user has exactly ONE active cart
-- ✅ Created automatically on first item add
+- ✅ User has to create his cart himself due to not using automatic creation (e.g. on login)
 - ✅ Persists across sessions
 
 ### Cart Items
+
 - ✅ References specific ProductVariant (not just Product)
 - ✅ Has quantity
 - ✅ Stores price snapshot
@@ -83,11 +90,14 @@ Variants (partial matrix):
 ## Order Workflow
 
 ### Order Status Flow
+
 ```
 pending → confirmed → shipped → delivered
     ↓
 cancelled
 ```
+
+- The pending is only applied to orders that has provider payment integration (VNPAY, MOMO, etc..), otherwise the order is created as confirmed directly (COD)
 
 ### Order Confirmation (⚠️ Critical Transaction)
 
@@ -99,8 +109,7 @@ cancelled
    - Reject if insufficient
 
 2. **Clean Cart**
-   - Remove corresponding CartItems
-   - Only items matching ordered variants
+   - No cleaning cart items associated with order user
 
 3. **Update Metrics**
    - Increment `products.total_purchase`
@@ -123,9 +132,9 @@ cancelled
 3. **Process Refund**
 
 ### Order Item Snapshots
+
 - ✅ Store product name, variant SKU, price at purchase time
 - ✅ Immutable - preserve even if product changes/deleted
-- ✅ Include discounts applied
 
 ## Review Rules
 
@@ -138,11 +147,13 @@ cancelled
 ## Inventory Management
 
 ### Stock Tracking
+
 - ✅ Tracked at ProductVariant level (not Product)
 - ✅ Decreases on order confirmation
 - ✅ Increases on order cancellation
 
 ### Out of Stock
+
 - ✅ Variant with `quantity = 0` is out of stock
 - ❌ Cannot add to cart
 - ✅ Show "Out of Stock" badge
@@ -151,6 +162,7 @@ cancelled
 ## Validation Summary
 
 ### Product
+
 - ✅ Must have category
 - ✅ Name: 3-200 chars
 - ✅ Description: min 10 chars
@@ -158,17 +170,20 @@ cancelled
 - ✅ At least 1 image (product or variant)
 
 ### ProductVariant
+
 - ✅ Unique SKU
 - ✅ Price > 0
 - ✅ Quantity >= 0
 - ✅ At least 1 option value
 
 ### Cart
+
 - ✅ Item quantity > 0
 - ✅ Quantity ≤ available stock
 - ❌ No deleted/OOS variants
 
 ### Order
+
 - ✅ At least 1 item
 - ✅ Total = sum of item prices
 - ❌ Cannot confirm if insufficient inventory
@@ -177,33 +192,36 @@ cancelled
 ## Event-Driven Side Effects
 
 **Order Confirmed:**
+
 1. Decrease variant quantities ⚠️
 2. Remove cart items ⚠️
 3. Update metrics
 4. Check restock threshold
 
 **Order Cancelled:**
+
 1. Restore variant quantities
 2. Update metrics
 3. Process refund
 
 **Review Created/Updated:**
+
 1. Recalculate product rating
 2. Update trending score
 
 **Product Viewed:**
+
 1. Increment views_count
 2. Update trending score
 
 ## Concurrency
 
-**Problem:** Multiple users order last item  
-**Solution:** Use `SELECT ... FOR UPDATE` with transactions  
+**Problem:** Multiple users order last item
+**Solution:** Use `SELECT ... FOR UPDATE` with transactions
 **Pattern:** Row-level locking during order confirmation
 
 ## Testing Critical Paths
 
-1. ✅ Order confirmation atomically decreases inventory + clears cart
 2. ✅ Handles insufficient inventory gracefully
 3. ✅ Transaction rollback on failure
 4. ✅ Variant partial matrix creation
