@@ -50,7 +50,7 @@ func (s *CartTestSuite) TestNewCart() {
 			s.Equal(tc.userID, cart.UserID, tc.name)
 			s.NotNil(cart.ID, tc.name)
 			s.NotNil(cart.Items, tc.name)
-			s.Len(cart.Items, 0, tc.name)
+			s.Empty(cart.Items, tc.name)
 
 			validationErr := s.validate.Struct(cart)
 			if tc.expectErr {
@@ -361,7 +361,7 @@ func (s *CartTestSuite) TestCartClearItems() {
 		cart, err := domain.NewCart(uuid.New())
 		s.Require().NoError(err)
 
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			item, err := domain.NewCartItem(uuid.New(), uuid.New(), 1)
 			s.Require().NoError(err)
 			cart.UpsertItem(*item)
@@ -371,7 +371,7 @@ func (s *CartTestSuite) TestCartClearItems() {
 
 		cart.ClearItems()
 
-		s.Len(cart.Items, 0)
+		s.Empty(cart.Items)
 		s.NotNil(cart.Items)
 	})
 
@@ -379,11 +379,11 @@ func (s *CartTestSuite) TestCartClearItems() {
 		cart, err := domain.NewCart(uuid.New())
 		s.Require().NoError(err)
 
-		s.Len(cart.Items, 0)
+		s.Empty(cart.Items)
 
 		cart.ClearItems()
 
-		s.Len(cart.Items, 0)
+		s.Empty(cart.Items)
 		s.NotNil(cart.Items)
 	})
 }
