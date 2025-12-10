@@ -4,3 +4,6 @@ packages:
   backend/internal/domain:
     config:
       include-interface-regex: "Repository$"
+  backend/internal/application:
+    config:
+      include-interface-regex: "^(VNPayPaymentService)$"
