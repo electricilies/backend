@@ -309,7 +309,7 @@ func (o *Order) onVerifySuccess(
 ) error {
 	order.Update(
 		order.Address,
-		domain.OrderStatusProcessing,
+		domain.OrderStatusShipping,
 		true,
 	)
 	productVariantIDs := make([]uuid.UUID, 0, len(order.Items))

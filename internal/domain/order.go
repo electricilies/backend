@@ -43,7 +43,7 @@ type OrderStatus string
 const (
 	OrderStatusPending    OrderStatus = "Pending"
 	OrderStatusProcessing OrderStatus = "Processing"
-	OrderStatusShipped    OrderStatus = "Shipped"
+	OrderStatusShipping   OrderStatus = "Shipping"
 	OrderStatusDelivered  OrderStatus = "Delivered"
 	OrderStatusCancelled  OrderStatus = "Cancelled"
 )

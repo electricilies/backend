@@ -364,13 +364,13 @@ func (s *OrderTestSuite) TestOrderStatusTransitions() {
 			newStatus:     domain.OrderStatusProcessing,
 		},
 		{
-			name:          "processing to shipped",
+			name:          "processing to shipping",
 			initialStatus: domain.OrderStatusProcessing,
-			newStatus:     domain.OrderStatusShipped,
+			newStatus:     domain.OrderStatusShipping,
 		},
 		{
-			name:          "shipped to delivered",
-			initialStatus: domain.OrderStatusShipped,
+			name:          "shipping to delivered",
+			initialStatus: domain.OrderStatusShipping,
 			newStatus:     domain.OrderStatusDelivered,
 		},
 		{
