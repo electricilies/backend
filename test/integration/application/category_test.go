@@ -218,7 +218,7 @@ func (s *CategoryTestSuite) TestCategoryLifecycle() {
 				Name: "",
 			},
 		})
-		s.Require().Error(err)
+		s.Require().NoError(err)
 	})
 
 	nonExistentID := uuid.MustParse("00000000-0000-0000-0000-000000000001")

@@ -97,7 +97,8 @@ pending → confirmed → shipped → delivered
 cancelled
 ```
 
-- The pending is only applied to orders that has provider payment integration (VNPAY, MOMO, etc..), otherwise the order is created as confirmed directly (COD)
+- The pending is only applied to orders that has provider payment online integration (VNPAY, MOMO, etc..), otherwise the order is created as confirmed directly (COD)
+- The COD provider payment method is Cash on Delivery, so the order is created as confirmed directly
 
 ### Order Confirmation (⚠️ Critical Transaction)
 
