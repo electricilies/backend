@@ -3,7 +3,6 @@ package domain
 import (
 	"time"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
@@ -27,24 +26,12 @@ func NewCategory(name string) (*Category, error) {
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	if err := validate.Struct(category); err != nil {
-		return nil, err
-	}
 	return category, nil
 }
 
 func (c *Category) Update(name string) error {
-	updated := false
 	if name != "" && c.Name != name {
 		c.Name = name
-		updated = true
-	}
-	if updated {
-		validate := validator.New(validator.WithRequiredStructEnabled())
-		if err := validate.Struct(c); err != nil {
-			return err
-		}
 		c.UpdatedAt = time.Now()
 	}
 	return nil

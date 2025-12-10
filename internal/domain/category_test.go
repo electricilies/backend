@@ -6,10 +6,20 @@ import (
 
 	"backend/internal/domain"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/go-playground/validator/v10"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestNewCategoryBoundaryValues(t *testing.T) {
+type CategoryTestSuite struct {
+	suite.Suite
+	validate *validator.Validate
+}
+
+func (s *CategoryTestSuite) SetupSuite() {
+	s.validate = validator.New(validator.WithRequiredStructEnabled())
+}
+
+func (s *CategoryTestSuite) TestCategoryCreationBoundaryValues() {
 	testcases := []struct {
 		name      string
 		input     string
@@ -67,25 +77,27 @@ func TestNewCategoryBoundaryValues(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		t.Run(tc.name, func(t *testing.T) {
+		s.Run(tc.name, func() {
 			category, err := domain.NewCategory(tc.input)
 
+			s.NoError(err, tc.name)
+			s.NotNil(category, tc.name)
+			s.Equal(tc.input, category.Name, tc.name)
+			s.NotNil(category.ID, tc.name)
+			s.NotNil(category.CreatedAt, tc.name)
+			s.NotNil(category.UpdatedAt, tc.name)
+
+			validationErr := s.validate.Struct(category)
 			if tc.expectErr {
-				assert.Error(t, err, tc.name)
-				assert.Nil(t, category, tc.name)
+				s.Error(validationErr, tc.name)
 			} else {
-				assert.NoError(t, err, tc.name)
-				assert.NotNil(t, category, tc.name)
-				assert.Equal(t, tc.input, category.Name, tc.name)
-				assert.NotNil(t, category.ID, tc.name)
-				assert.NotNil(t, category.CreatedAt, tc.name)
-				assert.NotNil(t, category.UpdatedAt, tc.name)
+				s.NoError(validationErr, tc.name)
 			}
 		})
 	}
 }
 
-func TestCategoryUpdateBoundaryValues(t *testing.T) {
+func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
 	testcases := []struct {
 		name           string
 		initialName    string
@@ -161,28 +173,37 @@ func TestCategoryUpdateBoundaryValues(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		t.Run(tc.name, func(t *testing.T) {
+		s.Run(tc.name, func() {
 			category, err := domain.NewCategory(tc.initialName)
-			assert.NoError(t, err, "failed to create initial category")
-			assert.NotNil(t, category, "category should not be nil")
+			s.Require().NoError(err, "failed to create initial category")
+			s.Require().NotNil(category, "category should not be nil")
 
 			originalUpdatedAt := category.UpdatedAt
 
+			// Update never returns error (validation moved to service layer)
 			err = category.Update(tc.updateName)
+			s.NoError(err, tc.name)
 
+			s.Equal(tc.expectedResult, category.Name, tc.name)
+
+			// Validation happens at service layer (application layer)
+			validationErr := s.validate.Struct(category)
 			if tc.expectErr {
-				assert.Error(t, err, tc.name)
+				s.Error(validationErr, "category should fail validation when expected")
 			} else {
-				assert.NoError(t, err, tc.name)
+				s.NoError(validationErr, "category should pass validation")
 			}
 
-			assert.Equal(t, tc.expectedResult, category.Name, tc.name)
-
 			if tc.expectOk && tc.updateName != "" && tc.updateName != tc.initialName {
-				assert.True(t, category.UpdatedAt.After(originalUpdatedAt), "UpdatedAt should be updated")
+				s.True(category.UpdatedAt.After(originalUpdatedAt), "UpdatedAt should be updated")
 			} else if !tc.expectErr {
-				assert.Equal(t, originalUpdatedAt, category.UpdatedAt, "UpdatedAt should not change")
+				s.Equal(originalUpdatedAt, category.UpdatedAt, "UpdatedAt should not change")
 			}
 		})
 	}
+}
+
+func TestCategory(t *testing.T) {
+	t.Parallel()
+	suite.Run(t, new(CategoryTestSuite))
 }

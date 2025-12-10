@@ -112,6 +112,10 @@ func (c *Category) Update(ctx context.Context, param http.UpdateCategoryRequestD
 		return nil, err
 	}
 
+	if err := c.categoryService.Validate(*category); err != nil {
+		return nil, err
+	}
+
 	err = c.categoryRepo.Save(ctx, domain.CategoryRepositorySaveParam{Category: *category})
 	if err != nil {
 		return nil, err
