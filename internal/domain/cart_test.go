@@ -1,4 +1,4 @@
-// vim: tabstop=4:
+// vim: tabstop=4 shiftwidth=4:
 package domain_test
 
 import (
@@ -43,7 +43,7 @@ func (s *CartTestSuite) TestNewCart() {
 		s.Run(tc.name, func() {
 			cart, err := domain.NewCart(tc.userID)
 
-			s.NoError(err, tc.name)
+			s.Require().NoError(err, tc.name)
 			s.NotNil(cart, tc.name)
 			s.Equal(tc.userID, cart.UserID, tc.name)
 			s.NotNil(cart.ID, tc.name)
@@ -116,7 +116,7 @@ func (s *CartTestSuite) TestNewCartItemBoundaryValues() {
 		s.Run(tc.name, func() {
 			cartItem, err := domain.NewCartItem(productID, variantID, tc.quantity)
 
-			s.NoError(err, tc.name)
+			s.Require().NoError(err, tc.name)
 			s.NotNil(cartItem, tc.name)
 			s.Equal(tc.quantity, cartItem.Quantity, tc.name)
 			s.Equal(productID, cartItem.ProductID, tc.name)
@@ -138,12 +138,14 @@ func (s *CartTestSuite) TestCartUpsertItem() {
 	testcases := []struct {
 		name          string
 		existingItems []struct {
-			productID uuid.UUID
-			quantity  int
+			productID        uuid.UUID
+			productVariantID uuid.UUID
+			quantity         int
 		}
 		newItem struct {
-			productID uuid.UUID
-			quantity  int
+			productID        uuid.UUID
+			productVariantID uuid.UUID
+			quantity         int
 		}
 		expectedLength   int
 		expectedQuantity int
@@ -152,13 +154,15 @@ func (s *CartTestSuite) TestCartUpsertItem() {
 		{
 			name: "add new item to empty cart",
 			existingItems: []struct {
-				productID uuid.UUID
-				quantity  int
+				productID        uuid.UUID
+				productVariantID uuid.UUID
+				quantity         int
 			}{},
 			newItem: struct {
-				productID uuid.UUID
-				quantity  int
-			}{productID: uuid.New(), quantity: 5},
+				productID        uuid.UUID
+				productVariantID uuid.UUID
+				quantity         int
+			}{productID: uuid.New(), productVariantID: uuid.New(), quantity: 5},
 			expectedLength:   1,
 			expectedQuantity: 5,
 			isUpdate:         false,
@@ -166,15 +170,25 @@ func (s *CartTestSuite) TestCartUpsertItem() {
 		{
 			name: "update existing item quantity",
 			existingItems: []struct {
-				productID uuid.UUID
-				quantity  int
+				productID        uuid.UUID
+				productVariantID uuid.UUID
+				quantity         int
 			}{
-				{productID: uuid.MustParse("00000000-0000-0000-0000-000000000001"), quantity: 3},
+				{
+					productID:        uuid.MustParse("00000000-0000-0000-0000-000000000001"),
+					productVariantID: uuid.MustParse("00000000-0000-0000-0000-000000000011"),
+					quantity:         3,
+				},
 			},
 			newItem: struct {
-				productID uuid.UUID
-				quantity  int
-			}{productID: uuid.MustParse("00000000-0000-0000-0000-000000000001"), quantity: 2},
+				productID        uuid.UUID
+				productVariantID uuid.UUID
+				quantity         int
+			}{
+				productID:        uuid.MustParse("00000000-0000-0000-0000-000000000001"),
+				productVariantID: uuid.MustParse("00000000-0000-0000-0000-000000000011"),
+				quantity:         2,
+			},
 			expectedLength:   1,
 			expectedQuantity: 5,
 			isUpdate:         true,
@@ -182,15 +196,25 @@ func (s *CartTestSuite) TestCartUpsertItem() {
 		{
 			name: "add different item to cart with existing items",
 			existingItems: []struct {
-				productID uuid.UUID
-				quantity  int
+				productID        uuid.UUID
+				productVariantID uuid.UUID
+				quantity         int
 			}{
-				{productID: uuid.MustParse("00000000-0000-0000-0000-000000000001"), quantity: 3},
+				{
+					productID:        uuid.MustParse("00000000-0000-0000-0000-000000000001"),
+					productVariantID: uuid.MustParse("00000000-0000-0000-0000-000000000011"),
+					quantity:         3,
+				},
 			},
 			newItem: struct {
-				productID uuid.UUID
-				quantity  int
-			}{productID: uuid.MustParse("00000000-0000-0000-0000-000000000002"), quantity: 2},
+				productID        uuid.UUID
+				productVariantID uuid.UUID
+				quantity         int
+			}{
+				productID:        uuid.MustParse("00000000-0000-0000-0000-000000000001"),
+				productVariantID: uuid.MustParse("00000000-0000-0000-0000-000000000012"),
+				quantity:         2,
+			},
 			expectedLength:   2,
 			expectedQuantity: 2,
 			isUpdate:         false,
@@ -203,12 +227,12 @@ func (s *CartTestSuite) TestCartUpsertItem() {
 			s.Require().NoError(err)
 
 			for _, existing := range tc.existingItems {
-				item, err := domain.NewCartItem(existing.productID, uuid.New(), existing.quantity)
+				item, err := domain.NewCartItem(existing.productID, existing.productVariantID, existing.quantity)
 				s.Require().NoError(err)
 				cart.UpsertItem(*item)
 			}
 
-			newItem, err := domain.NewCartItem(tc.newItem.productID, uuid.New(), tc.newItem.quantity)
+			newItem, err := domain.NewCartItem(tc.newItem.productID, tc.newItem.productVariantID, tc.newItem.quantity)
 			s.Require().NoError(err)
 
 			result := cart.UpsertItem(*newItem)

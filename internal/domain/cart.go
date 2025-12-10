@@ -17,7 +17,7 @@ type CartItem struct {
 	ID               uuid.UUID `validate:"required"`
 	ProductID        uuid.UUID `validate:"required"`
 	ProductVariantID uuid.UUID `validate:"required"`
-	Quantity         int       `validate:"required,gt=0,lte=100"`
+	Quantity         int       `validate:"gt=0,lte=100"`
 }
 
 func NewCart(userID uuid.UUID) (*Cart, error) {
@@ -55,7 +55,7 @@ func NewCartItem(
 func (c *Cart) UpsertItem(item CartItem) CartItem {
 	for i := range c.Items {
 		existingItem := &c.Items[i]
-		if existingItem.ProductID == item.ProductID {
+		if existingItem.ProductVariantID == item.ProductVariantID {
 			existingItem.Quantity += item.Quantity
 			return *existingItem
 		}

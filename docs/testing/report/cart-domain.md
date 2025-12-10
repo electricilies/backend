@@ -56,26 +56,26 @@
 
 #### Sheet
 
-| #   |           |                                              |     |                        |     | CR-UI-01-01 | CR-UI-01-02 | CR-UI-01-03 |
-| --- | --------- | -------------------------------------------- | --- | ---------------------- | --- | ----------- | ----------- | ----------- |
-| 1   | Condition | Existing Items                               |     |                        |     |             |             |             |
-| 2   |           |                                              |     | 0 (empty cart)         |     | O           |             |             |
-| 3   |           |                                              |     | 1 (same ProductID)     |     |             | O           |             |
-| 4   |           |                                              |     | 1 (different ProductID)|     |             |             | O           |
-| 5   |           | New Item Quantity                            |     |                        |     |             |             |             |
-| 6   |           |                                              |     | 5                      |     | O           |             |             |
-| 7   |           |                                              |     | 2                      |     |             | O           | O           |
-| 8   | Confirm   | Return                                       |     |                        |     |             |             |             |
-| 9   |           | Items Length                                 |     |                        |     |             |             |             |
-| 10  |           |                                              |     | 1                      |     | O           | O           |             |
-| 11  |           |                                              |     | 2                      |     |             |             | O           |
-| 12  |           | Quantity                                     |     |                        |     |             |             |             |
-| 13  |           |                                              |     | 5                      |     | O           | O           |             |
-| 14  |           |                                              |     | 2                      |     |             |             | O           |
-| 15  | Result    | Type(N : Normal, A : Abnormal, B : Boundary) |     |                        |     | N           | N           | N           |
-| 16  |           | Passed/Failed                                |     |                        |     | P           | P           | P           |
-| 17  |           | Executed Date                                |     |                        |     | 2025-12-10  | 2025-12-10  | 2025-12-10  |
-| 18  |           | Defect ID                                    |     |                        |     |             |             |             |
+| #   |           |                                              |     |                               |     | CR-UI-01-01 | CR-UI-01-02 | CR-UI-01-03 |
+| --- | --------- | -------------------------------------------- | --- | ----------------------------- | --- | ----------- | ----------- | ----------- |
+| 1   | Condition | Existing Items                               |     |                               |     |             |             |             |
+| 2   |           |                                              |     | 0 (empty cart)                |     | O           |             |             |
+| 3   |           |                                              |     | 1 (same ProductVariantID)     |     |             | O           |             |
+| 4   |           |                                              |     | 1 (different ProductVariantID)|     |             |             | O           |
+| 5   |           | New Item Quantity                            |     |                               |     |             |             |             |
+| 6   |           |                                              |     | 5                             |     | O           |             |             |
+| 7   |           |                                              |     | 2                             |     |             | O           | O           |
+| 8   | Confirm   | Return                                       |     |                               |     |             |             |             |
+| 9   |           | Items Length                                 |     |                               |     |             |             |             |
+| 10  |           |                                              |     | 1                             |     | O           | O           |             |
+| 11  |           |                                              |     | 2                             |     |             |             | O           |
+| 12  |           | Quantity                                     |     |                               |     |             |             |             |
+| 13  |           |                                              |     | 5                             |     | O           | O           |             |
+| 14  |           |                                              |     | 2                             |     |             |             | O           |
+| 15  | Result    | Type(N : Normal, A : Abnormal, B : Boundary) |     |                               |     | N           | N           | N           |
+| 16  |           | Passed/Failed                                |     |                               |     | P           | P           | P           |
+| 17  |           | Executed Date                                |     |                               |     | 2025-12-10  | 2025-12-10  | 2025-12-10  |
+| 18  |           | Defect ID                                    |     |                               |     |             |             |             |
 
 ### `domain.Cart.UpdateItem`
 
