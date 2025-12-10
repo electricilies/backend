@@ -56,9 +56,6 @@ func (a *Attribute) Update(name string) {
 }
 
 func (a *Attribute) GetValueByID(id uuid.UUID) *AttributeValue {
-	if a.Values == nil {
-		return nil
-	}
 	for _, value := range a.Values {
 		if value.ID == id {
 			return &value
@@ -95,9 +92,6 @@ func (a *Attribute) Remove() {
 }
 
 func (a *Attribute) RemoveValue(attributeValueID uuid.UUID) error {
-	if a == nil {
-		return ErrInvalid
-	}
 	newValues := []AttributeValue{}
 	for _, v := range a.Values {
 		if v.ID != attributeValueID {
