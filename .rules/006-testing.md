@@ -101,6 +101,7 @@ go test -race ./...  # Race detector
   s.Run("Get resource (cache hit)", func() { ... })
   s.Run("Update resource (cache invalidation)", func() { ... })
   ```
+- Use `s.Require().NoError(err)` and `Error()` only for critical assertions, not for every check
 
 ### Testify Suite
 
@@ -132,7 +133,7 @@ go test -race ./...  # Race detector
     return containersConfig
   }
   ```
-- The seed data include somes
+- The seed data include some
   - Product:
     ```sql
     INSERT INTO products (id, name, price, rating, description, category_id) VALUES
