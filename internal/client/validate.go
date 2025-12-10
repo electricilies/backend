@@ -10,10 +10,10 @@ func NewValidate() *validator.Validate {
 	validate := validator.New(
 		validator.WithRequiredStructEnabled(),
 	)
-	if err := domain.RegisterProductValidators(validate); err != nil {
+	if err := domain.RegisterProductValidates(validate); err != nil {
 		panic(err)
 	}
-	if err := domain.RegisterOrderValidators(validate); err != nil {
+	if err := domain.RegisterOrderValidates(validate); err != nil {
 		panic(err)
 	}
 	return validate

@@ -18,7 +18,7 @@ type OrderTestSuite struct {
 
 func (s *OrderTestSuite) SetupSuite() {
 	s.validate = validator.New(validator.WithRequiredStructEnabled())
-	err := domain.RegisterOrderValidators(s.validate)
+	err := domain.RegisterOrderValidates(s.validate)
 	s.Require().NoError(err)
 }
 
