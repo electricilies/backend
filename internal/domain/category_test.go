@@ -1,3 +1,4 @@
+// vim: tabstop=4:
 package domain_test
 
 import (
@@ -20,6 +21,7 @@ func (s *CategoryTestSuite) SetupSuite() {
 }
 
 func (s *CategoryTestSuite) TestCategoryCreationBoundaryValues() {
+	s.T().Parallel()
 	testcases := []struct {
 		name      string
 		input     string
@@ -98,6 +100,7 @@ func (s *CategoryTestSuite) TestCategoryCreationBoundaryValues() {
 }
 
 func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
+	s.T().Parallel()
 	testcases := []struct {
 		name           string
 		initialName    string
@@ -180,13 +183,11 @@ func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
 
 			originalUpdatedAt := category.UpdatedAt
 
-			// Update never returns error (validation moved to service layer)
 			err = category.Update(tc.updateName)
 			s.NoError(err, tc.name)
 
 			s.Equal(tc.expectedResult, category.Name, tc.name)
 
-			// Validation happens at service layer (application layer)
 			validationErr := s.validate.Struct(category)
 			if tc.expectErr {
 				s.Error(validationErr, "category should fail validation when expected")

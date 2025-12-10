@@ -14,5 +14,9 @@ func orderTotalAmountValidator(fl validator.FieldLevel) bool {
 	if !ok {
 		return true
 	}
-	return ValidateOrderTotalAmount(&order)
+	var sum int64
+	for _, item := range order.Items {
+		sum += item.Price * int64(item.Quantity)
+	}
+	return order.TotalAmount == sum
 }

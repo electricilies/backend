@@ -1,7 +1,9 @@
 ## Defects
 
-| Defect ID | Module | Description | Type | Severity | Priority | Status | Created Date |
-| --------- | ------ | ----------- | ---- | -------- | -------- | ------ | ------------ |
+| Defect ID  | Module       | Description                                                                                                                                                                                                                                                                               | Type         | Severity | Priority | Status | Created Date |
+| ---------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | -------- | -------- | ------ | ------------ |
+| DF-O-VA-01 | Order Domain | ValidateOrderTotalAmount function incorrectly calculated total amount by only summing prices without multiplying by quantity. Fixed to multiply each item's price by its quantity before summing.<br/>Expected: TotalAmount = Sum(Price \* Quantity)<br/>Actual: TotalAmount = Sum(Price) | Coding Logic | Serious  | High     | Closed | 10-Dec-2025  |
+| DF-O-IP-01 | Order Domain | IsPaid field had `validate:"required"` tag which caused validation to fail when the value is `false` (zero value for bool). Removed the 'required' validation since `false` is a valid value.<br/>Expected: IsPaid can be true or false<br/>Actual: Validation fails when IsPaid is false | Coding Logic | Medium   | Medium   | Closed | 10-Dec-2025  |
 
 ## Note
 

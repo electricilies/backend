@@ -16,7 +16,7 @@ type Cart struct {
 type CartItem struct {
 	ID               uuid.UUID `validate:"required"`
 	ProductID        uuid.UUID `validate:"required"`
-	ProductVariantID uuid.UUID `validate:"omitempty"`
+	ProductVariantID uuid.UUID `validate:"required"`
 	Quantity         int       `validate:"required,gt=0,lte=100"`
 }
 
