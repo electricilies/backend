@@ -1344,6 +1344,20 @@ const docTemplate = `{
                         "description": "Filter by statuses",
                         "name": "status",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page for pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Limit for pagination",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {

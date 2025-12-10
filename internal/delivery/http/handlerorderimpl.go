@@ -70,6 +70,8 @@ func (h *OrderHandlerImpl) Get(ctx *gin.Context) {
 //	@Param			order_ids	query		[]string			false	"Filter by order IDs"	collectionFormat(csv)	format(uuid)
 //	@Param			user_ids	query		[]string			false	"Filter by user IDs"	collectionFormat(csv)	format(uuid)
 //	@Param			status		query		domain.OrderStatus	false	"Filter by statuses"
+//	@Param			page		query		int					false	"Page for pagination"	default(1)
+//	@Param			limit		query		int					false	"Limit for pagination"	default(20)
 //	@Success		200			{array}		OrderResponseDto
 //	@Failure		500			{object}	Error
 //	@Router			/orders [get]
