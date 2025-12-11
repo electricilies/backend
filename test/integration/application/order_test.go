@@ -118,12 +118,11 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 	var codOrderID uuid.UUID
 
 	s.Run("Create Order with VNPAY provider (Pending status)", func() {
-		// Mock GetPaymentURL for VNPAY order
 		s.vnpayPaymentService.EXPECT().
 			GetPaymentURL(mock.Anything, mock.MatchedBy(func(param application.GetPaymentURLVNPayParam) bool {
 				return param.Order.Provider == domain.PaymentProviderVNPAY
 			})).
-			Return("https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=...", nil).
+			Return("https://sandbox.vnpayment.vn/paymentv2/vpcpay.html", nil).
 			Once()
 
 		result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
@@ -167,7 +166,6 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 		s.Equal(domain.OrderStatusPending, result.Status)
 		s.Len(result.Items, 1)
 
-		// Verify item enrichment
 		item := result.Items[0]
 		s.NotNil(item.Product.ID)
 		s.NotEmpty(item.Product.Name)
@@ -204,7 +202,6 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 	})
 
 	s.Run("VNPay IPN Success - Verify inventory decrease", func() {
-		// Get initial product variant quantity
 		product, err := s.productRepo.Get(ctx, domain.ProductRepositoryGetParam{
 			ProductID: s.seededProductID,
 		})
@@ -213,14 +210,12 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 		s.Require().NotNil(variant)
 		initialQuantity := variant.Quantity
 
-		// Get order to know the quantity
 		order, err := s.app.Get(ctx, http.GetOrderRequestDto{
 			OrderID: vnpayOrderID,
 		})
 		s.Require().NoError(err)
 		orderedQuantity := order.Items[0].Quantity
 
-		// Mock VNPay VerifyIPN to return success
 		s.vnpayPaymentService.EXPECT().
 			VerifyIPN(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			RunAndReturn(func(
@@ -230,19 +225,16 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 				onSuccess func(ctx context.Context, order *domain.Order) error,
 				onFailure func(ctx context.Context, order *domain.Order) error,
 			) (string, string, error) {
-				// Parse order ID from TxnRef
 				orderID, err := uuid.Parse(param.TxnRef)
 				if err != nil {
 					return "99", "Invalid Order ID", err
 				}
 
-				// Get order
 				order, err := getOrder(ctx, orderID)
 				if err != nil {
 					return "01", "Order not found", err
 				}
 
-				// Success case
 				if param.ResponseCode == "00" && param.TransactionStatus == "00" {
 					if err := onSuccess(ctx, order); err != nil {
 						return "99", "Error processing payment", err
@@ -250,14 +242,12 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 					return "00", "Success", nil
 				}
 
-				// Failure case
 				if err := onFailure(ctx, order); err != nil {
 					return "99", "Error processing failure", err
 				}
 				return "02", "Payment failed", nil
 			}).Once()
 
-		// Simulate successful VNPay IPN
 		result, err := s.app.VerifyVNPayIPN(ctx, http.VerifyVNPayIPNRequestDTO{
 			QueryParams: &http.VerifyVNPayIPNQueryParams{
 				Amount:            "100000000", // 1,000,000 VND * 100
@@ -266,11 +256,11 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 				CardType:          "ATM",
 				OrderInfo:         "Payment for order",
 				PayDate:           "20251210150000",
-				ResponseCode:      "00", // Success
+				ResponseCode:      "00",
 				SecureHash:        "test_hash",
 				TmnCode:           "test_tmn",
 				TransactionNo:     "123456789",
-				TransactionStatus: "00", // Success
+				TransactionStatus: "00",
 				TxnRef:            vnpayOrderID.String(),
 			},
 		})
@@ -279,7 +269,6 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 		s.Equal("00", result.RspCode)
 		s.NotEmpty(result.Message)
 
-		// Verify order status changed
 		updatedOrder, err := s.app.Get(ctx, http.GetOrderRequestDto{
 			OrderID: vnpayOrderID,
 		})
@@ -287,7 +276,6 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 		s.Equal(domain.OrderStatusProcessing, updatedOrder.Status)
 		s.True(updatedOrder.IsPaid)
 
-		// Verify inventory decreased
 		productAfter, err := s.productRepo.Get(ctx, domain.ProductRepositoryGetParam{
 			ProductID: s.seededProductID,
 		})
@@ -328,7 +316,6 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 	})
 
 	s.Run("VNPay IPN Failure - Order cancelled", func() {
-		// Get initial quantity
 		product, err := s.productRepo.Get(ctx, domain.ProductRepositoryGetParam{
 			ProductID: s.seededSecondProductID,
 		})
@@ -337,7 +324,6 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 		s.Require().NotNil(variant)
 		initialQuantity := variant.Quantity
 
-		// Mock VNPay VerifyIPN to return failure
 		s.vnpayPaymentService.EXPECT().
 			VerifyIPN(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			RunAndReturn(func(
@@ -357,14 +343,12 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 					return "01", "Order not found", err
 				}
 
-				// Failure case
 				if err := onFailure(ctx, order); err != nil {
 					return "99", "Error processing failure", err
 				}
 				return "02", "Payment failed", nil
 			}).Once()
 
-		// Simulate failed VNPay IPN
 		result, err := s.app.VerifyVNPayIPN(ctx, http.VerifyVNPayIPNRequestDTO{
 			QueryParams: &http.VerifyVNPayIPNQueryParams{
 				Amount:            "100000000",
@@ -386,7 +370,6 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 		s.NotEqual("00", result.RspCode)
 		s.NotEmpty(result.Message)
 
-		// Verify order status changed to cancelled
 		updatedOrder, err := s.app.Get(ctx, http.GetOrderRequestDto{
 			OrderID: vnpayOrderID,
 		})
@@ -394,7 +377,6 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 		s.Equal(domain.OrderStatusCancelled, updatedOrder.Status)
 		s.False(updatedOrder.IsPaid)
 
-		// Verify inventory NOT decreased
 		productAfter, err := s.productRepo.Get(ctx, domain.ProductRepositoryGetParam{
 			ProductID: s.seededSecondProductID,
 		})
@@ -405,13 +387,7 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 	})
 
 	s.Run("Create Order with COD provider (no payment URL)", func() {
-		// Mock GetPaymentURL to return empty string for COD
-		s.vnpayPaymentService.EXPECT().
-			GetPaymentURL(mock.Anything, mock.MatchedBy(func(param application.GetPaymentURLVNPayParam) bool {
-				return param.Order.Provider == domain.PaymentProviderCOD
-			})).
-			Return("", nil).
-			Once()
+		s.vnpayPaymentService.AssertNotCalled(s.T(), "GetPaymentURL", mock.Anything, mock.Anything)
 
 		result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
 			Data: http.CreateOrderData{
@@ -419,6 +395,8 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 				PhoneNumber:   "+84123456789",
 				Address:       "999 Cash Street",
 				Provider:      domain.PaymentProviderCOD,
+				ReturnURL:     "https://example.com/return",
+				UserID:        s.seededUserID,
 				Items: []http.CreateOrderItemData{
 					{
 						ProductID:        s.seededProductID,
@@ -426,13 +404,12 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 						Quantity:         1,
 					},
 				},
-				UserID: s.seededUserID,
 			},
 		})
 		s.Require().NoError(err)
 		s.Require().NotNil(result)
 		s.Equal(domain.OrderStatusPending, result.Status)
-		s.Empty(result.PaymentURL) // COD has no payment URL
+		s.Empty(result.PaymentURL)
 		codOrderID = result.ID
 	})
 
