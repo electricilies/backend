@@ -100,13 +100,21 @@ func (o *Order) Create(ctx context.Context, param http.CreateOrderRequestDto) (*
 		return nil, err
 	}
 
-	paymentURL, err := o.vnpaypaymentService.GetPaymentURL(ctx, GetPaymentURLVNPayParam{
-		ReturnURL: param.Data.ReturnURL,
-		Order:     order,
-	})
-	if err != nil {
-		return nil, err
+	var paymentURL string
+	var paymentServiceErr error
+	switch param.Data.Provider {
+	case domain.OrderProvider(domain.PaymentProviderVNPAY):
+		paymentURL, paymentServiceErr = o.vnpaypaymentService.GetPaymentURL(ctx, GetPaymentURLVNPayParam{
+			Order:     order,
+			ReturnURL: param.Data.ReturnURL,
+		})
+	default:
+		paymentServiceErr = domain.ErrInvalid
 	}
+	if paymentServiceErr != nil {
+		return nil, paymentServiceErr
+	}
+
 	orderDto := http.ToOrderResponseDto(order, paymentURL)
 	if err := o.enrichOrderItems(ctx, orderDto, order); err != nil {
 		return nil, err
