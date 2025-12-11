@@ -108,6 +108,7 @@ func (o *Order) Create(ctx context.Context, param http.CreateOrderRequestDto) (*
 			Order:     order,
 			ReturnURL: param.Data.ReturnURL,
 		})
+	case domain.OrderProvider(domain.PaymentProviderCOD):
 	default:
 		paymentServiceErr = domain.ErrInvalid
 	}
