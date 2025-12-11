@@ -1,6 +1,3 @@
-// vim: tabstop=4 shiftwidth=4:
-//go:build integration
-
 package application_test
 
 import (
@@ -29,7 +26,6 @@ type CartTestSuite struct {
 	app         http.CartApplication
 	productRepo domain.ProductRepository
 
-	// Seed data IDs from .rules/006-testing.md
 	seededProductID       uuid.UUID
 	seededVariantID       uuid.UUID
 	seededUserID          uuid.UUID
@@ -260,7 +256,6 @@ func (s *CartTestSuite) TestCartLifecycle() {
 func (s *CartTestSuite) TestCartSecurityCases() {
 	ctx := s.T().Context()
 
-	// Setup: Create a cart with an item
 	newUserID := uuid.New()
 	cartResult, err := s.app.Create(ctx, http.CreateCartRequestDto{
 		Data: http.CreateCartData{
@@ -328,7 +323,6 @@ func (s *CartTestSuite) TestCartErrorCases() {
 	nonExistentID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
 	newUserID := uuid.New()
 
-	// Setup: Create a valid cart
 	cartResult, err := s.app.Create(ctx, http.CreateCartRequestDto{
 		Data: http.CreateCartData{
 			UserID: newUserID,
@@ -387,7 +381,6 @@ func (s *CartTestSuite) TestCartValidation() {
 	ctx := s.T().Context()
 	newUserID := uuid.New()
 
-	// Setup: Create a cart with an item
 	cartResult, err := s.app.Create(ctx, http.CreateCartRequestDto{
 		Data: http.CreateCartData{
 			UserID: newUserID,
@@ -438,7 +431,6 @@ func (s *CartTestSuite) TestCartWithMultipleItems() {
 	ctx := s.T().Context()
 	newUserID := uuid.New()
 
-	// Setup: Create a cart
 	cartResult, err := s.app.Create(ctx, http.CreateCartRequestDto{
 		Data: http.CreateCartData{
 			UserID: newUserID,
