@@ -90,7 +90,6 @@ func (s *CategoryTestSuite) TestCategoryLifecycle() {
 	ctx := s.T().Context()
 
 	var firstCategoryID uuid.UUID
-	var secondCategoryID uuid.UUID
 
 	s.Run("Create first category", func() {
 		result, err := s.app.Create(ctx, http.CreateCategoryRequestDto{
@@ -124,7 +123,6 @@ func (s *CategoryTestSuite) TestCategoryLifecycle() {
 		s.Require().NoError(err)
 		s.Require().NotNil(result)
 		s.Equal("Home Appliances", result.Name)
-		secondCategoryID = result.ID
 	})
 
 	s.Run("List categories returns 2", func() {
@@ -160,6 +158,25 @@ func (s *CategoryTestSuite) TestCategoryLifecycle() {
 		s.Require().NotNil(result)
 		s.Equal("Updated Electronics", result.Name)
 	})
+}
+
+func (s *CategoryTestSuite) TestCategoryListOperations() {
+	ctx := s.T().Context()
+
+	// Setup: Create two categories
+	firstResult, err := s.app.Create(ctx, http.CreateCategoryRequestDto{
+		Data: http.CreateCategoryData{
+			Name: "Updated Electronics",
+		},
+	})
+	s.Require().NoError(err)
+
+	_, err = s.app.Create(ctx, http.CreateCategoryRequestDto{
+		Data: http.CreateCategoryData{
+			Name: "Home Appliances",
+		},
+	})
+	s.Require().NoError(err)
 
 	s.Run("List with search filter", func() {
 		result, err := s.app.List(ctx, http.ListCategoryRequestDto{
@@ -175,7 +192,7 @@ func (s *CategoryTestSuite) TestCategoryLifecycle() {
 		s.GreaterOrEqual(len(result.Data), 1)
 	})
 
-	s.Run("List with pagination", func() {
+	s.Run("List with pagination - page 1", func() {
 		result, err := s.app.List(ctx, http.ListCategoryRequestDto{
 			PaginationRequestDto: http.PaginationRequestDto{
 				Page:  1,
@@ -189,7 +206,7 @@ func (s *CategoryTestSuite) TestCategoryLifecycle() {
 		s.Equal(2, result.Meta.TotalPages)
 	})
 
-	s.Run("List second page", func() {
+	s.Run("List with pagination - page 2", func() {
 		result, err := s.app.List(ctx, http.ListCategoryRequestDto{
 			PaginationRequestDto: http.PaginationRequestDto{
 				Page:  2,
@@ -202,53 +219,15 @@ func (s *CategoryTestSuite) TestCategoryLifecycle() {
 		s.Len(result.Data, 1)
 	})
 
-	s.Run("Create category with empty name fails", func() {
-		_, err := s.app.Create(ctx, http.CreateCategoryRequestDto{
-			Data: http.CreateCategoryData{
-				Name: "",
-			},
-		})
-		s.Require().Error(err)
-	})
-
-	s.Run("Update category with empty name fails", func() {
-		_, err := s.app.Update(ctx, http.UpdateCategoryRequestDto{
-			CategoryID: firstCategoryID,
-			Data: http.UpdateCategoryData{
-				Name: "",
-			},
-		})
-		s.Require().NoError(err)
-	})
-
-	nonExistentID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
-	s.Run("Get non-existent category fails", func() {
-		_, err := s.app.Get(ctx, http.GetCategoryRequestDto{
-			CategoryID: nonExistentID,
-		})
-		s.Require().Error(err)
-	})
-
-	s.Run("Update non-existent category fails", func() {
-		_, err := s.app.Update(ctx, http.UpdateCategoryRequestDto{
-			CategoryID: nonExistentID,
-			Data: http.UpdateCategoryData{
-				Name: "New Name",
-			},
-		})
-		s.Require().Error(err)
-	})
-
-	s.Run("Cache is working for Get", func() {
+	s.Run("Cache is working for Get operation", func() {
 		result1, err := s.app.Get(ctx, http.GetCategoryRequestDto{
-			CategoryID: firstCategoryID,
+			CategoryID: firstResult.ID,
 		})
 		s.Require().NoError(err)
 		s.Require().NotNil(result1)
 
 		result2, err := s.app.Get(ctx, http.GetCategoryRequestDto{
-			CategoryID: firstCategoryID,
+			CategoryID: firstResult.ID,
 		})
 		s.Require().NoError(err)
 		s.Require().NotNil(result2)
@@ -256,7 +235,7 @@ func (s *CategoryTestSuite) TestCategoryLifecycle() {
 		s.Equal(result1.Name, result2.Name)
 	})
 
-	s.Run("Cache is working for List", func() {
+	s.Run("Cache is working for List operation", func() {
 		result1, err := s.app.List(ctx, http.ListCategoryRequestDto{
 			PaginationRequestDto: http.PaginationRequestDto{
 				Page:  1,
@@ -276,15 +255,29 @@ func (s *CategoryTestSuite) TestCategoryLifecycle() {
 		s.Require().NotNil(result2)
 		s.Equal(result1.Meta.TotalItems, result2.Meta.TotalItems)
 	})
+}
 
-	s.Run("Cache is invalidated after update", func() {
+func (s *CategoryTestSuite) TestCategoryCacheInvalidation() {
+	ctx := s.T().Context()
+
+	// Setup: Create a category
+	category, err := s.app.Create(ctx, http.CreateCategoryRequestDto{
+		Data: http.CreateCategoryData{
+			Name: "Test Category",
+		},
+	})
+	s.Require().NoError(err)
+
+	s.Run("Cache is invalidated after update operation", func() {
+		// Populate cache
 		_, err := s.app.Get(ctx, http.GetCategoryRequestDto{
-			CategoryID: secondCategoryID,
+			CategoryID: category.ID,
 		})
 		s.Require().NoError(err)
 
+		// Update category
 		updated, err := s.app.Update(ctx, http.UpdateCategoryRequestDto{
-			CategoryID: secondCategoryID,
+			CategoryID: category.ID,
 			Data: http.UpdateCategoryData{
 				Name: "Cache Invalidation Test",
 			},
@@ -292,10 +285,64 @@ func (s *CategoryTestSuite) TestCategoryLifecycle() {
 		s.Require().NoError(err)
 		s.Equal("Cache Invalidation Test", updated.Name)
 
+		// Get again - should reflect updated data
 		result, err := s.app.Get(ctx, http.GetCategoryRequestDto{
-			CategoryID: secondCategoryID,
+			CategoryID: category.ID,
 		})
 		s.Require().NoError(err)
 		s.Equal("Cache Invalidation Test", result.Name)
+	})
+}
+
+func (s *CategoryTestSuite) TestCategoryValidation() {
+	ctx := s.T().Context()
+
+	s.Run("Create category with empty name fails", func() {
+		_, err := s.app.Create(ctx, http.CreateCategoryRequestDto{
+			Data: http.CreateCategoryData{
+				Name: "",
+			},
+		})
+		s.Require().Error(err)
+	})
+
+	s.Run("Update category with empty name fails", func() {
+		// Setup: Create a category first
+		category, err := s.app.Create(ctx, http.CreateCategoryRequestDto{
+			Data: http.CreateCategoryData{
+				Name: "Valid Name",
+			},
+		})
+		s.Require().NoError(err)
+
+		_, err = s.app.Update(ctx, http.UpdateCategoryRequestDto{
+			CategoryID: category.ID,
+			Data: http.UpdateCategoryData{
+				Name: "",
+			},
+		})
+		s.Require().NoError(err)
+	})
+}
+
+func (s *CategoryTestSuite) TestCategoryErrorCases() {
+	ctx := s.T().Context()
+	nonExistentID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
+
+	s.Run("Get non-existent category fails", func() {
+		_, err := s.app.Get(ctx, http.GetCategoryRequestDto{
+			CategoryID: nonExistentID,
+		})
+		s.Require().Error(err)
+	})
+
+	s.Run("Update non-existent category fails", func() {
+		_, err := s.app.Update(ctx, http.UpdateCategoryRequestDto{
+			CategoryID: nonExistentID,
+			Data: http.UpdateCategoryData{
+				Name: "New Name",
+			},
+		})
+		s.Require().Error(err)
 	})
 }
