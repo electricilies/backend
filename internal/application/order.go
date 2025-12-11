@@ -103,12 +103,12 @@ func (o *Order) Create(ctx context.Context, param http.CreateOrderRequestDto) (*
 	var paymentURL string
 	var paymentServiceErr error
 	switch param.Data.Provider {
-	case domain.OrderProvider(domain.PaymentProviderVNPAY):
+	case domain.PaymentProviderVNPAY:
 		paymentURL, paymentServiceErr = o.vnpaypaymentService.GetPaymentURL(ctx, GetPaymentURLVNPayParam{
 			Order:     order,
 			ReturnURL: param.Data.ReturnURL,
 		})
-	case domain.OrderProvider(domain.PaymentProviderCOD):
+	case domain.PaymentProviderCOD:
 	default:
 		paymentServiceErr = domain.ErrInvalid
 	}

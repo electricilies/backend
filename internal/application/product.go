@@ -332,7 +332,6 @@ func (p *Product) Create(ctx context.Context, param http.CreateProductRequestDto
 
 	_ = p.productCache.InvalidateAlls(ctx)
 
-	// Fetch the created product with all relations
 	var attributes *[]domain.Attribute
 	if len(product.AttributeIDs) > 0 {
 		attributes, err = p.attributeRepo.List(

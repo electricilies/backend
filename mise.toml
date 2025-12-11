@@ -41,7 +41,7 @@ VNP_TMN_CODE = ""                                              # vnp_TmnCode
 [tools]
 air = "latest"
 atlas = "0.37.0"
-go = "1.25.3"
+go = "1.25.5"
 "go:github.com/cweill/gotests/gotests" = "v1.6.0"
 "go:github.com/google/wire/cmd/wire" = "0.7.0"
 "go:github.com/sqlc-dev/sqlc/cmd/sqlc" = "1.30.0"
