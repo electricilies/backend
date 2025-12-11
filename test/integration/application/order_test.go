@@ -81,19 +81,15 @@ func (s *OrderTestSuite) SetupSuite() {
 	conn := client.NewDBConnection(ctx, cfg)
 	queries := client.NewDBQueries(conn)
 
-	// Initialize repositories
 	s.orderRepo = repositorypostgres.ProvideOrder(queries, conn)
 	s.productRepo = repositorypostgres.ProvideProduct(queries, conn)
 	cartRepo := repositorypostgres.ProvideCart(queries, conn)
 
-	// Initialize services
 	orderService := service.ProvideOrder(validate)
 	productService := service.ProvideProduct(validate)
 
-	// Initialize mock VNPay service
 	s.vnpayPaymentService = application.NewMockVNPayPaymentService(s.T())
 
-	// Initialize application
 	s.app = application.ProvideOrder(
 		s.vnpayPaymentService,
 		s.orderRepo,

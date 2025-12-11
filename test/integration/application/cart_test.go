@@ -85,21 +85,16 @@ func (s *CartTestSuite) SetupSuite() {
 	conn := client.NewDBConnection(ctx, cfg)
 	queries := client.NewDBQueries(conn)
 
-	// Initialize repositories
 	cartRepo := repositorypostgres.ProvideCart(queries, conn)
 	s.productRepo = repositorypostgres.ProvideProduct(queries, conn)
 
-	// Initialize services
 	cartService := service.ProvideCart(validate)
 
-	// Initialize cache
 	redisClient := client.NewRedis(ctx, cfg)
 	cartCache := cacheredis.ProvideCart(redisClient)
 
-	// Initialize application
 	s.app = application.ProvideCart(cartRepo, cartService, cartCache, s.productRepo)
 
-	// Seed data from .rules/006-testing.md
 	s.seededProductID = uuid.MustParse("00000000-0000-7000-0000-000278469304")
 	s.seededVariantID = uuid.MustParse("00000000-0000-7000-0000-000278469308")
 	s.seededSecondVariantID = uuid.MustParse("00000000-0000-7000-0000-000278469306")
@@ -217,8 +212,8 @@ func (s *CartTestSuite) TestCartLifecycle() {
 		})
 		s.Require().NoError(err)
 		s.Require().NotNil(result)
-		s.Equal(5, result.Quantity)   // 2 + 3 = 5
-		s.Equal(newItemID, result.ID) // Same item ID
+		s.Equal(5, result.Quantity)
+		s.Equal(newItemID, result.ID)
 	})
 
 	s.Run("Update Item quantity", func() {
@@ -246,28 +241,26 @@ func (s *CartTestSuite) TestCartLifecycle() {
 		s.Equal(10, result.Items[0].Quantity)
 	})
 
-	// TODO: Fix this test - there's a forbidden error that needs investigation
-	// s.Run("Delete Item from Cart", func() {
-	// 	err := s.app.DeleteItem(ctx, http.DeleteCartItemRequestDto{
-	// 		UserID: newUserID,
-	// 		CartID: newCartID,
-	// 		ItemID: newItemID,
-	// 	})
-	// 	s.Require().NoError(err)
+	s.Run("Delete Item from Cart", func() {
+		err := s.app.DeleteItem(ctx, http.DeleteCartItemRequestDto{
+			UserID: newUserID,
+			CartID: newCartID,
+			ItemID: newItemID,
+		})
+		s.NoError(err)
 
-	// 	// Verify item was deleted
-	// 	cart, err := s.app.Get(ctx, http.GetCartRequestDto{
-	// 		CartID: newCartID,
-	// 	})
-	// 	s.Require().NoError(err)
-	// 	s.Empty(cart.Items)
-	// })
+		cart, err := s.app.Get(ctx, http.GetCartRequestDto{
+			CartID: newCartID,
+		})
+		s.Require().NoError(err)
+		s.Empty(cart.Items)
+	})
 
 	s.Run("Security: Try to access another user's cart fails", func() {
 		anotherUserID := uuid.New()
 		_, err := s.app.CreateItem(ctx, http.CreateCartItemRequestDto{
-			UserID: anotherUserID, // Different user
-			CartID: newCartID,     // But same cart
+			UserID: anotherUserID,
+			CartID: newCartID,
 			Data: http.CreateCartItemData{
 				ProductID:        s.seededProductID,
 				ProductVariantID: s.seededVariantID,
@@ -351,7 +344,6 @@ func (s *CartTestSuite) TestCartLifecycle() {
 	})
 
 	s.Run("Test with seeded cart and items", func() {
-		// Get seeded cart (user 'customer' with cart items)
 		result, err := s.app.Get(ctx, http.GetCartRequestDto{
 			CartID: s.seededCartID,
 		})
@@ -360,7 +352,6 @@ func (s *CartTestSuite) TestCartLifecycle() {
 		s.Equal(s.seededUserID, result.UserID)
 		s.NotEmpty(result.Items)
 
-		// Verify item enrichment
 		for _, item := range result.Items {
 			s.NotNil(item.Product.ID)
 			s.NotEmpty(item.Product.Name)
@@ -386,12 +377,10 @@ func (s *CartTestSuite) TestCartLifecycle() {
 			CartID: newCartID,
 		})
 		s.Require().NoError(err)
-		s.Len(cart.Items, 1) // Only 1 because we group by ProductID in UpsertItem
+		s.Len(cart.Items, 1)
 	})
 
 	s.Run("Validation: Quantity must be positive", func() {
-		// The validation happens in the domain/service layer
-		// Negative quantity is caught by validation
 		_, err := s.app.UpdateItem(ctx, http.UpdateCartItemRequestDto{
 			UserID: newUserID,
 			CartID: newCartID,
