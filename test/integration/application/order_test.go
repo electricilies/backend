@@ -115,7 +115,6 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 	ctx := s.T().Context()
 
 	var vnpayOrderID uuid.UUID
-	var codOrderID uuid.UUID
 
 	s.Run("Create Order with VNPAY provider (Pending status)", func() {
 		s.vnpayPaymentService.EXPECT().
@@ -172,19 +171,6 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 		s.NotNil(item.ProductVariant.ID)
 		s.NotEmpty(item.ProductVariant.SKU)
 		s.Positive(item.Price)
-	})
-
-	s.Run("List Orders", func() {
-		result, err := s.app.List(ctx, http.ListOrderRequestDto{
-			PaginationRequestDto: http.PaginationRequestDto{
-				Page:  1,
-				Limit: 10,
-			},
-		})
-		s.Require().NoError(err)
-		s.Require().NotNil(result)
-		s.GreaterOrEqual(result.Meta.TotalItems, 1)
-		s.NotEmpty(result.Data)
 	})
 
 	s.Run("Update Order", func() {
@@ -410,66 +396,177 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 		s.Require().NotNil(result)
 		s.Equal(domain.OrderStatusPending, result.Status)
 		s.Empty(result.PaymentURL)
-		codOrderID = result.ID
 	})
+}
 
+func (s *OrderTestSuite) TestCreateOrderWithMultipleItemsInLifecycle() {
+	ctx := s.T().Context()
+
+	s.vnpayPaymentService.EXPECT().
+		GetPaymentURL(mock.Anything, mock.MatchedBy(func(param application.GetPaymentURLVNPayParam) bool {
+			return param.Order.Provider == domain.PaymentProviderVNPAY
+		})).
+		Return("https://sandbox.vnpayment.vn/multi", nil).
+		Maybe() // Changed to Maybe() to avoid unmet expectation errors
+
+	result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
+		Data: http.CreateOrderData{
+			RecipientName: "Multi Item Customer",
+			PhoneNumber:   "+84999888777",
+			Address:       "Multi Item Street",
+			Provider:      domain.PaymentProviderVNPAY,
+			Items: []http.CreateOrderItemData{
+				{
+					ProductID:        s.seededProductID,
+					ProductVariantID: s.seededVariantID,
+					Quantity:         2,
+				},
+				{
+					ProductID:        s.seededSecondProductID,
+					ProductVariantID: s.seededSecondVariantID,
+					Quantity:         1,
+				},
+			},
+			UserID:    s.seededUserID,
+			ReturnURL: "https://example.com/return",
+		},
+	})
+	s.Require().NoError(err)
+	s.Require().NotNil(result)
+	s.Len(result.Items, 2)
+	s.Positive(result.TotalAmount)
+
+	// Verify total amount calculation
+	expectedTotal := result.Items[0].Price*int64(result.Items[0].Quantity) +
+		result.Items[1].Price*int64(result.Items[1].Quantity)
+	s.Equal(expectedTotal, result.TotalAmount)
+}
+
+func (s *OrderTestSuite) TestErrorHandling() {
+	ctx := s.T().Context()
 	nonExistentID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
 
-	s.Run("Get non-existent order fails", func() {
-		_, err := s.app.Get(ctx, http.GetOrderRequestDto{
-			OrderID: nonExistentID,
-		})
-		s.Require().Error(err)
-	})
-
-	s.Run("Update non-existent order fails", func() {
-		_, err := s.app.Update(ctx, http.UpdateOrderRequestDto{
-			OrderID: nonExistentID,
-			Data: http.UpdateOrderData{
-				Address: "New Address",
-				Status:  domain.OrderStatusPending,
-				IsPaid:  false,
+	testcases := []struct {
+		name   string
+		action func() error
+	}{
+		{
+			name: "Get non-existent order fails",
+			action: func() error {
+				_, err := s.app.Get(ctx, http.GetOrderRequestDto{
+					OrderID: nonExistentID,
+				})
+				return err
 			},
-		})
-		s.Require().Error(err)
-	})
-
-	s.Run("Create order with non-existent product fails", func() {
-		_, err := s.app.Create(ctx, http.CreateOrderRequestDto{
-			Data: http.CreateOrderData{
-				RecipientName: "Test",
-				PhoneNumber:   "+84912345678",
-				Address:       "Test",
-				Provider:      domain.PaymentProviderCOD,
-				Items: []http.CreateOrderItemData{
-					{
-						ProductID:        nonExistentID,
-						ProductVariantID: nonExistentID,
-						Quantity:         1,
+		},
+		{
+			name: "Update non-existent order fails",
+			action: func() error {
+				_, err := s.app.Update(ctx, http.UpdateOrderRequestDto{
+					OrderID: nonExistentID,
+					Data: http.UpdateOrderData{
+						Address: "New Address",
+						Status:  domain.OrderStatusPending,
+						IsPaid:  false,
 					},
-				},
-				UserID: s.seededUserID,
+				})
+				return err
 			},
+		},
+		{
+			name: "Create order with non-existent product fails",
+			action: func() error {
+				_, err := s.app.Create(ctx, http.CreateOrderRequestDto{
+					Data: http.CreateOrderData{
+						RecipientName: "Test",
+						PhoneNumber:   "+84912345678",
+						Address:       "Test",
+						Provider:      domain.PaymentProviderCOD,
+						Items: []http.CreateOrderItemData{
+							{
+								ProductID:        nonExistentID,
+								ProductVariantID: nonExistentID,
+								Quantity:         1,
+							},
+						},
+						UserID: s.seededUserID,
+					},
+				})
+				return err
+			},
+		},
+	}
+
+	for _, tc := range testcases {
+		s.Run(tc.name, func() {
+			err := tc.action()
+			s.Require().Error(err, tc.name)
 		})
-		s.Require().Error(err)
+	}
+}
+
+func (s *OrderTestSuite) TestGetNonExistentOrder() {
+	ctx := s.T().Context()
+	nonExistentID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
+
+	_, err := s.app.Get(ctx, http.GetOrderRequestDto{
+		OrderID: nonExistentID,
 	})
+	s.Require().Error(err)
+}
+
+func (s *OrderTestSuite) TestUpdateNonExistentOrder() {
+	ctx := s.T().Context()
+	nonExistentID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
+
+	_, err := s.app.Update(ctx, http.UpdateOrderRequestDto{
+		OrderID: nonExistentID,
+		Data: http.UpdateOrderData{
+			Address: "New Address",
+			Status:  domain.OrderStatusPending,
+			IsPaid:  false,
+		},
+	})
+	s.Require().Error(err)
+}
+
+func (s *OrderTestSuite) TestCreateOrderWithNonExistentProduct() {
+	ctx := s.T().Context()
+	nonExistentID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
+
+	_, err := s.app.Create(ctx, http.CreateOrderRequestDto{
+		Data: http.CreateOrderData{
+			RecipientName: "Test",
+			PhoneNumber:   "+84912345678",
+			Address:       "Test",
+			Provider:      domain.PaymentProviderCOD,
+			Items: []http.CreateOrderItemData{
+				{
+					ProductID:        nonExistentID,
+					ProductVariantID: nonExistentID,
+					Quantity:         1,
+				},
+			},
+			UserID: s.seededUserID,
+		},
+	})
+	s.Require().Error(err)
+}
+
+func (s *OrderTestSuite) TestValidationDefects() {
+	ctx := s.T().Context()
 
 	// NOTE: These tests expose a defect (DF-O-CV-01) - orderService.Validate() is not called
 	// in the Create function, so invalid orders can be created. For now, we mock the payment
 	// service to prevent test failures, but these should fail once validation is added.
 
-	s.Run("Create order with empty items (SHOULD fail but doesn't - DF-O-CV-01)", func() {
-		// Even with empty items, the code will still try to call GetPaymentURL
-		// So we need to mock it (though validation should ideally fail earlier)
-		s.vnpayPaymentService.EXPECT().
-			GetPaymentURL(mock.Anything, mock.Anything).
-			Return("", nil).
-			Maybe()
-
-		// FIXME: This should fail validation but doesn't (DF-O-CV-01)
-		// Once validation is added, remove the mock and expect error
-		result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
-			Data: http.CreateOrderData{
+	testcases := []struct {
+		name string
+		data http.CreateOrderData
+	}{
+		{
+			name: "Create order with empty items (SHOULD fail but doesn't - DF-O-CV-01)",
+			data: http.CreateOrderData{
 				RecipientName: "Test",
 				PhoneNumber:   "+84912345678",
 				Address:       "Test",
@@ -477,22 +574,10 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 				Items:         []http.CreateOrderItemData{},
 				UserID:        s.seededUserID,
 			},
-		})
-		// Currently succeeds but should fail
-		s.Require().NoError(err)
-		s.NotNil(result)
-		// s.Require().Error(err) // Uncomment when DF-O-CV-01 is fixed
-	})
-
-	s.Run("Validation: Invalid phone number (SHOULD fail but doesn't - DF-O-CV-01)", func() {
-		// FIXME: This should fail validation but doesn't (DF-O-CV-01)
-		s.vnpayPaymentService.EXPECT().
-			GetPaymentURL(mock.Anything, mock.Anything).
-			Return("", nil).
-			Maybe()
-
-		result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
-			Data: http.CreateOrderData{
+		},
+		{
+			name: "Validation: Invalid phone number (SHOULD fail but doesn't - DF-O-CV-01)",
+			data: http.CreateOrderData{
 				RecipientName: "Test",
 				PhoneNumber:   "invalid-phone",
 				Address:       "Test",
@@ -506,208 +591,273 @@ func (s *OrderTestSuite) TestOrderLifecycle() {
 				},
 				UserID: s.seededUserID,
 			},
+		},
+	}
+
+	for _, tc := range testcases {
+		s.Run(tc.name, func() {
+			// Even with invalid data, the code will still try to call GetPaymentURL
+			// So we need to mock it (though validation should ideally fail earlier)
+			s.vnpayPaymentService.EXPECT().
+				GetPaymentURL(mock.Anything, mock.Anything).
+				Return("", nil).
+				Maybe()
+
+			// FIXME: This should fail validation but doesn't (DF-O-CV-01)
+			// Once validation is added, remove the mock and expect error
+			result, err := s.app.Create(ctx, http.CreateOrderRequestDto{Data: tc.data})
+			// Currently succeeds but should fail
+			s.Require().NoError(err)
+			s.NotNil(result)
+			// s.Require().Error(err) // Uncomment when DF-O-CV-01 is fixed
 		})
-		// Currently succeeds but should fail
-		s.Require().NoError(err)
-		s.NotNil(result)
-		// s.Require().Error(err) // Uncomment when DF-O-CV-01 is fixed
+	}
+}
+
+func (s *OrderTestSuite) TestCreateOrderWithEmptyItems() {
+	ctx := s.T().Context()
+
+	// NOTE: This test exposes a defect (DF-O-CV-01) - orderService.Validate() is not called
+	// in the Create function, so invalid orders can be created. For now, we mock the payment
+	// service to prevent test failures, but these should fail once validation is added.
+
+	// Even with empty items, the code will still try to call GetPaymentURL
+	// So we need to mock it (though validation should ideally fail earlier)
+	s.vnpayPaymentService.EXPECT().
+		GetPaymentURL(mock.Anything, mock.Anything).
+		Return("", nil).
+		Maybe()
+
+	// FIXME: This should fail validation but doesn't (DF-O-CV-01)
+	// Once validation is added, remove the mock and expect error
+	result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
+		Data: http.CreateOrderData{
+			RecipientName: "Test",
+			PhoneNumber:   "+84912345678",
+			Address:       "Test",
+			Provider:      domain.PaymentProviderCOD,
+			Items:         []http.CreateOrderItemData{},
+			UserID:        s.seededUserID,
+		},
 	})
+	// Currently succeeds but should fail
+	s.Require().NoError(err)
+	s.NotNil(result)
+	// s.Require().Error(err) // Uncomment when DF-O-CV-01 is fixed
+}
 
-	// Boundary Tests
-	s.Run("Boundary: Order quantity at maximum inventory", func() {
-		// Mock for COD order (Maybe since validation might prevent call)
-		s.vnpayPaymentService.EXPECT().
-			GetPaymentURL(mock.Anything, mock.MatchedBy(func(param application.GetPaymentURLVNPayParam) bool {
-				return param.Order.Provider == domain.PaymentProviderCOD
-			})).
-			Return("", nil).
-			Maybe()
-		// Get current inventory
-		product, err := s.productRepo.Get(ctx, domain.ProductRepositoryGetParam{
-			ProductID: s.seededProductID,
-		})
-		s.Require().NoError(err)
-		variant := product.GetVariantByID(s.seededVariantID)
-		s.Require().NotNil(variant)
-		currentQuantity := variant.Quantity
+func (s *OrderTestSuite) TestCreateOrderWithInvalidPhoneNumber() {
+	ctx := s.T().Context()
 
-		// Try to order exact available quantity
-		result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
-			Data: http.CreateOrderData{
-				RecipientName: "Boundary Test",
-				PhoneNumber:   "+84111222333",
-				Address:       "Boundary Street",
-				Provider:      domain.PaymentProviderCOD,
-				Items: []http.CreateOrderItemData{
-					{
-						ProductID:        s.seededProductID,
-						ProductVariantID: s.seededVariantID,
-						Quantity:         currentQuantity,
-					},
+	// NOTE: This test exposes a defect (DF-O-CV-01) - orderService.Validate() is not called
+	// in the Create function, so invalid orders can be created.
+
+	// FIXME: This should fail validation but doesn't (DF-O-CV-01)
+	s.vnpayPaymentService.EXPECT().
+		GetPaymentURL(mock.Anything, mock.Anything).
+		Return("", nil).
+		Maybe()
+
+	result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
+		Data: http.CreateOrderData{
+			RecipientName: "Test",
+			PhoneNumber:   "invalid-phone",
+			Address:       "Test",
+			Provider:      domain.PaymentProviderCOD,
+			Items: []http.CreateOrderItemData{
+				{
+					ProductID:        s.seededProductID,
+					ProductVariantID: s.seededVariantID,
+					Quantity:         1,
 				},
-				UserID: s.seededUserID,
 			},
-		})
-		s.Require().NoError(err)
-		s.NotNil(result)
-		s.Equal(currentQuantity, result.Items[0].Quantity)
+			UserID: s.seededUserID,
+		},
 	})
+	// Currently succeeds but should fail
+	s.Require().NoError(err)
+	s.NotNil(result)
+	// s.Require().Error(err) // Uncomment when DF-O-CV-01 is fixed
+}
 
-	s.Run("Boundary: Order quantity exceeds inventory (SHOULD fail but doesn't - DF-O-CV-01)", func() {
-		// Mock for COD order (Maybe since validation might prevent call)
-		s.vnpayPaymentService.EXPECT().
-			GetPaymentURL(mock.Anything, mock.MatchedBy(func(param application.GetPaymentURLVNPayParam) bool {
-				return param.Order.Provider == domain.PaymentProviderCOD
-			})).
-			Return("", nil).
-			Maybe()
-		// Get current inventory
-		product, err := s.productRepo.Get(ctx, domain.ProductRepositoryGetParam{
-			ProductID: s.seededSecondProductID,
-		})
-		s.Require().NoError(err)
-		variant := product.GetVariantByID(s.seededSecondVariantID)
-		s.Require().NotNil(variant)
-		currentQuantity := variant.Quantity
+func (s *OrderTestSuite) TestBoundaryOrderQuantityAtMaximumInventory() {
+	ctx := s.T().Context()
 
-		// FIXME: This should fail validation but doesn't (DF-O-CV-01)
-		// Inventory validation is not performed in Create function
-		result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
-			Data: http.CreateOrderData{
-				RecipientName: "Overflow Test",
-				PhoneNumber:   "+84444555666",
-				Address:       "Overflow Street",
-				Provider:      domain.PaymentProviderCOD,
-				Items: []http.CreateOrderItemData{
-					{
-						ProductID:        s.seededSecondProductID,
-						ProductVariantID: s.seededSecondVariantID,
-						Quantity:         currentQuantity + 1,
-					},
+	// Mock for COD order (Maybe since validation might prevent call)
+	s.vnpayPaymentService.EXPECT().
+		GetPaymentURL(mock.Anything, mock.MatchedBy(func(param application.GetPaymentURLVNPayParam) bool {
+			return param.Order.Provider == domain.PaymentProviderCOD
+		})).
+		Return("", nil).
+		Maybe()
+
+	// Get current inventory
+	product, err := s.productRepo.Get(ctx, domain.ProductRepositoryGetParam{
+		ProductID: s.seededProductID,
+	})
+	s.Require().NoError(err)
+	variant := product.GetVariantByID(s.seededVariantID)
+	s.Require().NotNil(variant)
+	currentQuantity := variant.Quantity
+
+	// Try to order exact available quantity
+	result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
+		Data: http.CreateOrderData{
+			RecipientName: "Boundary Test",
+			PhoneNumber:   "+84111222333",
+			Address:       "Boundary Street",
+			Provider:      domain.PaymentProviderCOD,
+			Items: []http.CreateOrderItemData{
+				{
+					ProductID:        s.seededProductID,
+					ProductVariantID: s.seededVariantID,
+					Quantity:         currentQuantity,
 				},
-				UserID: s.seededUserID,
 			},
-		})
-		// Currently succeeds but should fail
-		s.Require().NoError(err)
-		s.NotNil(result)
-		// s.Require().Error(err) // Uncomment when inventory validation is added
+			UserID: s.seededUserID,
+		},
 	})
+	s.Require().NoError(err)
+	s.NotNil(result)
+	s.Equal(currentQuantity, result.Items[0].Quantity)
+}
 
-	s.Run("Boundary: Zero quantity order (SHOULD fail but doesn't - DF-O-CV-01)", func() {
-		// Mock for COD order (Maybe since validation might prevent call)
-		s.vnpayPaymentService.EXPECT().
-			GetPaymentURL(mock.Anything, mock.MatchedBy(func(param application.GetPaymentURLVNPayParam) bool {
-				return param.Order.Provider == domain.PaymentProviderCOD
-			})).
-			Return("", nil).
-			Maybe()
-		// FIXME: This should fail validation but doesn't (DF-O-CV-01)
-		result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
-			Data: http.CreateOrderData{
-				RecipientName: "Zero Test",
-				PhoneNumber:   "+84777888999",
-				Address:       "Zero Street",
-				Provider:      domain.PaymentProviderCOD,
-				Items: []http.CreateOrderItemData{
-					{
-						ProductID:        s.seededProductID,
-						ProductVariantID: s.seededVariantID,
-						Quantity:         0,
-					},
+func (s *OrderTestSuite) TestBoundaryOrderQuantityExceedsInventory() {
+	ctx := s.T().Context()
+
+	// NOTE: This test exposes a defect (DF-O-CV-01) - inventory validation is not performed
+
+	// Mock for COD order (Maybe since validation might prevent call)
+	s.vnpayPaymentService.EXPECT().
+		GetPaymentURL(mock.Anything, mock.MatchedBy(func(param application.GetPaymentURLVNPayParam) bool {
+			return param.Order.Provider == domain.PaymentProviderCOD
+		})).
+		Return("", nil).
+		Maybe()
+
+	// Get current inventory
+	product, err := s.productRepo.Get(ctx, domain.ProductRepositoryGetParam{
+		ProductID: s.seededSecondProductID,
+	})
+	s.Require().NoError(err)
+	variant := product.GetVariantByID(s.seededSecondVariantID)
+	s.Require().NotNil(variant)
+	currentQuantity := variant.Quantity
+
+	// FIXME: This should fail validation but doesn't (DF-O-CV-01)
+	// Inventory validation is not performed in Create function
+	result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
+		Data: http.CreateOrderData{
+			RecipientName: "Overflow Test",
+			PhoneNumber:   "+84444555666",
+			Address:       "Overflow Street",
+			Provider:      domain.PaymentProviderCOD,
+			Items: []http.CreateOrderItemData{
+				{
+					ProductID:        s.seededSecondProductID,
+					ProductVariantID: s.seededSecondVariantID,
+					Quantity:         currentQuantity + 1,
 				},
-				UserID: s.seededUserID,
 			},
-		})
-		// Currently succeeds but should fail
-		s.Require().NoError(err)
-		s.NotNil(result)
-		// s.Require().Error(err) // Uncomment when DF-O-CV-01 is fixed
+			UserID: s.seededUserID,
+		},
 	})
+	// Currently succeeds but should fail
+	s.Require().NoError(err)
+	s.NotNil(result)
+	// s.Require().Error(err) // Uncomment when inventory validation is added
+}
 
-	s.Run("Boundary: Negative quantity order (SHOULD fail but doesn't - DF-O-CV-01)", func() {
-		// Mock for COD order (Maybe since validation might prevent call)
-		s.vnpayPaymentService.EXPECT().
-			GetPaymentURL(mock.Anything, mock.MatchedBy(func(param application.GetPaymentURLVNPayParam) bool {
-				return param.Order.Provider == domain.PaymentProviderCOD
-			})).
-			Return("", nil).
-			Maybe()
-		// FIXME: This should fail validation but doesn't (DF-O-CV-01)
-		result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
-			Data: http.CreateOrderData{
-				RecipientName: "Negative Test",
-				PhoneNumber:   "+84000111222",
-				Address:       "Negative Street",
-				Provider:      domain.PaymentProviderCOD,
-				Items: []http.CreateOrderItemData{
-					{
-						ProductID:        s.seededProductID,
-						ProductVariantID: s.seededVariantID,
-						Quantity:         -1,
+func (s *OrderTestSuite) TestBoundaryInvalidQuantities() {
+	ctx := s.T().Context()
+
+	// NOTE: These tests expose a defect (DF-O-CV-01) - validation is not performed
+
+	testcases := []struct {
+		name     string
+		quantity int
+	}{
+		{
+			name:     "Zero quantity order (SHOULD fail but doesn't - DF-O-CV-01)",
+			quantity: 0,
+		},
+		{
+			name:     "Negative quantity order (SHOULD fail but doesn't - DF-O-CV-01)",
+			quantity: -1,
+		},
+	}
+
+	for _, tc := range testcases {
+		s.Run(tc.name, func() {
+			// Mock for COD order (Maybe since validation might prevent call)
+			s.vnpayPaymentService.EXPECT().
+				GetPaymentURL(mock.Anything, mock.MatchedBy(func(param application.GetPaymentURLVNPayParam) bool {
+					return param.Order.Provider == domain.PaymentProviderCOD
+				})).
+				Return("", nil).
+				Maybe()
+
+			// FIXME: This should fail validation but doesn't (DF-O-CV-01)
+			result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
+				Data: http.CreateOrderData{
+					RecipientName: tc.name,
+					PhoneNumber:   "+84777888999",
+					Address:       tc.name + " Street",
+					Provider:      domain.PaymentProviderCOD,
+					Items: []http.CreateOrderItemData{
+						{
+							ProductID:        s.seededProductID,
+							ProductVariantID: s.seededVariantID,
+							Quantity:         tc.quantity,
+						},
 					},
+					UserID: s.seededUserID,
 				},
-				UserID: s.seededUserID,
-			},
+			})
+			// Currently succeeds but should fail
+			s.Require().NoError(err)
+			s.NotNil(result)
+			// s.Require().Error(err) // Uncomment when DF-O-CV-01 is fixed
 		})
-		// Currently succeeds but should fail
-		s.Require().NoError(err)
-		s.NotNil(result)
-		// s.Require().Error(err) // Uncomment when DF-O-CV-01 is fixed
-	})
+	}
+}
 
-	s.Run("List orders with filters", func() {
-		result, err := s.app.List(ctx, http.ListOrderRequestDto{
-			PaginationRequestDto: http.PaginationRequestDto{
-				Page:  1,
-				Limit: 10,
-			},
-			IDs:     []uuid.UUID{codOrderID},
-			UserIDs: []uuid.UUID{s.seededUserID},
-		})
-		s.Require().NoError(err)
-		s.Require().NotNil(result)
-		s.GreaterOrEqual(result.Meta.TotalItems, 1)
-	})
+func (s *OrderTestSuite) TestListOrdersWithFilters() {
+	ctx := s.T().Context()
 
-	s.Run("Create order with multiple items", func() {
-		s.vnpayPaymentService.EXPECT().
-			GetPaymentURL(mock.Anything, mock.MatchedBy(func(param application.GetPaymentURLVNPayParam) bool {
-				return param.Order.Provider == domain.PaymentProviderVNPAY
-			})).
-			Return("https://sandbox.vnpayment.vn/multi", nil).
-			Maybe() // Changed to Maybe() to avoid unmet expectation errors
+	// First create a COD order to filter by
+	s.vnpayPaymentService.AssertNotCalled(s.T(), "GetPaymentURL", mock.Anything, mock.Anything)
 
-		result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
-			Data: http.CreateOrderData{
-				RecipientName: "Multi Item Customer",
-				PhoneNumber:   "+84999888777",
-				Address:       "Multi Item Street",
-				Provider:      domain.PaymentProviderVNPAY,
-				Items: []http.CreateOrderItemData{
-					{
-						ProductID:        s.seededProductID,
-						ProductVariantID: s.seededVariantID,
-						Quantity:         2,
-					},
-					{
-						ProductID:        s.seededSecondProductID,
-						ProductVariantID: s.seededSecondVariantID,
-						Quantity:         1,
-					},
+	result, err := s.app.Create(ctx, http.CreateOrderRequestDto{
+		Data: http.CreateOrderData{
+			RecipientName: "Filter Test Customer",
+			PhoneNumber:   "+84123456789",
+			Address:       "Filter Test Street",
+			Provider:      domain.PaymentProviderCOD,
+			ReturnURL:     "https://example.com/return",
+			UserID:        s.seededUserID,
+			Items: []http.CreateOrderItemData{
+				{
+					ProductID:        s.seededProductID,
+					ProductVariantID: s.seededVariantID,
+					Quantity:         1,
 				},
-				UserID:    s.seededUserID,
-				ReturnURL: "https://example.com/return",
 			},
-		})
-		s.Require().NoError(err)
-		s.Require().NotNil(result)
-		s.Len(result.Items, 2)
-		s.Positive(result.TotalAmount)
-
-		// Verify total amount calculation
-		expectedTotal := result.Items[0].Price*int64(result.Items[0].Quantity) +
-			result.Items[1].Price*int64(result.Items[1].Quantity)
-		s.Equal(expectedTotal, result.TotalAmount)
+		},
 	})
+	s.Require().NoError(err)
+	s.Require().NotNil(result)
+	codOrderID := result.ID
+
+	listResult, err := s.app.List(ctx, http.ListOrderRequestDto{
+		PaginationRequestDto: http.PaginationRequestDto{
+			Page:  1,
+			Limit: 10,
+		},
+		IDs:     []uuid.UUID{codOrderID},
+		UserIDs: []uuid.UUID{s.seededUserID},
+	})
+	s.Require().NoError(err)
+	s.Require().NotNil(listResult)
+	s.GreaterOrEqual(listResult.Meta.TotalItems, 1)
 }
