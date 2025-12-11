@@ -93,6 +93,11 @@ func (o *Order) Create(ctx context.Context, param http.CreateOrderRequestDto) (*
 		return nil, err
 	}
 
+	err = o.orderService.Validate(*order)
+	if err != nil {
+		return nil, err
+	}
+
 	err = o.orderRepo.Save(ctx, domain.OrderRepositorySaveParam{
 		Order: *order,
 	})
@@ -260,6 +265,12 @@ func (o *Order) Update(ctx context.Context, param http.UpdateOrderRequestDto) (*
 		param.Data.Status,
 		param.Data.IsPaid,
 	)
+
+	err = o.orderService.Validate(*order)
+	if err != nil {
+		return nil, err
+	}
+
 	err = o.orderRepo.Save(ctx, domain.OrderRepositorySaveParam{
 		Order: *order,
 	})

@@ -255,8 +255,34 @@ func (s *CartTestSuite) TestCartLifecycle() {
 		s.Require().NoError(err)
 		s.Empty(cart.Items)
 	})
+}
 
-	s.Run("Security: Try to access another user's cart fails", func() {
+func (s *CartTestSuite) TestCartSecurityCases() {
+	ctx := s.T().Context()
+
+	// Setup: Create a cart with an item
+	newUserID := uuid.New()
+	cartResult, err := s.app.Create(ctx, http.CreateCartRequestDto{
+		Data: http.CreateCartData{
+			UserID: newUserID,
+		},
+	})
+	s.Require().NoError(err)
+	newCartID := cartResult.ID
+
+	itemResult, err := s.app.CreateItem(ctx, http.CreateCartItemRequestDto{
+		UserID: newUserID,
+		CartID: newCartID,
+		Data: http.CreateCartItemData{
+			ProductID:        s.seededProductID,
+			ProductVariantID: s.seededVariantID,
+			Quantity:         2,
+		},
+	})
+	s.Require().NoError(err)
+	newItemID := itemResult.ID
+
+	s.Run("Security: Try to create item in another user's cart fails", func() {
 		anotherUserID := uuid.New()
 		_, err := s.app.CreateItem(ctx, http.CreateCartItemRequestDto{
 			UserID: anotherUserID,
@@ -271,7 +297,7 @@ func (s *CartTestSuite) TestCartLifecycle() {
 		s.ErrorIs(err, domain.ErrForbidden)
 	})
 
-	s.Run("Security: Try to update another user's cart fails", func() {
+	s.Run("Security: Try to update another user's cart item fails", func() {
 		anotherUserID := uuid.New()
 		_, err := s.app.UpdateItem(ctx, http.UpdateCartItemRequestDto{
 			UserID: anotherUserID,
@@ -295,8 +321,21 @@ func (s *CartTestSuite) TestCartLifecycle() {
 		s.Require().Error(err)
 		s.ErrorIs(err, domain.ErrForbidden)
 	})
+}
 
+func (s *CartTestSuite) TestCartErrorCases() {
+	ctx := s.T().Context()
 	nonExistentID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
+	newUserID := uuid.New()
+
+	// Setup: Create a valid cart
+	cartResult, err := s.app.Create(ctx, http.CreateCartRequestDto{
+		Data: http.CreateCartData{
+			UserID: newUserID,
+		},
+	})
+	s.Require().NoError(err)
+	newCartID := cartResult.ID
 
 	s.Run("Get non-existent cart fails", func() {
 		_, err := s.app.Get(ctx, http.GetCartRequestDto{
@@ -342,43 +381,32 @@ func (s *CartTestSuite) TestCartLifecycle() {
 		})
 		s.Require().Error(err)
 	})
+}
 
-	s.Run("Test with seeded cart and items", func() {
-		result, err := s.app.Get(ctx, http.GetCartRequestDto{
-			CartID: s.seededCartID,
-		})
-		s.Require().NoError(err)
-		s.Require().NotNil(result)
-		s.Equal(s.seededUserID, result.UserID)
-		s.NotEmpty(result.Items)
+func (s *CartTestSuite) TestCartValidation() {
+	ctx := s.T().Context()
+	newUserID := uuid.New()
 
-		for _, item := range result.Items {
-			s.NotNil(item.Product.ID)
-			s.NotEmpty(item.Product.Name)
-			s.NotNil(item.ProductVariant.ID)
-			s.NotEmpty(item.ProductVariant.SKU)
-			s.Positive(item.Quantity)
-		}
-	})
-
-	s.Run("Add second different variant to test multiple items", func() {
-		_, err := s.app.CreateItem(ctx, http.CreateCartItemRequestDto{
+	// Setup: Create a cart with an item
+	cartResult, err := s.app.Create(ctx, http.CreateCartRequestDto{
+		Data: http.CreateCartData{
 			UserID: newUserID,
-			CartID: newCartID,
-			Data: http.CreateCartItemData{
-				ProductID:        s.seededProductID,
-				ProductVariantID: s.seededSecondVariantID,
-				Quantity:         3,
-			},
-		})
-		s.Require().NoError(err)
-
-		cart, err := s.app.Get(ctx, http.GetCartRequestDto{
-			CartID: newCartID,
-		})
-		s.Require().NoError(err)
-		s.Len(cart.Items, 1)
+		},
 	})
+	s.Require().NoError(err)
+	newCartID := cartResult.ID
+
+	itemResult, err := s.app.CreateItem(ctx, http.CreateCartItemRequestDto{
+		UserID: newUserID,
+		CartID: newCartID,
+		Data: http.CreateCartItemData{
+			ProductID:        s.seededProductID,
+			ProductVariantID: s.seededVariantID,
+			Quantity:         1,
+		},
+	})
+	s.Require().NoError(err)
+	newItemID := itemResult.ID
 
 	s.Run("Validation: Quantity must be positive", func() {
 		_, err := s.app.UpdateItem(ctx, http.UpdateCartItemRequestDto{
@@ -403,5 +431,71 @@ func (s *CartTestSuite) TestCartLifecycle() {
 			},
 		})
 		s.Require().Error(err)
+	})
+}
+
+func (s *CartTestSuite) TestCartWithMultipleItems() {
+	ctx := s.T().Context()
+	newUserID := uuid.New()
+
+	// Setup: Create a cart
+	cartResult, err := s.app.Create(ctx, http.CreateCartRequestDto{
+		Data: http.CreateCartData{
+			UserID: newUserID,
+		},
+	})
+	s.Require().NoError(err)
+	newCartID := cartResult.ID
+
+	s.Run("Add second different variant to test multiple items", func() {
+		_, err := s.app.CreateItem(ctx, http.CreateCartItemRequestDto{
+			UserID: newUserID,
+			CartID: newCartID,
+			Data: http.CreateCartItemData{
+				ProductID:        s.seededProductID,
+				ProductVariantID: s.seededVariantID,
+				Quantity:         3,
+			},
+		})
+		s.Require().NoError(err)
+
+		_, err = s.app.CreateItem(ctx, http.CreateCartItemRequestDto{
+			UserID: newUserID,
+			CartID: newCartID,
+			Data: http.CreateCartItemData{
+				ProductID:        s.seededProductID,
+				ProductVariantID: s.seededSecondVariantID,
+				Quantity:         2,
+			},
+		})
+		s.Require().NoError(err)
+
+		cart, err := s.app.Get(ctx, http.GetCartRequestDto{
+			CartID: newCartID,
+		})
+		s.Require().NoError(err)
+		s.Len(cart.Items, 2)
+	})
+}
+
+func (s *CartTestSuite) TestSeededCartAccess() {
+	ctx := s.T().Context()
+
+	s.Run("Test with seeded cart and items", func() {
+		result, err := s.app.Get(ctx, http.GetCartRequestDto{
+			CartID: s.seededCartID,
+		})
+		s.Require().NoError(err)
+		s.Require().NotNil(result)
+		s.Equal(s.seededUserID, result.UserID)
+		s.NotEmpty(result.Items)
+
+		for _, item := range result.Items {
+			s.NotNil(item.Product.ID)
+			s.NotEmpty(item.Product.Name)
+			s.NotNil(item.ProductVariant.ID)
+			s.NotEmpty(item.ProductVariant.SKU)
+			s.Positive(item.Quantity)
+		}
 	})
 }
