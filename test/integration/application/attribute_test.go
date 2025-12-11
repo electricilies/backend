@@ -91,6 +91,8 @@ func (s *AttributeTestSuite) TestAttributeLifecycle() {
 
 	var firstAttributeID uuid.UUID
 	var secondAttributeID uuid.UUID
+	var firstValueID uuid.UUID
+	var secondValueID uuid.UUID
 
 	s.Run("Create first attribute", func() {
 		result, err := s.app.Create(ctx, http.CreateAttributeRequestDto{
@@ -195,27 +197,10 @@ func (s *AttributeTestSuite) TestAttributeLifecycle() {
 		s.Len(result.Data, 1)
 		s.Equal(secondAttributeID, result.Data[0].ID)
 	})
-}
-
-func (s *AttributeTestSuite) TestAttributeValueLifecycle() {
-	ctx := s.T().Context()
-
-	// Setup: Create an attribute
-	attr, err := s.app.Create(ctx, http.CreateAttributeRequestDto{
-		Data: http.CreateAttributeData{
-			Code: "size",
-			Name: "Size",
-		},
-	})
-	s.Require().NoError(err)
-	attributeID := attr.ID
-
-	var firstValueID uuid.UUID
-	var secondValueID uuid.UUID
 
 	s.Run("Create first attribute value", func() {
 		result, err := s.app.CreateValue(ctx, http.CreateAttributeValueRequestDto{
-			AttributeID: attributeID,
+			AttributeID: secondAttributeID,
 			Data: http.CreateAttributeValueData{
 				Value: "Small",
 			},
@@ -228,7 +213,7 @@ func (s *AttributeTestSuite) TestAttributeValueLifecycle() {
 
 	s.Run("Create second attribute value", func() {
 		result, err := s.app.CreateValue(ctx, http.CreateAttributeValueRequestDto{
-			AttributeID: attributeID,
+			AttributeID: secondAttributeID,
 			Data: http.CreateAttributeValueData{
 				Value: "Medium",
 			},
@@ -245,7 +230,7 @@ func (s *AttributeTestSuite) TestAttributeValueLifecycle() {
 				Page:  1,
 				Limit: 10,
 			},
-			AttributeID: attributeID,
+			AttributeID: secondAttributeID,
 		})
 		s.Require().NoError(err)
 		s.Require().NotNil(result)
@@ -255,7 +240,7 @@ func (s *AttributeTestSuite) TestAttributeValueLifecycle() {
 
 	s.Run("Update attribute value", func() {
 		result, err := s.app.UpdateValue(ctx, http.UpdateAttributeValueRequestDto{
-			AttributeID:      attributeID,
+			AttributeID:      secondAttributeID,
 			AttributeValueID: firstValueID,
 			Data: http.UpdateAttributeValueData{
 				Value: "Extra Small",
@@ -268,7 +253,7 @@ func (s *AttributeTestSuite) TestAttributeValueLifecycle() {
 
 	s.Run("Delete attribute value", func() {
 		err := s.app.DeleteValue(ctx, http.DeleteAttributeValueRequestDto{
-			AttributeID:      attributeID,
+			AttributeID:      secondAttributeID,
 			AttributeValueID: secondValueID,
 		})
 		s.Require().NoError(err)
@@ -280,7 +265,7 @@ func (s *AttributeTestSuite) TestAttributeValueLifecycle() {
 				Page:  1,
 				Limit: 10,
 			},
-			AttributeID: attributeID,
+			AttributeID: secondAttributeID,
 		})
 		s.Require().NoError(err)
 		s.Require().NotNil(result)
@@ -288,10 +273,7 @@ func (s *AttributeTestSuite) TestAttributeValueLifecycle() {
 		s.Len(result.Data, 1)
 		s.Equal(firstValueID, result.Data[0].ID)
 	})
-}
 
-func (s *AttributeTestSuite) TestAttributeErrorCases() {
-	ctx := s.T().Context()
 	nonExistentID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
 
 	s.Run("Get non-existent attribute fails", func() {
@@ -346,37 +328,16 @@ func (s *AttributeTestSuite) TestAttributeErrorCases() {
 		})
 		s.Require().Error(err)
 	})
-}
 
-func (s *AttributeTestSuite) TestAttributeCacheOperations() {
-	ctx := s.T().Context()
-
-	// Setup: Create an attribute with a value
-	attr, err := s.app.Create(ctx, http.CreateAttributeRequestDto{
-		Data: http.CreateAttributeData{
-			Code: "material",
-			Name: "Material",
-		},
-	})
-	s.Require().NoError(err)
-
-	value, err := s.app.CreateValue(ctx, http.CreateAttributeValueRequestDto{
-		AttributeID: attr.ID,
-		Data: http.CreateAttributeValueData{
-			Value: "Cotton",
-		},
-	})
-	s.Require().NoError(err)
-
-	s.Run("Cache is working for Get operation", func() {
+	s.Run("Cache is working for Get", func() {
 		result1, err := s.app.Get(ctx, http.GetAttributeRequestDto{
-			AttributeID: attr.ID,
+			AttributeID: secondAttributeID,
 		})
 		s.Require().NoError(err)
 		s.Require().NotNil(result1)
 
 		result2, err := s.app.Get(ctx, http.GetAttributeRequestDto{
-			AttributeID: attr.ID,
+			AttributeID: secondAttributeID,
 		})
 		s.Require().NoError(err)
 		s.Require().NotNil(result2)
@@ -384,7 +345,7 @@ func (s *AttributeTestSuite) TestAttributeCacheOperations() {
 		s.Equal(result1.Name, result2.Name)
 	})
 
-	s.Run("Cache is working for List operation", func() {
+	s.Run("Cache is working for List", func() {
 		result1, err := s.app.List(ctx, http.ListAttributesRequestDto{
 			PaginationRequestDto: http.PaginationRequestDto{
 				Page:  1,
@@ -405,13 +366,13 @@ func (s *AttributeTestSuite) TestAttributeCacheOperations() {
 		s.Equal(result1.Meta.TotalItems, result2.Meta.TotalItems)
 	})
 
-	s.Run("Cache is working for ListValues operation", func() {
+	s.Run("Cache is working for ListValues", func() {
 		result1, err := s.app.ListValues(ctx, http.ListAttributeValuesRequestDto{
 			PaginationRequestDto: http.PaginationRequestDto{
 				Page:  1,
 				Limit: 10,
 			},
-			AttributeID: attr.ID,
+			AttributeID: secondAttributeID,
 		})
 		s.Require().NoError(err)
 		s.Require().NotNil(result1)
@@ -421,23 +382,21 @@ func (s *AttributeTestSuite) TestAttributeCacheOperations() {
 				Page:  1,
 				Limit: 10,
 			},
-			AttributeID: attr.ID,
+			AttributeID: secondAttributeID,
 		})
 		s.Require().NoError(err)
 		s.Require().NotNil(result2)
 		s.Equal(result1.Meta.TotalItems, result2.Meta.TotalItems)
 	})
 
-	s.Run("Cache is invalidated after attribute update operation", func() {
-		// Populate cache
+	s.Run("Cache is invalidated after update", func() {
 		_, err := s.app.Get(ctx, http.GetAttributeRequestDto{
-			AttributeID: attr.ID,
+			AttributeID: secondAttributeID,
 		})
 		s.Require().NoError(err)
 
-		// Update attribute
 		updated, err := s.app.Update(ctx, http.UpdateAttributeRequestDto{
-			AttributeID: attr.ID,
+			AttributeID: secondAttributeID,
 			Data: http.UpdateAttributeData{
 				Name: "Cache Invalidation Test",
 			},
@@ -445,29 +404,26 @@ func (s *AttributeTestSuite) TestAttributeCacheOperations() {
 		s.Require().NoError(err)
 		s.Equal("Cache Invalidation Test", updated.Name)
 
-		// Get again - should reflect updated data
 		result, err := s.app.Get(ctx, http.GetAttributeRequestDto{
-			AttributeID: attr.ID,
+			AttributeID: secondAttributeID,
 		})
 		s.Require().NoError(err)
 		s.Equal("Cache Invalidation Test", result.Name)
 	})
 
-	s.Run("Cache is invalidated after value update operation", func() {
-		// Populate cache
+	s.Run("Cache is invalidated after value update", func() {
 		_, err := s.app.ListValues(ctx, http.ListAttributeValuesRequestDto{
 			PaginationRequestDto: http.PaginationRequestDto{
 				Page:  1,
 				Limit: 10,
 			},
-			AttributeID: attr.ID,
+			AttributeID: secondAttributeID,
 		})
 		s.Require().NoError(err)
 
-		// Update value
 		updated, err := s.app.UpdateValue(ctx, http.UpdateAttributeValueRequestDto{
-			AttributeID:      attr.ID,
-			AttributeValueID: value.ID,
+			AttributeID:      secondAttributeID,
+			AttributeValueID: firstValueID,
 			Data: http.UpdateAttributeValueData{
 				Value: "Cache Test Value",
 			},
@@ -475,13 +431,12 @@ func (s *AttributeTestSuite) TestAttributeCacheOperations() {
 		s.Require().NoError(err)
 		s.Equal("Cache Test Value", updated.Value)
 
-		// List again - should reflect updated value
 		result, err := s.app.ListValues(ctx, http.ListAttributeValuesRequestDto{
 			PaginationRequestDto: http.PaginationRequestDto{
 				Page:  1,
 				Limit: 10,
 			},
-			AttributeID: attr.ID,
+			AttributeID: secondAttributeID,
 		})
 		s.Require().NoError(err)
 		s.Equal("Cache Test Value", result.Data[0].Value)
