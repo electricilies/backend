@@ -30,7 +30,8 @@ type OrderTestSuite struct {
 	orderRepo           domain.OrderRepository
 	vnpayPaymentService *application.MockVNPayPaymentService
 
-	// Seed data IDs from .rules/006-testing.md
+	// Seed data IDs from .rules/011-integrationtest.md
+
 	seededProductID       uuid.UUID
 	seededVariantID       uuid.UUID
 	seededSecondProductID uuid.UUID
@@ -101,7 +102,8 @@ func (s *OrderTestSuite) SetupSuite() {
 		cartRepo,
 	)
 
-	// Seed data from .rules/006-testing.md
+	// Seed data from .rules/011-integrationtest.md
+
 	s.seededProductID = uuid.MustParse("00000000-0000-7000-0000-000278469304")
 	s.seededVariantID = uuid.MustParse("00000000-0000-7000-0000-000278469308")
 	s.seededSecondProductID = uuid.MustParse("00000000-0000-7000-0000-000278469345")

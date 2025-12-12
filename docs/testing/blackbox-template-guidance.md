@@ -24,3 +24,5 @@ NOTE:
 
 - A-AL-01: Mean Attribute - Attribute Lifecycle - 01
 - Result: Pass, Fail, Untested, N/A
+
+Look at the @./applicationreport/attribute.md for real example

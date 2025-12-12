@@ -68,19 +68,27 @@ This directory contains comprehensive documentation for the backend project arch
   - Type mapping (sqlc → domain)
   - Transaction handling
 
-### 6. [Testing](./006-testing.md)
+### 6. [Unit Testing](./010-unitest.md)
 
-- **Purpose:** Testing strategies and patterns
+- **Purpose:** Testing strategies for Service and Domain layers
 - **Topics:**
-  - Mock generation with mockery
-  - Unit tests (service, application layers)
-  - Integration tests (repositories)
-  - Test containers (PostgreSQL, Redis, MinIO, Keycloak)
   - Table-driven tests
-  - Test helpers and utilities
-  - CI/CD integration
+  - Mockery usage
+  - Service layer tests (pure logic)
+  - Validator registration
+  - Parallel testing
 
-### 7. [Coding Standards](./007-coding-standards.md)
+### 7. [Integration Testing](./011-integrationtest.md)
+
+- **Purpose:** Testing strategies for Application and Repository layers
+- **Topics:**
+  - Test containers (PostgreSQL, Redis)
+  - Lifecycle testing (Create->Get->Update->Delete)
+  - Seeding data
+  - Repository integration tests
+  - Testify suite usage
+
+### 8. [Coding Standards](./007-coding-standards.md)
 
 - **Purpose:** Go style guide and best practices
 - **Topics:**
@@ -93,7 +101,7 @@ This directory contains comprehensive documentation for the backend project arch
   - Performance tips
   - Linting with golangci-lint
 
-### 8. [Database Conventions](./008-database-conventions.md)
+### 9. [Database Conventions](./008-database-conventions.md)
 
 - **Purpose:** Database schema design and SQL patterns
 - **Topics:**
@@ -107,6 +115,7 @@ This directory contains comprehensive documentation for the backend project arch
   - Transaction handling
 
 ### 100. [Business Logic Rules](./100-business-logic.md)
+
 - **Purpose:** Domain-specific business rules and workflows
 - **Topics:**
   - Soft delete strategy (CartItem is hard delete exception)
@@ -141,15 +150,16 @@ If you're new to the project:
 3. **Database:** Create migration, add sqlc queries ([008-database-conventions.md](./008-database-conventions.md))
 4. **Repository:** Implement repository with sqlc ([005-repository-layer.md](./005-repository-layer.md))
 5. **Application:** Create use cases and parameter objects ([003-application-layer.md](./003-application-layer.md))
-6. **Testing:** Add unit and integration tests ([006-testing.md](./006-testing.md))
+6. **Testing:** Add unit and integration tests ([010-unitest.md](./010-unitest.md), [011-integrationtest.md](./011-integrationtest.md))
+
 7. **Wire:** Add to dependency injection ([003-application-layer.md](./003-application-layer.md#dependency-injection))
 
 ### Writing Tests
 
-1. **Generate mocks:** Run `mockery` ([006-testing.md](./006-testing.md#mock-generation))
-2. **Unit tests:** Test services with validator ([006-testing.md](./006-testing.md#service-layer-tests))
-3. **Integration tests:** Test repositories with test containers ([006-testing.md](./006-testing.md#integration-tests))
-4. **Run tests:** `go test ./...` ([006-testing.md](./006-testing.md#running-tests))
+1. **Generate mocks:** Run `mockery` ([010-unitest.md](./010-unitest.md#mockery-usage))
+2. **Unit tests:** Test services with validator ([010-unitest.md](./010-unitest.md#service-tests))
+3. **Integration tests:** Test repositories with test containers ([011-integrationtest.md](./011-integrationtest.md))
+4. **Run tests:** `go test ./...` ([010-unitest.md](./010-unitest.md#running-tests))
 
 ### Adding Database Queries
 
@@ -247,7 +257,8 @@ When adding or modifying code:
 1. ✅ Follow naming conventions ([007-coding-standards.md](./007-coding-standards.md))
 2. ✅ Add validation tags to models ([002-domain-layer.md](./002-domain-layer.md))
 3. ✅ Map errors appropriately ([005-repository-layer.md](./005-repository-layer.md#error-mapping))
-4. ✅ Write tests for new features ([006-testing.md](./006-testing.md))
+4. ✅ Write tests for new features ([010-unitest.md](./010-unitest.md), [011-integrationtest.md](./011-integrationtest.md))
+
 5. ✅ Document exported symbols ([007-coding-standards.md](./007-coding-standards.md#comments))
 6. ✅ Run linter before commit ([007-coding-standards.md](./007-coding-standards.md#linting))
 7. ✅ Update documentation if changing patterns
@@ -257,7 +268,7 @@ When adding or modifying code:
 - **Architecture questions:** Start with [002-domain-layer.md](./002-domain-layer.md)
 - **Code style questions:** Check [007-coding-standards.md](./007-coding-standards.md)
 - **Database questions:** See [008-database-conventions.md](./008-database-conventions.md)
-- **Testing questions:** Reference [006-testing.md](./006-testing.md)
+- **Testing questions:** Reference [010-unitest.md](./010-unitest.md) and [011-integrationtest.md](./011-integrationtest.md)
 
 ---
 

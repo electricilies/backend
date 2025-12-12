@@ -1,8 +1,10 @@
 local basename = vim.fs.basename
 local env = vim.env
 local g = vim.g
-local nc_available = vim.fn.executable("nc")
-local psql_available = vim.fn.executable("psql")
+local fn = vim.fn
+
+local nc_available = fn.executable("nc")
+local psql_available = fn.executable("psql")
 
 local is_atlasgo_community = true
 
@@ -246,6 +248,7 @@ return {
               ---@type NeotestGolangOptions
               ---@diagnostic disable-next-line: missing-fields
               local adapter_opts = {
+                runner = fn.executable("gotestsum") == 1 and "gotestsum" or "go",
                 env = {
                   CGO_ENABLED = "1",
                 },
@@ -267,6 +270,34 @@ return {
               table.insert(opts.adapters, require("neotest-golang")(adapter_opts))
               return opts
             end,
+          },
+        },
+      },
+    },
+    optional = true,
+  },
+  {
+    "olimorris/codecompanion.nvim",
+    opts = {
+      memory = {
+        ["unit-test"] = {
+          description = "This context is for developing unit test (white box test)",
+          files = {
+            "./.rules/100-business-logic.md",
+            "./.rules/006-testing.md",
+            "./docs/testing/whitebox-template-guidance.md",
+            "./docs/testing/defectlog-template.md",
+            "./docs/testing/defectlog/domain.md",
+          },
+        },
+        ["integration-test"] = {
+          description = "This context is for developing integration tests (black/grey box test)",
+          files = {
+            "./.rules/100-business-logic.md",
+            "./.rules/006-testing.md",
+            "./docs/testing/blackbox-template-guidance.md",
+            "./docs/testing/defectlog-template.md",
+            "./docs/testing/defectlog/application.md",
           },
         },
       },

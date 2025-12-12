@@ -33,20 +33,23 @@ Product
 
 ### Product-Category
 
-- ✅ Every product MUST have exactly one category
-- ✅ Category cannot be null
+- Every product MUST have exactly one category
+- Category cannot be null
 
 ### Attributes vs Options
 
-- **Attributes:** For filtering/search (Material, Brand, Season)
+- **Attributes:** For filtering/search (Material, Brand, Season), can be reused across products
 - **Options:** Create variants (Size, Color)
 
 ### Variants
 
-- ✅ Each variant has unique SKU
-- ✅ Own price, quantity, images
-- ✅ Partial matrix allowed (not all combinations required)
-- ✅ Can be soft-deleted independently
+- A simple product must have exact one variant
+- A configurable product must have at least one variant
+- Variants are combinations of option values
+- Each variant has unique SKU
+- Own price, quantity, images
+- Partial matrix allowed (not all combinations required)
+- Can be soft-deleted independently
 
 **Example:**
 
@@ -62,6 +65,17 @@ Variants (partial matrix):
   ✅ L + Red
   ❌ S + Blue (not in stock, not created)
 ```
+
+### Product Images
+
+- A product must have at least one image
+- Variant isn't required to have images
+
+### Life cycle
+
+- When a product is created, it is not allowed to add more options or option values later
+- Only product variants can be created based on existing options and option values
+- Product variant can be created, updated, soft-deleted independently
 
 ### Product Metrics
 
