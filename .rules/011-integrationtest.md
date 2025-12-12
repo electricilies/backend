@@ -4,6 +4,7 @@
 
 - **Application:** Integration test, use testcontainers.
 - **Focus:** Test full lifecycles (Create->Get->Update->Delete) and side effects (Cache, DB).
+- There are some services that cannot be connected to real external systems (e.g., payment gateway). In that case, use mocking (mockery) for those external systems only.
 
 ## Best Practices
 
