@@ -1,3 +1,6 @@
+// vim: tabstop=4 shiftwidth=4:
+//go:build integration
+
 package application_test
 
 import (
