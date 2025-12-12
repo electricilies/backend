@@ -20,6 +20,7 @@ component_management:
     - component_id: business-logic
       name: Business Logic
       paths:
+        - internal/application/
         - internal/domain/
         - internal/service/
     - component_id: infrastructure
