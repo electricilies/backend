@@ -24,10 +24,6 @@ func (s *ProductTestSuite) SetupSuite() {
 	s.Require().NoError(err, "Failed to register product validators")
 }
 
-// ============================================================================
-// NewProduct Tests
-// ============================================================================
-
 func (s *ProductTestSuite) TestNewProductBoundaryValues() {
 	s.T().Parallel()
 	categoryID := uuid.New()
@@ -124,7 +120,7 @@ func (s *ProductTestSuite) TestNewProductBoundaryValues() {
 		},
 	}
 
-		for _, tc := range testcases {
+	for _, tc := range testcases {
 		s.Run(tc.name, func() {
 			product, err := domain.NewProduct(tc.prodName, tc.description, tc.categoryID)
 
@@ -138,8 +134,6 @@ func (s *ProductTestSuite) TestNewProductBoundaryValues() {
 			s.NotZero(product.UpdatedAt, tc.name)
 			s.True(product.CreatedAt.Equal(product.UpdatedAt), tc.name)
 
-			// Validate individual fields instead of whole struct
-			// Product requires variants and images to be fully valid
 			if tc.expectErr {
 				if tc.prodName == "" || len(tc.prodName) < 3 || len(tc.prodName) > 200 {
 					err := s.validate.Var(product.Name, "required,gte=3,lte=200")
@@ -164,10 +158,6 @@ func (s *ProductTestSuite) TestNewProductBoundaryValues() {
 		})
 	}
 }
-
-// ============================================================================
-// NewProductOption Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestNewProductOptionBoundaryValues() {
 	s.T().Parallel()
@@ -211,10 +201,6 @@ func (s *ProductTestSuite) TestNewProductOptionBoundaryValues() {
 		})
 	}
 }
-
-// ============================================================================
-// NewProductImage Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestNewProductImageBoundaryValues() {
 	s.T().Parallel()
@@ -264,10 +250,6 @@ func (s *ProductTestSuite) TestNewProductImageBoundaryValues() {
 		})
 	}
 }
-
-// ============================================================================
-// NewVariant Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestNewVariantBoundaryValues() {
 	s.T().Parallel()
@@ -360,10 +342,6 @@ func (s *ProductTestSuite) TestNewVariantBoundaryValues() {
 	}
 }
 
-// ============================================================================
-// CreateOptionValues Tests
-// ============================================================================
-
 func (s *ProductTestSuite) TestCreateOptionValues() {
 	s.T().Parallel()
 	testcases := []struct {
@@ -415,10 +393,6 @@ func (s *ProductTestSuite) TestCreateOptionValues() {
 		})
 	}
 }
-
-// ============================================================================
-// Product.Update Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestProductUpdate() {
 	s.T().Parallel()
@@ -542,10 +516,6 @@ func (s *ProductTestSuite) TestProductUpdate() {
 		})
 	}
 }
-
-// ============================================================================
-// Product.UpdateVariant Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestProductUpdateVariant() {
 	s.T().Parallel()
@@ -672,10 +642,6 @@ func (s *ProductTestSuite) TestProductUpdateVariant() {
 	}
 }
 
-// ============================================================================
-// Product.UpdateOption Tests
-// ============================================================================
-
 func (s *ProductTestSuite) TestProductUpdateOption() {
 	s.T().Parallel()
 	testcases := []struct {
@@ -752,10 +718,6 @@ func (s *ProductTestSuite) TestProductUpdateOption() {
 		})
 	}
 }
-
-// ============================================================================
-// Product.UpdateOptionValue Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestProductUpdateOptionValue() {
 	s.T().Parallel()
@@ -848,10 +810,6 @@ func (s *ProductTestSuite) TestProductUpdateOptionValue() {
 	}
 }
 
-// ============================================================================
-// Product.GetOptionByID Tests
-// ============================================================================
-
 func (s *ProductTestSuite) TestProductGetOptionByID() {
 	s.T().Parallel()
 	product, err := domain.NewProduct("Test Product", "Test Description", uuid.New())
@@ -891,10 +849,6 @@ func (s *ProductTestSuite) TestProductGetOptionByID() {
 		})
 	}
 }
-
-// ============================================================================
-// Product.GetOptionsByIDs Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestProductGetOptionsByIDs() {
 	s.T().Parallel()
@@ -951,10 +905,6 @@ func (s *ProductTestSuite) TestProductGetOptionsByIDs() {
 	}
 }
 
-// ============================================================================
-// Product.GetVariantByID Tests
-// ============================================================================
-
 func (s *ProductTestSuite) TestProductGetVariantByID() {
 	s.T().Parallel()
 	product, err := domain.NewProduct("Test Product", "Test Description", uuid.New())
@@ -994,10 +944,6 @@ func (s *ProductTestSuite) TestProductGetVariantByID() {
 		})
 	}
 }
-
-// ============================================================================
-// Product.UpdateMinPrice Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestProductUpdateMinPrice() {
 	s.T().Parallel()
@@ -1055,10 +1001,6 @@ func (s *ProductTestSuite) TestProductUpdateMinPrice() {
 		})
 	}
 }
-
-// ============================================================================
-// Product.AddVariantImages Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestProductAddVariantImages() {
 	s.T().Parallel()
@@ -1148,10 +1090,6 @@ func (s *ProductTestSuite) TestProductAddVariantImages() {
 	}
 }
 
-// ============================================================================
-// Product.Remove Tests
-// ============================================================================
-
 func (s *ProductTestSuite) TestProductRemove() {
 	s.T().Parallel()
 	buildURL := func(id uuid.UUID) string {
@@ -1199,10 +1137,6 @@ func (s *ProductTestSuite) TestProductRemove() {
 	}
 }
 
-// ============================================================================
-// Option.GetValueByID Tests
-// ============================================================================
-
 func (s *ProductTestSuite) TestOptionGetValueByID() {
 	s.T().Parallel()
 	option, err := domain.NewProductOption("Color")
@@ -1242,10 +1176,6 @@ func (s *ProductTestSuite) TestOptionGetValueByID() {
 		})
 	}
 }
-
-// ============================================================================
-// Option.GetValuesByIDs Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestOptionGetValuesByIDs() {
 	s.T().Parallel()
@@ -1300,10 +1230,6 @@ func (s *ProductTestSuite) TestOptionGetValuesByIDs() {
 		})
 	}
 }
-
-// ============================================================================
-// ProductVariant.DecreaseQuantity Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestProductVariantDecreaseQuantity() {
 	s.T().Parallel()
@@ -1377,10 +1303,6 @@ func (s *ProductTestSuite) TestProductVariantDecreaseQuantity() {
 		})
 	}
 }
-
-// ============================================================================
-// Product Add Methods Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestProductAddAttributeIDs() {
 	s.T().Parallel()
@@ -1490,10 +1412,6 @@ func (s *ProductTestSuite) TestOptionAddOptionValues() {
 	s.Equal("Blue", option.Values[1].Value)
 	s.Equal("Green", option.Values[2].Value)
 }
-
-// ============================================================================
-// Remove Methods Tests
-// ============================================================================
 
 func (s *ProductTestSuite) TestOptionRemove() {
 	s.T().Parallel()
