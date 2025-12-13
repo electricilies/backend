@@ -31,10 +31,7 @@ component_management:
       name: Application
       paths:
         - cmd/
-        - internal/application/
-        - internal/client/
-        - internal/delivery/
-        - internal/server/
+        - internal/
         - pkg/
     - component_id: attribute
       name: Attribute
