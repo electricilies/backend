@@ -629,12 +629,6 @@ func (s *ProductCacheInvalidationTestSuite) TestCacheInvalidation() {
 		}
 	})
 
-	// NOTE: Test "Add variant and verify cache invalidation" is intentionally omitted
-	// because adding a second variant to a simple product (product with no options)
-	// violates the productVariantStructure validation rule.
-	// Simple products must have exactly 1 variant.
-	// This functionality is covered in TestProductWithOptionsLifecycle for configurable products.
-
 	s.Run("Add images and verify cache invalidation", func() {
 		// Get product
 		product, err := s.app.Get(ctx, http_dto.GetProductRequestDto{
