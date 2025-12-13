@@ -477,13 +477,13 @@ func (p *Product) AddVariants(ctx context.Context, param http.AddProductVariants
 		return nil, err
 	}
 	_ = p.productCache.InvalidateAlls(ctx)
-	
+
 	// Reload product to get fresh data with option values populated from DB
 	refreshedProduct, err := p.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: param.ProductID})
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Find the newly added variants by SKU
 	addedVariants := make([]domain.ProductVariant, 0, len(param.Data))
 	for _, variantData := range param.Data {
@@ -494,7 +494,7 @@ func (p *Product) AddVariants(ctx context.Context, param http.AddProductVariants
 			}
 		}
 	}
-	
+
 	variantDtos := http.ToProductVariantResponseDtoList(addedVariants)
 	return &variantDtos, nil
 }
