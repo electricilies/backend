@@ -643,7 +643,8 @@ func (q *Queries) ListProductsAttributeValues(ctx context.Context, arg ListProdu
 const mergeOptionValuesProductVariantsFromTemp = `-- name: MergeOptionValuesProductVariantsFromTemp :exec
 MERGE INTO option_values_product_variants AS target
 USING temp_option_values_product_variants AS source
-  ON target.option_value_id = source.option_value_id
+  ON target.product_variant_id = source.product_variant_id
+  AND target.option_value_id = source.option_value_id
 WHEN NOT MATCHED THEN
   INSERT (
     product_variant_id,

@@ -441,15 +441,61 @@ func (p *Product) AddVariants(ctx context.Context, param http.AddProductVariants
 		if err != nil {
 			return nil, err
 		}
+		// If product has options, link variant to option values
+		if len(product.Options) > 0 && len(variantData.OptionValueIDs) > 0 {
+			optionValues := make([]domain.OptionValue, 0, len(variantData.OptionValueIDs))
+			for _, optionValueID := range variantData.OptionValueIDs {
+				// Find the option value in the product's options
+				found := false
+				for _, option := range product.Options {
+					for _, ov := range option.Values {
+						if ov.ID == optionValueID {
+							optionValues = append(optionValues, ov)
+							found = true
+							break
+						}
+					}
+					if found {
+						break
+					}
+				}
+				if !found {
+					return nil, domain.ErrNotFound
+				}
+			}
+			variant.OptionValues = optionValues
+		}
 		variants = append(variants, *variant)
 	}
 	product.AddVariants(variants...)
+	// Validate product structure after adding variants
+	if err := p.productService.Validate(*product); err != nil {
+		return nil, err
+	}
 	err = p.productRepo.Save(ctx, domain.ProductRepositorySaveParam{Product: *product})
 	if err != nil {
 		return nil, err
 	}
 	_ = p.productCache.InvalidateAlls(ctx)
-	variantDtos := http.ToProductVariantResponseDtoList(variants)
+	
+	// Reload product to get fresh data with option values populated from DB
+	refreshedProduct, err := p.productRepo.Get(ctx, domain.ProductRepositoryGetParam{ProductID: param.ProductID})
+	if err != nil {
+		return nil, err
+	}
+	
+	// Find the newly added variants by SKU
+	addedVariants := make([]domain.ProductVariant, 0, len(param.Data))
+	for _, variantData := range param.Data {
+		for _, v := range refreshedProduct.Variants {
+			if v.SKU == variantData.SKU {
+				addedVariants = append(addedVariants, v)
+				break
+			}
+		}
+	}
+	
+	variantDtos := http.ToProductVariantResponseDtoList(addedVariants)
 	return &variantDtos, nil
 }
 

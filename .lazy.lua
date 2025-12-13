@@ -280,21 +280,21 @@ return {
     "olimorris/codecompanion.nvim",
     opts = {
       memory = {
-        ["unit-test"] = {
+        ["unit test"] = {
           description = "This context is for developing unit test (white box test)",
           files = {
             "./.rules/100-business-logic.md",
-            "./.rules/006-testing.md",
+            "./.rules/010-unittest.md",
             "./docs/testing/whitebox-template-guidance.md",
             "./docs/testing/defectlog-template.md",
             "./docs/testing/defectlog/domain.md",
           },
         },
-        ["integration-test"] = {
+        ["integration test"] = {
           description = "This context is for developing integration tests (black/grey box test)",
           files = {
             "./.rules/100-business-logic.md",
-            "./.rules/006-testing.md",
+            "./.rules/011-integrationtest.md",
             "./docs/testing/blackbox-template-guidance.md",
             "./docs/testing/defectlog-template.md",
             "./docs/testing/defectlog/application.md",

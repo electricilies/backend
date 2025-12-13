@@ -68,7 +68,7 @@ This directory contains comprehensive documentation for the backend project arch
   - Type mapping (sqlc → domain)
   - Transaction handling
 
-### 6. [Unit Testing](./010-unitest.md)
+### 6. [Unit Testing](./010-unittest.md)
 
 - **Purpose:** Testing strategies for Service and Domain layers
 - **Topics:**
@@ -150,16 +150,16 @@ If you're new to the project:
 3. **Database:** Create migration, add sqlc queries ([008-database-conventions.md](./008-database-conventions.md))
 4. **Repository:** Implement repository with sqlc ([005-repository-layer.md](./005-repository-layer.md))
 5. **Application:** Create use cases and parameter objects ([003-application-layer.md](./003-application-layer.md))
-6. **Testing:** Add unit and integration tests ([010-unitest.md](./010-unitest.md), [011-integrationtest.md](./011-integrationtest.md))
+6. **Testing:** Add unit and integration tests ([010-unittest.md](./010-unittest.md), [011-integrationtest.md](./011-integrationtest.md))
 
 7. **Wire:** Add to dependency injection ([003-application-layer.md](./003-application-layer.md#dependency-injection))
 
 ### Writing Tests
 
-1. **Generate mocks:** Run `mockery` ([010-unitest.md](./010-unitest.md#mockery-usage))
-2. **Unit tests:** Test services with validator ([010-unitest.md](./010-unitest.md#service-tests))
+1. **Generate mocks:** Run `mockery` ([010-unittest.md](./010-unittest.md#mockery-usage))
+2. **Unit tests:** Test services with validator ([010-unittest.md](./010-unittest.md#service-tests))
 3. **Integration tests:** Test repositories with test containers ([011-integrationtest.md](./011-integrationtest.md))
-4. **Run tests:** `go test ./...` ([010-unitest.md](./010-unitest.md#running-tests))
+4. **Run tests:** `go test ./...` ([010-unittest.md](./010-unittest.md#running-tests))
 
 ### Adding Database Queries
 
@@ -257,7 +257,7 @@ When adding or modifying code:
 1. ✅ Follow naming conventions ([007-coding-standards.md](./007-coding-standards.md))
 2. ✅ Add validation tags to models ([002-domain-layer.md](./002-domain-layer.md))
 3. ✅ Map errors appropriately ([005-repository-layer.md](./005-repository-layer.md#error-mapping))
-4. ✅ Write tests for new features ([010-unitest.md](./010-unitest.md), [011-integrationtest.md](./011-integrationtest.md))
+4. ✅ Write tests for new features ([010-unittest.md](./010-unittest.md), [011-integrationtest.md](./011-integrationtest.md))
 
 5. ✅ Document exported symbols ([007-coding-standards.md](./007-coding-standards.md#comments))
 6. ✅ Run linter before commit ([007-coding-standards.md](./007-coding-standards.md#linting))
@@ -268,7 +268,7 @@ When adding or modifying code:
 - **Architecture questions:** Start with [002-domain-layer.md](./002-domain-layer.md)
 - **Code style questions:** Check [007-coding-standards.md](./007-coding-standards.md)
 - **Database questions:** See [008-database-conventions.md](./008-database-conventions.md)
-- **Testing questions:** Reference [010-unitest.md](./010-unitest.md) and [011-integrationtest.md](./011-integrationtest.md)
+- **Testing questions:** Reference [010-unittest.md](./010-unittest.md) and [011-integrationtest.md](./011-integrationtest.md)
 
 ---
 

@@ -8,7 +8,8 @@ Orchestrate workflows: coordinate repos + services + adapters
 
 - `<entity>.go` - Interface definition
 - `<entity>impl.go` - Implementation
-- `<entity>param.go` - Request/response DTOs
+- `<entity>requestdto.go` - Request DTOs
+- `<entity>responsedto.go` - Response DTOs
 
 ## Implementation Pattern
 
@@ -27,10 +28,10 @@ type ProductImpl struct {
     // Multiple repositories
     productRepo   domain.ProductRepository
     categoryRepo  domain.CategoryRepository
-    
+
     // Domain service
     productService domain.ProductService
-    
+
     // External adapters
     s3Client      *s3.Client
     redisClient   *redis.Client
@@ -64,7 +65,7 @@ func (a *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
     if err != nil {
         return nil, err
     }
-    
+
     // 2. Execute business logic via service
     product, err := a.productService.Create(
         param.Data.Name,
@@ -74,7 +75,7 @@ func (a *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
     if err != nil {
         return nil, err
     }
-    
+
     // 3. External operations
     for _, img := range param.Data.Images {
         _, err = a.s3Client.PutObject(ctx, &s3.PutObjectInput{
@@ -85,16 +86,16 @@ func (a *ProductImpl) Create(ctx context.Context, param CreateProductParam) (*do
             return nil, domain.ErrServiceError
         }
     }
-    
+
     // 4. Persist
     err = a.productRepo.Save(ctx, *product)
     if err != nil {
         return nil, err
     }
-    
+
     // 5. Post-operations (cache invalidation, events)
     a.redisClient.Del(ctx, "products:list")
-    
+
     return product, nil
 }
 ```
@@ -169,12 +170,12 @@ func (a *ProductImpl) List(ctx context.Context, param ListProductParam) (*Pagina
     if err != nil {
         return nil, err
     }
-    
+
     count, err := a.productRepo.Count(ctx, param.CategoryIDs, domain.DeletedExclude)
     if err != nil {
         return nil, err
     }
-    
+
     return newPagination(*products, *count, *param.Page, *param.Limit), nil
 }
 ```
@@ -191,11 +192,11 @@ func InitializeApp() (*App, error) {
         // Repositories
         repository.ProvideProduct,
         wire.Bind(new(domain.ProductRepository), new(*repository.ProductRepository)),
-        
+
         // Services
         service.ProvideProduct,
         wire.Bind(new(domain.ProductService), new(*service.Product)),
-        
+
         // Application
         application.ProvideProduct,
         wire.Bind(new(application.Product), new(*application.ProductImpl)),
