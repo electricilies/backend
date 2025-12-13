@@ -2,7 +2,8 @@
   "mcpServers": {
     "language-server": {
       "args": ["--workspace", "${CWD}", "--lsp", "gopls"],
-      "command": "mcp-language-server"
+      "command": "mcp-language-server",
+      "disabled": true
     },
     "postgres": {
       "args": ["postgres-mcp", "--access-mode=unrestricted"],
