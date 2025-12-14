@@ -1,0 +1,5 @@
+[files]
+extend-exclude = ["**/seed.sql"]
+
+[default.extend-words]
+electricilies = "electricities"
