@@ -156,6 +156,7 @@ func (s *ProductLifecycleTestSuite) TestSimpleProductLifecycle() {
 	seededAttributeID := uuid.MustParse("00000000-0000-7000-0000-000000000003")
 	seededAttributeValueID := uuid.MustParse("00000000-0000-7000-0000-000000000104")
 
+	// FIXME: DefectID: DF-P-AR-01
 	s.Run("Create simple product with single variant and no options", func() {
 		// Get upload URLs for 2 product images
 		uploadURL1, err := s.app.GetUploadImageURL(ctx)

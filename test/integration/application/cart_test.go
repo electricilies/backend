@@ -240,6 +240,7 @@ func (s *CartTestSuite) TestCartLifecycle() {
 		s.Equal(10, result.Items[0].Quantity)
 	})
 
+	// FIXME: DefectID: DF-C-DI-01
 	s.Run("Delete Item from Cart", func() {
 		err := s.app.DeleteItem(ctx, http.DeleteCartItemRequestDto{
 			UserID: newUserID,
