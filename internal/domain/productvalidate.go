@@ -16,6 +16,10 @@ func productVariantStructureValidate(fl validator.FieldLevel) bool {
 	if !ok {
 		return true
 	}
+	return ValidateProductVariantStructure(&product)
+}
+
+func ValidateProductVariantStructure(product *Product) bool {
 	if len(product.Options) == 0 { // 1, 2
 		if len(product.Variants) != 1 { // 3, 4
 			return false // 5

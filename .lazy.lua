@@ -279,7 +279,7 @@ return {
   {
     "olimorris/codecompanion.nvim",
     opts = {
-      memory = {
+      rules = {
         ["unit test"] = {
           description = "This context is for developing unit test (white box test)",
           files = {
