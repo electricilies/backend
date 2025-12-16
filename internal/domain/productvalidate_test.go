@@ -11,6 +11,7 @@ import (
 )
 
 func TestValidateProductVariantStructure_NoOptions_SingleVariant_NoOptionValues(t *testing.T) {
+	t.Parallel()
 	product := &domain.Product{
 		Options: []domain.Option{},
 		Variants: []domain.ProductVariant{
@@ -25,6 +26,7 @@ func TestValidateProductVariantStructure_NoOptions_SingleVariant_NoOptionValues(
 }
 
 func TestValidateProductVariantStructure_NoOptions_MultipleVariants(t *testing.T) {
+	t.Parallel()
 	product := &domain.Product{
 		Options: []domain.Option{},
 		Variants: []domain.ProductVariant{
@@ -37,6 +39,7 @@ func TestValidateProductVariantStructure_NoOptions_MultipleVariants(t *testing.T
 }
 
 func TestValidateProductVariantStructure_NoOptions_SingleVariant_WithOptionValues(t *testing.T) {
+	t.Parallel()
 	product := &domain.Product{
 		Options: []domain.Option{},
 		Variants: []domain.ProductVariant{
@@ -53,6 +56,7 @@ func TestValidateProductVariantStructure_NoOptions_SingleVariant_WithOptionValue
 }
 
 func TestValidateProductVariantStructure_WithOptions_MatchingOptionValues(t *testing.T) {
+	t.Parallel()
 	product := &domain.Product{
 		Options: []domain.Option{
 			{ID: uuid.New(), Name: "Color"},
@@ -80,6 +84,7 @@ func TestValidateProductVariantStructure_WithOptions_MatchingOptionValues(t *tes
 }
 
 func TestValidateProductVariantStructure_WithOptions_MismatchedOptionValues(t *testing.T) {
+	t.Parallel()
 	product := &domain.Product{
 		Options: []domain.Option{
 			{ID: uuid.New(), Name: "Color"},
@@ -99,6 +104,7 @@ func TestValidateProductVariantStructure_WithOptions_MismatchedOptionValues(t *t
 }
 
 func TestValidateProductVariantStructure_WithOptions_NoOptionValues(t *testing.T) {
+	t.Parallel()
 	product := &domain.Product{
 		Options: []domain.Option{
 			{ID: uuid.New(), Name: "Color"},
