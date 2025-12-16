@@ -22,7 +22,6 @@ func (s *AttributeTestSuite) SetupSuite() {
 }
 
 func (s *AttributeTestSuite) TestNewAttributeBoundaryValues() {
-	s.T().Parallel()
 	testcases := []struct {
 		name      string
 		code      string
@@ -131,7 +130,6 @@ func (s *AttributeTestSuite) TestNewAttributeBoundaryValues() {
 }
 
 func (s *AttributeTestSuite) TestNewAttributeValueBoundaryValues() {
-	s.T().Parallel()
 	testcases := []struct {
 		name      string
 		value     string
@@ -194,7 +192,6 @@ func (s *AttributeTestSuite) TestNewAttributeValueBoundaryValues() {
 }
 
 func (s *AttributeTestSuite) TestAttributeUpdate() {
-	s.T().Parallel()
 	testcases := []struct {
 		name           string
 		initialName    string
@@ -241,7 +238,6 @@ func (s *AttributeTestSuite) TestAttributeUpdate() {
 }
 
 func (s *AttributeTestSuite) TestAttributeUpdateValue() {
-	s.T().Parallel()
 	testcases := []struct {
 		name           string
 		setupValues    []string
@@ -309,7 +305,6 @@ func (s *AttributeTestSuite) TestAttributeUpdateValue() {
 }
 
 func (s *AttributeTestSuite) TestAttributeRemoveValue() {
-	s.T().Parallel()
 	testcases := []struct {
 		name           string
 		setupValues    []string

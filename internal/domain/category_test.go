@@ -21,7 +21,6 @@ func (s *CategoryTestSuite) SetupSuite() {
 }
 
 func (s *CategoryTestSuite) TestCategoryCreationBoundaryValues() {
-	s.T().Parallel()
 	testcases := []struct {
 		name      string
 		input     string
@@ -91,7 +90,6 @@ func (s *CategoryTestSuite) TestCategoryCreationBoundaryValues() {
 }
 
 func (s *CategoryTestSuite) TestCategoryUpdateBoundaryValues() {
-	s.T().Parallel()
 	testcases := []struct {
 		name           string
 		initialName    string

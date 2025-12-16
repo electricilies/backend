@@ -21,7 +21,6 @@ func (s *CartTestSuite) SetupSuite() {
 }
 
 func (s *CartTestSuite) TestNewCart() {
-	s.T().Parallel()
 	testcases := []struct {
 		name      string
 		userID    uuid.UUID
@@ -61,7 +60,6 @@ func (s *CartTestSuite) TestNewCart() {
 }
 
 func (s *CartTestSuite) TestNewCartItemBoundaryValues() {
-	s.T().Parallel()
 	testcases := []struct {
 		name      string
 		quantity  int
@@ -134,7 +132,6 @@ func (s *CartTestSuite) TestNewCartItemBoundaryValues() {
 }
 
 func (s *CartTestSuite) TestCartUpsertItem() {
-	s.T().Parallel()
 	testcases := []struct {
 		name          string
 		existingItems []struct {
@@ -244,7 +241,6 @@ func (s *CartTestSuite) TestCartUpsertItem() {
 }
 
 func (s *CartTestSuite) TestCartUpdateItem() {
-	s.T().Parallel()
 	testcases := []struct {
 		name             string
 		setupQuantity    int
@@ -310,7 +306,6 @@ func (s *CartTestSuite) TestCartUpdateItem() {
 }
 
 func (s *CartTestSuite) TestCartRemoveItem() {
-	s.T().Parallel()
 	testcases := []struct {
 		name           string
 		setupItems     int
@@ -369,7 +364,6 @@ func (s *CartTestSuite) TestCartRemoveItem() {
 }
 
 func (s *CartTestSuite) TestCartClearItems() {
-	s.T().Parallel()
 	s.Run("clear items from cart with items", func() {
 		cart, err := domain.NewCart(uuid.New())
 		s.Require().NoError(err)

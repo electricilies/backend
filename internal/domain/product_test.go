@@ -25,7 +25,6 @@ func (s *ProductTestSuite) SetupSuite() {
 }
 
 func (s *ProductTestSuite) TestNewProductBoundaryValues() {
-	s.T().Parallel()
 	categoryID := uuid.New()
 	testcases := []struct {
 		name        string
@@ -160,7 +159,6 @@ func (s *ProductTestSuite) TestNewProductBoundaryValues() {
 }
 
 func (s *ProductTestSuite) TestNewProductOptionBoundaryValues() {
-	s.T().Parallel()
 	testcases := []struct {
 		name      string
 		optName   string
@@ -203,7 +201,6 @@ func (s *ProductTestSuite) TestNewProductOptionBoundaryValues() {
 }
 
 func (s *ProductTestSuite) TestNewProductImageBoundaryValues() {
-	s.T().Parallel()
 	buildURL := func(id uuid.UUID) string {
 		return "https://example.com/images/" + id.String()
 	}
@@ -252,7 +249,6 @@ func (s *ProductTestSuite) TestNewProductImageBoundaryValues() {
 }
 
 func (s *ProductTestSuite) TestNewVariantBoundaryValues() {
-	s.T().Parallel()
 	testcases := []struct {
 		name      string
 		sku       string
@@ -343,7 +339,6 @@ func (s *ProductTestSuite) TestNewVariantBoundaryValues() {
 }
 
 func (s *ProductTestSuite) TestCreateOptionValues() {
-	s.T().Parallel()
 	testcases := []struct {
 		name          string
 		values        []string
@@ -395,7 +390,6 @@ func (s *ProductTestSuite) TestCreateOptionValues() {
 }
 
 func (s *ProductTestSuite) TestProductUpdate() {
-	s.T().Parallel()
 	testcases := []struct {
 		name               string
 		initialName        string
@@ -518,7 +512,6 @@ func (s *ProductTestSuite) TestProductUpdate() {
 }
 
 func (s *ProductTestSuite) TestProductUpdateVariant() {
-	s.T().Parallel()
 	testcases := []struct {
 		name             string
 		setupVariants    int
@@ -643,7 +636,6 @@ func (s *ProductTestSuite) TestProductUpdateVariant() {
 }
 
 func (s *ProductTestSuite) TestProductUpdateOption() {
-	s.T().Parallel()
 	testcases := []struct {
 		name         string
 		setupOptions []string
@@ -720,7 +712,6 @@ func (s *ProductTestSuite) TestProductUpdateOption() {
 }
 
 func (s *ProductTestSuite) TestProductUpdateOptionValue() {
-	s.T().Parallel()
 	testcases := []struct {
 		name            string
 		setupValues     []string
@@ -811,7 +802,6 @@ func (s *ProductTestSuite) TestProductUpdateOptionValue() {
 }
 
 func (s *ProductTestSuite) TestProductGetOptionByID() {
-	s.T().Parallel()
 	product, err := domain.NewProduct("Test Product", "Test Description", uuid.New())
 	s.Require().NoError(err)
 
@@ -851,7 +841,6 @@ func (s *ProductTestSuite) TestProductGetOptionByID() {
 }
 
 func (s *ProductTestSuite) TestProductGetOptionsByIDs() {
-	s.T().Parallel()
 	product, err := domain.NewProduct("Test Product", "Test Description", uuid.New())
 	s.Require().NoError(err)
 
@@ -906,7 +895,6 @@ func (s *ProductTestSuite) TestProductGetOptionsByIDs() {
 }
 
 func (s *ProductTestSuite) TestProductGetVariantByID() {
-	s.T().Parallel()
 	product, err := domain.NewProduct("Test Product", "Test Description", uuid.New())
 	s.Require().NoError(err)
 
@@ -946,7 +934,6 @@ func (s *ProductTestSuite) TestProductGetVariantByID() {
 }
 
 func (s *ProductTestSuite) TestProductUpdateMinPrice() {
-	s.T().Parallel()
 	testcases := []struct {
 		name          string
 		variantPrices []int64
@@ -1003,7 +990,6 @@ func (s *ProductTestSuite) TestProductUpdateMinPrice() {
 }
 
 func (s *ProductTestSuite) TestProductAddVariantImages() {
-	s.T().Parallel()
 	buildURL := func(id uuid.UUID) string {
 		return "https://example.com/images/" + id.String()
 	}
@@ -1091,7 +1077,6 @@ func (s *ProductTestSuite) TestProductAddVariantImages() {
 }
 
 func (s *ProductTestSuite) TestProductRemove() {
-	s.T().Parallel()
 	buildURL := func(id uuid.UUID) string {
 		return "https://example.com/images/" + id.String()
 	}
@@ -1138,7 +1123,6 @@ func (s *ProductTestSuite) TestProductRemove() {
 }
 
 func (s *ProductTestSuite) TestOptionGetValueByID() {
-	s.T().Parallel()
 	option, err := domain.NewProductOption("Color")
 	s.Require().NoError(err)
 
@@ -1178,7 +1162,6 @@ func (s *ProductTestSuite) TestOptionGetValueByID() {
 }
 
 func (s *ProductTestSuite) TestOptionGetValuesByIDs() {
-	s.T().Parallel()
 	option, err := domain.NewProductOption("Color")
 	s.Require().NoError(err)
 
@@ -1232,7 +1215,6 @@ func (s *ProductTestSuite) TestOptionGetValuesByIDs() {
 }
 
 func (s *ProductTestSuite) TestProductVariantDecreaseQuantity() {
-	s.T().Parallel()
 	testcases := []struct {
 		name                  string
 		initialQuantity       int
@@ -1305,7 +1287,6 @@ func (s *ProductTestSuite) TestProductVariantDecreaseQuantity() {
 }
 
 func (s *ProductTestSuite) TestProductAddAttributeIDs() {
-	s.T().Parallel()
 	product, err := domain.NewProduct("Test Product", "Test Description", uuid.New())
 	s.Require().NoError(err)
 
@@ -1324,7 +1305,6 @@ func (s *ProductTestSuite) TestProductAddAttributeIDs() {
 }
 
 func (s *ProductTestSuite) TestProductAddAttributeValueIDs() {
-	s.T().Parallel()
 	product, err := domain.NewProduct("Test Product", "Test Description", uuid.New())
 	s.Require().NoError(err)
 
@@ -1341,7 +1321,6 @@ func (s *ProductTestSuite) TestProductAddAttributeValueIDs() {
 }
 
 func (s *ProductTestSuite) TestProductAddOptions() {
-	s.T().Parallel()
 	product, err := domain.NewProduct("Test Product", "Test Description", uuid.New())
 	s.Require().NoError(err)
 
@@ -1358,7 +1337,6 @@ func (s *ProductTestSuite) TestProductAddOptions() {
 }
 
 func (s *ProductTestSuite) TestProductAddVariants() {
-	s.T().Parallel()
 	product, err := domain.NewProduct("Test Product", "Test Description", uuid.New())
 	s.Require().NoError(err)
 
@@ -1375,7 +1353,6 @@ func (s *ProductTestSuite) TestProductAddVariants() {
 }
 
 func (s *ProductTestSuite) TestProductAddImages() {
-	s.T().Parallel()
 	product, err := domain.NewProduct("Test Product", "Test Description", uuid.New())
 	s.Require().NoError(err)
 
@@ -1396,7 +1373,6 @@ func (s *ProductTestSuite) TestProductAddImages() {
 }
 
 func (s *ProductTestSuite) TestOptionAddOptionValues() {
-	s.T().Parallel()
 	option, err := domain.NewProductOption("Color")
 	s.Require().NoError(err)
 
@@ -1414,7 +1390,6 @@ func (s *ProductTestSuite) TestOptionAddOptionValues() {
 }
 
 func (s *ProductTestSuite) TestOptionRemove() {
-	s.T().Parallel()
 	option, err := domain.NewProductOption("Color")
 	s.Require().NoError(err)
 
@@ -1435,7 +1410,6 @@ func (s *ProductTestSuite) TestOptionRemove() {
 }
 
 func (s *ProductTestSuite) TestOptionValueRemove() {
-	s.T().Parallel()
 	values, _ := domain.CreateOptionValues([]string{"Red"})
 	optionValue := values[0]
 
@@ -1449,7 +1423,6 @@ func (s *ProductTestSuite) TestOptionValueRemove() {
 }
 
 func (s *ProductTestSuite) TestProductVariantRemove() {
-	s.T().Parallel()
 	variant, err := domain.NewVariant("SKU-001", 10000, 10)
 	s.Require().NoError(err)
 
@@ -1464,7 +1437,6 @@ func (s *ProductTestSuite) TestProductVariantRemove() {
 }
 
 func (s *ProductTestSuite) TestProductImageRemove() {
-	s.T().Parallel()
 	buildURL := func(id uuid.UUID) string {
 		return "https://example.com/images/" + id.String()
 	}

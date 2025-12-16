@@ -24,7 +24,6 @@ func (s *OrderTestSuite) SetupSuite() {
 }
 
 func (s *OrderTestSuite) TestNewOrderItemBoundaryValues() {
-	s.T().Parallel()
 	testcases := []struct {
 		name      string
 		quantity  int
@@ -125,7 +124,6 @@ func (s *OrderTestSuite) TestNewOrderItemBoundaryValues() {
 }
 
 func (s *OrderTestSuite) TestNewOrderTotalAmountCalculation() {
-	s.T().Parallel()
 	testcases := []struct {
 		name  string
 		items []struct {
@@ -236,7 +234,6 @@ func (s *OrderTestSuite) TestNewOrderTotalAmountCalculation() {
 }
 
 func (s *OrderTestSuite) TestOrderUpdate() {
-	s.T().Parallel()
 	testcases := []struct {
 		name                string
 		initialAddress      string
@@ -336,7 +333,6 @@ func (s *OrderTestSuite) TestOrderUpdate() {
 }
 
 func (s *OrderTestSuite) TestOrderStatusTransitions() {
-	s.T().Parallel()
 	testcases := []struct {
 		name          string
 		initialStatus domain.OrderStatus
