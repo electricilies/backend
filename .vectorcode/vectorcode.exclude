@@ -1,1 +1,2 @@
-database/seed-fake.sql
+**/seed.sql
+**/*.bak
