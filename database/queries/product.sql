@@ -46,23 +46,8 @@ SELECT
   products.*
 FROM
   products
-LEFT JOIN (
-  SELECT
-    categories.id AS category_id,
-    pdb.score(categories.id) AS category_score
-  FROM products
-  INNER JOIN categories
-    ON products.category_id = categories.id
-  WHERE
-    CASE
-      WHEN sqlc.arg('search')::text = '' THEN FALSE
-      ELSE (
-        categories.name ||| sqlc.arg('search')::text
-        AND categories.deleted_at IS NULL
-      )
-    END
-) AS category_scores
-  ON products.category_id = category_scores.category_id
+INNER JOIN categories
+  ON products.category_id = categories.id
 WHERE
   CASE
     WHEN sqlc.arg('id')::uuid IS NULL THEN TRUE
@@ -76,7 +61,10 @@ WHERE
   END
   AND CASE
     WHEN sqlc.arg('search')::text = '' THEN TRUE
-    ELSE products.name ||| sqlc.arg('search')::text
+    ELSE (
+      products.name ||| sqlc.arg('search')::text
+      OR categories.name ||| sqlc.arg('search')::text
+    )
   END
   AND CASE
     WHEN sqlc.arg('min_price')::decimal = 0 THEN TRUE
@@ -113,7 +101,7 @@ WHERE
   END
 ORDER BY
   CASE WHEN
-    sqlc.arg('search')::text <> '' THEN pdb.score(products.id) + category_scores.category_score + products.trending_score
+    sqlc.arg('search')::text <> '' THEN pdb.score(products.id) + pdb.score(categories.id) + products.trending_score
   END DESC,
   CASE WHEN
     sqlc.arg('sort_rating')::text = 'asc' THEN products.rating
@@ -122,10 +110,10 @@ ORDER BY
     sqlc.arg('sort_rating')::text = 'desc' THEN products.rating
   END DESC,
   CASE WHEN
-   sqlc.arg('sort_price')::text = 'asc' THEN products.price
+    sqlc.arg('sort_price')::text = 'asc' THEN products.price
   END ASC,
   CASE WHEN
-   sqlc.arg('sort_price')::text = 'desc' THEN products.price
+    sqlc.arg('sort_price')::text = 'desc' THEN products.price
   END DESC
 OFFSET sqlc.arg('offset')::integer
 LIMIT NULLIF(sqlc.arg('limit')::integer, 0);

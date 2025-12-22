@@ -440,37 +440,25 @@ SELECT
   products.id, products.name, products.description, products.price, products.views_count, products.total_purchase, products.rating, products.trending_score, products.category_id, products.created_at, products.updated_at, products.deleted_at
 FROM
   products
-LEFT JOIN (
-  SELECT
-    categories.id AS category_id,
-    pdb.score(categories.id) AS category_score
-  FROM products
-  INNER JOIN categories
-    ON products.category_id = categories.id
-  WHERE
-    CASE
-      WHEN $1::text = '' THEN FALSE
-      ELSE (
-        categories.name ||| $1::text
-        AND categories.deleted_at IS NULL
-      )
-    END
-) AS category_scores
-  ON products.category_id = category_scores.category_id
+INNER JOIN categories
+  ON products.category_id = categories.id
 WHERE
   CASE
-    WHEN $2::uuid IS NULL THEN TRUE
-    WHEN $2::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
-    ELSE products.id = $2::uuid
+    WHEN $1::uuid IS NULL THEN TRUE
+    WHEN $1::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
+    ELSE products.id = $1::uuid
   END
   AND CASE
-    WHEN $3::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
-    ELSE products.id = ANY ($3::uuid[])
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
+    ELSE products.id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $1::text = '' THEN TRUE
-    ELSE products.name ||| $1::text
+    WHEN $3::text = '' THEN TRUE
+    ELSE (
+      products.name ||| $3::text
+      OR categories.name ||| $3::text
+    )
   END
   AND CASE
     WHEN $4::decimal = 0 THEN TRUE
@@ -507,7 +495,7 @@ WHERE
   END
 ORDER BY
   CASE WHEN
-    $1::text <> '' THEN pdb.score(products.id) + category_scores.category_score + products.trending_score
+    $3::text <> '' THEN pdb.score(products.id) + pdb.score(categories.id) + products.trending_score
   END DESC,
   CASE WHEN
     $10::text = 'asc' THEN products.rating
@@ -516,19 +504,19 @@ ORDER BY
     $10::text = 'desc' THEN products.rating
   END DESC,
   CASE WHEN
-   $11::text = 'asc' THEN products.price
+    $11::text = 'asc' THEN products.price
   END ASC,
   CASE WHEN
-   $11::text = 'desc' THEN products.price
+    $11::text = 'desc' THEN products.price
   END DESC
 OFFSET $12::integer
 LIMIT NULLIF($13::integer, 0)
 `
 
 type ListProductsParams struct {
-	Search      string
 	ID          uuid.UUID
 	IDs         []uuid.UUID
+	Search      string
 	MinPrice    pgtype.Numeric
 	MaxPrice    pgtype.Numeric
 	Rating      float32
@@ -544,9 +532,9 @@ type ListProductsParams struct {
 // This is used for list, search (with filter, order), suggest
 func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]Product, error) {
 	rows, err := q.db.Query(ctx, listProducts,
-		arg.Search,
 		arg.ID,
 		arg.IDs,
+		arg.Search,
 		arg.MinPrice,
 		arg.MaxPrice,
 		arg.Rating,
