@@ -193,13 +193,19 @@ func (o *Order) enrichOrderItems(ctx context.Context, orderDto *http.OrderRespon
 }
 
 func (o *Order) List(ctx context.Context, param http.ListOrderRequestDto) (*http.PaginationResponseDto[http.OrderResponseDto], error) {
+	var statusName string
+	if param.Status != "" {
+		statusName = string(param.Status)
+	}
+
 	orders, err := o.orderRepo.List(
 		ctx,
 		domain.OrderRepositoryListParam{
-			IDs:     param.IDs,
-			Deleted: domain.DeletedExcludeParam,
-			Limit:   param.Limit,
-			Offset:  (param.Page - 1) * param.Limit,
+			IDs:        param.IDs,
+			UserIDs:    param.UserIDs,
+			StatusName: statusName,
+			Limit:      param.Limit,
+			Offset:     (param.Page - 1) * param.Limit,
 		},
 	)
 	if err != nil {
@@ -209,8 +215,9 @@ func (o *Order) List(ctx context.Context, param http.ListOrderRequestDto) (*http
 	count, err := o.orderRepo.Count(
 		ctx,
 		domain.OrderRepositoryCountParam{
-			IDs:     param.IDs,
-			Deleted: domain.DeletedExcludeParam,
+			IDs:        param.IDs,
+			UserIDs:    param.UserIDs,
+			StatusName: statusName,
 		},
 	)
 	if err != nil {

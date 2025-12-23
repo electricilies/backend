@@ -14,6 +14,7 @@ type CategoryRepository interface {
 
 	Count(
 		ctx context.Context,
+		params CategoryRepositoryCountParam,
 	) (*int, error)
 
 	Get(
@@ -28,10 +29,17 @@ type CategoryRepository interface {
 }
 
 type CategoryRepositoryListParam struct {
-	IDs    []uuid.UUID
-	Search string
-	Limit  int
-	Offset int
+	IDs     []uuid.UUID
+	Search  string
+	Deleted DeletedParam
+	Limit   int
+	Offset  int
+}
+
+type CategoryRepositoryCountParam struct {
+	IDs     []uuid.UUID
+	Search  string
+	Deleted DeletedParam
 }
 
 type CategoryRepositoryGetParam struct {

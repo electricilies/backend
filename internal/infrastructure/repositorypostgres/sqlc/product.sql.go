@@ -17,8 +17,11 @@ SELECT
   COUNT(*) AS count
 FROM
   products
+INNER JOIN categories
+  ON products.category_id = categories.id
 WHERE
   CASE
+    WHEN $1::uuid IS NULL THEN TRUE
     WHEN $1::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE products.id = $1::uuid
   END
@@ -28,26 +31,43 @@ WHERE
     ELSE products.id = ANY ($2::uuid[])
   END
   AND CASE
-    WHEN $3::decimal = 0 THEN TRUE
-    ELSE products.price >= $3::decimal
+    WHEN $3::text = '' THEN TRUE
+    ELSE (
+      products.name ||| $3::text
+      OR categories.name ||| $3::text
+    )
   END
   AND CASE
     WHEN $4::decimal = 0 THEN TRUE
-    ELSE products.price <= $4::decimal
+    ELSE products.price >= $4::decimal
   END
   AND CASE
-    WHEN $5::real = 0 THEN TRUE
-    ELSE products.rating >= $5::real
+    WHEN $5::decimal = 0 THEN TRUE
+    ELSE products.price <= $5::decimal
   END
   AND CASE
-    WHEN $6::uuid[] IS NULL THEN TRUE
-    WHEN cardinality($6::uuid[]) = 0 THEN TRUE
-    ELSE products.category_id = ANY ($6::uuid[])
+    WHEN $6::real = 0 THEN TRUE
+    ELSE products.rating >= $6::real
   END
   AND CASE
-    WHEN $7::text = 'exclude' THEN products.deleted_at IS NULL
-    WHEN $7::text = 'only' THEN products.deleted_at IS NOT NULL
-    WHEN $7::text = 'all' THEN TRUE
+    WHEN $7::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($7::uuid[]) = 0 THEN TRUE
+    ELSE products.category_id = ANY ($7::uuid[])
+  END
+  AND CASE
+    WHEN $8::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($8::uuid[]) = 0 THEN TRUE
+    ELSE EXISTS (
+      SELECT 1
+      FROM product_variants
+      WHERE product_variants.product_id = products.id
+        AND product_variants.id = ANY ($8::uuid[])
+    )
+  END
+  AND CASE
+    WHEN $9::text = 'exclude' THEN products.deleted_at IS NULL
+    WHEN $9::text = 'only' THEN products.deleted_at IS NOT NULL
+    WHEN $9::text = 'all' THEN TRUE
     ELSE products.deleted_at IS NULL
   END
 `
@@ -55,10 +75,12 @@ WHERE
 type CountProductsParams struct {
 	ID          uuid.UUID
 	IDs         []uuid.UUID
+	Search      string
 	MinPrice    pgtype.Numeric
 	MaxPrice    pgtype.Numeric
 	Rating      float32
 	CategoryIDs []uuid.UUID
+	VariantIDs  []uuid.UUID
 	Deleted     string
 }
 
@@ -66,10 +88,12 @@ func (q *Queries) CountProducts(ctx context.Context, arg CountProductsParams) (i
 	row := q.db.QueryRow(ctx, countProducts,
 		arg.ID,
 		arg.IDs,
+		arg.Search,
 		arg.MinPrice,
 		arg.MaxPrice,
 		arg.Rating,
 		arg.CategoryIDs,
+		arg.VariantIDs,
 		arg.Deleted,
 	)
 	var count int64

@@ -56,16 +56,20 @@ func (c *Category) List(ctx context.Context, param http.ListCategoryRequestDto) 
 	categories, err := c.categoryRepo.List(
 		ctx,
 		domain.CategoryRepositoryListParam{
-			Search: param.Search,
-			Limit:  param.Limit,
-			Offset: (param.Page - 1) * param.Limit,
+			Search:  param.Search,
+			Deleted: domain.DeletedExcludeParam,
+			Limit:   param.Limit,
+			Offset:  (param.Page - 1) * param.Limit,
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	count, err := c.categoryRepo.Count(ctx)
+	count, err := c.categoryRepo.Count(ctx, domain.CategoryRepositoryCountParam{
+		Search:  param.Search,
+		Deleted: domain.DeletedExcludeParam,
+	})
 	if err != nil {
 		return nil, err
 	}

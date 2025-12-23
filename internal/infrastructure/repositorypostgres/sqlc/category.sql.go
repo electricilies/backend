@@ -19,19 +19,30 @@ FROM
   categories
 WHERE
   CASE
-    WHEN $1::text = 'exclude' THEN deleted_at IS NULL
-    WHEN $1::text = 'only' THEN deleted_at IS NOT NULL
-    WHEN $1::text = 'all' THEN TRUE
+    WHEN $1::text = '' THEN TRUE
+    ELSE name ||| ($1::text)
+  END
+  AND CASE
+    WHEN $2::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($2::uuid[]) = 0 THEN TRUE
+    ELSE id = ANY ($2::uuid[])
+  END
+  AND CASE
+    WHEN $3::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $3::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $3::text = 'all' THEN TRUE
     ELSE deleted_at IS NULL
   END
 `
 
 type CountCategoriesParams struct {
+	Search  string
+	IDs     []uuid.UUID
 	Deleted string
 }
 
 func (q *Queries) CountCategories(ctx context.Context, arg CountCategoriesParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countCategories, arg.Deleted)
+	row := q.db.QueryRow(ctx, countCategories, arg.Search, arg.IDs, arg.Deleted)
 	var count int64
 	err := row.Scan(&count)
 	return count, err

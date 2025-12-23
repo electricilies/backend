@@ -123,8 +123,11 @@ SELECT
   COUNT(*) AS count
 FROM
   products
+INNER JOIN categories
+  ON products.category_id = categories.id
 WHERE
   CASE
+    WHEN sqlc.arg('id')::uuid IS NULL THEN TRUE
     WHEN sqlc.arg('id')::uuid = '00000000-0000-0000-0000-000000000000'::uuid THEN TRUE
     ELSE products.id = sqlc.arg('id')::uuid
   END
@@ -132,6 +135,13 @@ WHERE
     WHEN sqlc.arg('ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('ids')::uuid[]) = 0 THEN TRUE
     ELSE products.id = ANY (sqlc.arg('ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.arg('search')::text = '' THEN TRUE
+    ELSE (
+      products.name ||| sqlc.arg('search')::text
+      OR categories.name ||| sqlc.arg('search')::text
+    )
   END
   AND CASE
     WHEN sqlc.arg('min_price')::decimal = 0 THEN TRUE
@@ -149,6 +159,16 @@ WHERE
     WHEN sqlc.arg('category_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('category_ids')::uuid[]) = 0 THEN TRUE
     ELSE products.category_id = ANY (sqlc.arg('category_ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.arg('variant_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.arg('variant_ids')::uuid[]) = 0 THEN TRUE
+    ELSE EXISTS (
+      SELECT 1
+      FROM product_variants
+      WHERE product_variants.product_id = products.id
+        AND product_variants.id = ANY (sqlc.arg('variant_ids')::uuid[])
+    )
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN products.deleted_at IS NULL

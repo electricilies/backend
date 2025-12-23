@@ -39,8 +39,10 @@ type AttributeRepository interface {
 }
 
 type AttributeRepositoryCountParam struct {
-	IDs     []uuid.UUID
-	Deleted DeletedParam
+	IDs               []uuid.UUID
+	Search            string
+	AttributeValueIDs []uuid.UUID
+	Deleted           DeletedParam
 }
 
 type AttributeRepositoryListParam struct {
@@ -53,17 +55,21 @@ type AttributeRepositoryListParam struct {
 }
 
 type AttributeRepositoryListValuesParam struct {
-	AttributeID       uuid.UUID
-	AttributeValueIDs []uuid.UUID
-	Search            string
-	Deleted           DeletedParam
-	Limit             int
-	Offset            int
+	IDs          []uuid.UUID
+	AttributeID  uuid.UUID
+	AttributeIDs []uuid.UUID
+	Search       string
+	Deleted      DeletedParam
+	Limit        int
+	Offset       int
 }
 
 type AttributeRepositoryCountValuesParam struct {
-	AttributeID       uuid.UUID
-	AttributeValueIDs []uuid.UUID
+	IDs          []uuid.UUID
+	AttributeID  uuid.UUID
+	AttributeIDs []uuid.UUID
+	Search       string
+	Deleted      DeletedParam
 }
 
 type AttributeRepositoryGetParam struct {

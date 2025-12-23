@@ -68,6 +68,23 @@ WHERE
     ELSE id = ANY (sqlc.arg('ids')::uuid[])
   END
   AND CASE
+    WHEN sqlc.arg('search')::text = '' THEN TRUE
+    ELSE
+      name ||| sqlc.arg('search')::text
+      OR code ||| sqlc.arg('search')::text
+  END
+  AND CASE
+    WHEN sqlc.arg('attribute_value_ids')::uuid[] IS NULL THEN TRUE
+    WHEN cardinality(sqlc.arg('attribute_value_ids')::uuid[]) = 0 THEN TRUE
+    ELSE EXISTS (
+      SELECT 1
+      FROM attribute_values
+      WHERE
+        attribute_values.attribute_id = attributes.id
+        AND attribute_values.id = ANY (sqlc.arg('attribute_value_ids')::uuid[])
+    )
+  END
+  AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL
     WHEN sqlc.arg('deleted')::text = 'only' THEN deleted_at IS NOT NULL
     WHEN sqlc.arg('deleted')::text = 'all' THEN TRUE
@@ -167,6 +184,10 @@ WHERE
     WHEN sqlc.arg('attribute_ids')::uuid[] IS NULL THEN TRUE
     WHEN cardinality(sqlc.arg('attribute_ids')::uuid[]) = 0 THEN TRUE
      ELSE attribute_id = ANY (sqlc.arg('attribute_ids')::uuid[])
+  END
+  AND CASE
+    WHEN sqlc.arg('search')::text = '' THEN TRUE
+    ELSE value ||| (sqlc.arg('search')::text)
   END
   AND CASE
     WHEN sqlc.arg('deleted')::text = 'exclude' THEN deleted_at IS NULL

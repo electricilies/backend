@@ -20,9 +20,11 @@ func ProvideCategory(q *sqlc.Queries) *Category {
 	return &Category{queries: q}
 }
 
-func (r *Category) Count(ctx context.Context) (*int, error) {
+func (r *Category) Count(ctx context.Context, params domain.CategoryRepositoryCountParam) (*int, error) {
 	count, err := r.queries.CountCategories(ctx, sqlc.CountCategoriesParams{
-		Deleted: string(domain.DeletedExcludeParam),
+		Search:  params.Search,
+		IDs:     params.IDs,
+		Deleted: string(params.Deleted),
 	})
 	return ptr.To(int(count)), err
 }
@@ -34,7 +36,7 @@ func (r *Category) List(
 	categories, err := r.queries.ListCategories(ctx, sqlc.ListCategoriesParams{
 		Search:  params.Search,
 		IDs:     params.IDs,
-		Deleted: string(domain.DeletedExcludeParam),
+		Deleted: string(params.Deleted),
 		Limit:   int32(params.Limit),
 		Offset:  int32(params.Offset),
 	})

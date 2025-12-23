@@ -31,8 +31,10 @@ func (r *Attribute) Count(
 	params domain.AttributeRepositoryCountParam,
 ) (*int, error) {
 	count, err := r.queries.CountAttributes(ctx, sqlc.CountAttributesParams{
-		IDs:     params.IDs,
-		Deleted: string(params.Deleted),
+		IDs:               params.IDs,
+		Search:            params.Search,
+		AttributeValueIDs: params.AttributeValueIDs,
+		Deleted:           string(params.Deleted),
 	})
 	return ptr.To(int(count)), err
 }
@@ -86,12 +88,13 @@ func (r *Attribute) ListValues(
 	attributeValues, err := r.queries.ListAttributeValues(
 		ctx,
 		sqlc.ListAttributeValuesParams{
-			IDs:         params.AttributeValueIDs,
-			AttributeID: params.AttributeID,
-			Search:      params.Search,
-			Deleted:     string(params.Deleted),
-			Limit:       int32(params.Limit),
-			Offset:      int32(params.Offset),
+			IDs:          params.IDs,
+			AttributeID:  params.AttributeID,
+			AttributeIDs: params.AttributeIDs,
+			Search:       params.Search,
+			Deleted:      string(params.Deleted),
+			Limit:        int32(params.Limit),
+			Offset:       int32(params.Offset),
 		},
 	)
 	if err != nil {
@@ -113,9 +116,11 @@ func (r *Attribute) CountValues(
 	params domain.AttributeRepositoryCountValuesParam,
 ) (*int, error) {
 	count, err := r.queries.CountAttributeValues(ctx, sqlc.CountAttributeValuesParams{
-		IDs:         params.AttributeValueIDs,
-		Deleted:     string(domain.DeletedExcludeParam),
-		AttributeID: params.AttributeID,
+		IDs:          params.IDs,
+		AttributeID:  params.AttributeID,
+		AttributeIDs: params.AttributeIDs,
+		Search:       params.Search,
+		Deleted:      string(params.Deleted),
 	})
 	return ptr.To(int(count)), err
 }

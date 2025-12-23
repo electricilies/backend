@@ -27,10 +27,13 @@ func ProvideOrder(q *sqlc.Queries, conn *pgxpool.Pool) *Order {
 
 func (r *Order) List(ctx context.Context, params domain.OrderRepositoryListParam) (*[]domain.Order, error) {
 	orderEntities, err := r.queries.ListOrders(ctx, sqlc.ListOrdersParams{
-		IDs:        params.IDs,
-		StatusName: string(params.Status),
-		Offset:     int32(params.Offset),
-		Limit:      int32(params.Limit),
+		IDs:         params.IDs,
+		UserIDs:     params.UserIDs,
+		StatusIDs:   params.StatusIDs,
+		StatusNames: params.StatusNames,
+		StatusName:  params.StatusName,
+		Offset:      int32(params.Offset),
+		Limit:       int32(params.Limit),
 	})
 	if err != nil {
 		return nil, toDomainError(err)
@@ -111,7 +114,11 @@ func (r *Order) List(ctx context.Context, params domain.OrderRepositoryListParam
 
 func (r *Order) Count(ctx context.Context, params domain.OrderRepositoryCountParam) (*int, error) {
 	count, err := r.queries.CountOrders(ctx, sqlc.CountOrdersParams{
-		IDs: params.IDs,
+		IDs:         params.IDs,
+		UserIDs:     params.UserIDs,
+		StatusIDs:   params.StatusIDs,
+		StatusNames: params.StatusNames,
+		StatusName:  params.StatusName,
 	})
 	if err != nil {
 		return nil, toDomainError(err)

@@ -89,6 +89,7 @@ func (p *Product) List(ctx context.Context, param http.ListProductRequestDto) (*
 		ctx,
 		domain.ProductRepositoryCountParam{
 			IDs:         param.ProductIDs,
+			Search:      param.Search,
 			MinPrice:    param.MinPrice,
 			MaxPrice:    param.MaxPrice,
 			Rating:      param.Rating,

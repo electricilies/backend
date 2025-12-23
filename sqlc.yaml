@@ -47,6 +47,8 @@ sql:
           cart_ids: CartIDs
           cart_items_ids: CartItemIDs
           order_ids: OrderIDs
+          user_ids: UserIDs
+          status_ids: StatusIDs
 rules:
   - name: postgresql-query-too-costly
     message: "Query cost estimate is too high"

@@ -29,17 +29,21 @@ type OrderRepository interface {
 }
 
 type OrderRepositoryListParam struct {
-	IDs     []uuid.UUID
-	Search  string
-	Status  OrderStatus
-	Deleted DeletedParam
-	Limit   int
-	Offset  int
+	IDs         []uuid.UUID
+	UserIDs     []uuid.UUID
+	StatusIDs   []uuid.UUID
+	StatusNames []string
+	StatusName  string
+	Limit       int
+	Offset      int
 }
 
 type OrderRepositoryCountParam struct {
-	IDs     []uuid.UUID
-	Deleted DeletedParam
+	IDs         []uuid.UUID
+	UserIDs     []uuid.UUID
+	StatusIDs   []uuid.UUID
+	StatusNames []string
+	StatusName  string
 }
 
 type OrderRepositoryGetParam struct {

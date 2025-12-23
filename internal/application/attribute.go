@@ -94,6 +94,7 @@ func (a *Attribute) List(ctx context.Context, param http.ListAttributesRequestDt
 		ctx,
 		domain.AttributeRepositoryCountParam{
 			IDs:     param.AttributeIDs,
+			Search:  param.Search,
 			Deleted: param.Deleted,
 		},
 	)
@@ -149,12 +150,12 @@ func (a *Attribute) ListValues(ctx context.Context, param http.ListAttributeValu
 	attributeValues, err := a.attributeRepo.ListValues(
 		ctx,
 		domain.AttributeRepositoryListValuesParam{
-			AttributeID:       param.AttributeID,
-			AttributeValueIDs: param.AttributeValueIDs,
-			Search:            param.Search,
-			Deleted:           param.Deleted,
-			Limit:             param.Limit,
-			Offset:            (param.Page - 1) * param.Limit,
+			IDs:         param.AttributeValueIDs,
+			AttributeID: param.AttributeID,
+			Search:      param.Search,
+			Deleted:     param.Deleted,
+			Limit:       param.Limit,
+			Offset:      (param.Page - 1) * param.Limit,
 		},
 	)
 	if err != nil {
@@ -163,8 +164,10 @@ func (a *Attribute) ListValues(ctx context.Context, param http.ListAttributeValu
 	count, err := a.attributeRepo.CountValues(
 		ctx,
 		domain.AttributeRepositoryCountValuesParam{
-			AttributeID:       param.AttributeID,
-			AttributeValueIDs: param.AttributeValueIDs,
+			IDs:         param.AttributeValueIDs,
+			AttributeID: param.AttributeID,
+			Search:      param.Search,
+			Deleted:     param.Deleted,
 		},
 	)
 	if err != nil {

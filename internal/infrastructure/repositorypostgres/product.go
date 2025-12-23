@@ -68,9 +68,11 @@ func (r *Product) Count(
 ) (*int, error) {
 	productEntities, err := r.queries.CountProducts(ctx, sqlc.CountProductsParams{
 		IDs:         params.IDs,
+		Search:      params.Search,
 		MinPrice:    int64ToNumeric(params.MinPrice),
 		MaxPrice:    int64ToNumeric(params.MaxPrice),
 		Rating:      float32(params.Rating),
+		VariantIDs:  params.VariantIDs,
 		CategoryIDs: params.CategoryIDs,
 		Deleted:     string(params.Deleted),
 	})

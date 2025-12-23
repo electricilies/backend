@@ -33,9 +33,13 @@ WHERE
      ELSE attribute_id = ANY ($3::uuid[])
   END
   AND CASE
-    WHEN $4::text = 'exclude' THEN deleted_at IS NULL
-    WHEN $4::text = 'only' THEN deleted_at IS NOT NULL
-    WHEN $4::text = 'all' THEN TRUE
+    WHEN $4::text = '' THEN TRUE
+    ELSE value ||| ($4::text)
+  END
+  AND CASE
+    WHEN $5::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $5::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $5::text = 'all' THEN TRUE
     ELSE deleted_at IS NULL
   END
 `
@@ -44,6 +48,7 @@ type CountAttributeValuesParams struct {
 	IDs          []uuid.UUID
 	AttributeID  uuid.UUID
 	AttributeIDs []uuid.UUID
+	Search       string
 	Deleted      string
 }
 
@@ -52,6 +57,7 @@ func (q *Queries) CountAttributeValues(ctx context.Context, arg CountAttributeVa
 		arg.IDs,
 		arg.AttributeID,
 		arg.AttributeIDs,
+		arg.Search,
 		arg.Deleted,
 	)
 	var count int64
@@ -71,20 +77,44 @@ WHERE
     ELSE id = ANY ($1::uuid[])
   END
   AND CASE
-    WHEN $2::text = 'exclude' THEN deleted_at IS NULL
-    WHEN $2::text = 'only' THEN deleted_at IS NOT NULL
-    WHEN $2::text = 'all' THEN TRUE
+    WHEN $2::text = '' THEN TRUE
+    ELSE
+      name ||| $2::text
+      OR code ||| $2::text
+  END
+  AND CASE
+    WHEN $3::uuid[] IS NULL THEN TRUE
+    WHEN cardinality($3::uuid[]) = 0 THEN TRUE
+    ELSE EXISTS (
+      SELECT 1
+      FROM attribute_values
+      WHERE
+        attribute_values.attribute_id = attributes.id
+        AND attribute_values.id = ANY ($3::uuid[])
+    )
+  END
+  AND CASE
+    WHEN $4::text = 'exclude' THEN deleted_at IS NULL
+    WHEN $4::text = 'only' THEN deleted_at IS NOT NULL
+    WHEN $4::text = 'all' THEN TRUE
     ELSE deleted_at IS NULL
   END
 `
 
 type CountAttributesParams struct {
-	IDs     []uuid.UUID
-	Deleted string
+	IDs               []uuid.UUID
+	Search            string
+	AttributeValueIDs []uuid.UUID
+	Deleted           string
 }
 
 func (q *Queries) CountAttributes(ctx context.Context, arg CountAttributesParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countAttributes, arg.IDs, arg.Deleted)
+	row := q.db.QueryRow(ctx, countAttributes,
+		arg.IDs,
+		arg.Search,
+		arg.AttributeValueIDs,
+		arg.Deleted,
+	)
 	var count int64
 	err := row.Scan(&count)
 	return count, err

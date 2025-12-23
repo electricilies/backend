@@ -13,36 +13,75 @@ import (
 )
 
 const countOrders = `-- name: CountOrders :one
+WITH orders_with_statuses AS (
+  SELECT
+    orders.id,
+    order_statuses.name AS status_name
+  FROM
+    orders
+  INNER JOIN
+    order_statuses ON orders.status_id = order_statuses.id
+  WHERE
+    CASE
+      WHEN $4::text[] IS NULL THEN TRUE
+      WHEN cardinality($4::text[]) = 0 THEN TRUE
+      ELSE order_statuses.name = ANY ($4::text[])
+    END
+    AND CASE
+      WHEN $5::text = '' THEN TRUE
+      ELSE order_statuses.name = $5::text
+    END
+)
 SELECT
   COUNT(*) AS count
 FROM
   orders
+LEFT JOIN
+  orders_with_statuses
+    ON orders.id = orders_with_statuses.id
 WHERE
   CASE
     WHEN $1::uuid[] IS NULL THEN TRUE
     WHEN cardinality($1::uuid[]) = 0 THEN TRUE
-    ELSE id = ANY ($1::uuid[])
+    ELSE orders.id = ANY ($1::uuid[])
   END
   AND CASE
     WHEN $2::uuid[] IS NULL THEN TRUE
     WHEN cardinality($2::uuid[]) = 0 THEN TRUE
-    ELSE user_id = ANY ($2::uuid[])
+    ELSE orders.user_id = ANY ($2::uuid[])
   END
   AND CASE
     WHEN $3::uuid[] IS NULL THEN TRUE
     WHEN cardinality($3::uuid[]) = 0 THEN TRUE
-    ELSE status_id = ANY ($3::uuid[])
+    ELSE orders.status_id = ANY ($3::uuid[])
+  END
+  AND CASE
+    WHEN $4::text[] IS NULL THEN TRUE
+    WHEN cardinality($4::text[]) = 0 THEN TRUE
+    ELSE orders_with_statuses.status_name IS NOT NULL
+  END
+    AND CASE
+    WHEN $5::text = '' THEN TRUE
+    ELSE orders_with_statuses.status_name IS NOT NULL
   END
 `
 
 type CountOrdersParams struct {
-	IDs       []uuid.UUID
-	UserIds   []uuid.UUID
-	StatusIds []uuid.UUID
+	IDs         []uuid.UUID
+	UserIDs     []uuid.UUID
+	StatusIDs   []uuid.UUID
+	StatusNames []string
+	StatusName  string
 }
 
 func (q *Queries) CountOrders(ctx context.Context, arg CountOrdersParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countOrders, arg.IDs, arg.UserIds, arg.StatusIds)
+	row := q.db.QueryRow(ctx, countOrders,
+		arg.IDs,
+		arg.UserIDs,
+		arg.StatusIDs,
+		arg.StatusNames,
+		arg.StatusName,
+	)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -352,8 +391,8 @@ LIMIT NULLIF($7::integer, 0)
 
 type ListOrdersParams struct {
 	IDs         []uuid.UUID
-	UserIds     []uuid.UUID
-	StatusIds   []uuid.UUID
+	UserIDs     []uuid.UUID
+	StatusIDs   []uuid.UUID
 	StatusNames []string
 	StatusName  string
 	Offset      int32
@@ -363,8 +402,8 @@ type ListOrdersParams struct {
 func (q *Queries) ListOrders(ctx context.Context, arg ListOrdersParams) ([]Order, error) {
 	rows, err := q.db.Query(ctx, listOrders,
 		arg.IDs,
-		arg.UserIds,
-		arg.StatusIds,
+		arg.UserIDs,
+		arg.StatusIDs,
 		arg.StatusNames,
 		arg.StatusName,
 		arg.Offset,

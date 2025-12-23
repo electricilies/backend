@@ -45,9 +45,11 @@ type ProductRepositoryListParam struct {
 
 type ProductRepositoryCountParam struct {
 	IDs         []uuid.UUID
+	Search      string
 	MinPrice    int64
 	MaxPrice    int64
 	Rating      float64
+	VariantIDs  []uuid.UUID
 	CategoryIDs []uuid.UUID
 	Deleted     DeletedParam
 }
