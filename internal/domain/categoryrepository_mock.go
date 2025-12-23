@@ -38,8 +38,8 @@ func (_m *MockCategoryRepository) EXPECT() *MockCategoryRepository_Expecter {
 }
 
 // Count provides a mock function for the type MockCategoryRepository
-func (_mock *MockCategoryRepository) Count(ctx context.Context) (*int, error) {
-	ret := _mock.Called(ctx)
+func (_mock *MockCategoryRepository) Count(ctx context.Context, params CategoryRepositoryCountParam) (*int, error) {
+	ret := _mock.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Count")
@@ -47,18 +47,18 @@ func (_mock *MockCategoryRepository) Count(ctx context.Context) (*int, error) {
 
 	var r0 *int
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context) (*int, error)); ok {
-		return returnFunc(ctx)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CategoryRepositoryCountParam) (*int, error)); ok {
+		return returnFunc(ctx, params)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context) *int); ok {
-		r0 = returnFunc(ctx)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CategoryRepositoryCountParam) *int); ok {
+		r0 = returnFunc(ctx, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*int)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = returnFunc(ctx)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, CategoryRepositoryCountParam) error); ok {
+		r1 = returnFunc(ctx, params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -72,18 +72,24 @@ type MockCategoryRepository_Count_Call struct {
 
 // Count is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *MockCategoryRepository_Expecter) Count(ctx interface{}) *MockCategoryRepository_Count_Call {
-	return &MockCategoryRepository_Count_Call{Call: _e.mock.On("Count", ctx)}
+//   - params CategoryRepositoryCountParam
+func (_e *MockCategoryRepository_Expecter) Count(ctx interface{}, params interface{}) *MockCategoryRepository_Count_Call {
+	return &MockCategoryRepository_Count_Call{Call: _e.mock.On("Count", ctx, params)}
 }
 
-func (_c *MockCategoryRepository_Count_Call) Run(run func(ctx context.Context)) *MockCategoryRepository_Count_Call {
+func (_c *MockCategoryRepository_Count_Call) Run(run func(ctx context.Context, params CategoryRepositoryCountParam)) *MockCategoryRepository_Count_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
+		var arg1 CategoryRepositoryCountParam
+		if args[1] != nil {
+			arg1 = args[1].(CategoryRepositoryCountParam)
+		}
 		run(
 			arg0,
+			arg1,
 		)
 	})
 	return _c
@@ -94,7 +100,7 @@ func (_c *MockCategoryRepository_Count_Call) Return(n *int, err error) *MockCate
 	return _c
 }
 
-func (_c *MockCategoryRepository_Count_Call) RunAndReturn(run func(ctx context.Context) (*int, error)) *MockCategoryRepository_Count_Call {
+func (_c *MockCategoryRepository_Count_Call) RunAndReturn(run func(ctx context.Context, params CategoryRepositoryCountParam) (*int, error)) *MockCategoryRepository_Count_Call {
 	_c.Call.Return(run)
 	return _c
 }
